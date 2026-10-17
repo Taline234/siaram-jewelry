@@ -43,7 +43,7 @@ insert into public.products (slug, name, category, image, price) values
   ('fatima-pearl-earrings', 'Fatima & Pearl Drop Asymmetric Earrings', 'Earrings', 'images/products/fatima-pearl-earrings-1.jpg', 450),
   ('fatima-necklace', 'Fatima Necklace', 'Necklaces', 'images/products/fatima-necklace-1.jpg', 630),
   ('fatima-ring', 'Fatima Ring', 'Rings', 'images/products/fatima-ring-1.jpg', 325),
-  ('fatima-anklet', 'Fatima Anklet', 'Bracelets', 'images/products/fatima-anklet-1.jpg', 420),
+  ('fatima-anklet', 'Fatima Anklet', 'Anklets', 'images/products/fatima-anklet-1.jpg', 420),
   ('v-pendant-necklace', 'V Pendant', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg', 430),
   ('triangle-necklace', 'Triangle Necklace', 'Necklaces', 'images/products/triangle-necklace-1.jpg', 480),
   ('v-bird-necklace', 'V Bird Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg', 520),
