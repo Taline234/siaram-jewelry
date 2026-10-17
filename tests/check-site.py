@@ -9,7 +9,7 @@ Checks, for every .html page in the project root:
   - required tags exist: <title>, viewport meta, favicon link
   - SEO tags exist: meta description, canonical link, og:image
   - any JSON-LD structured data is valid JSON
-  - every page is listed in sitemap.xml
+  - every indexable page is listed in sitemap.xml (noindex pages are not)
 
 Note: WhatsApp/phone contact info is intentionally shown site-wide
 (footer contact box), so there's no longer a regression check for it.
@@ -137,10 +137,15 @@ def main():
     for filename in html_files:
         check_page(os.path.join(ROOT, filename), failures)
 
-    # every page should be listed in sitemap.xml
+    # every indexable page should be listed in sitemap.xml
     with open(os.path.join(ROOT, "sitemap.xml"), "r", encoding="utf-8") as f:
         sitemap = f.read()
     for filename in html_files:
+        with open(os.path.join(ROOT, filename), "r", encoding="utf-8") as f:
+            if '<meta name="robots" content="noindex"' in f.read():
+                if f"/{filename}</loc>" in sitemap:
+                    failures.append(f"sitemap.xml: lists noindex page {filename}")
+                continue
         loc = "/</loc>" if filename == "index.html" else f"/{filename}</loc>"
         if loc not in sitemap:
             failures.append(f"sitemap.xml: missing {filename}")
