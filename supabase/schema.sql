@@ -63,22 +63,34 @@ create table if not exists public.profiles (
   first_name              text not null,
   last_name               text not null,
   phone                   text not null,
-  date_of_birth           date not null,
+  date_of_birth           date,                       -- optional, for birthday offers
+  age_confirmed           boolean not null default false,
+  marketing_email         boolean not null default false,
+  marketing_whatsapp      boolean not null default false,
+  marketing_updated_at    timestamptz,
   created_at              timestamptz not null default now(),
   last_active_at          timestamptz not null default now(),
   inactivity_reminder_at  timestamptz,
   deletion_notice_at      timestamptz
 );
+-- Earlier versions of this file required a date of birth; the birthday is now optional.
+alter table public.profiles alter column date_of_birth drop not null;
+alter table public.profiles add column if not exists age_confirmed boolean not null default false;
+alter table public.profiles add column if not exists marketing_email boolean not null default false;
+alter table public.profiles add column if not exists marketing_whatsapp boolean not null default false;
+alter table public.profiles add column if not exists marketing_updated_at timestamptz;
 
+-- A birthday, when given, must be at least 18 years ago.
 create or replace function public.assert_adult(dob date) returns void
 language plpgsql stable as $$
 begin
-  if dob is null or dob > (current_date - interval '18 years')::date then
+  if dob is not null and dob > (current_date - interval '18 years')::date then
     raise exception 'You must be 18 or older to create an account.' using errcode = 'P0001';
   end if;
 end $$;
 
--- A profile is created with every new login; sign-up fails if the person is under 18.
+-- A profile is created with every new login. Sign-up fails unless the person confirms
+-- they are 18 or older (and any birthday they give agrees).
 create or replace function public.handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare
@@ -86,19 +98,43 @@ declare
   dob  date;
 begin
   begin
-    dob := (meta->>'date_of_birth')::date;
+    dob := nullif(meta->>'date_of_birth', '')::date;
   exception when others then
     dob := null;
   end;
+  if coalesce((meta->>'age_confirmed')::boolean, false) is not true then
+    raise exception 'You must be 18 or older to create an account.' using errcode = 'P0001';
+  end if;
   perform public.assert_adult(dob);
-  insert into public.profiles (id, first_name, last_name, phone, date_of_birth)
+  insert into public.profiles (id, first_name, last_name, phone, date_of_birth, age_confirmed,
+                               marketing_email, marketing_whatsapp, marketing_updated_at)
   values (new.id,
           coalesce(nullif(trim(meta->>'first_name'), ''), ''),
           coalesce(nullif(trim(meta->>'last_name'), ''), ''),
           coalesce(nullif(trim(meta->>'phone'), ''), ''),
-          dob);
+          dob, true,
+          coalesce((meta->>'marketing_email')::boolean, false),
+          coalesce((meta->>'marketing_whatsapp')::boolean, false),
+          now());
   return new;
 end $$;
+
+-- Customers may add or change their birthday later (still 18+), and every change to their
+-- marketing choices is time-stamped as a record of consent.
+create or replace function public.profiles_guard() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  perform public.assert_adult(new.date_of_birth);
+  if new.marketing_email is distinct from old.marketing_email
+     or new.marketing_whatsapp is distinct from old.marketing_whatsapp then
+    new.marketing_updated_at := now();
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists profiles_guard on public.profiles;
+create trigger profiles_guard before update on public.profiles
+  for each row execute function public.profiles_guard();
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
@@ -151,14 +187,15 @@ create table if not exists public.orders (
   customer_name   text not null,
   email           text not null,
   phone           text not null,
-  governorate     text not null,
-  city            text not null,
-  street          text not null,
+  fulfilment      text not null default 'delivery' check (fulfilment in ('delivery', 'collection')),
+  governorate     text,            -- empty for collection by appointment
+  city            text,
+  street          text,
   building        text,
   floor           text,
   notes           text,
   subtotal        numeric(10,2) not null,
-  delivery_fee    numeric(10,2),
+  delivery_fee    numeric(10,2),   -- paid to the courier in cash; not part of total
   voucher_code    text,
   voucher_amount  numeric(10,2) not null default 0,
   total           numeric(10,2) not null,
@@ -168,6 +205,11 @@ create table if not exists public.orders (
   age_confirmed   boolean not null,
   created_at      timestamptz not null default now()
 );
+
+alter table public.orders add column if not exists fulfilment text not null default 'delivery';
+alter table public.orders alter column governorate drop not null;
+alter table public.orders alter column city drop not null;
+alter table public.orders alter column street drop not null;
 
 create table if not exists public.order_items (
   order_id      uuid not null references public.orders (id) on delete cascade,
@@ -267,12 +309,17 @@ declare
   v_ref       text;
   v_order_id  uuid;
   v_field     text;
+  v_collect   boolean := coalesce(p->>'fulfilment', 'delivery') = 'collection';
 begin
   if coalesce((p->>'age_confirmed')::boolean, false) is not true then
     raise exception 'You must confirm you are 18 or older to order.' using errcode = 'P0001';
   end if;
 
-  foreach v_field in array array['customer_name','email','phone','governorate','city','street'] loop
+  if coalesce(p->>'fulfilment', 'delivery') not in ('delivery', 'collection') then
+    raise exception 'Please choose delivery or collection.' using errcode = 'P0001';
+  end if;
+  foreach v_field in array (case when v_collect then array['customer_name','email','phone']
+                                 else array['customer_name','email','phone','governorate','city','street'] end) loop
     if coalesce(trim(p->>v_field), '') = '' then
       raise exception 'Please fill in your %.', replace(v_field, '_', ' ') using errcode = 'P0001';
     end if;
@@ -281,12 +328,15 @@ begin
     raise exception 'Please enter a valid email address.' using errcode = 'P0001';
   end if;
 
-  select * into v_area from public.delivery_areas where governorate = p->>'governorate';
-  if not found then
-    raise exception 'We only deliver within Lebanon. Please choose your governorate.' using errcode = 'P0001';
-  end if;
-  if not v_area.accepts_orders then
-    raise exception 'Sorry, we do not currently deliver to %.', v_area.governorate using errcode = 'P0001';
+  -- Collection by appointment is free and needs no address.
+  if not v_collect then
+    select * into v_area from public.delivery_areas where governorate = p->>'governorate';
+    if not found then
+      raise exception 'We only deliver within Lebanon. Please choose your governorate.' using errcode = 'P0001';
+    end if;
+    if not v_area.accepts_orders then
+      raise exception 'Sorry, we do not currently deliver to %.', v_area.governorate using errcode = 'P0001';
+    end if;
   end if;
 
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then
@@ -294,11 +344,13 @@ begin
   end if;
 
   v_ref := 'SJ-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
-  insert into public.orders (reference, user_id, customer_name, email, phone, governorate, city, street,
+  insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
-          v_area.governorate, trim(p->>'city'), trim(p->>'street'), nullif(trim(p->>'building'), ''),
-          nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''), 0, v_area.delivery_fee, 0, true)
+          case when v_collect then 'collection' else 'delivery' end,
+          v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
+          nullif(trim(p->>'building'), ''), nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''),
+          0, v_area.delivery_fee, 0, true)
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop
@@ -318,7 +370,9 @@ begin
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
 
-  v_total := v_subtotal + coalesce(v_area.delivery_fee, 0);
+  -- The total is what the customer pays by Whish. Any delivery fee is paid to the courier
+  -- in cash, so it is not included, and a gift voucher cannot cover it.
+  v_total := v_subtotal;
 
   if coalesce(trim(p->>'voucher_code'), '') <> '' then
     v_voucher := public.usable_voucher(p->>'voucher_code', true);
@@ -341,6 +395,7 @@ begin
   return (
     select jsonb_build_object(
       'reference', o.reference, 'customer_name', o.customer_name, 'email', o.email, 'phone', o.phone,
+      'fulfilment', o.fulfilment,
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
@@ -432,7 +487,7 @@ create policy "Own order items" on public.order_items for select
 -- Customers may edit their name and phone, never their date of birth or activity dates.
 revoke insert, update, delete on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant update (first_name, last_name, phone) on public.profiles to authenticated;
+grant update (first_name, last_name, phone, date_of_birth, marketing_email, marketing_whatsapp) on public.profiles to authenticated;
 
 -- Browsers can only read orders; orders are created by the server.
 revoke insert, update, delete on public.orders, public.order_items from anon, authenticated;

@@ -4,7 +4,7 @@ import {
   rpc, sendEmail, userFromRequest, whishInstructionsHtml,
 } from '../lib/store.mjs';
 
-const FIELDS = ['customer_name', 'email', 'phone', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
+const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -16,6 +16,7 @@ export default async (req) => {
 
     const order = { items: [], age_confirmed: body.age_confirmed === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
+    order.fulfilment = order.fulfilment === 'collection' ? 'collection' : 'delivery';
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
       slug: String(i?.slug ?? '').slice(0, 80),
       quantity: Number.parseInt(i?.quantity, 10) || 0,

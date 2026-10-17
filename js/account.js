@@ -50,10 +50,13 @@ function renderSignedOut(notice = '') {
       </div>
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
       ${field('phone', 'Phone (WhatsApp)', 'type="tel" required autocomplete="tel" placeholder="+961"')}
-      ${field('date_of_birth', 'Date of birth', 'type="date" required autocomplete="bday"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
+      ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
         <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>.</span></label>
+      <p class="field-note marketing-note">Would you like to hear about new pieces and offers? (Optional)</p>
+      <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
+      <label class="check"><input type="checkbox" name="marketing_whatsapp" /> <span>Yes, by WhatsApp</span></label>
       <p class="form-msg form-error" role="alert"></p>
       <button class="btn btn-primary btn-block">Create Account</button>
     </form>
@@ -92,7 +95,7 @@ function renderSignedOut(notice = '') {
         : bad.name === 'accept' ? 'Please confirm you are 18 or older and accept our terms.'
         : 'Please fill in all fields.');
     }
-    if (!isAdult(f.date_of_birth.value)) {
+    if (f.date_of_birth.value && !isAdult(f.date_of_birth.value)) {
       return formMessage(signup, 'Sorry, you must be 18 or older to create an account.');
     }
     const button = signup.querySelector('button');
@@ -104,7 +107,9 @@ function renderSignedOut(notice = '') {
         emailRedirectTo: `${location.origin}/account.html`,
         data: {
           first_name: f.first_name.value.trim(), last_name: f.last_name.value.trim(),
-          phone: f.phone.value.trim(), date_of_birth: f.date_of_birth.value,
+          phone: f.phone.value.trim(), date_of_birth: f.date_of_birth.value || null,
+          age_confirmed: f.accept.checked,
+          marketing_email: f.marketing_email.checked, marketing_whatsapp: f.marketing_whatsapp.checked,
         },
       },
     });
@@ -282,8 +287,11 @@ async function renderDetails(panel, session, profile) {
         ${field('last_name', 'Last name', 'required')}
         ${field('phone', 'Phone (WhatsApp)', 'type="tel" required')}
         ${field('email', 'Email', 'readonly')}
-        ${field('date_of_birth', 'Date of birth', 'readonly')}
+        ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
       </div>
+      <p class="field-note marketing-note">News about new pieces and offers (you can change this at any time):</p>
+      <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
+      <label class="check"><input type="checkbox" name="marketing_whatsapp" /> <span>Yes, by WhatsApp</span></label>
       <p class="form-msg form-error" role="alert"></p>
       <button class="btn btn-primary">Save Changes</button>
     </form>
@@ -306,15 +314,24 @@ async function renderDetails(panel, session, profile) {
   details.elements.phone.value = profile?.phone || '';
   details.elements.email.value = session.user.email;
   details.elements.date_of_birth.value = profile?.date_of_birth || '';
+  details.elements.marketing_email.checked = Boolean(profile?.marketing_email);
+  details.elements.marketing_whatsapp.checked = Boolean(profile?.marketing_whatsapp);
   details.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const f = details.elements;
     if (!details.checkValidity()) return formMessage(details, 'Please fill in your name and phone.');
+    if (f.date_of_birth.value && !isAdult(f.date_of_birth.value)) {
+      return formMessage(details, 'Account holders must be 18 or older. Please check your birthday.');
+    }
     const { error } = await client.from('profiles').update({
-      first_name: details.elements.first_name.value.trim(),
-      last_name: details.elements.last_name.value.trim(),
-      phone: details.elements.phone.value.trim(),
+      first_name: f.first_name.value.trim(),
+      last_name: f.last_name.value.trim(),
+      phone: f.phone.value.trim(),
+      date_of_birth: f.date_of_birth.value || null,
+      marketing_email: f.marketing_email.checked,
+      marketing_whatsapp: f.marketing_whatsapp.checked,
     }).eq('id', session.user.id);
-    formMessage(details, error ? 'Sorry, your details could not be saved.' : 'Saved.', !error);
+    formMessage(details, error ? (/18 or older/.test(error.message) ? error.message : 'Sorry, your details could not be saved.') : 'Saved.', !error);
   });
 
   const pwd = panel.querySelector('.password-form');

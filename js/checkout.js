@@ -12,12 +12,24 @@ const field = (name, label, attrs = '') => `<label class="field"><span>${label}<
 function totals() {
   const cart = getCart();
   const subtotal = cart.reduce((sum, i) => sum + (state.products[i.slug]?.price || 0) * i.quantity, 0);
+  const collect = isCollection();
   const gov = root.querySelector('[name=governorate]')?.value;
-  const area = state.areas.find((a) => a.governorate === gov);
+  const area = collect ? null : state.areas.find((a) => a.governorate === gov);
   const fee = area ? area.delivery_fee : null;
-  const beforeVoucher = subtotal + (fee || 0);
-  const discount = state.voucher ? Math.min(state.voucher.balance, beforeVoucher) : 0;
-  return { cart, subtotal, fee, discount, total: beforeVoucher - discount, areaChosen: Boolean(area) };
+  // Delivery is paid to the courier in cash, so neither the Whish total nor a voucher covers it.
+  const discount = state.voucher ? Math.min(state.voucher.balance, subtotal) : 0;
+  return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area), collect };
+}
+
+const isCollection = () => root.querySelector('[name=fulfilment]:checked')?.value === 'collection';
+
+// Collection needs no address: hide the address fields and leave them out of validation.
+function applyFulfilment() {
+  const collect = isCollection();
+  const address = root.querySelector('.address-fields');
+  address.hidden = collect;
+  address.querySelectorAll('input, select, textarea').forEach((el) => { el.disabled = collect; });
+  renderSummary();
 }
 
 function renderSummary() {
@@ -26,12 +38,15 @@ function renderSummary() {
     const p = state.products[i.slug];
     return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}</span><span>${money(p.price * i.quantity)}</span></div>`;
   }).join('');
-  const delivery = !t.areaChosen ? 'Choose your area' : t.fee === null ? 'Confirmed after ordering' : money(t.fee);
+  const delivery = t.collect ? 'Collection by appointment is free.'
+    : !t.areaChosen ? 'Choose your area to see the delivery fee.'
+    : t.fee === null ? 'Delivery fee confirmed before dispatch, paid to the courier in cash.'
+    : `Delivery: ${money(t.fee)}, paid to the courier in cash.`;
   root.querySelector('.summary-lines').innerHTML = `${lines}
     <div class="summary-row summary-sub"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
-    <div class="summary-row"><span>Delivery</span><span>${delivery}</span></div>
     ${t.discount ? `<div class="summary-row"><span>Gift voucher</span><span>&minus;${money(t.discount)}</span></div>` : ''}
-    <div class="summary-row summary-total"><span>Total</span><span>${money(t.total)}</span></div>`;
+    <div class="summary-row summary-total"><span>To pay via Whish</span><span>${money(t.total)}</span></div>
+    <p class="summary-note">${delivery}</p>`;
 }
 
 function fillAddress(a) {
@@ -62,8 +77,15 @@ function renderForm(profile) {
         </div>
       </fieldset>
 
-      <fieldset><legend>Delivery address</legend>
-        <p class="field-note">We deliver within Lebanon only${closed.length ? `, and do not currently deliver to ${closed.map(escapeHtml).join(', ')}` : ''}.</p>
+      <fieldset><legend>Delivery or collection</legend>
+        <div class="fulfilment-options">
+          <label class="pay-option"><input type="radio" name="fulfilment" value="delivery" checked />
+            <span><strong>Delivery</strong><br />Within Lebanon${closed.length ? `, except ${closed.map(escapeHtml).join(', ')}` : ''}.
+            The delivery fee is paid to the courier in cash.</span></label>
+          <label class="pay-option"><input type="radio" name="fulfilment" value="collection" />
+            <span><strong>Collect by appointment</strong><br />Free. We'll message you to arrange a time.</span></label>
+        </div>
+        <div class="address-fields">
         ${state.addresses.length ? `<label class="field"><span>Saved addresses</span>
           <select name="saved_address">${state.addresses.map((a) =>
             `<option value="${a.id}"${a === preferred ? ' selected' : ''}>${escapeHtml(a.label || a.street)}, ${escapeHtml(a.city)}${a.is_default ? ' (preferred)' : ''}</option>`).join('')}
@@ -79,6 +101,7 @@ function renderForm(profile) {
         </div>
         <label class="field"><span>Directions or notes (optional)</span><textarea name="notes" rows="2"></textarea></label>
         ${signedIn ? '<label class="check"><input type="checkbox" name="save_address" /> <span>Save this address to my account</span></label>' : ''}
+        </div>
       </fieldset>
 
       <fieldset><legend>Gift voucher</legend>
@@ -92,13 +115,14 @@ function renderForm(profile) {
       <fieldset><legend>Payment</legend>
         <label class="pay-option"><input type="radio" name="payment" value="whish" checked />
           <span><strong>Whish</strong><br />After you place your order, send the total via Whish with your order
-          reference. We'll prepare your piece as soon as the payment arrives.</span></label>
+          reference. We'll prepare your piece as soon as the payment arrives. Gift vouchers cover jewellery, not delivery.</span></label>
       </fieldset>
 
       <fieldset class="checkout-confirm">
         ${signedIn ? '' : '<label class="check"><input type="checkbox" name="age_confirmed" required /> <span>I confirm I am 18 or older.</span></label>'}
         <label class="check"><input type="checkbox" name="accept_terms" required /> <span>I agree to the
-          <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and
+          <a href="terms.html" target="_blank">Terms &amp; Conditions</a>,
+          <a href="returns.html" target="_blank">Returns policy</a> and
           <a href="privacy.html" target="_blank">Privacy Policy</a>.</span></label>
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       </fieldset>
@@ -124,6 +148,7 @@ function renderForm(profile) {
   form.elements.saved_address?.addEventListener('change', (e) =>
     fillAddress(state.addresses.find((a) => a.id === e.target.value)));
   form.elements.governorate.addEventListener('change', renderSummary);
+  form.querySelectorAll('[name=fulfilment]').forEach((r) => r.addEventListener('change', applyFulfilment));
   form.querySelector('.voucher-apply').addEventListener('click', applyVoucher);
   form.addEventListener('submit', submit);
   renderSummary();
@@ -159,12 +184,18 @@ function showConfirmation(order) {
         ${order.whish_number ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>` : 'us &mdash; we will message you our Whish details shortly'},
         and write <strong>${escapeHtml(order.reference)}</strong> in the note.</p>
        <p>We'll prepare your order as soon as the payment arrives.</p>`
-    : '<p>Your gift voucher covers this order, so there is nothing to pay.</p>';
+    : '<p>Your gift voucher covers this order, so there is nothing to pay by Whish.</p>';
+  const handover = order.fulfilment === 'collection'
+    ? '<p>You chose free collection by appointment. We\'ll message you to arrange a time.</p>'
+    : `<p>${order.delivery_fee === null || order.delivery_fee === undefined
+        ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the courier in cash.'
+        : `The delivery fee of ${money(order.delivery_fee)} is paid to the courier in cash.`}</p>`;
   root.innerHTML = `<div class="order-done">
     <span class="eyebrow">Order received</span>
     <h2>Thank you, ${escapeHtml(order.customer_name.split(' ')[0])}!</h2>
     <p class="order-ref">Your order reference is <strong>${escapeHtml(order.reference)}</strong></p>
     ${toPay}
+    ${handover}
     <p>A confirmation has been sent to ${escapeHtml(order.email)}.</p>
     <a href="shop.html" class="btn btn-outline">Continue Shopping</a>
   </div>`;

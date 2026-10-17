@@ -76,7 +76,7 @@ await page.waitForSelector('form.checkout-layout');
 const govs = await page.locator('[name=governorate] option').allTextContents();
 assert.ok(!govs.includes('South'), 'South is not offered');
 assert.ok(govs.includes('Nabatieh') && govs.includes('Beirut'));
-assert.match(await page.locator('.checkout-main').textContent(), /do not currently deliver to South/);
+assert.match(await page.locator('.checkout-main').textContent(), /Within Lebanon, except South/);
 step('checkout lists Lebanese governorates without South');
 
 await page.fill('[name=customer_name]', 'Lea Saab');
@@ -93,8 +93,9 @@ step('expired gift voucher is refused at checkout');
 await page.fill('[name=voucher_code]', 'siaram-good-0001');
 await page.click('.voucher-apply');
 await page.waitForFunction(() => /Voucher applied/.test(document.querySelector('.voucher-msg').textContent));
-assert.match(await page.locator('.summary-total').textContent(), /\$75\.00/);
-step('valid voucher applied: 120 + 5 delivery - 50 = 75');
+assert.match(await page.locator('.summary-total').textContent(), /To pay via Whish\s*\$70\.00/);
+assert.match(await page.locator('.summary-note').textContent(), /Delivery: \$5\.00, paid to the courier in cash/);
+step('valid voucher applied to the jewellery: 120 - 50 = 70 by Whish, $5 delivery paid to the courier');
 
 await page.check('[name=accept_terms]');
 await page.click('button[type=submit]');
@@ -107,12 +108,15 @@ await page.click('button[type=submit]');
 await page.waitForSelector('.order-done');
 const doneText = await page.locator('.order-done').textContent();
 const ref = doneText.match(/SJ-[0-9A-F]{6}/)[0];
-assert.match(doneText, /\$75\.00/);
+assert.match(doneText, /\$70\.00/);
+assert.match(doneText, /delivery fee of \$5\.00 is paid to the courier in cash/);
 assert.match(doneText, /\+961 76 052 068/);
 await shot('order-confirmation');
 const [guestOrder] = await q('select * from orders where reference = $1', [ref]);
 assert.equal(guestOrder.user_id, null);
-assert.equal(Number(guestOrder.total), 75);
+assert.equal(Number(guestOrder.total), 70);
+assert.equal(Number(guestOrder.delivery_fee), 5);
+assert.equal(guestOrder.fulfilment, 'delivery');
 assert.equal(Number((await q("select balance from gift_vouchers where code = 'SIARAM-GOOD-0001'"))[0].balance), 0);
 let { emails } = await setState({});
 assert.deepEqual(emails.map((e) => e.to[0]).sort(), ['customerservice@siaramjewelry.com', 'lea@example.com']);
@@ -123,27 +127,37 @@ step(`guest order ${ref} saved, voucher used, emails to shop + customer, cart em
 // ------------------------------------------------ accounts
 await page.goto(`${ORIGIN}/account.html`);
 await page.waitForSelector('[data-form=signup]');
-const signup = async (dob) => {
+const signup = async (dob, { accept = true, whatsapp = false } = {}) => {
   await page.fill('[data-form=signup] [name=first_name]', 'Rana');
   await page.fill('[data-form=signup] [name=last_name]', 'Haddad');
   await page.fill('[data-form=signup] [name=email]', 'rana@example.com');
   await page.fill('[data-form=signup] [name=phone]', '+961 70 000 000');
   await page.fill('[data-form=signup] [name=date_of_birth]', dob);
   await page.fill('[data-form=signup] [name=password]', 'correct-horse');
-  await page.check('[data-form=signup] [name=accept]');
+  await page.setChecked('[data-form=signup] [name=accept]', accept);
+  await page.setChecked('[data-form=signup] [name=marketing_whatsapp]', whatsapp);
   await page.click('[data-form=signup] button');
 };
+await signup('', { accept: false });
+await page.waitForFunction(() => /confirm you are 18 or older/.test(document.querySelector('[data-form=signup] .form-msg').textContent));
+step('sign-up needs the "I am 18 or older" box');
+
 const teen = new Date(); teen.setFullYear(teen.getFullYear() - 16);
 await signup(teen.toISOString().slice(0, 10));
 await page.waitForFunction(() => /18 or older/.test(document.querySelector('[data-form=signup] .form-msg').textContent));
 assert.equal((await q("select count(*)::int as n from auth.users where email = 'rana@example.com'"))[0].n, 0);
 await shot('account-signed-out');
-step('under-18 sign-up refused');
+step('under-18 birthday refused at sign-up');
 
-await signup('1995-04-02');
+await signup('', { whatsapp: true });
 await page.waitForSelector('.account-tabs');
 assert.match(await page.locator('.account-head h2').textContent(), /Hello, Rana/);
-step('adult sign-up creates account and signs in');
+const [newProfile] = await q("select * from profiles where first_name = 'Rana'");
+assert.equal(newProfile.date_of_birth, null);
+assert.equal(newProfile.age_confirmed, true);
+assert.equal(newProfile.marketing_email, false);
+assert.equal(newProfile.marketing_whatsapp, true);
+step('sign-up without a birthday works; WhatsApp opt-in saved, email left off');
 
 await page.click('.account-tabs >> text=Addresses');
 await page.waitForSelector('.address-form');
@@ -176,14 +190,19 @@ assert.equal(await page.inputValue('[name=customer_name]'), 'Rana Haddad');
 assert.equal(await page.inputValue('[name=email]'), 'rana@example.com');
 assert.equal(await page.inputValue('[name=governorate]'), 'Mount Lebanon');
 assert.equal(await page.locator('[name=age_confirmed]').count(), 0);
+await page.check('[name=fulfilment][value=collection]');
+assert.equal(await page.locator('.address-fields').isHidden(), true);
+assert.match(await page.locator('.summary-note').textContent(), /Collection by appointment is free/);
 await page.check('[name=accept_terms]');
 await page.click('button[type=submit]');
 await page.waitForSelector('.order-done');
+assert.match(await page.locator('.order-done').textContent(), /free collection by appointment/);
 const ref2 = (await page.locator('.order-done').textContent()).match(/SJ-[0-9A-F]{6}/)[0];
 const [memberOrder] = await q('select o.*, p.first_name from orders o join profiles p on p.id = o.user_id where reference = $1', [ref2]);
 assert.equal(memberOrder.first_name, 'Rana');
 assert.equal(Number(memberOrder.total), 85);
-step(`signed-in checkout prefilled from profile + preferred address; order ${ref2} linked to account`);
+assert.equal(memberOrder.fulfilment, 'collection');
+step(`signed-in checkout prefilled from profile + preferred address; collection order ${ref2} linked to account`);
 
 await page.goto(`${ORIGIN}/account.html#orders`);
 await page.waitForSelector('.order-card');
@@ -194,12 +213,20 @@ step('order history shows the order and its status');
 
 await page.goto(`${ORIGIN}/account.html#details`);
 await page.waitForSelector('.details-form');
-assert.equal(await page.locator('.details-form [name=date_of_birth]').getAttribute('readonly'), '');
+assert.equal(await page.isChecked('.details-form [name=marketing_whatsapp]'), true);
+await page.fill('.details-form [name=date_of_birth]', teen.toISOString().slice(0, 10));
+await page.click('.details-form button');
+await page.waitForFunction(() => /18 or older/.test(document.querySelector('.details-form .form-msg').textContent));
 await page.fill('.details-form [name=phone]', '+961 70 999 999');
+await page.fill('.details-form [name=date_of_birth]', '1995-04-02');
+await page.uncheck('.details-form [name=marketing_whatsapp]');
+await page.check('.details-form [name=marketing_email]');
 await page.click('.details-form button');
 await page.waitForFunction(() => document.querySelector('.details-form .form-msg').textContent === 'Saved.');
-assert.equal((await q("select phone from profiles where first_name = 'Rana'"))[0].phone, '+961 70 999 999');
-step('customer can update their details; date of birth is read-only');
+const [edited] = await q("select phone, to_char(date_of_birth, 'YYYY-MM-DD') as dob, marketing_email, marketing_whatsapp, marketing_updated_at from profiles where first_name = 'Rana'");
+assert.deepEqual([edited.phone, edited.dob, edited.marketing_email, edited.marketing_whatsapp], ['+961 70 999 999', '1995-04-02', true, false]);
+assert.ok(edited.marketing_updated_at);
+step('customer can update details, add a birthday and change marketing choices');
 
 await page.click('.sign-out');
 await page.waitForSelector('[data-form=signin]');

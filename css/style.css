@@ -1205,3 +1205,7 @@ legend {
   .auth-card { padding: 24px 20px; }
   .nav-store { gap: 10px; }
 }
+.fulfilment-options { display: grid; gap: 12px; margin-bottom: 20px; }
+.fulfilment-options .pay-option { border-color: var(--line); cursor: pointer; }
+.fulfilment-options .pay-option:has(input:checked) { border-color: var(--gold); }
+.address-fields[hidden] { display: none; }

@@ -121,8 +121,11 @@ export function orderSummaryHtml(order) {
     .map((i) => `<tr><td style="padding:6px 0">${escapeHtml(i.name)} &times; ${i.quantity}</td>
       <td align="right" style="padding:6px 0">${money(i.unit_price * i.quantity)}</td></tr>`)
     .join('');
-  const delivery = order.delivery_fee === null || order.delivery_fee === undefined
-    ? 'To be confirmed' : money(order.delivery_fee);
+  const collection = order.fulfilment === 'collection';
+  const delivery = collection ? 'Collection by appointment (free)'
+    : order.delivery_fee === null || order.delivery_fee === undefined
+      ? 'Confirmed before dispatch, paid to the courier in cash'
+      : `${money(order.delivery_fee)}, paid to the courier in cash`;
   const voucher = Number(order.voucher_amount) > 0
     ? `<tr><td style="padding:6px 0">Gift voucher ${escapeHtml(order.voucher_code)}</td>
        <td align="right" style="padding:6px 0">&minus;${money(order.voucher_amount)}</td></tr>` : '';
@@ -131,11 +134,13 @@ export function orderSummaryHtml(order) {
   return `<table role="presentation" width="100%" style="font-size:15px;border-top:1px solid #e3dccd;border-bottom:1px solid #e3dccd;margin:8px 0 18px">
 ${rows}
 <tr><td style="padding:6px 0;border-top:1px solid #e3dccd">Subtotal</td><td align="right" style="padding:6px 0;border-top:1px solid #e3dccd">${money(order.subtotal)}</td></tr>
-<tr><td style="padding:6px 0">Delivery</td><td align="right" style="padding:6px 0">${delivery}</td></tr>
 ${voucher}
-<tr><td style="padding:8px 0;font-weight:bold">Total to pay</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
+<tr><td style="padding:8px 0;font-weight:bold">To pay via Whish</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
+<tr><td style="padding:6px 0;color:#6b6b5f">${collection ? 'Collection' : 'Delivery'}</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
-<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}</p>
+<p style="font-size:15px;line-height:1.6;margin:0 0 6px">${collection
+    ? `<strong>Collection by appointment:</strong> ${escapeHtml(order.customer_name)}. We will message you to arrange a time.`
+    : `<strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}`}</p>
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Phone:</strong> ${escapeHtml(order.phone)} &nbsp; <strong>Email:</strong> ${escapeHtml(order.email)}</p>
 ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Notes:</strong> ${escapeHtml(order.notes)}</p>` : ''}`;
 }
