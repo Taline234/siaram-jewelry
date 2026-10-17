@@ -1230,3 +1230,42 @@ legend {
   font-family: var(--font-serif); font-size: 1.08rem; font-style: italic; color: var(--green-mid);
 }
 .collection-intro:empty { display: none; }
+
+/* ---------------- Custom pieces ---------------- */
+.custom-hero { text-align: center; padding: 72px 0 64px; }
+.custom-hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.4rem); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--green-deep); margin: 12px 0 22px;
+}
+.custom-hero p {
+  max-width: 680px; margin: 0 auto; font-family: var(--font-serif); font-size: 1.15rem;
+  line-height: 1.8; color: var(--green-mid);
+}
+.custom-rule { display: block; width: 120px; height: 1px; background: var(--gold); margin: 40px auto 0; }
+.custom-steps {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;
+}
+.step-num { font-family: var(--font-sans); font-size: 0.85rem; letter-spacing: 0.08em; color: var(--gold); }
+.custom-steps h2 {
+  font-size: 1.25rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green-deep);
+  margin: 18px 0 16px;
+}
+.custom-steps p { font-family: var(--font-serif); font-size: 1.08rem; line-height: 1.75; color: #4a4a3f; margin: 0; }
+.custom-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.custom-gallery figure { margin: 0; }
+.custom-gallery img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
+.custom-gallery figcaption {
+  margin-top: 12px; text-align: center; font-family: var(--font-sans); font-size: 0.75rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--green-mid);
+}
+.custom-actions { justify-content: flex-start; margin: 26px 0 18px; }
+@media (max-width: 860px) {
+  .custom-steps { grid-template-columns: 1fr; gap: 36px; }
+  .custom-gallery { grid-template-columns: 1fr 1fr; }
+  .custom-gallery figure:last-child { grid-column: span 2; max-width: 50%; justify-self: center; }
+}
+
+.help-answers a { color: var(--green-deep); text-decoration: underline; text-decoration-color: var(--gold-soft); text-underline-offset: 3px; }
+.help-answers a:hover { color: var(--gold); }
+.custom-enquire .field-note a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
