@@ -7,6 +7,9 @@ Checks, for every .html page in the project root:
   - all images (src) point to files that actually exist
   - all images have non-empty alt text
   - required tags exist: <title>, viewport meta, favicon link
+  - SEO tags exist: meta description, canonical link, og:image
+  - any JSON-LD structured data is valid JSON
+  - every page is listed in sitemap.xml
 
 Note: WhatsApp/phone contact info is intentionally shown site-wide
 (footer contact box), so there's no longer a regression check for it.
@@ -18,6 +21,7 @@ Run it any time after editing the site:
 Exits with code 0 if everything passes, 1 if anything fails.
 """
 
+import json
 import os
 import re
 import sys
@@ -81,6 +85,21 @@ def check_page(path: str, all_failures: list):
     if not parser.has_favicon:
         all_failures.append(f"{rel_path}: missing favicon <link rel=\"icon\">")
 
+    # SEO / sharing tags
+    for pattern, label in (
+        (r'<meta name="description" content="[^"]+"', "meta description"),
+        (r'<link rel="canonical" href="https://', "canonical link"),
+        (r'<meta property="og:image" content="https://', "og:image"),
+    ):
+        if not re.search(pattern, content):
+            all_failures.append(f"{rel_path}: missing {label}")
+
+    for block in re.findall(r'<script type="application/ld\+json">(.*?)</script>', content, re.S):
+        try:
+            json.loads(block)
+        except ValueError as e:
+            all_failures.append(f"{rel_path}: invalid JSON-LD ({e})")
+
     page_dir = os.path.dirname(path)
 
     for href, line in parser.links:
@@ -117,6 +136,14 @@ def main():
     failures = []
     for filename in html_files:
         check_page(os.path.join(ROOT, filename), failures)
+
+    # every page should be listed in sitemap.xml
+    with open(os.path.join(ROOT, "sitemap.xml"), "r", encoding="utf-8") as f:
+        sitemap = f.read()
+    for filename in html_files:
+        loc = "/</loc>" if filename == "index.html" else f"/{filename}</loc>"
+        if loc not in sitemap:
+            failures.append(f"sitemap.xml: missing {filename}")
 
     print(f"Checked {len(html_files)} page(s): {', '.join(html_files)}\n")
 

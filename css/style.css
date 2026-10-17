@@ -363,6 +363,142 @@ section { padding: 96px 0; }
 
 .product-body .btn-contact { margin-top: 8px; }
 
+a.product-media { display: block; }
+.product-body h3 a:hover { color: var(--gold); }
+
+.product-link {
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green-deep);
+  align-self: flex-start;
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 2px;
+}
+.product-link:hover { color: var(--gold); }
+
+/* ---------------- Product detail page ---------------- */
+.product-detail-section { padding-top: 40px; }
+
+.breadcrumb {
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 32px;
+}
+.breadcrumb a:hover { color: var(--gold); }
+.breadcrumb span { color: var(--gold); margin: 0 6px; }
+
+.product-detail {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.product-detail-media {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--cream);
+  border: 1px solid var(--line);
+}
+.product-detail-media img { width: 100%; height: 100%; object-fit: cover; }
+
+.product-detail-info .eyebrow { display: block; margin-bottom: 12px; }
+.product-detail-info h1 { font-size: clamp(2.2rem, 4.5vw, 3rem); margin-bottom: 10px; }
+.product-detail-info p {
+  font-family: var(--font-serif);
+  font-size: 1.12rem;
+  line-height: 1.75;
+  color: #4a4a3f;
+  margin: 0 0 16px;
+}
+.product-detail-info p a,
+.product-specs a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+.product-detail-info p a:hover,
+.product-specs a:hover { color: var(--gold); }
+
+.product-detail-info p.product-price {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+
+.product-specs {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 12px 24px;
+  margin: 28px 0 32px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.product-specs dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  padding-top: 3px;
+}
+.product-specs dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.04rem;
+  color: var(--ink);
+}
+
+.product-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+.product-actions .icon { width: 16px; height: 16px; }
+
+.product-detail-info p.product-note {
+  font-style: italic;
+  font-size: 0.96rem;
+  color: var(--green-mid);
+  margin-top: 20px;
+}
+
+/* ---------------- Journal articles ---------------- */
+.article-meta {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin: 16px 0 0;
+}
+
+.article { max-width: 760px; }
+.article-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: 48px;
+}
+.article h2 {
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  margin: 44px 0 14px;
+}
+.article p,
+.article li {
+  font-family: var(--font-serif);
+  font-size: 1.14rem;
+  line-height: 1.8;
+  color: #4a4a3f;
+}
+.article p { margin: 0 0 18px; }
+.article ul { margin: 0 0 18px; padding-left: 22px; list-style: disc; }
+.article li { margin-bottom: 8px; }
+.article li::marker { color: var(--gold); }
+.article strong { color: var(--green-deep); font-weight: 600; }
+.article a,
+.section-head p a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+.article a:hover,
+.section-head p a:hover { color: var(--gold); }
+.story-block h2 a:hover { color: var(--gold); }
+
 /* ---------------- About teaser / story ---------------- */
 .split {
   display: grid;
@@ -804,6 +940,7 @@ section { padding: 96px 0; }
   .product-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   .split { grid-template-columns: 1fr; gap: 36px; }
   .split-media { order: -1; }
+  .product-detail { grid-template-columns: 1fr; gap: 36px; }
   .features { grid-template-columns: 1fr; gap: 44px; }
   .help-grid { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr; gap: 32px; }
