@@ -128,6 +128,7 @@ select pg_temp.check((select code ~ '^SIARAM-[0-9A-F]{4}-[0-9A-F]{4}$' and balan
                              and expires_at::date = (now() + interval '6 months')::date
                         from gift_vouchers where code = :'new_code'),
   'issue_gift_voucher creates a 6-month voucher');
+select pg_temp.expect_error($$select issue_gift_voucher('Lea', 'Nour', 50)$$, 'start at \$100');
 
 -- ---------------------------------------------------------------- addresses
 set role authenticated;

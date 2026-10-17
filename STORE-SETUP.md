@@ -22,8 +22,9 @@ some keys into Netlify. Allow about an hour.
      A piece with no price keeps showing "Price on request".
    - **store_settings** → your **whish_number** (e.g. `+961 76 052 068`) and **whish_name** (the name
      customers will see on Whish).
-   - **delivery_areas** → a **delivery_fee** per governorate once you have a courier. Leave it empty and
-     checkout says "Delivery: confirmed after ordering". South is already set to not accept orders;
+   - **delivery_areas** → a **delivery_fee** per governorate once you have a courier. As your Shipping
+     policy says, the customer pays this fee to the courier in cash, so it is shown at checkout but not
+     added to the Whish amount. Leave it empty and checkout says the fee is confirmed before dispatch. South is already set to not accept orders;
      untick **accepts_orders** for any other area you want to block (for example Nabatieh).
 4. Open **Authentication → URL Configuration**:
    - Site URL: `https://siaramjewelry.com`
@@ -80,8 +81,9 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order SJ-XXXXXX" in Outlook, with the items, total and delivery address.
-   Replying to it emails the customer directly.
+1. You get an email "New order SJ-XXXXXX" in Outlook, with the items, the amount to pay via Whish and
+   either the delivery address or "Collection by appointment" (free; message the customer to arrange a
+   time). Replying to it emails the customer directly.
 2. When the Whish payment with that reference arrives, open **Supabase → Table Editor → orders** and change
    the order's **status** to `paid`, then `preparing`, `dispatched`, `delivered` as it moves along.
    Customers with an account see this status under **My Account → Orders**.
@@ -91,7 +93,9 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ```sql
 select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150);
 ```
-It returns a code like `SIARAM-7F3A-91C2`, valid for 6 months. Send it to the purchaser.
+It returns a code like `SIARAM-7F3A-91C2`, valid for 6 months. Amounts under $100 are refused, as in
+your Gift Voucher policy. Send it to the recipient's phone or email given by the purchaser.
+Vouchers pay for jewellery only, never the delivery fee.
 Customers enter the code at checkout; expired codes are refused automatically and any unused balance
 stays on the voucher until it expires. See all vouchers in **Table Editor → gift_vouchers**
 (set **status** to `void` to cancel one).

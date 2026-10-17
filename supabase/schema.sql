@@ -248,6 +248,9 @@ declare
   v_code   text;
   v_months int;
 begin
+  if p_amount is null or p_amount < 100 then
+    raise exception 'Gift vouchers start at $100.';
+  end if;
   select voucher_valid_months into v_months from public.store_settings where id = 1;
   loop
     v_code := 'SIARAM-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 4))

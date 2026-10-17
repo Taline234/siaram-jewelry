@@ -1209,3 +1209,15 @@ legend {
 .fulfilment-options .pay-option { border-color: var(--line); cursor: pointer; }
 .fulfilment-options .pay-option:has(input:checked) { border-color: var(--gold); }
 .address-fields[hidden] { display: none; }
+
+.table-wrap { overflow-x: auto; margin: 0 0 18px; }
+.legal-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; line-height: 1.5; }
+.legal-table th, .legal-table td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.legal-table th { font-weight: 500; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-deep); }
+.legal-table code { font-size: 0.85rem; white-space: nowrap; }
+@media (max-width: 640px) {
+  .legal-table thead { display: none; }
+  .legal-table tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .legal-table td { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; padding: 4px 0; border: 0; }
+  .legal-table td::before { content: attr(data-label); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-deep); padding-top: 2px; }
+}
