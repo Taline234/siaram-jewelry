@@ -1,7 +1,7 @@
 # Online Store — Setup & Day-to-Day Guide
 
 The website now has a cart, checkout, customer accounts and wishlists. **Until the steps below are done, the
-site keeps working exactly as before** (prices hidden, "Enquire by Email" buttons only), so it is safe to
+site keeps working exactly as before** (catalogue prices shown, "Enquire by Email" buttons only, no cart), so it is safe to
 publish first and set up afterwards.
 
 You will create two free accounts (Supabase and Resend), add a few DNS records at name.com, and paste
@@ -18,8 +18,9 @@ some keys into Netlify. Allow about an hour.
 2. When the project is ready, open **SQL Editor → New query**, paste the whole contents of
    [`supabase/schema.sql`](supabase/schema.sql), and click **Run**. It should say "Success".
 3. Open **Table Editor** and fill in:
-   - **products** → type a **price** (in US dollars) for each piece you want to sell online.
-     A piece with no price keeps showing "Price on request".
+   - **products** → all 36 pieces are already there with the prices from your October 2026 catalogue
+     (US dollars). Change a **price** here and the website follows; clear it to show "Price on request"
+     and stop online orders for that piece.
    - **store_settings** → your **whish_number** (e.g. `+961 76 052 068`) and **whish_name** (the name
      customers will see on Whish).
    - **delivery_areas** → a **delivery_fee** per governorate once you have a courier. As your Shipping

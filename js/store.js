@@ -139,7 +139,10 @@ function addHeaderLinks() {
 async function fillPrices(products) {
   document.querySelectorAll('[data-price-for]').forEach((el) => {
     const product = products[el.dataset.priceFor];
-    if (product && product.price !== null) el.textContent = money(product.price);
+    if (!product) return;
+    // The database price wins over the catalogue price printed in the page.
+    if (product.price !== null) el.textContent = money(product.price);
+    else el.textContent = el.classList.contains('product-price') ? 'Price on request' : '';
   });
 }
 

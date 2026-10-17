@@ -1221,3 +1221,12 @@ legend {
   .legal-table td { display: grid; grid-template-columns: 7.5em 1fr; gap: 10px; padding: 4px 0; border: 0; }
   .legal-table td::before { content: attr(data-label); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-deep); padding-top: 2px; }
 }
+
+.filter-bar-collections { margin-top: -36px; gap: 8px; }
+.filter-bar-collections .filter-btn { padding: 6px 14px; font-size: 0.68rem; border-color: transparent; }
+.filter-bar-collections .filter-btn.active { background: transparent; color: var(--green-deep); border-color: var(--green-deep); }
+.collection-intro {
+  max-width: 640px; margin: -28px auto 40px; text-align: center;
+  font-family: var(--font-serif); font-size: 1.08rem; font-style: italic; color: var(--green-mid);
+}
+.collection-intro:empty { display: none; }

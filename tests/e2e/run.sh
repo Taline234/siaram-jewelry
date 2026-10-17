@@ -19,6 +19,7 @@ psql -U postgres -q -v ON_ERROR_STOP=1 -d "$E2E_DB" -f ../../supabase/schema.sql
 psql -U postgres -q -v ON_ERROR_STOP=1 -d "$E2E_DB" <<'SQL'
 update products set price = 120 where slug = 'v-bird-necklace';
 update products set price = 85 where slug = 'crescent-moon-ring';
+update products set price = null where slug = 'horseshoe-ring';
 update store_settings set whish_number = '+961 76 052 068', whish_name = 'Siaram Jewelry';
 update delivery_areas set delivery_fee = 5 where governorate = 'Beirut';
 insert into gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at) values

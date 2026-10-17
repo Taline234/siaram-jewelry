@@ -50,6 +50,7 @@ select pg_temp.check((select marketing_email and not marketing_whatsapp and mark
 -- ---------------------------------------------------------------- orders
 update products set price = 120 where slug = 'v-bird-necklace';
 update products set price = 85  where slug = 'crescent-moon-ring';
+update products set price = null where slug = 'horseshoe-ring';
 update store_settings set whish_number = '+961 76 052 068', whish_name = 'Siaram Jewelry';
 
 create or replace function pg_temp.order_json(p_gov text, p_items jsonb, p_extra jsonb default '{}') returns jsonb
@@ -63,7 +64,7 @@ select pg_temp.expect_error($$select place_order(pg_temp.order_json('South','[{"
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Paris','[{"slug":"v-bird-necklace","quantity":1}]'))$$,
   'only deliver within Lebanon');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"horseshoe-ring","quantity":1}]'))$$,
-  'Horseshoe Ring.*not available');
+  'Horse Shoe Ring.*not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1},{"slug":"nope","quantity":1}]'))$$,
   '"nope" is not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":11}]'))$$,
@@ -162,7 +163,7 @@ reset role;
 
 set role anon;
 reset request.jwt.claim.sub;
-select pg_temp.check((select count(*) = 7 from products), 'visitors can read the catalogue');
+select pg_temp.check((select count(*) = 36 from products), 'visitors can read the catalogue');
 select pg_temp.check((select count(*) = 0 from profiles), 'visitors cannot read profiles');
 select pg_temp.expect_error($$select touch_activity()$$, 'permission denied');
 reset role;

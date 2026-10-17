@@ -26,14 +26,43 @@ create table if not exists public.products (
 -- Each product's page is product-<slug>.html.
 alter table public.products add column if not exists image text;
 
-insert into public.products (slug, name, category, image) values
-  ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg'),
-  ('v-bird-necklace', 'V-Bird Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg'),
-  ('v-pendant-necklace', 'V-Pendant Necklace', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg'),
-  ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/products/crescent-moon-ring-1.jpg'),
-  ('horseshoe-chain-earrings', 'Horseshoe Chain Earrings', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg'),
-  ('horseshoe-ring', 'Horseshoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg'),
-  ('seahorse-pearl-bracelet', 'Seahorse Pearl Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg')
+insert into public.products (slug, name, category, image, price) values
+  ('horseshoe-necklace', 'Horse Shoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 490),
+  ('horseshoe-necklace-black-stone', 'Horse Shoe Necklace – Black Stone', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 560),
+  ('horseshoe-bracelet', 'Horse Shoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 420),
+  ('horseshoe-ring', 'Horse Shoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 350),
+  ('horseshoe-chain-earrings', 'Horse Shoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 420),
+  ('horse-eye-ring', 'Horse Eye Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 525),
+  ('horse-eye-stud', 'Horse Eye Stud', 'Earrings', 'images/products/horse-eye-stud-1.jpg', 440),
+  ('horse-eye-bracelet', 'Horse Eye Bracelet', 'Bracelets', 'images/products/horse-eye-bracelet-1.jpg', 450),
+  ('horse-eye-necklace', 'Horse Eye Necklace', 'Necklaces', 'images/products/horse-eye-necklace-1.jpg', 590),
+  ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg', 570),
+  ('curved-marquise-bracelet', 'Curved Marquise Bracelet', 'Bracelets', 'images/products/curved-marquise-bracelet-1.jpg', 420),
+  ('curved-marquise-earrings', 'Curved Marquise Earrings', 'Earrings', 'images/products/curved-marquise-earrings-1.jpg', 540),
+  ('eye-necklace', 'Eye Necklace', 'Necklaces', 'images/products/eye-necklace-1.jpg', 600),
+  ('fatima-pearl-earrings', 'Fatima & Pearl Drop Asymmetric Earrings', 'Earrings', 'images/products/fatima-pearl-earrings-1.jpg', 450),
+  ('fatima-necklace', 'Fatima Necklace', 'Necklaces', 'images/products/fatima-necklace-1.jpg', 630),
+  ('fatima-ring', 'Fatima Ring', 'Rings', 'images/products/fatima-ring-1.jpg', 325),
+  ('fatima-anklet', 'Fatima Anklet', 'Bracelets', 'images/products/fatima-anklet-1.jpg', 420),
+  ('v-pendant-necklace', 'V Pendant', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg', 430),
+  ('triangle-necklace', 'Triangle Necklace', 'Necklaces', 'images/products/triangle-necklace-1.jpg', 480),
+  ('v-bird-necklace', 'V Bird Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg', 520),
+  ('moon-star-handchain', 'Moon/Star Handchain', 'Bracelets', 'images/products/moon-star-handchain-1.jpg', 610),
+  ('moon-star-pendant-earring', 'Moon & Star Pendant Earring', 'Earrings', 'images/products/moon-star-pendant-earring-1.jpg', 450),
+  ('crescent-moon-earrings', 'Crescent Moon Earrings', 'Earrings', 'images/products/crescent-moon-earrings-1.jpg', 470),
+  ('star-moon-necklace', 'Star/Moon Necklace', 'Necklaces', 'images/products/star-moon-necklace-1.jpg', 470),
+  ('qamar-ring', 'Qamar Ring', 'Rings', 'images/products/qamar-ring-1.jpg', 410),
+  ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/products/crescent-moon-ring-1.jpg', 410),
+  ('sun-necklace', 'Sun Necklace', 'Necklaces', 'images/products/sun-necklace-1.jpg', 510),
+  ('sun-ring', 'Sun Ring', 'Rings', 'images/products/sun-ring-1.jpg', 540),
+  ('sun-stud-earrings', 'Sun Stud Earring', 'Earrings', 'images/products/sun-stud-earrings-1.jpg', 500),
+  ('seahorse-pearl-bracelet', 'Seahorse Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg', 365),
+  ('wave-bracelet', 'Wave Bracelet', 'Bracelets', 'images/products/wave-bracelet-1.jpg', 350),
+  ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 440),
+  ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 590),
+  ('arrow-earrings', 'Arrow Earring', 'Earrings', 'images/products/arrow-earrings-1.jpg', 430),
+  ('arrow-open-ring', 'Arrow Open Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 530),
+  ('arrow-ring', 'Arrow Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 610)
 on conflict (slug) do nothing;
 
 -- Lebanon only. South Lebanon does not accept orders.
