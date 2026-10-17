@@ -29,7 +29,7 @@ const shot = async (name) => { await page.evaluate(() => document.querySelectorA
 
 // ------------------------------------------------ store off: site behaves as before
 await setState({ storeOn: false });
-await page.goto(`${ORIGIN}/product-pave-chevron-necklace.html`);
+await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForTimeout(500);
 assert.equal(await page.locator('.product-price').textContent(), 'Price on request');
 assert.equal(await page.locator('.product-buy').isHidden(), true);
@@ -42,7 +42,7 @@ step('before setup: no prices, no cart icons, "coming soon" on store pages');
 await setState({ storeOn: true, emails: [] });
 await page.goto(`${ORIGIN}/shop.html`);
 await page.waitForSelector('.nav-store');
-await page.waitForFunction(() => document.querySelector('[data-price-for="pave-chevron-necklace"]').textContent === '$120.00');
+await page.waitForFunction(() => document.querySelector('[data-price-for="v-bird-necklace"]').textContent === '$120.00');
 assert.equal(await page.locator('[data-price-for="horseshoe-ring"]').first().textContent(), '');
 step('shop cards show prices; unpriced pieces show none');
 
@@ -53,7 +53,7 @@ assert.equal(await page.locator('.product-price').textContent(), 'Price on reque
 assert.equal(await page.locator('.wishlist-btn').count(), 1);
 step('unpriced piece: no Add to Cart, enquiry + wishlist only');
 
-await page.goto(`${ORIGIN}/product-pave-chevron-necklace.html`);
+await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForSelector('.add-to-cart');
 assert.equal(await page.locator('.product-price').textContent(), '$120.00');
 await page.selectOption('.product-buy .qty-select', '2');
@@ -61,7 +61,7 @@ await page.click('.add-to-cart');
 await page.waitForSelector('.store-toast.show');
 assert.equal(await page.locator('.nav-store .cart-count').textContent(), '2');
 await shot('product-page');
-step('add 2 x Pavé Chevron Necklace to cart; badge shows 2');
+step('add 2 x V-Bird Necklace to cart; badge shows 2');
 
 await page.goto(`${ORIGIN}/cart.html`);
 await page.waitForSelector('.cart-line');
@@ -230,7 +230,7 @@ step('account deletion removes the account and keeps the order record');
 
 // ------------------------------------------------ mobile
 await page.setViewportSize({ width: 390, height: 844 });
-await page.goto(`${ORIGIN}/product-pave-chevron-necklace.html`);
+await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForSelector('.add-to-cart');
 await page.click('.add-to-cart');
 await shot('mobile-product');

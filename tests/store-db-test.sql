@@ -41,7 +41,7 @@ select pg_temp.check((select first_name = 'Rana' from profiles where id = '00000
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Kid'), 'under-18 sign-up creates nothing');
 
 -- ---------------------------------------------------------------- orders
-update products set price = 120 where slug = 'pave-chevron-necklace';
+update products set price = 120 where slug = 'v-bird-necklace';
 update products set price = 85  where slug = 'crescent-moon-ring';
 update store_settings set whish_number = '+961 76 052 068', whish_name = 'Siaram Jewelry';
 
@@ -51,22 +51,22 @@ language sql as $$
     'governorate',p_gov,'city','Jounieh','street','Main St','building','B2','floor','3',
     'age_confirmed',true,'items',p_items) || p_extra $$;
 
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('South','[{"slug":"pave-chevron-necklace","quantity":1}]'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('South','[{"slug":"v-bird-necklace","quantity":1}]'))$$,
   'do not currently deliver to South');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Paris','[{"slug":"pave-chevron-necklace","quantity":1}]'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Paris','[{"slug":"v-bird-necklace","quantity":1}]'))$$,
   'only deliver within Lebanon');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"horseshoe-ring","quantity":1}]'))$$,
   'Horseshoe Ring.*not available');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"pave-chevron-necklace","quantity":1},{"slug":"nope","quantity":1}]'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1},{"slug":"nope","quantity":1}]'))$$,
   '"nope" is not available');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"pave-chevron-necklace","quantity":11}]'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":11}]'))$$,
   'between 1 and 10');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[]'))$$, 'cart is empty');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"pave-chevron-necklace","quantity":1}]','{"age_confirmed":false}'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1}]','{"age_confirmed":false}'))$$,
   '18 or older');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"pave-chevron-necklace","quantity":1}]','{"email":"not-an-email"}'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1}]','{"email":"not-an-email"}'))$$,
   'valid email');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"pave-chevron-necklace","quantity":1}]','{"city":" "}'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1}]','{"city":" "}'))$$,
   'fill in your city');
 select pg_temp.check((select count(*) = 0 from orders), 'rejected orders leave nothing behind');
 
@@ -75,7 +75,7 @@ select pg_temp.check((
   select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325 and r->>'reference' ~ '^SJ-[0-9A-F]{6}$'
          and r->>'email' = 'rana@example.com' and r->>'whish_number' = '+961 76 052 068'
     from (select place_order(pg_temp.order_json('Nabatieh',
-      '[{"slug":"pave-chevron-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
+      '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
   'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
 
 update delivery_areas set delivery_fee = 5 where governorate = 'Beirut';
@@ -125,7 +125,7 @@ insert into addresses (recipient_name, phone, governorate, city, street, is_defa
   values ('Rana', '1', 'Mount Lebanon', 'Jounieh', 'St 2', true);
 select pg_temp.check((select count(*) = 1 and min(city) = 'Jounieh' from addresses where is_default),
   'only one preferred address at a time');
-insert into wishlist (product_slug) values ('pave-chevron-necklace'), ('horseshoe-ring');
+insert into wishlist (product_slug) values ('v-bird-necklace'), ('horseshoe-ring');
 select pg_temp.check((select count(*) = 2 from wishlist), 'customer can add to their wishlist');
 select pg_temp.check((select count(*) = 1 from orders), 'customer sees only their own orders');
 update profiles set phone = '+961 70 111 111';
@@ -140,7 +140,7 @@ set request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
 select pg_temp.check((select count(*) = 0 from addresses) and (select count(*) = 0 from wishlist)
                      and (select count(*) = 0 from orders) and (select count(*) = 1 from profiles),
   'another customer cannot see Rana''s addresses, wishlist or orders');
-select pg_temp.expect_error($$insert into wishlist (user_id, product_slug) values ('00000000-0000-0000-0000-00000000000a', 'pave-chevron-necklace')$$,
+select pg_temp.expect_error($$insert into wishlist (user_id, product_slug) values ('00000000-0000-0000-0000-00000000000a', 'v-bird-necklace')$$,
   'row-level security');
 reset role;
 

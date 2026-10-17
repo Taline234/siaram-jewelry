@@ -27,9 +27,9 @@ create table if not exists public.products (
 alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image) values
-  ('snake-curve-necklace', 'Snake Curve Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
-  ('pave-chevron-necklace', 'Pavé Chevron Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
-  ('zircon-drop-necklace', 'Zircon Drop Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
+  ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
+  ('v-bird-necklace', 'V-Bird Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
+  ('v-pendant-necklace', 'V-Pendant Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
   ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/product-moon-ring.jpeg'),
   ('horseshoe-chain-earrings', 'Horseshoe Chain Earrings', 'Earrings', 'images/product-horseshoe-earrings.jpeg'),
   ('horseshoe-ring', 'Horseshoe Ring', 'Rings', 'images/product-horseshoe-ring.jpeg'),
