@@ -40,7 +40,7 @@ const savedOrder = {
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
   subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
   whish_number: '+961 76 052 068', whish_name: 'Siaram Jewelry',
-  items: [{ name: 'The Layered Trio', unit_price: 120, quantity: 1 }],
+  items: [{ name: 'Pavé Chevron Necklace', unit_price: 120, quantity: 1 }],
 };
 
 const emails = () => calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => c.body);
@@ -49,13 +49,13 @@ test('guest order is saved and both emails are sent', async () => {
   handlers['/rest/v1/rpc/place_order'] = () => [200, savedOrder];
   const res = await placeOrder(request('/api/place-order', {
     customer_name: 'Rana', email: 'rana@example.com', phone: '70', governorate: 'Beirut', city: 'A', street: 'S',
-    age_confirmed: true, items: [{ slug: 'layered-trio', quantity: '2', price: 1 }],
+    age_confirmed: true, items: [{ slug: 'pave-chevron-necklace', quantity: '2', price: 1 }],
   }));
   assert.equal(res.status, 200);
   const rpc = calls.find((c) => c.url.endsWith('/rpc/place_order'));
   assert.equal(rpc.body.p_user_id, null);
   assert.equal(rpc.body.p.age_confirmed, true);
-  assert.deepEqual(rpc.body.p.items, [{ slug: 'layered-trio', quantity: 2 }], 'browser prices are dropped');
+  assert.deepEqual(rpc.body.p.items, [{ slug: 'pave-chevron-necklace', quantity: 2 }], 'browser prices are dropped');
   assert.equal(rpc.headers.apikey, 'eyJservice');
   assert.equal(rpc.headers.authorization, 'Bearer eyJservice', 'legacy JWT key is also sent as Bearer');
 
