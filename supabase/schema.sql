@@ -27,13 +27,13 @@ create table if not exists public.products (
 alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image) values
-  ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
-  ('v-bird-necklace', 'V-Bird Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
-  ('v-pendant-necklace', 'V-Pendant Necklace', 'Necklaces', 'images/product-layered-necklace.jpeg'),
-  ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/product-moon-ring.jpeg'),
-  ('horseshoe-chain-earrings', 'Horseshoe Chain Earrings', 'Earrings', 'images/product-horseshoe-earrings.jpeg'),
-  ('horseshoe-ring', 'Horseshoe Ring', 'Rings', 'images/product-horseshoe-ring.jpeg'),
-  ('seahorse-pearl-bracelet', 'Seahorse Pearl Bracelet', 'Bracelets', 'images/product-seahorse-bracelet.jpeg')
+  ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg'),
+  ('v-bird-necklace', 'V-Bird Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg'),
+  ('v-pendant-necklace', 'V-Pendant Necklace', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg'),
+  ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/products/crescent-moon-ring-1.jpg'),
+  ('horseshoe-chain-earrings', 'Horseshoe Chain Earrings', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg'),
+  ('horseshoe-ring', 'Horseshoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg'),
+  ('seahorse-pearl-bracelet', 'Seahorse Pearl Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg')
 on conflict (slug) do nothing;
 
 -- Lebanon only. South Lebanon does not accept orders.

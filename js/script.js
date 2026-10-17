@@ -41,6 +41,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Product photo gallery
+  document.querySelectorAll('.product-gallery').forEach((gallery) => {
+    const main = gallery.querySelector('.gallery-main');
+    const thumbs = gallery.querySelectorAll('.gallery-thumb');
+    thumbs.forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        main.src = thumb.dataset.src;
+        main.alt = thumb.dataset.alt;
+        thumbs.forEach((t) => t.setAttribute('aria-current', String(t === thumb)));
+      });
+    });
+  });
+
   // FAQ accordion
   document.querySelectorAll('.faq-question').forEach((btn) => {
     btn.addEventListener('click', () => {
