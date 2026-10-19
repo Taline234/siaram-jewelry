@@ -80,11 +80,16 @@ select pg_temp.check((select count(*) = 0 from orders), 'rejected orders leave n
 
 -- Prices come from the database, not from the browser.
 select pg_temp.check((
-  select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325 and r->>'reference' ~ '^SJ-[0-9A-F]{6}$'
+  select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325
          and r->>'email' = 'rana@example.com' and r->>'whish_number' = '+961 76 052 068'
     from (select place_order(pg_temp.order_json('Nabatieh',
       '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
   'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
+select pg_temp.check((select reference = 'SO16' from orders),
+  'order numbers carry on from the workbook (SO16), and rejected orders do not use up a number');
+select pg_temp.check((select array_agg(sku order by sku) = array['NK-07', 'RG-01'] from order_items),
+  'order items keep the SKU from the workbook');
+select pg_temp.check((select count(*) = 0 from products where sku is null), 'every product has a SKU');
 
 update delivery_areas set delivery_fee = 5 where governorate = 'Beirut';
 select pg_temp.check((select (r->>'total')::numeric = 85 and (r->>'delivery_fee')::numeric = 5
@@ -133,12 +138,20 @@ select pg_temp.check((select (r->>'total')::numeric = 70 and (r->>'voucher_amoun
   'remaining balance is used on the next order');
 select pg_temp.expect_error($$select check_voucher('SIARAM-GOOD-0000')$$, 'fully used');
 
+select pg_temp.check((select array_agg(reference order by reference) = array['SO16','SO17','SO18','SO19','SO20','SO21','SO22']
+                        from orders),
+  'each order takes the next SO number');
+
 select issue_gift_voucher('Lea', 'Nour', 150) as new_code \gset
-select pg_temp.check((select code ~ '^SIARAM-[0-9A-F]{4}-[0-9A-F]{4}$' and balance = 150
+select pg_temp.check((select code ~ '^GV0031-[A-HJ-NP-Z2-9]{6}$' and balance = 150
                              and expires_at::date = (now() + interval '6 months')::date
                         from gift_vouchers where code = :'new_code'),
-  'issue_gift_voucher creates a 6-month voucher');
+  'issue_gift_voucher creates a 6-month voucher numbered after the workbook (GV0031-XXXXXX)');
 select pg_temp.expect_error($$select issue_gift_voucher('Lea', 'Nour', 50)$$, 'start at \$100');
+select pg_temp.check((select (check_voucher(lower(replace(:'new_code', '-', ' ')))->>'balance')::numeric = 150),
+  'voucher lookup also works without the dash');
+select pg_temp.check((select issue_gift_voucher('Lea', 'Nour', 100) like 'GV0032-%'), 'the next voucher is GV0032');
+select pg_temp.expect_error($$select check_voucher('GV0031')$$, 'not valid');
 
 -- ---------------------------------------------------------------- addresses
 set role authenticated;

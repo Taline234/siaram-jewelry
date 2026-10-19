@@ -122,9 +122,10 @@ export function payLabel(order) {
   return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
 }
 
-export function orderSummaryHtml(order) {
+// The shop's copy also shows each piece's SKU, to match the finance workbook.
+export function orderSummaryHtml(order, { sku = false } = {}) {
   const rows = (order.items || [])
-    .map((i) => `<tr><td style="padding:6px 0">${escapeHtml(i.name)} &times; ${i.quantity}</td>
+    .map((i) => `<tr><td style="padding:6px 0">${sku && i.sku ? `${escapeHtml(i.sku)} &middot; ` : ''}${escapeHtml(i.name)} &times; ${i.quantity}</td>
       <td align="right" style="padding:6px 0">${money(i.unit_price * i.quantity)}</td></tr>`)
     .join('');
   const collection = order.fulfilment === 'collection';

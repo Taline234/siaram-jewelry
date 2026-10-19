@@ -10,6 +10,7 @@
 --   store_settings  your Whish number and name shown at checkout
 --   orders          incoming orders; change status when paid / dispatched
 --   gift_vouchers   issue vouchers with:  select issue_gift_voucher('Recipient', 'Purchaser', 150);
+--   store_settings  also holds the next order number (SO16, SO17, ...) and the next voucher number (GV0031, ...)
 -- ==========================================================================
 
 -- ---------------------------------------------------------------- catalogue
@@ -65,6 +66,26 @@ insert into public.products (slug, name, category, image, price) values
   ('arrow-ring', 'Arrow Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 610)
 on conflict (slug) do nothing;
 
+-- The product code from the finance workbook. Shown on orders so they match the spreadsheet.
+-- Pieces sold as an asymmetric pair list both codes.
+alter table public.products add column if not exists sku text;
+update public.products p set sku = v.sku
+  from (values
+    ('horseshoe-necklace', 'NK-01'), ('horseshoe-necklace-black-stone', 'NK-05'), ('horseshoe-bracelet', 'BR-02'),
+    ('horseshoe-ring', 'RG-04'), ('horseshoe-chain-earrings', 'EA-03'), ('horse-eye-ring', 'RG-07'),
+    ('horse-eye-stud', 'EA-08'), ('horse-eye-bracelet', 'BR-08'), ('horse-eye-necklace', 'NK-10'),
+    ('curved-marquise-necklace', 'NK-12'), ('curved-marquise-bracelet', 'BR-07'), ('curved-marquise-earrings', 'EA-10'),
+    ('eye-necklace', 'NK-02'), ('fatima-pearl-earrings', 'EA-01/EA-02'), ('fatima-necklace', 'NK-06'),
+    ('fatima-ring', 'RG-03'), ('fatima-anklet', 'AK-01'), ('v-pendant-necklace', 'NK-08'),
+    ('triangle-necklace', 'NK-09'), ('v-bird-necklace', 'NK-07'), ('moon-star-handchain', 'BR-04'),
+    ('moon-star-pendant-earring', 'EA-04/EA-05'), ('crescent-moon-earrings', 'EA-07'), ('star-moon-necklace', 'NK-03'),
+    ('qamar-ring', 'RG-02'), ('crescent-moon-ring', 'RG-01'), ('sun-necklace', 'NK-11'),
+    ('sun-ring', 'RG-08'), ('sun-stud-earrings', 'EA-09'), ('seahorse-pearl-bracelet', 'BR-01'),
+    ('wave-bracelet', 'BR-06'), ('arrow-necklace', 'NK-04'), ('arrow-bracelet', 'BR-05'),
+    ('arrow-earrings', 'EA-06'), ('arrow-open-ring', 'RG-05'), ('arrow-ring', 'RG-06')
+  ) as v(slug, sku)
+ where p.slug = v.slug and p.sku is null;
+
 -- Lebanon only. South Lebanon does not accept orders.
 create table if not exists public.delivery_areas (
   governorate     text primary key,
@@ -85,6 +106,11 @@ create table if not exists public.store_settings (
   voucher_valid_months  int not null default 6
 );
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
+
+-- Order and gift voucher numbers carry on from the finance workbook (last order SO15, last voucher GV0030).
+-- Taken inside the same transaction as the order or voucher, so a failed order never skips a number.
+alter table public.store_settings add column if not exists next_order_number int not null default 16;
+alter table public.store_settings add column if not exists next_voucher_number int not null default 31;
 
 -- ---------------------------------------------------------------- customers
 create table if not exists public.profiles (
@@ -251,6 +277,7 @@ create table if not exists public.order_items (
   quantity      int not null check (quantity between 1 and 10),
   primary key (order_id, product_slug)
 );
+alter table public.order_items add column if not exists sku text;
 
 -- ---------------------------------------------------------------- gift vouchers
 create table if not exists public.gift_vouchers (
@@ -274,20 +301,27 @@ create table if not exists public.voucher_redemptions (
 );
 
 -- Run from the SQL Editor: select issue_gift_voucher('Recipient Name', 'Purchaser Name', 150);
+-- Codes look like GV0031-K7QM4X: the GV number for the finance workbook, plus a random part so that
+-- nobody can spend a voucher by guessing the next number.
 create or replace function public.issue_gift_voucher(p_recipient text, p_purchaser text, p_amount numeric)
 returns text language plpgsql security definer set search_path = public as $$
 declare
-  v_code   text;
+  -- No I or O, which are easily mistaken for 1 and 0.
+  c_letters constant text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  v_number int;
   v_months int;
+  v_random bytea;
+  v_code   text;
 begin
   if p_amount is null or p_amount < 100 then
     raise exception 'Gift vouchers start at $100.';
   end if;
-  select voucher_valid_months into v_months from public.store_settings where id = 1;
-  loop
-    v_code := 'SIARAM-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 4))
-                  || '-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 4));
-    exit when not exists (select 1 from public.gift_vouchers where code = v_code);
+  update public.store_settings set next_voucher_number = next_voucher_number + 1 where id = 1
+  returning next_voucher_number - 1, voucher_valid_months into v_number, v_months;
+  v_random := decode(replace(gen_random_uuid()::text, '-', ''), 'hex');
+  v_code := 'GV' || lpad(v_number::text, greatest(4, length(v_number::text)), '0') || '-';
+  for i in 0..5 loop
+    v_code := v_code || substr(c_letters, get_byte(v_random, i) % 32 + 1, 1);
   end loop;
   insert into public.gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at)
   values (v_code, p_recipient, p_purchaser, p_amount, p_amount,
@@ -299,12 +333,14 @@ end $$;
 create or replace function public.usable_voucher(p_code text, p_lock boolean default false)
 returns public.gift_vouchers language plpgsql security definer set search_path = public as $$
 declare
-  v public.gift_vouchers;
+  v      public.gift_vouchers;
+  -- Customers may type the code in lower case, or with spaces or without the dash.
+  v_code text := regexp_replace(upper(coalesce(p_code, '')), '[^A-Z0-9]', '', 'g');
 begin
   if p_lock then
-    select * into v from public.gift_vouchers where code = upper(trim(p_code)) for update;
+    select * into v from public.gift_vouchers where replace(code, '-', '') = v_code for update;
   else
-    select * into v from public.gift_vouchers where code = upper(trim(p_code));
+    select * into v from public.gift_vouchers where replace(code, '-', '') = v_code;
   end if;
   if not found or v.status <> 'active' then
     raise exception 'This gift voucher code is not valid.' using errcode = 'P0001';
@@ -382,7 +418,8 @@ begin
     raise exception 'Your cart is empty.' using errcode = 'P0001';
   end if;
 
-  v_ref := 'SJ-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
+  update public.store_settings set next_order_number = next_order_number + 1 where id = 1
+  returning 'SO' || (next_order_number - 1) into v_ref;
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
                              payment_method, status)
@@ -407,8 +444,8 @@ begin
     if v_qty < 1 or v_qty > 10 then
       raise exception 'Please choose a quantity between 1 and 10.' using errcode = 'P0001';
     end if;
-    insert into public.order_items (order_id, product_slug, name, unit_price, quantity)
-    values (v_order_id, v_product.slug, v_product.name, v_product.price, v_qty)
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty)
     on conflict (order_id, product_slug) do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
@@ -443,7 +480,7 @@ begin
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
       'whish_number', s.whish_number, 'whish_name', s.whish_name,
-      'items', (select jsonb_agg(jsonb_build_object('name', i.name, 'unit_price', i.unit_price,
+      'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity) order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s

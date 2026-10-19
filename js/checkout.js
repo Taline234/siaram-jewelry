@@ -116,7 +116,7 @@ function renderForm(profile) {
 
       <fieldset><legend>Gift voucher</legend>
         <div class="voucher-row">
-          <input name="voucher_code" placeholder="SIARAM-XXXX-XXXX" aria-label="Gift voucher code" autocomplete="off" />
+          <input name="voucher_code" placeholder="GV0000-XXXXXX" aria-label="Gift voucher code" autocomplete="off" />
           <button type="button" class="btn btn-outline voucher-apply">Apply</button>
         </div>
         <p class="voucher-msg field-note" aria-live="polite"></p>
