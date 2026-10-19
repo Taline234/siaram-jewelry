@@ -36,3 +36,15 @@
   to = "/"
   status = 404
   force = true
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/HANDOVER.md"
+  to = "/"
+  status = 404
+  force = true
