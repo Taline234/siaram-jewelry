@@ -1,10 +1,10 @@
 // POST /api/place-order — validates and saves an order, then emails the shop and the customer.
 import {
   CustomerError, configured, emailLayout, escapeHtml, json, orderSummaryHtml, readJson,
-  rpc, sendEmail, userFromRequest, whishInstructionsHtml,
+  paymentInstructionsHtml, rpc, sendEmail, userFromRequest,
 } from '../lib/store.mjs';
 
-const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
+const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -17,6 +17,7 @@ export default async (req) => {
     const order = { items: [], age_confirmed: body.age_confirmed === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
     order.fulfilment = order.fulfilment === 'collection' ? 'collection' : 'delivery';
+    order.payment_method = order.payment_method === 'cash' ? 'cash' : 'whish';
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
       slug: String(i?.slug ?? '').slice(0, 80),
       quantity: Number.parseInt(i?.quantity, 10) || 0,
@@ -35,14 +36,16 @@ export default async (req) => {
         subject: `Your Siaram order ${saved.reference}`,
         html: emailLayout(`Thank you, ${saved.customer_name.split(' ')[0]}!`,
           `<p style="font-size:15px;line-height:1.6">We have received your order <strong>${escapeHtml(saved.reference)}</strong>.</p>
-           ${whishInstructionsHtml(saved)}${orderSummaryHtml(saved)}`),
+           ${paymentInstructionsHtml(saved)}${orderSummaryHtml(saved)}`),
       }),
       sendEmail({
         to: notify,
         replyTo: saved.email,
-        subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} (${saved.customer_name})`,
+        subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} ${saved.payment_method === 'cash' ? 'cash' : 'Whish'} (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
-          `<p style="font-size:15px;line-height:1.6">Status: awaiting Whish payment${user ? ' — placed from a customer account' : ' — guest order'}.</p>
+          `<p style="font-size:15px;line-height:1.6">${saved.payment_method === 'cash'
+            ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery (Wakilni)'}. Status: being prepared`
+            : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
            ${orderSummaryHtml(saved)}`),
       }),
     ]);

@@ -236,6 +236,9 @@ create table if not exists public.orders (
 );
 
 alter table public.orders add column if not exists fulfilment text not null default 'delivery';
+-- How the customer pays: 'whish' before dispatch, or 'cash' to the courier on delivery (or at collection).
+alter table public.orders drop constraint if exists orders_payment_method_check;
+alter table public.orders add constraint orders_payment_method_check check (payment_method in ('whish', 'cash'));
 alter table public.orders alter column governorate drop not null;
 alter table public.orders alter column city drop not null;
 alter table public.orders alter column street drop not null;
@@ -342,6 +345,7 @@ declare
   v_order_id  uuid;
   v_field     text;
   v_collect   boolean := coalesce(p->>'fulfilment', 'delivery') = 'collection';
+  v_cash      boolean := coalesce(p->>'payment_method', 'whish') = 'cash';
 begin
   if coalesce((p->>'age_confirmed')::boolean, false) is not true then
     raise exception 'You must confirm you are 18 or older to order.' using errcode = 'P0001';
@@ -349,6 +353,9 @@ begin
 
   if coalesce(p->>'fulfilment', 'delivery') not in ('delivery', 'collection') then
     raise exception 'Please choose delivery or collection.' using errcode = 'P0001';
+  end if;
+  if coalesce(p->>'payment_method', 'whish') not in ('whish', 'cash') then
+    raise exception 'Please choose Whish or cash on delivery.' using errcode = 'P0001';
   end if;
   foreach v_field in array (case when v_collect then array['customer_name','email','phone']
                                  else array['customer_name','email','phone','governorate','city','street'] end) loop
@@ -377,12 +384,16 @@ begin
 
   v_ref := 'SJ-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6));
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
-                             building, floor, notes, subtotal, delivery_fee, total, age_confirmed)
+                             building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
+                             payment_method, status)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
           nullif(trim(p->>'building'), ''), nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''),
-          0, v_area.delivery_fee, 0, true)
+          0, v_area.delivery_fee, 0, true,
+          -- Cash orders are paid on delivery or collection, so they go straight to preparation.
+          case when v_cash then 'cash' else 'whish' end,
+          case when v_cash then 'preparing' else 'awaiting_payment' end)
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop
@@ -402,8 +413,8 @@ begin
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
 
-  -- The total is what the customer pays by Whish. Any delivery fee is paid to the courier
-  -- in cash, so it is not included, and a gift voucher cannot cover it.
+  -- The total is the price of the jewellery, paid by Whish or in cash on delivery. The delivery
+  -- fee is paid to the courier in cash, so it is not included, and a gift voucher cannot cover it.
   v_total := v_subtotal;
 
   if coalesce(trim(p->>'voucher_code'), '') <> '' then
@@ -427,7 +438,7 @@ begin
   return (
     select jsonb_build_object(
       'reference', o.reference, 'customer_name', o.customer_name, 'email', o.email, 'phone', o.phone,
-      'fulfilment', o.fulfilment,
+      'fulfilment', o.fulfilment, 'payment_method', o.payment_method, 'status', o.status,
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,

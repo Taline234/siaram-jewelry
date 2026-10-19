@@ -116,6 +116,12 @@ export async function sendEmail({ to, subject, html, replyTo }) {
   return true;
 }
 
+// What the customer pays and how, for the line under the items.
+export function payLabel(order) {
+  if (order.payment_method !== 'cash') return 'To pay via Whish';
+  return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
+}
+
 export function orderSummaryHtml(order) {
   const rows = (order.items || [])
     .map((i) => `<tr><td style="padding:6px 0">${escapeHtml(i.name)} &times; ${i.quantity}</td>
@@ -135,7 +141,7 @@ export function orderSummaryHtml(order) {
 ${rows}
 <tr><td style="padding:6px 0;border-top:1px solid #e3dccd">Subtotal</td><td align="right" style="padding:6px 0;border-top:1px solid #e3dccd">${money(order.subtotal)}</td></tr>
 ${voucher}
-<tr><td style="padding:8px 0;font-weight:bold">To pay via Whish</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
+<tr><td style="padding:8px 0;font-weight:bold">${payLabel(order)}</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
 <tr><td style="padding:6px 0;color:#6b6b5f">${collection ? 'Collection' : 'Delivery'}</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px">${collection
@@ -145,9 +151,16 @@ ${voucher}
 ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Notes:</strong> ${escapeHtml(order.notes)}</p>` : ''}`;
 }
 
-export function whishInstructionsHtml(order) {
+export function paymentInstructionsHtml(order) {
   if (Number(order.total) <= 0) {
     return '<p style="font-size:15px;line-height:1.6">Your gift voucher covers this order, so there is nothing to pay.</p>';
+  }
+  if (order.payment_method === 'cash') {
+    return order.fulfilment === 'collection'
+      ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
+We will message you to arrange a time.</p>`
+      : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the Wakilni driver
+when your order arrives, plus the delivery fee. We are preparing your order now.</p>`;
   }
   const to = order.whish_number
     ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>`

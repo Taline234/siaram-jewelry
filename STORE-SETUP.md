@@ -23,7 +23,7 @@ some keys into Netlify. Allow about an hour.
      and stop online orders for that piece.
    - **store_settings** → your **whish_number** (e.g. `+961 76 052 068`) and **whish_name** (the name
      customers will see on Whish).
-   - **delivery_areas** → a **delivery_fee** per governorate once you have a courier. As your Shipping
+   - **delivery_areas** → a **delivery_fee** per governorate, from your Wakilni rates. As your Shipping
      policy says, the customer pays this fee to the courier in cash, so it is shown at checkout but not
      added to the Whish amount. Leave it empty and checkout says the fee is confirmed before dispatch. South is already set to not accept orders;
      untick **accepts_orders** for any other area you want to block (for example Nabatieh).
@@ -82,13 +82,16 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order SJ-XXXXXX" in Outlook, with the items, the amount to pay via Whish and
-   either the delivery address or "Collection by appointment" (free; message the customer to arrange a
-   time). Replying to it emails the customer directly.
-2. When the Whish payment with that reference arrives, open **Supabase → Table Editor → orders** and change
-   the order's **status** to `paid`, then `preparing`, `dispatched`, `delivered` as it moves along.
-   Customers with an account see this status under **My Account → Orders**.
-3. If payment never arrives, set the status to `cancelled`.
+1. You get an email "New order SJ-XXXXXX" in Outlook. The subject says **Whish** or **cash**, and the email
+   lists the items, the amount to collect, and either the delivery address or "Collection by appointment"
+   (free; message the customer to arrange a time). Replying to it emails the customer directly.
+2. **Whish orders** start as `awaiting_payment`. When the Whish payment with that reference arrives, open
+   **Supabase → Table Editor → orders** and change the order's **status** to `paid`, then `preparing`.
+   If payment never arrives, set the status to `cancelled`.
+3. **Cash orders** start as `preparing`. Book the delivery with Wakilni as cash on delivery, for the order
+   total plus the delivery fee (the email shows both); for a collection, take the cash at handover.
+4. Then set `dispatched` and `delivered` as the order moves along. Customers with an account see this
+   status under **My Account → Orders**.
 
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
@@ -109,9 +112,6 @@ path) and ask Claude to create its product page `product-star-earrings.html`.
 **Inactive accounts** — handled automatically every day: a reminder after 12 months without activity,
 a deletion notice after 24 months, and deletion 30 days later unless the customer signs in. Order
 records are kept.
-
-**When you choose a courier** — tell Claude so the Privacy Policy can name them, and add the delivery fees in
-**delivery_areas**.
 
 ---
 

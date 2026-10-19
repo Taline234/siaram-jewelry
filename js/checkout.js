@@ -1,4 +1,4 @@
-// Checkout page: guest or signed-in checkout, Lebanon-only delivery, gift vouchers, Whish payment.
+// Checkout page: guest or signed-in checkout, Lebanon-only delivery, gift vouchers, Whish or cash on delivery.
 import {
   escapeHtml, getCart, getClient, getSession, loadProducts, money, purchasable, setCart, storeEnabled,
 } from './store.js';
@@ -16,12 +16,18 @@ function totals() {
   const gov = root.querySelector('[name=governorate]')?.value;
   const area = collect ? null : state.areas.find((a) => a.governorate === gov);
   const fee = area ? area.delivery_fee : null;
-  // Delivery is paid to the courier in cash, so neither the Whish total nor a voucher covers it.
+  // Delivery is paid to the courier in cash, so neither the jewellery total nor a voucher covers it.
   const discount = state.voucher ? Math.min(state.voucher.balance, subtotal) : 0;
   return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area), collect };
 }
 
 const isCollection = () => root.querySelector('[name=fulfilment]:checked')?.value === 'collection';
+const isCash = () => root.querySelector('[name=payment_method]:checked')?.value === 'cash';
+
+function payLabel() {
+  if (!isCash()) return 'To pay via Whish';
+  return isCollection() ? 'To pay in cash at collection' : 'To pay in cash on delivery';
+}
 
 // Collection needs no address: hide the address fields and leave them out of validation.
 function applyFulfilment() {
@@ -29,6 +35,10 @@ function applyFulfilment() {
   const address = root.querySelector('.address-fields');
   address.hidden = collect;
   address.querySelectorAll('input, select, textarea').forEach((el) => { el.disabled = collect; });
+  root.querySelector('.cash-title').textContent = collect ? 'Cash at collection' : 'Cash on delivery';
+  root.querySelector('.cash-text').textContent = collect
+    ? 'Pay in cash when you collect your order.'
+    : 'Pay the Wakilni driver in cash when your order arrives, together with the delivery fee.';
   renderSummary();
 }
 
@@ -45,7 +55,7 @@ function renderSummary() {
   root.querySelector('.summary-lines').innerHTML = `${lines}
     <div class="summary-row summary-sub"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     ${t.discount ? `<div class="summary-row"><span>Gift voucher</span><span>&minus;${money(t.discount)}</span></div>` : ''}
-    <div class="summary-row summary-total"><span>To pay via Whish</span><span>${money(t.total)}</span></div>
+    <div class="summary-row summary-total"><span>${payLabel()}</span><span>${money(t.total)}</span></div>
     <p class="summary-note">${delivery}</p>`;
 }
 
@@ -113,9 +123,13 @@ function renderForm(profile) {
       </fieldset>
 
       <fieldset><legend>Payment</legend>
-        <label class="pay-option"><input type="radio" name="payment" value="whish" checked />
+        <label class="pay-option"><input type="radio" name="payment_method" value="whish" checked />
           <span><strong>Whish</strong><br />After you place your order, send the total via Whish with your order
-          reference. We'll prepare your piece as soon as the payment arrives. Gift vouchers cover jewellery, not delivery.</span></label>
+          reference. We'll prepare your piece as soon as the payment arrives.</span></label>
+        <label class="pay-option"><input type="radio" name="payment_method" value="cash" />
+          <span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">Pay the Wakilni driver in cash
+          when your order arrives, together with the delivery fee.</span></span></label>
+        <p class="field-note">Gift vouchers cover jewellery, not delivery.</p>
       </fieldset>
 
       <fieldset class="checkout-confirm">
@@ -149,6 +163,7 @@ function renderForm(profile) {
     fillAddress(state.addresses.find((a) => a.id === e.target.value)));
   form.elements.governorate.addEventListener('change', renderSummary);
   form.querySelectorAll('[name=fulfilment]').forEach((r) => r.addEventListener('change', applyFulfilment));
+  form.querySelectorAll('[name=payment_method]').forEach((r) => r.addEventListener('change', renderSummary));
   form.querySelector('.voucher-apply').addEventListener('click', applyVoucher);
   form.addEventListener('submit', submit);
   renderSummary();
@@ -179,12 +194,17 @@ async function applyVoucher() {
 }
 
 function showConfirmation(order) {
-  const toPay = Number(order.total) > 0
-    ? `<p>Please send <strong>${money(order.total)}</strong> via Whish to
+  const cash = order.payment_method === 'cash';
+  const toPay = Number(order.total) <= 0
+    ? '<p>Your gift voucher covers this order, so there is nothing more to pay for your jewellery.</p>'
+    : cash && order.fulfilment === 'collection'
+      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash when you collect your order.</p>`
+    : cash
+      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the Wakilni driver when your order arrives. We're preparing it now.</p>`
+    : `<p>Please send <strong>${money(order.total)}</strong> via Whish to
         ${order.whish_number ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>` : 'us &mdash; we will message you our Whish details shortly'},
         and write <strong>${escapeHtml(order.reference)}</strong> in the note.</p>
-       <p>We'll prepare your order as soon as the payment arrives.</p>`
-    : '<p>Your gift voucher covers this order, so there is nothing to pay by Whish.</p>';
+       <p>We'll prepare your order as soon as the payment arrives.</p>`;
   const handover = order.fulfilment === 'collection'
     ? '<p>You chose free collection by appointment. We\'ll message you to arrange a time.</p>'
     : `<p>${order.delivery_fee === null || order.delivery_fee === undefined

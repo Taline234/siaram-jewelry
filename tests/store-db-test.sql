@@ -95,6 +95,15 @@ select pg_temp.check((select (r->>'total')::numeric = 85 and r->>'fulfilment' = 
     from (select place_order(pg_temp.order_json('South','[{"slug":"crescent-moon-ring","quantity":1}]',
       '{"fulfilment":"collection","city":"","street":""}'))) t(r)),
   'collection by appointment needs no address and has no delivery fee');
+select pg_temp.check((select r->>'payment_method' = 'whish' and r->>'status' = 'awaiting_payment'
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
+  'Whish is the default and the order waits for payment');
+select pg_temp.check((select r->>'payment_method' = 'cash' and r->>'status' = 'preparing' and (r->>'total')::numeric = 85
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+      '{"payment_method":"cash"}'))) t(r)),
+  'cash on delivery orders go straight to preparation');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+  '{"payment_method":"card"}'))$$, 'Whish or cash on delivery');
 
 -- ---------------------------------------------------------------- gift vouchers
 insert into gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at) values
@@ -197,7 +206,7 @@ select pg_temp.check((select action = 'reminder' from inactivity_due() where fir
 delete from auth.users where email = 'rana@example.com';
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana')
                      and (select count(*) = 0 from addresses) and (select count(*) = 0 from wishlist)
-                     and (select count(*) = 5 from orders) and (select count(*) = 0 from orders where user_id is not null),
+                     and (select count(*) = 7 from orders) and (select count(*) = 0 from orders where user_id is not null),
   'deleting an account removes profile, addresses and wishlist but keeps orders');
 
 \o

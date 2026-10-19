@@ -55,6 +55,7 @@ test('guest order is saved and both emails are sent', async () => {
   const rpc = calls.find((c) => c.url.endsWith('/rpc/place_order'));
   assert.equal(rpc.body.p_user_id, null);
   assert.equal(rpc.body.p.age_confirmed, true);
+  assert.equal(rpc.body.p.payment_method, 'whish', 'Whish is the default payment method');
   assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2 }], 'browser prices are dropped');
   assert.equal(rpc.headers.apikey, 'eyJservice');
   assert.equal(rpc.headers.authorization, 'Bearer eyJservice', 'legacy JWT key is also sent as Bearer');
@@ -68,6 +69,27 @@ test('guest order is saved and both emails are sent', async () => {
   assert.equal(shop.reply_to, 'rana@example.com');
   assert.match(shop.subject, /SJ-ABC123/);
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
+});
+
+test('cash on delivery order tells the customer to pay the Wakilni driver', async () => {
+  handlers['/rest/v1/rpc/place_order'] = () => [200, { ...savedOrder, payment_method: 'cash', delivery_fee: 5 }];
+  await placeOrder(request('/api/place-order', {
+    customer_name: 'Rana', email: 'rana@example.com', phone: '70', governorate: 'Beirut', city: 'A', street: 'S',
+    payment_method: 'cash', age_confirmed: true, items: [{ slug: 'v-bird-necklace', quantity: 1 }],
+  }));
+  assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'cash');
+  const [customer, shop] = emails();
+  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the Wakilni driver/);
+  assert.match(customer.html, /To pay in cash on delivery/);
+  assert.doesNotMatch(customer.html, /via Whish/);
+  assert.match(shop.subject, /\$120\.00 cash/);
+  assert.match(shop.html, /cash on delivery \(Wakilni\)/);
+});
+
+test('an unknown payment method is treated as Whish', async () => {
+  handlers['/rest/v1/rpc/place_order'] = () => [200, savedOrder];
+  await placeOrder(request('/api/place-order', { payment_method: 'card', age_confirmed: true, items: [] }));
+  assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'whish');
 });
 
 test('signed-in order is linked to the account', async () => {
