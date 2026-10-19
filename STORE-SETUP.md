@@ -82,8 +82,9 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order SJ-XXXXXX" in Outlook. The subject says **Whish** or **cash**, and the email
-   lists the items, the amount to collect, and either the delivery address or "Collection by appointment"
+1. You get an email "New order SO16" in Outlook. Order numbers carry on from the finance workbook
+   (SO16, SO17, ...). The subject says **Whish** or **cash**, and the email lists the items with their
+   SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
 2. **Whish orders** start as `awaiting_payment`. When the Whish payment with that reference arrives, open
    **Supabase → Table Editor → orders** and change the order's **status** to `paid`, then `preparing`.
@@ -95,18 +96,30 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
-select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150);
+select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150, 'recipient@email.com', '+961 70 000 000');
 ```
-It returns a code like `SIARAM-7F3A-91C2`, valid for 6 months. Amounts under $100 are refused, as in
+Put the recipient's email and phone number from the purchaser at the end (at least one of the two; write
+`null` for one you don't have). It returns a code like `GV0001-K7QM4X`, valid for 6 months. `GV0001` is the
+voucher number for the finance workbook; the random part after the dash stops anyone spending a voucher by
+guessing the next number, so always send the recipient the whole code. Customers can type it in lower case
+or without the dash. At checkout the website only accepts the voucher when the customer's email or phone
+number is the recipient's, so a forwarded code cannot be used by someone else. Amounts under $100 are refused, as in
 your Gift Voucher policy. Send it to the recipient's phone or email given by the purchaser.
 Vouchers pay for jewellery only, never the delivery fee.
 Customers enter the code at checkout; expired codes are refused automatically and any unused balance
 stays on the voucher until it expires. See all vouchers in **Table Editor → gift_vouchers**
 (set **status** to `void` to cancel one).
 
+**Order and voucher numbers** — the next numbers are in **Table Editor → store_settings**
+(`next_order_number`, `next_voucher_number`). Change them there if you record an order or voucher outside
+the website, so the numbers stay in step with the finance workbook.
+
+**Export orders to Excel** — **Table Editor → orders** (or **order_items** for the pieces and SKUs) →
+**Export → Export as CSV**, then open the file in Excel.
+
 **Change a price or stop selling a piece** — **products** table: edit **price**, or untick **available**.
 
-**Add a new piece** — add a row to **products** (slug like `star-earrings`, name, category, price, image
+**Add a new piece** — add a row to **products** (slug like `star-earrings`, name, category, SKU, price, image
 path) and ask Claude to create its product page `product-star-earrings.html`.
 
 **Inactive accounts** — handled automatically every day: a reminder after 12 months without activity,

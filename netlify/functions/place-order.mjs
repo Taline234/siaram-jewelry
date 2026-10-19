@@ -46,7 +46,7 @@ export default async (req) => {
           `<p style="font-size:15px;line-height:1.6">${saved.payment_method === 'cash'
             ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}. Status: being prepared`
             : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
-           ${orderSummaryHtml(saved)}`),
+           ${orderSummaryHtml(saved, { sku: true })}`),
       }),
     ]);
 

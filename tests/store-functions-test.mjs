@@ -36,11 +36,11 @@ const request = (path, body, headers = {}) =>
   new Request(`https://siaram.test${path}`, { method: 'POST', body: JSON.stringify(body), headers });
 
 const savedOrder = {
-  reference: 'SJ-ABC123', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
+  reference: 'SO16', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
   subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
   whish_number: '+961 76 052 068', whish_name: 'Siaram Jewelry',
-  items: [{ name: 'V-Bird Necklace', unit_price: 120, quantity: 1 }],
+  items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1 }],
 };
 
 const emails = () => calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => c.body);
@@ -67,7 +67,9 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(customer.html, /\+961 76 052 068/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
   assert.equal(shop.reply_to, 'rana@example.com');
-  assert.match(shop.subject, /SJ-ABC123/);
+  assert.match(shop.subject, /SO16/);
+  assert.match(shop.html, /NK-07 &middot; V-Bird Necklace/, 'the shop email shows the SKU');
+  assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
 });
 
@@ -141,8 +143,10 @@ test('spam-trap field rejects the request', async () => {
 test('voucher check returns balance but not the recipient name', async () => {
   handlers['/rest/v1/rpc/check_voucher'] = () =>
     [200, { code: 'SIARAM-AAAA-BBBB', balance: 50, expires_at: '2027-01-01', recipient_name: 'Lea' }];
-  const res = await checkVoucher(request('/api/check-voucher', { code: 'siaram-aaaa-bbbb' }));
+  const res = await checkVoucher(request('/api/check-voucher', { code: 'siaram-aaaa-bbbb', email: 'lea@example.com', phone: '70' }));
   assert.deepEqual(await res.json(), { code: 'SIARAM-AAAA-BBBB', balance: 50, expires_at: '2027-01-01' });
+  assert.deepEqual(calls.find((c) => c.url.endsWith('/rpc/check_voucher')).body,
+    { p_code: 'siaram-aaaa-bbbb', p_email: 'lea@example.com', p_phone: '70' }, 'recipient details are passed on');
 });
 
 test('expired voucher message reaches the customer', async () => {
