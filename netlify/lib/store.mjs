@@ -159,7 +159,7 @@ export function paymentInstructionsHtml(order) {
     return order.fulfilment === 'collection'
       ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
 We will message you to arrange a time.</p>`
-      : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the Wakilni driver
+      : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
 when your order arrives, plus the delivery fee. We are preparing your order now.</p>`;
   }
   const to = order.whish_number

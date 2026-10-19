@@ -38,7 +38,7 @@ function applyFulfilment() {
   root.querySelector('.cash-title').textContent = collect ? 'Cash at collection' : 'Cash on delivery';
   root.querySelector('.cash-text').textContent = collect
     ? 'Pay in cash when you collect your order.'
-    : 'Pay the Wakilni driver in cash when your order arrives, together with the delivery fee.';
+    : 'Pay the driver in cash when your order arrives, together with the delivery fee.';
   renderSummary();
 }
 
@@ -127,7 +127,7 @@ function renderForm(profile) {
           <span><strong>Whish</strong><br />After you place your order, send the total via Whish with your order
           reference. We'll prepare your piece as soon as the payment arrives.</span></label>
         <label class="pay-option"><input type="radio" name="payment_method" value="cash" />
-          <span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">Pay the Wakilni driver in cash
+          <span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">Pay the driver in cash
           when your order arrives, together with the delivery fee.</span></span></label>
         <p class="field-note">Gift vouchers cover jewellery, not delivery.</p>
       </fieldset>
@@ -200,7 +200,7 @@ function showConfirmation(order) {
     : cash && order.fulfilment === 'collection'
       ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash when you collect your order.</p>`
     : cash
-      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the Wakilni driver when your order arrives. We're preparing it now.</p>`
+      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives. We're preparing it now.</p>`
     : `<p>Please send <strong>${money(order.total)}</strong> via Whish to
         ${order.whish_number ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>` : 'us &mdash; we will message you our Whish details shortly'},
         and write <strong>${escapeHtml(order.reference)}</strong> in the note.</p>

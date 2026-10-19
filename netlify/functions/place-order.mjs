@@ -44,7 +44,7 @@ export default async (req) => {
         subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} ${saved.payment_method === 'cash' ? 'cash' : 'Whish'} (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
           `<p style="font-size:15px;line-height:1.6">${saved.payment_method === 'cash'
-            ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery (Wakilni)'}. Status: being prepared`
+            ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}. Status: being prepared`
             : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
            ${orderSummaryHtml(saved)}`),
       }),

@@ -71,7 +71,7 @@ test('guest order is saved and both emails are sent', async () => {
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
 });
 
-test('cash on delivery order tells the customer to pay the Wakilni driver', async () => {
+test('cash on delivery order tells the customer to pay the driver', async () => {
   handlers['/rest/v1/rpc/place_order'] = () => [200, { ...savedOrder, payment_method: 'cash', delivery_fee: 5 }];
   await placeOrder(request('/api/place-order', {
     customer_name: 'Rana', email: 'rana@example.com', phone: '70', governorate: 'Beirut', city: 'A', street: 'S',
@@ -79,11 +79,11 @@ test('cash on delivery order tells the customer to pay the Wakilni driver', asyn
   }));
   assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'cash');
   const [customer, shop] = emails();
-  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the Wakilni driver/);
+  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the driver/);
   assert.match(customer.html, /To pay in cash on delivery/);
   assert.doesNotMatch(customer.html, /via Whish/);
   assert.match(shop.subject, /\$120\.00 cash/);
-  assert.match(shop.html, /cash on delivery \(Wakilni\)/);
+  assert.match(shop.html, /cash on delivery/);
 });
 
 test('an unknown payment method is treated as Whish', async () => {
