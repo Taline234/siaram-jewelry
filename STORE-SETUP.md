@@ -14,7 +14,7 @@ some keys into Netlify. Allow about an hour.
 1. Sign up at <https://supabase.com> and click **New project**.
    - Name: `siaram-jewelry`
    - Database password: generate a strong one and save it in your password manager.
-   - Region: **Central EU (Frankfurt)** — the Privacy Policy says your data is stored in the EU, so pick this one.
+   - Region: any **EU** region (for example Frankfurt or Ireland) — the Privacy Policy says your data is stored in the European Union.
 2. When the project is ready, open **SQL Editor → New query**, paste the whole contents of
    [`supabase/schema.sql`](supabase/schema.sql), and click **Run**. It should say "Success".
 3. Open **Table Editor** and fill in:
