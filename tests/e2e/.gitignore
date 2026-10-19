@@ -1,0 +1,5 @@
+node_modules/
+supabase.esm.js
+screenshots/
+server.log
+package-lock.json

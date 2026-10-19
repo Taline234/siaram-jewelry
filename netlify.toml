@@ -1,0 +1,50 @@
+# Netlify settings. The site itself is plain HTML (no build step);
+# the online store's server code lives in netlify/functions.
+[build]
+  publish = "."
+
+[functions]
+  directory = "netlify/functions"
+
+# Keep source, database and test files off the public website.
+[[redirects]]
+  from = "/supabase/*"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify/*"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/tests/*"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/STORE-SETUP.md"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/HANDOVER.md"
+  to = "/"
+  status = 404
+  force = true

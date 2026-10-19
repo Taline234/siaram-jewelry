@@ -4,7 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Journal — Siaram Jewelry</title>
-<meta name="description" content="Stories, styling notes, and inspiration from Siaram Jewelry — coming soon." />
+<meta name="description" content="Stories, styling notes, care guides and inspiration from Siaram Jewelry." />
+<link rel="canonical" href="https://siaramjewelry.com/journal.html" />
+<meta property="og:site_name" content="Siaram Jewelry" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Journal — Siaram Jewelry" />
+<meta property="og:description" content="Stories, styling notes, care guides and inspiration from Siaram Jewelry." />
+<meta property="og:url" content="https://siaramjewelry.com/journal.html" />
+<meta property="og:image" content="https://siaramjewelry.com/images/journal/story-behind-siaram.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="images/logo.jpeg" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -16,6 +24,7 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="shop.html">Shop</a></li>
+      <li><a href="custom.html">Custom</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
       <li><a href="journal.html">Journal</a></li>
@@ -30,6 +39,7 @@
   <div class="mobile-menu">
     <a href="index.html">Home</a>
     <a href="shop.html">Shop</a>
+    <a href="custom.html">Custom</a>
     <a href="about.html">About</a>
     <a href="contact.html">Contact</a>
     <a href="journal.html">Journal</a>
@@ -44,10 +54,43 @@
 </section>
 
 <section>
-  <div class="container story-block reveal">
-    <span class="script" style="font-size: 2.2rem; display:block; margin-bottom: 18px;">Coming Soon</span>
-    <p>We're putting together stories on craftsmanship, styling, and the ideas behind each Siaram collection. Check back soon &mdash; or follow along on <a href="https://www.instagram.com/siaram.jewelry/" target="_blank" rel="noopener">Instagram</a> in the meantime.</p>
-    <a href="shop.html" class="btn btn-outline" style="margin-top: 12px;">Shop the Collection</a>
+  <div class="container">
+    <div class="section-head reveal">
+      <p>Notes on styling, care, and the ideas behind each Siaram piece. For everyday inspiration, follow along on <a href="https://www.instagram.com/siaram.jewelry/" target="_blank" rel="noopener">Instagram</a>.</p>
+    </div>
+    <div class="product-grid">
+
+      <article class="product-card journal-card">
+        <a href="journal-how-to-layer-necklaces.html" class="product-media"><img src="images/product-layered-necklace.jpeg" alt="Layered gold necklaces" loading="lazy" /></a>
+        <div class="product-body">
+          <span class="product-cat">Styling</span>
+          <h3><a href="journal-how-to-layer-necklaces.html">How to Layer Necklaces</a></h3>
+          <p>A simple guide to layering fine gold necklaces &mdash; lengths, textures and the rule of three.</p>
+          <a class="product-link" href="journal-how-to-layer-necklaces.html">Read the Story</a>
+        </div>
+      </article>
+
+      <article class="product-card journal-card">
+        <a href="journal-gold-jewelry-care.html" class="product-media"><img src="images/product-horseshoe-earrings.jpeg" alt="Gold horseshoe chain earrings set with zircon" loading="lazy" /></a>
+        <div class="product-body">
+          <span class="product-cat">Care Guide</span>
+          <h3><a href="journal-gold-jewelry-care.html">How to Care for Your Gold Jewelry</a></h3>
+          <p>Simple habits that keep fine gold jewelry bright &mdash; cleaning, storage, travel and what to avoid.</p>
+          <a class="product-link" href="journal-gold-jewelry-care.html">Read the Story</a>
+        </div>
+      </article>
+
+      <article class="product-card journal-card">
+        <a href="journal-the-story-behind-siaram.html" class="product-media"><img src="images/journal/story-behind-siaram.jpg" alt="A smiling rider leaning forward to pat her horse in the arena" loading="lazy" /></a>
+        <div class="product-body">
+          <span class="product-cat">Our Story</span>
+          <h3><a href="journal-the-story-behind-siaram.html">The Story Behind Siaram</a></h3>
+          <p>Where the name Siaram comes from, and the celestial, equestrian and geometric ideas behind our designs.</p>
+          <a class="product-link" href="journal-the-story-behind-siaram.html">Read the Story</a>
+        </div>
+      </article>
+
+    </div>
   </div>
 </section>
 
@@ -62,6 +105,7 @@
         <h4>About</h4>
         <ul>
           <li><a href="about.html">Our Story</a></li>
+          <li><a href="custom.html">Custom Pieces</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="faq.html">FAQ</a></li>
         </ul>
@@ -70,9 +114,13 @@
         <h4>Policies</h4>
         <ul>
           <li><a href="terms.html">Terms &amp; Conditions</a></li>
-          <li><a href="privacy.html#information-we-collect">Cookies Policy</a></li>
+          <li><a href="shipping.html">Shipping &amp; Collection</a></li>
+          <li><a href="returns.html">Returns &amp; Exchanges</a></li>
+          <li><a href="warranty.html">Warranty &amp; Repairs</a></li>
+          <li><a href="custom-orders.html">Custom Orders</a></li>
+          <li><a href="gift-vouchers.html">Gift Vouchers</a></li>
           <li><a href="privacy.html">Privacy Policy</a></li>
-          <li><a href="terms.html#returns">Exchange &amp; Return Policy</a></li>
+          <li><a href="cookies.html">Cookie Policy</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -93,5 +141,7 @@
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="js/script.js"></script>
+<script src="js/store-config.js"></script>
+<script type="module" src="js/store.js"></script>
 </body>
 </html>
