@@ -143,8 +143,10 @@ test('spam-trap field rejects the request', async () => {
 test('voucher check returns balance but not the recipient name', async () => {
   handlers['/rest/v1/rpc/check_voucher'] = () =>
     [200, { code: 'SIARAM-AAAA-BBBB', balance: 50, expires_at: '2027-01-01', recipient_name: 'Lea' }];
-  const res = await checkVoucher(request('/api/check-voucher', { code: 'siaram-aaaa-bbbb' }));
+  const res = await checkVoucher(request('/api/check-voucher', { code: 'siaram-aaaa-bbbb', email: 'lea@example.com', phone: '70' }));
   assert.deepEqual(await res.json(), { code: 'SIARAM-AAAA-BBBB', balance: 50, expires_at: '2027-01-01' });
+  assert.deepEqual(calls.find((c) => c.url.endsWith('/rpc/check_voucher')).body,
+    { p_code: 'siaram-aaaa-bbbb', p_email: 'lea@example.com', p_phone: '70' }, 'recipient details are passed on');
 });
 
 test('expired voucher message reaches the customer', async () => {

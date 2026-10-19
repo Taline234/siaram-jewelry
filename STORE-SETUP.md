@@ -96,11 +96,14 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
-select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150);
+select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150, 'recipient@email.com', '+961 70 000 000');
 ```
-It returns a code like `GV0031-K7QM4X`, valid for 6 months. `GV0031` is the voucher number for the finance
-workbook; the random part after the dash stops anyone spending a voucher by guessing the next number, so
-always send the customer the whole code. Customers can type it in lower case or without the dash. Amounts under $100 are refused, as in
+Put the recipient's email and phone number from the purchaser at the end (at least one of the two; write
+`null` for one you don't have). It returns a code like `GV0001-K7QM4X`, valid for 6 months. `GV0001` is the
+voucher number for the finance workbook; the random part after the dash stops anyone spending a voucher by
+guessing the next number, so always send the recipient the whole code. Customers can type it in lower case
+or without the dash. At checkout the website only accepts the voucher when the customer's email or phone
+number is the recipient's, so a forwarded code cannot be used by someone else. Amounts under $100 are refused, as in
 your Gift Voucher policy. Send it to the recipient's phone or email given by the purchaser.
 Vouchers pay for jewellery only, never the delivery fee.
 Customers enter the code at checkout; expired codes are refused automatically and any unused balance

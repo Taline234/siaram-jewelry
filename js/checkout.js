@@ -181,7 +181,8 @@ async function applyVoucher() {
   msg.textContent = 'Checking…';
   try {
     const res = await fetch('/api/check-voucher', {
-      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code }),
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ code, email: form.elements.email.value.trim(), phone: form.elements.phone.value.trim() }),
     });
     const body = await res.json();
     if (!res.ok) throw new Error(body.error);

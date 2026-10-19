@@ -142,16 +142,29 @@ select pg_temp.check((select array_agg(reference order by reference) = array['SO
                         from orders),
   'each order takes the next SO number');
 
-select issue_gift_voucher('Lea', 'Nour', 150) as new_code \gset
-select pg_temp.check((select code ~ '^GV0031-[A-HJ-NP-Z2-9]{6}$' and balance = 150
+select issue_gift_voucher('Lea', 'Nour', 150, ' Lea@Example.com ', '+961 71 234 567') as new_code \gset
+select pg_temp.check((select code ~ '^GV0001-[A-HJ-NP-Z2-9]{6}$' and balance = 150
+                             and recipient_email = 'lea@example.com' and recipient_phone = '+961 71 234 567'
                              and expires_at::date = (now() + interval '6 months')::date
                         from gift_vouchers where code = :'new_code'),
-  'issue_gift_voucher creates a 6-month voucher numbered after the workbook (GV0031-XXXXXX)');
-select pg_temp.expect_error($$select issue_gift_voucher('Lea', 'Nour', 50)$$, 'start at \$100');
-select pg_temp.check((select (check_voucher(lower(replace(:'new_code', '-', ' ')))->>'balance')::numeric = 150),
-  'voucher lookup also works without the dash');
-select pg_temp.check((select issue_gift_voucher('Lea', 'Nour', 100) like 'GV0032-%'), 'the next voucher is GV0032');
-select pg_temp.expect_error($$select check_voucher('GV0031')$$, 'not valid');
+  'issue_gift_voucher creates a 6-month voucher for a named recipient, starting at GV0001-XXXXXX');
+select pg_temp.expect_error($$select issue_gift_voucher('Lea', 'Nour', 50, 'lea@example.com')$$, 'start at \$100');
+select pg_temp.expect_error($$select issue_gift_voucher('Lea', 'Nour', 150)$$, 'email or phone number');
+select pg_temp.check((select (check_voucher(lower(replace(:'new_code', '-', ' ')), 'LEA@example.com')->>'balance')::numeric = 150),
+  'voucher lookup works without the dash, for the recipient''s email');
+select pg_temp.check((select (check_voucher(:'new_code', 'someone@else.com', '71234567')->>'balance')::numeric = 150),
+  'the recipient''s phone number also works, written differently');
+select pg_temp.expect_error(format('select check_voucher(%L, %L, %L)', :'new_code', 'someone@else.com', '70 000 000'),
+  'only be used by its recipient');
+select pg_temp.expect_error(format('select check_voucher(%L)', :'new_code'), 'only be used by its recipient');
+select pg_temp.expect_error(format($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+  jsonb_build_object('voucher_code', %L)))$$, :'new_code'), 'only be used by its recipient');
+select pg_temp.check((select (r->>'voucher_amount')::numeric = 85
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+      jsonb_build_object('voucher_code', :'new_code', 'email', 'lea@example.com', 'customer_name', 'Lea')))) t(r)),
+  'the recipient can pay with the voucher');
+select pg_temp.check((select issue_gift_voucher('Lea', 'Nour', 100, null, '70000000') like 'GV0002-%'), 'the next voucher is GV0002');
+select pg_temp.expect_error($$select check_voucher('GV0001')$$, 'not valid');
 
 -- ---------------------------------------------------------------- addresses
 set role authenticated;
@@ -219,7 +232,7 @@ select pg_temp.check((select action = 'reminder' from inactivity_due() where fir
 delete from auth.users where email = 'rana@example.com';
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana')
                      and (select count(*) = 0 from addresses) and (select count(*) = 0 from wishlist)
-                     and (select count(*) = 7 from orders) and (select count(*) = 0 from orders where user_id is not null),
+                     and (select count(*) = 8 from orders) and (select count(*) = 0 from orders where user_id is not null),
   'deleting an account removes profile, addresses and wishlist but keeps orders');
 
 \o

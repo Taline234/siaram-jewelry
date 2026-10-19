@@ -9,8 +9,9 @@
 --   delivery_areas  which governorates accept orders, and the delivery fee
 --   store_settings  your Whish number and name shown at checkout
 --   orders          incoming orders; change status when paid / dispatched
---   gift_vouchers   issue vouchers with:  select issue_gift_voucher('Recipient', 'Purchaser', 150);
---   store_settings  also holds the next order number (SO16, SO17, ...) and the next voucher number (GV0031, ...)
+--   gift_vouchers   issue vouchers with:
+--                     select issue_gift_voucher('Recipient', 'Purchaser', 150, 'recipient@email.com', '+961 70 000 000');
+--   store_settings  also holds the next order number (SO16, SO17, ...) and the next voucher number (GV0001, ...)
 -- ==========================================================================
 
 -- ---------------------------------------------------------------- catalogue
@@ -107,10 +108,10 @@ create table if not exists public.store_settings (
 );
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
 
--- Order and gift voucher numbers carry on from the finance workbook (last order SO15, last voucher GV0030).
+-- Order numbers carry on from the finance workbook (last order SO15); gift vouchers start at GV0001.
 -- Taken inside the same transaction as the order or voucher, so a failed order never skips a number.
 alter table public.store_settings add column if not exists next_order_number int not null default 16;
-alter table public.store_settings add column if not exists next_voucher_number int not null default 31;
+alter table public.store_settings add column if not exists next_voucher_number int not null default 1;
 
 -- ---------------------------------------------------------------- customers
 create table if not exists public.profiles (
@@ -291,6 +292,9 @@ create table if not exists public.gift_vouchers (
   status          text not null default 'active' check (status in ('active','void')),
   notes           text
 );
+-- Only the named recipient may redeem a voucher: checkout asks for their email or phone number.
+alter table public.gift_vouchers add column if not exists recipient_email text;
+alter table public.gift_vouchers add column if not exists recipient_phone text;
 
 create table if not exists public.voucher_redemptions (
   id            uuid primary key default gen_random_uuid(),
@@ -300,10 +304,14 @@ create table if not exists public.voucher_redemptions (
   created_at    timestamptz not null default now()
 );
 
--- Run from the SQL Editor: select issue_gift_voucher('Recipient Name', 'Purchaser Name', 150);
--- Codes look like GV0031-K7QM4X: the GV number for the finance workbook, plus a random part so that
+-- Run from the SQL Editor, with the recipient's email and/or phone number from the purchaser:
+--   select issue_gift_voucher('Recipient Name', 'Purchaser Name', 150, 'recipient@email.com', '+961 70 000 000');
+-- Codes look like GV0001-K7QM4X: the GV number for the finance workbook, plus a random part so that
 -- nobody can spend a voucher by guessing the next number.
-create or replace function public.issue_gift_voucher(p_recipient text, p_purchaser text, p_amount numeric)
+drop function if exists public.issue_gift_voucher(text, text, numeric);
+create or replace function public.issue_gift_voucher(p_recipient text, p_purchaser text, p_amount numeric,
+                                                     p_recipient_email text default null,
+                                                     p_recipient_phone text default null)
 returns text language plpgsql security definer set search_path = public as $$
 declare
   -- No I or O, which are easily mistaken for 1 and 0.
@@ -316,6 +324,9 @@ begin
   if p_amount is null or p_amount < 100 then
     raise exception 'Gift vouchers start at $100.';
   end if;
+  if coalesce(trim(p_recipient_email), '') = '' and coalesce(trim(p_recipient_phone), '') = '' then
+    raise exception 'Add the recipient''s email or phone number, so that only they can use the voucher.';
+  end if;
   update public.store_settings set next_voucher_number = next_voucher_number + 1 where id = 1
   returning next_voucher_number - 1, voucher_valid_months into v_number, v_months;
   v_random := decode(replace(gen_random_uuid()::text, '-', ''), 'hex');
@@ -323,9 +334,11 @@ begin
   for i in 0..5 loop
     v_code := v_code || substr(c_letters, get_byte(v_random, i) % 32 + 1, 1);
   end loop;
-  insert into public.gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at)
+  insert into public.gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at,
+                                    recipient_email, recipient_phone)
   values (v_code, p_recipient, p_purchaser, p_amount, p_amount,
-          now() + make_interval(months => coalesce(v_months, 6)));
+          now() + make_interval(months => coalesce(v_months, 6)),
+          nullif(lower(trim(p_recipient_email)), ''), nullif(trim(p_recipient_phone), ''));
   return v_code;
 end $$;
 
@@ -354,10 +367,33 @@ begin
   return v;
 end $$;
 
-create or replace function public.check_voucher(p_code text) returns jsonb
-language plpgsql security definer set search_path = public as $$
+-- True when the email or phone given at checkout is the recipient's. Phone numbers are compared on
+-- their last 8 digits, so "+961 70 123 456" and "70123456" match.
+create or replace function public.is_voucher_recipient(v public.gift_vouchers, p_email text, p_phone text)
+returns boolean language sql immutable set search_path = public as $$
+  select (v.recipient_email is null and v.recipient_phone is null)
+      or lower(trim(coalesce(p_email, ''))) = v.recipient_email
+      or (length(regexp_replace(coalesce(p_phone, ''), '\D', '', 'g')) >= 7
+          and right(regexp_replace(p_phone, '\D', '', 'g'), 8) = right(regexp_replace(coalesce(v.recipient_phone, ''), '\D', '', 'g'), 8));
+$$;
+
+create or replace function public.voucher_for_recipient(p_code text, p_email text, p_phone text, p_lock boolean default false)
+returns public.gift_vouchers language plpgsql security definer set search_path = public as $$
 declare
-  v public.gift_vouchers := public.usable_voucher(p_code);
+  v public.gift_vouchers := public.usable_voucher(p_code, p_lock);
+begin
+  if not public.is_voucher_recipient(v, p_email, p_phone) then
+    raise exception 'This gift voucher can only be used by its recipient. Please enter the email or phone number it was sent to in your details above.'
+      using errcode = 'P0001';
+  end if;
+  return v;
+end $$;
+
+drop function if exists public.check_voucher(text);
+create or replace function public.check_voucher(p_code text, p_email text default null, p_phone text default null)
+returns jsonb language plpgsql security definer set search_path = public as $$
+declare
+  v public.gift_vouchers := public.voucher_for_recipient(p_code, p_email, p_phone);
 begin
   return jsonb_build_object('code', v.code, 'balance', v.balance, 'expires_at', v.expires_at,
                             'recipient_name', v.recipient_name);
@@ -455,7 +491,7 @@ begin
   v_total := v_subtotal;
 
   if coalesce(trim(p->>'voucher_code'), '') <> '' then
-    v_voucher := public.usable_voucher(p->>'voucher_code', true);
+    v_voucher := public.voucher_for_recipient(p->>'voucher_code', p->>'email', p->>'phone', true);
     v_discount := least(v_voucher.balance, v_total);
     update public.gift_vouchers set balance = balance - v_discount where code = v_voucher.code;
     insert into public.voucher_redemptions (voucher_code, order_id, amount)
@@ -576,12 +612,13 @@ revoke insert, update, delete on public.products, public.delivery_areas, public.
 
 -- Server-only functions.
 revoke execute on function public.place_order(jsonb, uuid)            from public, anon, authenticated;
-revoke execute on function public.check_voucher(text)                 from public, anon, authenticated;
+revoke execute on function public.check_voucher(text, text, text)    from public, anon, authenticated;
+revoke execute on function public.voucher_for_recipient(text, text, text, boolean) from public, anon, authenticated;
 revoke execute on function public.usable_voucher(text, boolean)       from public, anon, authenticated;
-revoke execute on function public.issue_gift_voucher(text, text, numeric) from public, anon, authenticated;
+revoke execute on function public.issue_gift_voucher(text, text, numeric, text, text) from public, anon, authenticated;
 revoke execute on function public.inactivity_due()                    from public, anon, authenticated;
 revoke execute on function public.mark_inactivity_email(uuid, text)   from public, anon, authenticated;
-grant execute on function public.place_order(jsonb, uuid), public.check_voucher(text),
+grant execute on function public.place_order(jsonb, uuid), public.check_voucher(text, text, text),
   public.inactivity_due(), public.mark_inactivity_email(uuid, text) to service_role;
 revoke execute on function public.touch_activity() from public, anon;
 grant execute on function public.touch_activity() to authenticated;
