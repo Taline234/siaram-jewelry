@@ -196,13 +196,33 @@ async function setupBuyBox(products) {
       addToCart(slug, Number(box.querySelector('.qty-select').value));
       toast(`Added to your cart &middot; <a href="cart.html">View cart</a>`);
     });
-    // Enquiries become the secondary option once the piece can be bought online.
+    // Once the piece can be bought online, Add to Cart replaces the email enquiry;
+    // WhatsApp stays as a secondary option for sizing questions.
+    document.querySelectorAll('.product-actions a[href^="mailto:"]').forEach((a) => a.remove());
     document.querySelectorAll('.product-actions .btn-primary').forEach((b) => {
       b.classList.replace('btn-primary', 'btn-outline');
     });
   }
   box.appendChild(await wishlistButton(slug));
   box.hidden = false;
+}
+
+// Product cards (shop, home, "you may also like"): Add to Cart instead of Enquire by Email.
+function setupCardButtons(products) {
+  document.querySelectorAll('.product-card').forEach((card) => {
+    const slug = card.querySelector('[data-price-for]')?.dataset.priceFor;
+    const enquire = card.querySelector('.btn-contact');
+    if (!enquire || !purchasable(products[slug])) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'btn btn-contact card-add';
+    button.textContent = 'Add to Cart';
+    button.addEventListener('click', () => {
+      addToCart(slug, 1);
+      toast(`Added to your cart &middot; <a href="cart.html">View cart</a>`);
+    });
+    enquire.replaceWith(button);
+  });
 }
 
 // Keeps the 12/24-month inactivity clock fresh while a customer uses the site.
@@ -223,6 +243,7 @@ async function init() {
   try {
     const products = await loadProducts();
     await fillPrices(products);
+    setupCardButtons(products);
     await setupBuyBox(products);
     await recordActivity();
   } catch (err) {

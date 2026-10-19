@@ -82,7 +82,7 @@ function renderForm(profile) {
       <fieldset><legend>Contact</legend>
         <div class="form-grid">
           ${field('customer_name', 'Full name', 'required autocomplete="name"')}
-          ${field('phone', 'Phone (WhatsApp)', 'required type="tel" autocomplete="tel" placeholder="+961"')}
+          ${field('phone', 'Phone', 'required type="tel" autocomplete="tel" placeholder="+961"')}
           ${field('email', 'Email', `required type="email" autocomplete="email"${signedIn ? ' readonly' : ''}`)}
         </div>
       </fieldset>

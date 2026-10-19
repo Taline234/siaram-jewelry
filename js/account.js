@@ -49,7 +49,7 @@ function renderSignedOut(notice = '') {
         ${field('last_name', 'Last name', 'required autocomplete="family-name"')}
       </div>
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
-      ${field('phone', 'Phone (WhatsApp)', 'type="tel" required autocomplete="tel" placeholder="+961"')}
+      ${field('phone', 'Phone', 'type="tel" required autocomplete="tel" placeholder="+961"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
       ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
@@ -285,7 +285,7 @@ async function renderDetails(panel, session, profile) {
       <div class="form-grid">
         ${field('first_name', 'First name', 'required')}
         ${field('last_name', 'Last name', 'required')}
-        ${field('phone', 'Phone (WhatsApp)', 'type="tel" required')}
+        ${field('phone', 'Phone', 'type="tel" required')}
         ${field('email', 'Email', 'readonly')}
         ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
       </div>
