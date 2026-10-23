@@ -40,7 +40,7 @@ def breadcrumb(items):
 
 
 # ---- catalogue (SJ Catalogue, October 2026): collection order and names as printed;
-#      prices set by the owner on 23 October 2026 (finance workbook prices where not given)
+#      prices set by the owner on 23 October 2026
 COLLECTIONS = [
     ("equestrian", "Equestrian", "Inspired by the bond between a horse and its rider, and the quiet strength, elegance and timeless spirit of the equestrian world."),
     ("core", "Core", "Signature designs that embody the effortless elegance at the heart of Siaram Jewelry."),
@@ -87,13 +87,13 @@ P = [
     item("horse-eye-ring", "Horse Eye Ring", "Rings", "equestrian", 555,
          "An open 18k yellow gold ring in the shape of a horse eye, with a striking marquise-cut red stone and white stones along its curved silhouette.",
          "Marquise-cut red stone and white zircon", "Gold horse eye ring with a red stone, worn on a hand resting on a horse"),
-    item("horse-eye-stud", "Horse Eye Stud", "Earrings", "equestrian", 479.99,
+    item("horse-eye-stud", "Horse Eye Stud", "Earrings", "equestrian", 410,
          "A bold 18k yellow gold horse eye stud with a marquise-shaped coloured centre stone, framed by subtle sparkling stones.",
          "Marquise-shaped coloured centre stone and zircon", "Gold horse eye stud earring, worn on the ear"),
     item("horse-eye-bracelet", "Horse Eye Bracelet", "Bracelets", "equestrian", 450,
          "An 18k yellow gold chain bracelet featuring an elegant horse eye motif, set with a rich marquise-shaped red stone and sparkling white stones.",
          "Marquise-cut red stone and white zircon", "Gold horse eye bracelet laid out with other Siaram pieces"),
-    item("horse-eye-necklace", "Horse Eye Necklace", "Necklaces", "equestrian", 619,
+    item("horse-eye-necklace", "Horse Eye Necklace", "Necklaces", "equestrian", 620,
          "An eye-catching 18k yellow gold necklace with a horse eye motif, set with a striking marquise-cut red stone and finished with delicate stone detailing along the eye.",
          "Marquise-cut red stone and zircon", "Gold horse eye necklace worn in dappled light"),
     # Core
@@ -109,7 +109,7 @@ P = [
          "Delicate drop earrings in 18k yellow gold: a white stone stud, a fine chain and a sculpted curve, finished with a marquise-cut stone surrounded by smaller stones.",
          "Marquise-cut and round white zircon", "Gold curved marquise drop earrings displayed on a portrait vase",
          imgs=2),
-    item("eye-necklace", "Eye Necklace", "Necklaces", "core", 600,
+    item("eye-necklace", "Eye Necklace", "Necklaces", "core", 630,
          "A delicate 18k yellow gold chain adorned with white pearls, with an eye-shaped pendant embellished with white stones and a striking turquoise centre.",
          "White zircon, turquoise centre stone and white pearls", "Gold eye necklace with pearls and a turquoise centre, in warm light"),
     # Fatima
@@ -149,13 +149,13 @@ P = [
     item("crescent-moon-earrings", "Crescent Moon Earrings", "Earrings", "celestial", 499.99,
          "Crescent moon studs in 18k yellow gold set with white stones, finished with a fine chain and a dangling white pearl.",
          "White zircon and white pearls", "Gold crescent moon earrings with pearl drops"),
-    item("star-moon-necklace", "Star/Moon Necklace", "Necklaces", "celestial", 499,
+    item("star-moon-necklace", "Star/Moon Necklace", "Necklaces", "celestial", 470,
          "A delicate Y-shaped 18k yellow gold necklace with a hollow star connector and a small crescent moon drop.",
          "Zircon", "Y-shaped gold star and moon necklace displayed on a candle"),
-    item("qamar-ring", "Qamar Ring", "Rings", "celestial", 429,
+    item("qamar-ring", "Qamar Ring", "Rings", "celestial", 430,
          "The Arabic word &ldquo;&#1602;&#1605;&#1585;&rdquo; (qamar, moon) crafted into an 18k yellow gold ring with a white stone.",
          "White zircon", "Gold ring spelling qamar in Arabic, among white roses"),
-    item("crescent-moon-ring", "Crescent Moon Ring", "Rings", "celestial", 359,
+    item("crescent-moon-ring", "Crescent Moon Ring", "Rings", "celestial", 340,
          "A bold 18k yellow gold open crescent moon ring with a central stone detail.",
          "Zircon", "Gold open crescent moon ring with a zircon, on a wooden block", imgs=2),
     item("sun-necklace", "Sun Necklace", "Necklaces", "celestial", 579.99,
