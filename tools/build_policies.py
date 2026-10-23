@@ -224,7 +224,7 @@ for doc_name, fname, title, desc in PAGES:
 <meta property="og:title" content="{title} — Siaram Jewelry" />
 <meta property="og:description" content="{desc}" />
 <meta property="og:url" content="{url}" />
-<meta property="og:image" content="https://siaramjewelry.com/images/products/v-bird-necklace-2.jpg" />
+<meta property="og:image" content="https://siaramjewelry.com/images/hero.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="images/logo.jpeg" />
 <link rel="stylesheet" href="css/style.css" />
