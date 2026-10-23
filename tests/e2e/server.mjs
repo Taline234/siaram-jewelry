@@ -241,9 +241,11 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(r.status, Object.fromEntries(r.headers));
     return res.end(await r.text());
   }
-  if (url.pathname === '/js/store-config.js' && state.storeOn) {
+  if (url.pathname === '/js/store-config.js') {
+    // Store off means an unfilled config, whatever the real file now holds.
+    const config = state.storeOn ? `{ supabaseUrl: '${ORIGIN}/sb', supabaseAnonKey: '${ANON}' }` : `{ supabaseUrl: '', supabaseAnonKey: '' }`;
     res.writeHead(200, { 'content-type': 'text/javascript' });
-    return res.end(`window.SIARAM_STORE = { supabaseUrl: '${ORIGIN}/sb', supabaseAnonKey: '${ANON}' };`);
+    return res.end(`window.SIARAM_STORE = ${config};`);
   }
   const file = path.join(REPO, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname));
   if (!file.startsWith(REPO) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
