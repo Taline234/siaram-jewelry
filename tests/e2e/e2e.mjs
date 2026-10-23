@@ -31,7 +31,7 @@ const shot = async (name) => { await page.evaluate(() => document.querySelectorA
 await setState({ storeOn: false });
 await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForTimeout(500);
-assert.equal(await page.locator('.product-price').textContent(), '$520.00');
+assert.equal(await page.locator('.product-price').textContent(), '$559.00');
 assert.equal(await page.locator('.product-buy').isHidden(), true);
 assert.equal(await page.locator('.nav-store').count(), 0);
 await page.goto(`${ORIGIN}/cart.html`);
