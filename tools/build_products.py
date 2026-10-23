@@ -211,7 +211,7 @@ def links(p):
 def card(p):
     mail, _ = links(p)
     return f"""      <article class="product-card" data-category="{p['cat'].lower()}" data-collection="{p['coll']}">
-        <a href="{p['page']}" class="product-media"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
+        <a href="{p['page']}" class="product-media" data-photos="{','.join(p['imgs'])}"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
         <div class="product-body">
           <span class="product-cat">{COLL[p['coll']][0]} Collection</span>
           <h3><a href="{p['page']}">{p['name']}</a></h3>

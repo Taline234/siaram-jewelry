@@ -370,6 +370,47 @@ section { padding: 96px 0; }
 .product-body .btn-contact { margin-top: 8px; }
 
 a.product-media { display: block; }
+
+/* Arrows and dots for flicking through a card's photos */
+.card-gallery { position: relative; }
+.card-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38px; height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(250, 247, 241, 0.88);
+  color: var(--green-deep);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.25s ease, background 0.25s ease;
+}
+.card-nav svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.card-prev { left: 10px; }
+.card-next { right: 10px; }
+.card-gallery:hover .card-nav, .card-nav:focus-visible { opacity: 1; }
+.card-nav:hover { background: var(--ivory); }
+.card-dots {
+  position: absolute;
+  left: 0; right: 0; bottom: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+.card-dots span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(250, 247, 241, 0.6);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
+}
+.card-dots span.on { background: var(--ivory); }
+@media (hover: none) {
+  .card-nav { opacity: 1; width: 34px; height: 34px; }
+}
 .product-body h3 a:hover { color: var(--gold); }
 
 .product-link {

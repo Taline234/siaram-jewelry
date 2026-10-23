@@ -71,6 +71,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Card photo browser: arrows (and swipe) to flick through a piece's photos
+  document.querySelectorAll('.product-media[data-photos]').forEach((link) => {
+    const photos = link.dataset.photos.split(',');
+    if (photos.length < 2) return;
+    const img = link.querySelector('img');
+    const wrap = document.createElement('div');
+    wrap.className = 'card-gallery';
+    link.before(wrap);
+    wrap.append(link);
+    let index = 0;
+    const dots = document.createElement('div');
+    dots.className = 'card-dots';
+    dots.setAttribute('aria-hidden', 'true');
+    photos.forEach(() => dots.append(document.createElement('span')));
+    const show = (i) => {
+      index = (i + photos.length) % photos.length;
+      img.src = photos[index];
+      dots.querySelectorAll('span').forEach((d, j) => d.classList.toggle('on', j === index));
+    };
+    const button = (dir, label) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `card-nav card-${dir}`;
+      b.setAttribute('aria-label', label);
+      b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${dir === 'prev' ? 'M15 5l-7 7 7 7' : 'M9 5l7 7-7 7'}"/></svg>`;
+      b.addEventListener('click', () => show(index + (dir === 'prev' ? -1 : 1)));
+      return b;
+    };
+    wrap.append(button('prev', 'Previous photo'), button('next', 'Next photo'), dots);
+    show(0);
+    // Fetch the other photos once someone shows interest, so flicking is instant
+    wrap.addEventListener('pointerenter', () => photos.slice(1).forEach((src) => { new Image().src = src; }), { once: true });
+    let startX = null;
+    link.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    link.addEventListener('touchend', (e) => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      startX = null;
+      if (Math.abs(dx) > 40) { e.preventDefault(); show(index + (dx < 0 ? 1 : -1)); }
+    });
+  });
+
   // FAQ accordion
   document.querySelectorAll('.faq-question').forEach((btn) => {
     btn.addEventListener('click', () => {
