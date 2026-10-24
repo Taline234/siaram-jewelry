@@ -92,7 +92,7 @@ Changes after submission may not be possible. We quote any additional cost and r
 
 ## Returns and customer supplied materials
 
-Bespoke, personalised and specifically altered pieces are not eligible for returns under our 14-day offer once production or alteration has begun, subject to any applicable legal rights. This does not exclude refunds for confirmed defective arrivals or remedies for an incorrect piece or a material departure from the approved design. The Returns and Warranty policies apply to these problems.
+Bespoke, personalised and specifically altered pieces are not eligible for returns under our 14-day offer once production or alteration has begun, subject to any applicable legal rights. If such a piece arrives defective or damaged, we will agree a solution with you, which may include repair; if we send the wrong piece or materially depart from the approved design, we will send the correct piece at no extra cost. The Returns and Warranty policies apply to these problems.
 
 Before accepting your stone, we agree an intake record of its description, photographs, visible condition, declared value and proposed work. We explain identified risks before you authorise work. The stone remains yours.
 
@@ -162,7 +162,7 @@ If a sale, limited-edition or other item is excluded from our voluntary 14-day o
 
 Please inspect your order and tell us about a visible problem promptly, preferably within 48 hours. Include your order reference, a description and photographs where possible. We may need to inspect the piece before confirming the cause and remedy.
 
-A confirmed defect or damage present on arrival qualifies for a refund, including on a bespoke or personalised piece. If we sent the wrong piece or materially departed from the approved design, we will arrange the correct piece at no extra charge. If an appropriate correction or replacement is not possible within a reasonable time, we will offer a refund, together with any other remedy required by law.
+If a piece arrives defective or damaged, including a bespoke or personalised piece, contact us and we will agree a solution with you, which may include repair. Defects and damage on arrival are not refunded, except where the law requires a refund. If we sent the wrong piece or materially departed from the approved design, we will send the correct piece at no extra cost to you.
 
 We arrange prepaid return delivery for confirmed defects, damage on arrival or incorrect items and pay for the replacement delivery where applicable. Missing the requested 48-hour reporting period does not automatically remove a warranty or legal claim. Later-discovered manufacturing faults are handled under our Warranty and repairs policy.
 
@@ -188,7 +188,7 @@ Refunds normally go to the original purchaser using the original payment method.
 
 For a return under our 14-day offer, you pay the return delivery and, for an exchange, delivery of the replacement. The original delivery charge is not refunded under our voluntary offer once delivery has been completed. Any delivery amount that must be refunded under applicable law will be refunded. We will explain any relevant charge before arranging it.
 
-For a confirmed defective, arrival-damaged or incorrect item, we arrange and pay for the necessary return and replacement delivery. A refund for such an item includes the price paid and the delivery charges attributable to it. If you paid the courier directly, provide the delivery receipt or other available evidence so we can arrange reimbursement.
+For a confirmed defective, arrival-damaged or incorrect item, we arrange and pay for the necessary return and replacement delivery. Where a refund is due by law for such an item, it includes the price paid and the delivery charges attributable to it. If you paid the courier directly, provide the delivery receipt or other available evidence so we can arrange reimbursement.
 
 ## Exchanges gifts and store credit
 

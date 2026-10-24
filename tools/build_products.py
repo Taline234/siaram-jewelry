@@ -66,11 +66,11 @@ P = [
          "Our signature horseshoe pendant on a fine 18k yellow gold chain, with a long drop ending in a white zircon.",
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-necklace-black-stone", "Horse Shoe Necklace &ndash; Black Stone", "Necklaces", "equestrian", 525,
+    item("horseshoe-necklace-black-stone", "Midnight Horseshoe Necklace", "Necklaces", "equestrian", 525,
          "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black stones, finished with a fine drop chain ending in a white stone.",
          "Black and white zircon", "Y-shaped gold necklace with a black stone horseshoe, worn with a white top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-bracelet", "Horse Shoe Bracelet", "Bracelets", "equestrian", 450,
+    item("horseshoe-bracelet", "Midnight Horseshoe Bracelet", "Bracelets", "equestrian", 450,
          "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black stones, paired with a brilliant white stone.",
          "Black and white zircon", "Gold chain bracelet with a black stone horseshoe and a white stone, on the wrist", imgs=3),
     item("horseshoe-ring", "Horse Shoe Ring", "Rings", "equestrian", 350,
@@ -184,10 +184,10 @@ P = [
     item("arrow-earrings", "Arrow Earring", "Earrings", "arrow", 499,
          "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white stones and a vibrant red centre stone.",
          "White zircon and a red centre stone", "Gold arrow threader earring, worn", imgs=3),
-    item("arrow-open-ring", "Arrow Open Ring", "Rings", "arrow", 589,
+    item("arrow-open-ring", "Diverge Arrow Ring", "Rings", "arrow", 589,
          "An open 18k yellow gold ring with the two ends of an arrow facing in opposite directions, set with contrasting black and white stones.",
          "Black and white zircon", "Gold open arrow ring with black and white stones", imgs=3),
-    item("arrow-ring", "Arrow Ring", "Rings", "arrow", 679,
+    item("arrow-ring", "Sahm Ring", "Rings", "arrow", 679,
          "An 18k yellow gold ring where two arrowheads meet: one traced with white stones around a vivid coloured centre stone, the other polished gold.",
          "White zircon and a coloured centre stone", "Gold arrow ring with a coloured centre stone", imgs=3),
 ]
@@ -241,7 +241,7 @@ CUSTOM_WRISTS = range(14, 21)  # other chain lengths in cm
 cm = lambda v: f"{v:g}"
 
 def size_options(d):
-    """[(value, label)] for the size picker, or [] when the piece has no size. Every piece is made to order."""
+    """[(value, label)] for the size picker, or [] when the piece has no size."""
     if "ring" in d:
         return [(f"EU {eu}", f"EU {eu} &middot; US {us}") for eu, us in RING_SIZES]
     if "wrist" in d:
@@ -295,32 +295,24 @@ def card(p):
 
 METALS = [("yellow", "18k yellow gold"), ("rose", "18k rose gold"), ("white", "18k white gold")]
 
-# Necklace length guide: where each length sits, drawn on a simple neckline.
+# Necklace length guide, laid out like the ring and bracelet guides, with the lengths from the
+# owner's reference chart.
 NECKLACE_GUIDE = """<dialog class="size-guide" id="size-guide-necklace" aria-labelledby="necklace-guide-title">
   <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
   <h2 id="necklace-guide-title">Necklace Length Guide</h2>
-  <p>Each piece lists its chain length. Most of our chains are adjustable, so you can wear them a little higher or lower. Here is where each length sits.</p>
-  <svg class="neck-diagram" viewBox="0 0 340 200" role="img" aria-label="Where 35, 40, 45 and 50 cm necklaces sit on the neckline">
-    <path class="neck-body" d="M136 0 V58 C136 74 100 82 40 96 C22 100 10 112 6 130 M204 0 V58 C204 74 240 82 300 96 C318 100 330 112 334 130" />
-    <path class="neck-line" d="M136 60 C142 92 198 92 204 60" />
-    <path class="neck-line" d="M132 66 C138 122 202 122 208 66" />
-    <path class="neck-line" d="M126 72 C134 152 206 152 214 72" />
-    <path class="neck-line" d="M118 78 C128 196 212 196 222 78" />
-    <text x="252" y="88">35 cm</text><line x1="196" y1="84" x2="248" y2="84" />
-    <text x="252" y="114">40 cm</text><line x1="200" y1="108" x2="248" y2="110" />
-    <text x="252" y="142">45 cm</text><line x1="204" y1="132" x2="248" y2="138" />
-    <text x="252" y="176">50 cm</text><line x1="210" y1="166" x2="248" y2="172" />
-  </svg>
+  <p>Each necklace lists its chain length in the details. Use this chart to see where that length sits; most of our chains are adjustable, so you can wear them a little higher or lower.</p>
   <table class="size-table">
-    <thead><tr><th>Length</th><th>Where it sits</th></tr></thead>
+    <thead><tr><th>Style</th><th>Inches</th><th>Centimetres</th></tr></thead>
     <tbody>
-        <tr><td>35&ndash;38 cm</td><td>At the base of the neck</td></tr>
-        <tr><td>40 cm</td><td>On the collarbone</td></tr>
-        <tr><td>43&ndash;45 cm</td><td>Just below the collarbone</td></tr>
-        <tr><td>50&ndash;52 cm</td><td>Above the neckline, lovely for layering</td></tr>
+        <tr><td>Collar</td><td>12&ndash;13&Prime;</td><td>30&ndash;33 cm</td></tr>
+        <tr><td>Choker</td><td>14&ndash;16&Prime;</td><td>35&ndash;40 cm</td></tr>
+        <tr><td>Princess</td><td>17&ndash;19&Prime;</td><td>43&ndash;48 cm</td></tr>
+        <tr><td>Matinee</td><td>20&ndash;24&Prime;</td><td>50&ndash;60 cm</td></tr>
+        <tr><td>Opera</td><td>28&ndash;34&Prime;</td><td>70&ndash;86 cm</td></tr>
+        <tr><td>Rope</td><td>over 45&Prime;</td><td>over 115 cm</td></tr>
     </tbody>
   </table>
-  <p class="size-guide-note">Shown on an average neck; the same chain sits a little higher on a larger neck. Want a different length? Every necklace is made to order: add the length you want in the order notes at checkout, or message us.</p>
+  <p class="size-guide-note">A choker sits at the base of the neck, a princess length just below the collarbone and a matinee length above the neckline. Want a different length? Add it to the order notes at checkout or message us; if it is out of stock, it may take 3 to 4 weeks to make.</p>
 </dialog>
 
 """
@@ -357,7 +349,7 @@ def options_html(p):
 {metals}
             </div>
           </fieldset>
-{size}{necklace_guide}          <p class="made-to-order-note">Every Siaram piece is made to order for you, in the metal and size you choose.</p>
+{size}{necklace_guide}          <p class="made-to-order-note">If a piece is out of stock, it may take 3 to 4 weeks to make.</p>
         </div>
 """
 
@@ -390,7 +382,7 @@ def guide_dialog(p):
 {rows}
     </tbody>
   </table>
-  <p class="size-guide-note">Between two sizes? Choose the larger one. Every ring is made to order in the size you choose.</p>
+  <p class="size-guide-note">Between two sizes? Choose the larger one. If your size is out of stock, it may take 3 to 4 weeks to make.</p>
 </dialog>
 
 """
@@ -410,7 +402,7 @@ def guide_dialog(p):
         <tr><td>18 cm</td><td>19 cm</td><td>20 cm</td></tr>
     </tbody>
   </table>
-  <p class="size-guide-note">Our standard chain is adjustable, so it fits a range of wrists. For a length outside that range, choose it from the list: every bracelet is made to order.</p>
+  <p class="size-guide-note">Our standard chain is adjustable, so it fits a range of wrists. For a length outside that range, choose it from the list. If it is out of stock, it may take 3 to 4 weeks to make.</p>
 </dialog>
 
 """
@@ -545,9 +537,9 @@ open("sitemap.xml", "w").write(s)
 # ---- database seed
 sql = lambda v: "'" + v.replace("'", "''") + "'"
 seed = "insert into public.products (slug, name, category, image, price) values\n" + ",\n".join(
-    f"  ({sql(p['slug'])}, {sql(p['plain'])}, {sql(p['cat'])}, {sql(p['img'])}, {p['price']})" for p in P) + "\non conflict (slug) do nothing;"
+    f"  ({sql(p['slug'])}, {sql(p['plain'])}, {sql(p['cat'])}, {sql(p['img'])}, {p['price']})" for p in P) + "\non conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;"
 s = open("supabase/schema.sql", encoding="utf-8").read()
-s, n = re.subn(r"insert into public\.products \(slug, name, category, image(, price)?\) values\n.*?on conflict \(slug\) do nothing;", lambda m: seed, s, flags=re.S)
+s, n = re.subn(r"insert into public\.products \(slug, name, category, image(, price)?\) values\n.*?on conflict \(slug\) do [^;]*;", lambda m: seed, s, flags=re.S)
 assert n == 1
 sizes = "update public.products p set sizes = v.sizes\n  from (values\n" + ",\n".join(
     f"    ({sql(p['slug'])}, array[{', '.join(sql(v) for v, _ in p['sizes'])}])"

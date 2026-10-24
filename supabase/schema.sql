@@ -30,8 +30,8 @@ alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image, price) values
   ('horseshoe-necklace', 'Horse Shoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 490),
-  ('horseshoe-necklace-black-stone', 'Horse Shoe Necklace – Black Stone', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
-  ('horseshoe-bracelet', 'Horse Shoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
+  ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
+  ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
   ('horseshoe-ring', 'Horse Shoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 350),
   ('horseshoe-chain-earrings', 'Horse Shoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 420),
   ('horse-eye-ring', 'Horse Eye Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 555),
@@ -63,9 +63,9 @@ insert into public.products (slug, name, category, image, price) values
   ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 489),
   ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 689),
   ('arrow-earrings', 'Arrow Earring', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
-  ('arrow-open-ring', 'Arrow Open Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
-  ('arrow-ring', 'Arrow Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
-on conflict (slug) do nothing;
+  ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
+  ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
+on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
 
 -- The product code from the finance workbook. Shown on orders so they match the spreadsheet.
 -- Pieces sold as an asymmetric pair list both codes.
