@@ -1414,6 +1414,14 @@ legend {
 .size-table td { text-align: center; padding: 7px 8px; border-bottom: 1px solid var(--line); }
 .size-table tbody tr:nth-child(odd) { background: var(--cream); }
 .size-guide-note { font-size: 0.95rem !important; color: #5c5c50; margin-bottom: 0; }
+.neck-diagram { display: block; width: 100%; max-width: 360px; margin: 4px auto 0; }
+.neck-diagram .neck-body { fill: none; stroke: #b9ae9b; stroke-width: 1.3; stroke-linecap: round; }
+.neck-diagram .neck-line { fill: none; stroke: var(--gold); stroke-width: 1.4; }
+.neck-diagram line { stroke: #cfc6b6; stroke-width: 0.7; stroke-dasharray: 2 3; }
+.neck-diagram text { font-family: var(--font-sans); font-size: 11px; fill: var(--green-deep); letter-spacing: 0.04em; }
+.size-guide-sub { font-size: 1.25rem !important; margin: 20px 0 8px !important; }
+.size-guide-tips { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; font-family: var(--font-serif); font-size: 1.02rem; line-height: 1.45; }
+.size-guide-tips strong { font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-mid); font-weight: 500; }
 @media (max-width: 600px) {
   .size-guide { padding: 36px 20px 24px; }
 }
