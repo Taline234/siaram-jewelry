@@ -148,7 +148,7 @@ Under this voluntary offer, the piece must be unworn, unused, unaltered and unda
 
 ## Items outside the voluntary offer
 
-Our 14-day returns and exchanges policy excludes bespoke and personalised pieces, pieces altered or resized for you, sale items and limited editions identified as final sale before purchase.
+Our 14-day returns and exchanges policy excludes bespoke and personalised pieces, sale items and limited editions identified as final sale before purchase.
 
 These exclusions do not remove an applicable legal withdrawal right or remedies for a defective, incorrect or misdescribed piece. In particular, a sale or limited-edition label alone does not remove a legal withdrawal right.
 
