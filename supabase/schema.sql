@@ -87,30 +87,28 @@ update public.products p set sku = v.sku
   ) as v(slug, sku)
  where p.slug = v.slug and p.sku is null;
 
--- Sizes a piece can be ordered in (rings and bracelets; empty = no size to choose) and the size
--- it is made in and stocked. Any other size, or rose or white gold, is made to order.
--- Filled in by tools/build_products.py.
+-- Sizes a piece can be ordered in (rings and bracelets; empty = no size to choose).
+-- Every piece is made to order. Filled in by tools/build_products.py.
 alter table public.products add column if not exists sizes text[];
-alter table public.products add column if not exists stock_size text;
 -- product sizes start
-update public.products p set sizes = v.sizes, stock_size = v.stock_size
+update public.products p set sizes = v.sizes
   from (values
-    ('horseshoe-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm'], '15–17 cm'),
-    ('horseshoe-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
-    ('horse-eye-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
-    ('horse-eye-bracelet', array['16–17.5 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm'], '16–17.5 cm'),
-    ('curved-marquise-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm'], '15–17 cm'),
-    ('fatima-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
-    ('moon-star-handchain', array['16–18 cm', '14 cm', '15 cm', '19 cm', '20 cm'], '16–18 cm'),
-    ('qamar-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55'),
-    ('crescent-moon-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
-    ('sun-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
-    ('seahorse-pearl-bracelet', array['15–16 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm'], '15–16 cm'),
-    ('wave-bracelet', array['15–16.5 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm'], '15–16.5 cm'),
-    ('arrow-bracelet', array['16–17 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm'], '16–17 cm'),
-    ('arrow-open-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55'),
-    ('arrow-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55')
-  ) as v(slug, sizes, stock_size)
+    ('horseshoe-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm']),
+    ('horseshoe-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('horse-eye-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('horse-eye-bracelet', array['16–17.5 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm']),
+    ('curved-marquise-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm']),
+    ('fatima-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('moon-star-handchain', array['16–18 cm', '14 cm', '15 cm', '19 cm', '20 cm']),
+    ('qamar-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('crescent-moon-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('sun-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('seahorse-pearl-bracelet', array['15–16 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm']),
+    ('wave-bracelet', array['15–16.5 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm']),
+    ('arrow-bracelet', array['16–17 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm']),
+    ('arrow-open-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('arrow-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'])
+  ) as v(slug, sizes)
  where p.slug = v.slug;
 -- product sizes end
 
@@ -310,7 +308,6 @@ alter table public.order_items add column if not exists sku text;
 alter table public.order_items add column if not exists metal text not null default 'yellow'
   check (metal in ('yellow', 'rose', 'white'));
 alter table public.order_items add column if not exists size text not null default '';
-alter table public.order_items add column if not exists made_to_order boolean not null default false;
 alter table public.order_items drop constraint if exists order_items_pkey;
 alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size);
 
@@ -526,9 +523,8 @@ begin
     elsif not (v_size = any(v_product.sizes)) then
       raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
     end if;
-    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
-    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size,
-            v_metal <> 'yellow' or (v_product.sizes is not null and v_size is distinct from v_product.stock_size))
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size)
     on conflict (order_id, product_slug, metal, size)
       do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_product.price * v_qty;
@@ -565,8 +561,8 @@ begin
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
       'whish_number', s.whish_number, 'whish_name', s.whish_name,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
-                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
-                                                    'made_to_order', i.made_to_order) order by i.name)
+                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
+                                                    order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s
      where o.id = v_order_id and s.id = 1);

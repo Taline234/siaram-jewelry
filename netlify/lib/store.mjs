@@ -122,13 +122,11 @@ export function payLabel(order) {
   return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
 }
 
-// Metal and size under each piece. Anything but yellow gold, or a size other than the stocked one,
-// is made to order.
+// Metal and size under each piece.
 const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
 function itemOptions(i) {
   const parts = [METALS[i.metal] || METALS.yellow];
   if (i.size) parts.push(i.size);
-  if (i.made_to_order) parts.push('Made to order (3 to 4 weeks)');
   return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
 }
 

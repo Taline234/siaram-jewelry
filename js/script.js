@@ -113,18 +113,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Product options: say when the chosen metal or size is made to order
-  document.querySelectorAll('.product-options').forEach((box) => {
-    const note = box.querySelector('.made-to-order-note');
-    const size = box.querySelector('.size-select');
-    const update = () => {
-      const metal = box.querySelector('[name=metal]:checked')?.value;
-      const sizeMto = size?.selectedOptions[0]?.hasAttribute('data-made-to-order');
-      note.hidden = metal === 'yellow' && !sizeMto;
-      if (size?.value) size.classList.remove('invalid');
-    };
-    box.addEventListener('change', update);
-    update();
+  // Clear the "choose a size" warning once a size is picked
+  document.querySelectorAll('.size-select').forEach((size) => {
+    size.addEventListener('change', () => { if (size.value) size.classList.remove('invalid'); });
   });
 
   // Size guide pop-ups

@@ -67,7 +67,7 @@ export function getCart() {
   memoryCart ||= storageGet(CART_KEY, []);
   return memoryCart
     .filter((i) => i && typeof i.slug === 'string' && i.quantity > 0)
-    .map((i) => ({ metal: 'yellow', size: '', madeToOrder: false, ...i }));
+    .map((i) => ({ metal: 'yellow', size: '', ...i }));
 }
 
 // One cart line per piece, metal and size.
@@ -75,11 +75,10 @@ export const lineKey = (i) => `${i.slug}|${i.metal || 'yellow'}|${i.size || ''}`
 
 export const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
 
-// "18k rose gold · EU 54 · Made to order", for the cart and checkout.
+// "18k rose gold · EU 54", for the cart and checkout.
 export function optionsLabel(i) {
   const parts = [METALS[i.metal] || METALS.yellow];
   if (i.size) parts.push(i.size);
-  if (i.madeToOrder) parts.push('Made to order (3 to 4 weeks)');
   return parts.map(escapeHtml).join(' &middot; ');
 }
 
@@ -99,7 +98,7 @@ export function setCart(items) {
 
 export function addToCart(slug, quantity = 1, options = {}) {
   const cart = getCart();
-  const item = { slug, metal: options.metal || 'yellow', size: options.size || '', madeToOrder: Boolean(options.madeToOrder) };
+  const item = { slug, metal: options.metal || 'yellow', size: options.size || '' };
   const line = cart.find((i) => lineKey(i) === lineKey(item));
   if (line) line.quantity = Math.min(line.quantity + quantity, 10);
   else cart.push({ ...item, quantity: Math.min(quantity, 10) });
@@ -218,10 +217,7 @@ async function setupBuyBox(products) {
         toast('Please choose a size first.');
         return;
       }
-      const sizeMto = Boolean(size?.selectedOptions[0]?.hasAttribute('data-made-to-order'));
-      addToCart(slug, Number(box.querySelector('.qty-select').value), {
-        metal, size: size ? size.value : '', madeToOrder: metal !== 'yellow' || sizeMto,
-      });
+      addToCart(slug, Number(box.querySelector('.qty-select').value), { metal, size: size ? size.value : '' });
       toast(`Added to your cart &middot; <a href="cart.html">View cart</a>`);
     });
     // Once the piece can be bought online, Add to Cart replaces the email enquiry;

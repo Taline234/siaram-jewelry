@@ -105,11 +105,11 @@ select pg_temp.check((
         {"slug":"crescent-moon-ring","quantity":1,"size":"EU 50","metal":"rose"},
         {"slug":"v-bird-necklace","quantity":1,"metal":"white","size":"ignored"}]'))) t(r)),
   'the same piece in two metals or sizes is two lines; prices do not change with the metal');
-select pg_temp.check((select array_agg(metal || '/' || size || '/' || made_to_order order by metal, size) =
-    array['rose/EU 50/true', 'white//true', 'yellow/EU 54/false']
+select pg_temp.check((select array_agg(metal || '/' || size order by metal, size) =
+    array['rose/EU 50', 'white/', 'yellow/EU 54']
     from order_items i join orders o on o.id = i.order_id
    where o.reference = (select max(reference) from orders)),
-  'stocked metal and size are not made to order; other metals and sizes are, and necklaces have no size');
+  'each line records its metal and size, and necklaces have no size');
 -- Undo that order so the numbering checks below are unaffected.
 delete from orders where reference = (select max(reference) from orders);
 update store_settings set next_order_number = next_order_number - 1 where id = 1;

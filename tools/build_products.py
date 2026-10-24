@@ -74,7 +74,7 @@ P = [
          "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black stones, paired with a brilliant white stone.",
          "Black and white zircon", "Gold chain bracelet with a black stone horseshoe and a white stone, on the wrist", imgs=3),
     item("horseshoe-ring", "Horse Shoe Ring", "Rings", "equestrian", 350,
-         "An open horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
+         "A horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
          "Pav&eacute; zircon", "Gold horseshoe ring set with pavé zircon, worn on the hand",
          "A nod to the bond between a horse and its rider that gave Siaram its name. Delicate enough to stack, easy to wear every day.",
          imgs=3),
@@ -237,28 +237,25 @@ assert set(D) == {p["slug"] for p in P}
 # Ring sizes from the size guide: EU size (the inside circumference in mm) and its US equivalent.
 RING_SIZES = [(45, "3.5"), (47, "4"), (48, "4.5"), (49, "5"), (50, "5.5"), (51, "6"), (52, "6.5"),
               (54, "7"), (55, "7.5"), (56, "8"), (58, "8.5"), (59, "9")]
-CUSTOM_WRISTS = range(14, 21)  # chain lengths in cm, made to order
+CUSTOM_WRISTS = range(14, 21)  # other chain lengths in cm
 cm = lambda v: f"{v:g}"
 
 def size_options(d):
-    """[(value, label, made_to_order)] for the size picker, or [] when the piece has no size."""
+    """[(value, label)] for the size picker, or [] when the piece has no size. Every piece is made to order."""
     if "ring" in d:
-        return [(f"EU {eu}", f"EU {eu} &middot; US {us}" + (" &middot; in stock" if eu == d["ring"] else " &middot; made to order"),
-                 eu != d["ring"]) for eu, us in RING_SIZES]
+        return [(f"EU {eu}", f"EU {eu} &middot; US {us}") for eu, us in RING_SIZES]
     if "wrist" in d:
         lo, hi = d["wrist"]
         std = f"{cm(lo)}&ndash;{cm(hi)} cm"
-        return ([(html.unescape(std), f"{std} adjustable &middot; in stock", False)]
-                + [(f"{n} cm", f"{n} cm &middot; made to order", True) for n in CUSTOM_WRISTS if not lo <= n <= hi])
+        return ([(html.unescape(std), f"{std} (adjustable, standard)")]
+                + [(f"{n} cm", f"{n} cm") for n in CUSTOM_WRISTS if not lo <= n <= hi])
     return []
 
 for p in P:
     d = D[p["slug"]]
     p.update(sku=d["sku"], stone=d.get("stone"), other=d.get("other"), sizes=size_options(d),
-             size_kind="ring" if "ring" in d else "bracelet" if "wrist" in d else None)
+             size_kind="ring" if "ring" in d else "bracelet" if "wrist" in d else "necklace" if p["cat"] == "Necklaces" else None)
     dims = list(d.get("dims", []))
-    if "ring" in d:
-        dims.insert(0, ("Ring size", f"EU {d['ring']} (other sizes made to order)"))
     if "wrist" in d:
         dims.insert(0, ("Wrist chain" if p["slug"] == "moon-star-handchain" else "Length",
                         f"{cm(d['wrist'][0])}&ndash;{cm(d['wrist'][1])} cm (adjustable)"))
@@ -296,19 +293,48 @@ def card(p):
         </div>
       </article>"""
 
-METALS = [("yellow", "18k yellow gold", "In stock"), ("rose", "18k rose gold", "Made to order"),
-          ("white", "18k white gold", "Made to order")]
+METALS = [("yellow", "18k yellow gold"), ("rose", "18k rose gold"), ("white", "18k white gold")]
+
+# Necklace length guide: where each length sits, drawn on a simple neckline.
+NECKLACE_GUIDE = """<dialog class="size-guide" id="size-guide-necklace" aria-labelledby="necklace-guide-title">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+  <h2 id="necklace-guide-title">Necklace Length Guide</h2>
+  <p>Each piece lists its chain length. Most of our chains are adjustable, so you can wear them a little higher or lower. Here is where each length sits.</p>
+  <svg class="neck-diagram" viewBox="0 0 340 200" role="img" aria-label="Where 35, 40, 45 and 50 cm necklaces sit on the neckline">
+    <path class="neck-body" d="M136 0 V58 C136 74 100 82 40 96 C22 100 10 112 6 130 M204 0 V58 C204 74 240 82 300 96 C318 100 330 112 334 130" />
+    <path class="neck-line" d="M136 60 C142 92 198 92 204 60" />
+    <path class="neck-line" d="M132 66 C138 122 202 122 208 66" />
+    <path class="neck-line" d="M126 72 C134 152 206 152 214 72" />
+    <path class="neck-line" d="M118 78 C128 196 212 196 222 78" />
+    <text x="252" y="88">35 cm</text><line x1="196" y1="84" x2="248" y2="84" />
+    <text x="252" y="114">40 cm</text><line x1="200" y1="108" x2="248" y2="110" />
+    <text x="252" y="142">45 cm</text><line x1="204" y1="132" x2="248" y2="138" />
+    <text x="252" y="176">50 cm</text><line x1="210" y1="166" x2="248" y2="172" />
+  </svg>
+  <table class="size-table">
+    <thead><tr><th>Length</th><th>Where it sits</th></tr></thead>
+    <tbody>
+        <tr><td>35&ndash;38 cm</td><td>At the base of the neck</td></tr>
+        <tr><td>40 cm</td><td>On the collarbone</td></tr>
+        <tr><td>43&ndash;45 cm</td><td>Just below the collarbone</td></tr>
+        <tr><td>50&ndash;52 cm</td><td>Above the neckline, lovely for layering</td></tr>
+    </tbody>
+  </table>
+  <p class="size-guide-note">Shown on an average neck; the same chain sits a little higher on a larger neck. Want a different length? Every necklace is made to order: add the length you want in the order notes at checkout, or message us.</p>
+</dialog>
+
+"""
 
 def options_html(p):
     """Metal and size pickers. They show on every product page; the cart reads them."""
     metals = "\n".join(
         f'            <label class="metal-choice"><input type="radio" name="metal" value="{v}"{" checked" if v == "yellow" else ""} />'
-        f'<span class="metal-swatch metal-{v}" aria-hidden="true"></span><span>{label}<small>{note}</small></span></label>'
-        for v, label, note in METALS)
+        f'<span class="metal-swatch metal-{v}" aria-hidden="true"></span><span>{label}</span></label>'
+        for v, label in METALS)
     size = ""
     if p["sizes"]:
-        opts = "\n".join(f'              <option value="{html.escape(v, quote=True)}"{" data-made-to-order" if mto else ""}>{label}</option>'
-                         for v, label, mto in p["sizes"])
+        opts = "\n".join(f'              <option value="{html.escape(v, quote=True)}">{label}</option>'
+                         for v, label in p["sizes"])
         what = "Ring size" if p["size_kind"] == "ring" else "Length"
         size = f"""          <div class="option-group">
             <div class="option-head"><label for="size-select">{what}</label>
@@ -319,6 +345,11 @@ def options_html(p):
             </select>
           </div>
 """
+    necklace_guide = ""
+    if p["size_kind"] == "necklace":
+        necklace_guide = """          <div class="option-head"><span class="option-label">Chain length</span>
+            <button type="button" class="link-btn size-guide-open" data-guide="necklace">Necklace length guide</button></div>
+"""
     return f"""        <div class="product-options" data-size-kind="{p['size_kind'] or ''}">
           <fieldset class="option-group">
             <legend>Metal</legend>
@@ -326,13 +357,13 @@ def options_html(p):
 {metals}
             </div>
           </fieldset>
-{size}          <p class="made-to-order-note" hidden>Made to order: ready in 3 to 4 weeks.</p>
+{size}{necklace_guide}          <p class="made-to-order-note">Every Siaram piece is made to order for you, in the metal and size you choose.</p>
         </div>
 """
 
 def specs_html(p):
     rows = [("SKU", p["sku"]), ("Collection", COLL[p["coll"]][0]), ("Category", p["cat"]),
-            ("Metal", "18k yellow gold. Also made to order in 18k rose or white gold")]
+            ("Metal", "18k yellow, rose or white gold")]
     if p["stone"]:
         rows.append(("Stone", p["stone"]))
     if p["other"]:
@@ -359,7 +390,7 @@ def guide_dialog(p):
 {rows}
     </tbody>
   </table>
-  <p class="size-guide-note">Between two sizes? Choose the larger one. Each ring is made in one size and stocked in it; any other size is made to order in 3 to 4 weeks.</p>
+  <p class="size-guide-note">Between two sizes? Choose the larger one. Every ring is made to order in the size you choose.</p>
 </dialog>
 
 """
@@ -379,10 +410,12 @@ def guide_dialog(p):
         <tr><td>18 cm</td><td>19 cm</td><td>20 cm</td></tr>
     </tbody>
   </table>
-  <p class="size-guide-note">Our bracelets have an adjustable chain, so the in-stock length fits a range of wrists. For a length outside that range, choose it from the list and we'll make it for you in 3 to 4 weeks.</p>
+  <p class="size-guide-note">Our standard chain is adjustable, so it fits a range of wrists. For a length outside that range, choose it from the list: every bracelet is made to order.</p>
 </dialog>
 
 """
+    if p["size_kind"] == "necklace":
+        return NECKLACE_GUIDE
     return ""
 
 def gallery_thumbs(p):
@@ -516,9 +549,9 @@ seed = "insert into public.products (slug, name, category, image, price) values\
 s = open("supabase/schema.sql", encoding="utf-8").read()
 s, n = re.subn(r"insert into public\.products \(slug, name, category, image(, price)?\) values\n.*?on conflict \(slug\) do nothing;", lambda m: seed, s, flags=re.S)
 assert n == 1
-sizes = "update public.products p set sizes = v.sizes, stock_size = v.stock_size\n  from (values\n" + ",\n".join(
-    f"    ({sql(p['slug'])}, array[{', '.join(sql(v) for v, _, _ in p['sizes'])}], {sql(next(v for v, _, mto in p['sizes'] if not mto))})"
-    for p in P if p["sizes"]) + "\n  ) as v(slug, sizes, stock_size)\n where p.slug = v.slug;"
+sizes = "update public.products p set sizes = v.sizes\n  from (values\n" + ",\n".join(
+    f"    ({sql(p['slug'])}, array[{', '.join(sql(v) for v, _ in p['sizes'])}])"
+    for p in P if p["sizes"]) + "\n  ) as v(slug, sizes)\n where p.slug = v.slug;"
 s, n = re.subn(r"(-- product sizes start\n).*?(-- product sizes end)", lambda m: m.group(1) + sizes + "\n" + m.group(2), s, flags=re.S)
 assert n == 1
 open("supabase/schema.sql", "w", encoding="utf-8").write(s)
