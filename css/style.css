@@ -210,6 +210,8 @@ h1, h2, h3 {
 .hero-media {
   position: relative;
   grid-column: 2;
+  /* Start the photo a little inside the cream half so the fade has room */
+  margin-left: -10vw;
   background: var(--cream);
 }
 .hero-media img {
@@ -220,8 +222,8 @@ h1, h2, h3 {
   object-fit: cover;
   object-position: 50% 40%;
   /* Fade the photo's left edge into the cream so the two halves read as one */
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 28%);
-  mask-image: linear-gradient(to right, transparent 0, #000 28%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, rgba(0,0,0,0.25) 14%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.88) 44%, #000 56%);
+  mask-image: linear-gradient(to right, transparent 0, rgba(0,0,0,0.25) 14%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.88) 44%, #000 56%);
 }
 
 .hero-content .script {
@@ -1008,11 +1010,11 @@ a.product-media { display: block; }
   .split-media { order: -1; }
   .product-detail { grid-template-columns: 1fr; gap: 36px; }
   .hero { grid-template-columns: 1fr; min-height: 0; }
-  .hero-media { grid-column: 1; order: -1; height: 56vh; }
+  .hero-media { grid-column: 1; order: -1; height: 56vh; margin-left: 0; }
   .hero-media img {
     object-position: 50% 40%;
-    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 50%, rgba(0,0,0,0.6) 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 50%, rgba(0,0,0,0.6) 72%, transparent 100%);
   }
   .features { grid-template-columns: 1fr; gap: 44px; }
   .help-grid { grid-template-columns: repeat(2, 1fr); }
