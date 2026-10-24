@@ -21,6 +21,8 @@ export default async (req) => {
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
       slug: String(i?.slug ?? '').slice(0, 80),
       quantity: Number.parseInt(i?.quantity, 10) || 0,
+      metal: String(i?.metal ?? 'yellow').slice(0, 20),
+      size: String(i?.size ?? '').slice(0, 30),
     }));
 
     // Account holders proved they are 18+ when they signed up.

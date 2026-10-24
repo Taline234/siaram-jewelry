@@ -24,6 +24,7 @@
     "https://siaramjewelry.com/images/products/sun-ring-3.jpg"
   ],
   "description": "A radiant open ring in 18k yellow gold with a white stone-set sun motif and a sweeping curved band of shining stones.",
+  "sku": "RG-08",
   "category": "Rings",
   "material": "18k yellow gold",
   "offers": {
@@ -121,19 +122,52 @@
         <p class="product-price" data-price-for="sun-ring">$540.00</p>
         <p>A radiant open ring in 18k yellow gold with a white stone-set sun motif and a sweeping curved band of shining stones.</p>
         <p>Part of our Celestial Collection. Inspired by the sun, moon and stars &mdash; a celebration of light in all its forms.</p>
-        <dl class="product-specs">
-          <dt>Collection</dt><dd>Celestial</dd>
-          <dt>Material</dt><dd>18k yellow gold</dd>
-          <dt>Stones</dt><dd>White zircon</dd>
-          <dt>Custom options</dt><dd>Sizing and bespoke changes on request</dd>
-          <dt>Care</dt><dd><a href="journal-gold-jewelry-care.html">How to care for your gold jewelry</a></dd>
-        </dl>
+        <div class="product-options" data-size-kind="ring">
+          <fieldset class="option-group">
+            <legend>Metal</legend>
+            <div class="metal-choices">
+            <label class="metal-choice"><input type="radio" name="metal" value="yellow" checked /><span class="metal-swatch metal-yellow" aria-hidden="true"></span><span>18k yellow gold<small>In stock</small></span></label>
+            <label class="metal-choice"><input type="radio" name="metal" value="rose" /><span class="metal-swatch metal-rose" aria-hidden="true"></span><span>18k rose gold<small>Made to order</small></span></label>
+            <label class="metal-choice"><input type="radio" name="metal" value="white" /><span class="metal-swatch metal-white" aria-hidden="true"></span><span>18k white gold<small>Made to order</small></span></label>
+            </div>
+          </fieldset>
+          <div class="option-group">
+            <div class="option-head"><label for="size-select">Ring size</label>
+              <button type="button" class="link-btn size-guide-open" data-guide="ring">Size guide</button></div>
+            <select id="size-select" class="size-select" name="size" required>
+              <option value="">Select a ring size</option>
+              <option value="EU 45" data-made-to-order>EU 45 &middot; US 3.5 &middot; made to order</option>
+              <option value="EU 47" data-made-to-order>EU 47 &middot; US 4 &middot; made to order</option>
+              <option value="EU 48" data-made-to-order>EU 48 &middot; US 4.5 &middot; made to order</option>
+              <option value="EU 49" data-made-to-order>EU 49 &middot; US 5 &middot; made to order</option>
+              <option value="EU 50" data-made-to-order>EU 50 &middot; US 5.5 &middot; made to order</option>
+              <option value="EU 51" data-made-to-order>EU 51 &middot; US 6 &middot; made to order</option>
+              <option value="EU 52" data-made-to-order>EU 52 &middot; US 6.5 &middot; made to order</option>
+              <option value="EU 54">EU 54 &middot; US 7 &middot; in stock</option>
+              <option value="EU 55" data-made-to-order>EU 55 &middot; US 7.5 &middot; made to order</option>
+              <option value="EU 56" data-made-to-order>EU 56 &middot; US 8 &middot; made to order</option>
+              <option value="EU 58" data-made-to-order>EU 58 &middot; US 8.5 &middot; made to order</option>
+              <option value="EU 59" data-made-to-order>EU 59 &middot; US 9 &middot; made to order</option>
+            </select>
+          </div>
+          <p class="made-to-order-note" hidden>Made to order: ready in 3 to 4 weeks.</p>
+        </div>
         <div class="product-buy" data-slug="sun-ring" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="mailto:customerservice@siaramjewelry.com?subject=Enquiry%3A%20Sun%20Ring">Enquire by Email</a>
           <a class="btn btn-outline" href="https://wa.me/96176052068?text=Hello%20Siaram%2C%20I%27m%20interested%20in%20the%20Sun%20Ring." target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>WhatsApp Us</a>
         </div>
         <p class="product-note">We'll reply with sizing and availability. See our <a href="returns.html">exchange &amp; return policy</a>.</p>
+        <h2 class="specs-title">Details</h2>
+        <dl class="product-specs">
+          <dt>SKU</dt><dd>RG-08</dd>
+          <dt>Collection</dt><dd>Celestial</dd>
+          <dt>Category</dt><dd>Rings</dd>
+          <dt>Metal</dt><dd>18k yellow gold. Also made to order in 18k rose or white gold</dd>
+          <dt>Stone</dt><dd>White zircon</dd>
+          <dt>Ring size</dt><dd>EU 54 (other sizes made to order)</dd>
+          <dt>Care</dt><dd><a href="journal-gold-jewelry-care.html">How to care for your gold jewelry</a></dd>
+        </dl>
       </div>
     </div>
   </div>
@@ -193,6 +227,30 @@
     </div>
   </div>
 </section>
+
+<dialog class="size-guide" id="size-guide-ring" aria-labelledby="ring-guide-title">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+  <h2 id="ring-guide-title">Ring Size Guide</h2>
+  <p>Take a ring that fits you well and measure the inside diameter: straight across the centre, at the widest part of the circle. Find that measurement below to get your size.</p>
+  <table class="size-table">
+    <thead><tr><th>Diameter (mm)</th><th>US</th><th>EU</th></tr></thead>
+    <tbody>
+        <tr><td>14.3</td><td>3.5</td><td>45</td></tr>
+        <tr><td>15.0</td><td>4</td><td>47</td></tr>
+        <tr><td>15.3</td><td>4.5</td><td>48</td></tr>
+        <tr><td>15.6</td><td>5</td><td>49</td></tr>
+        <tr><td>15.9</td><td>5.5</td><td>50</td></tr>
+        <tr><td>16.2</td><td>6</td><td>51</td></tr>
+        <tr><td>16.6</td><td>6.5</td><td>52</td></tr>
+        <tr><td>17.2</td><td>7</td><td>54</td></tr>
+        <tr><td>17.5</td><td>7.5</td><td>55</td></tr>
+        <tr><td>17.8</td><td>8</td><td>56</td></tr>
+        <tr><td>18.5</td><td>8.5</td><td>58</td></tr>
+        <tr><td>18.8</td><td>9</td><td>59</td></tr>
+    </tbody>
+  </table>
+  <p class="size-guide-note">Between two sizes? Choose the larger one. Each ring is made in one size and stocked in it; any other size is made to order in 3 to 4 weeks.</p>
+</dialog>
 
 <footer class="site-footer">
   <div class="container">

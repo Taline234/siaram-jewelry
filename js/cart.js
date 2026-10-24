@@ -1,6 +1,6 @@
 // Cart page.
 import {
-  escapeHtml, getCart, loadProducts, money, productPage, purchasable, setCart, storeEnabled,
+  escapeHtml, getCart, lineKey, loadProducts, money, optionsLabel, productPage, purchasable, setCart, storeEnabled,
 } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -23,10 +23,11 @@ function render(products) {
     else blocked = true;
     const options = Array.from({ length: 10 }, (_, i) =>
       `<option value="${i + 1}"${i + 1 === line.quantity ? ' selected' : ''}>${i + 1}</option>`).join('');
-    return `<div class="cart-line" data-slug="${escapeHtml(line.slug)}">
+    return `<div class="cart-line" data-key="${escapeHtml(lineKey(line))}">
       <a href="${productPage(line.slug)}" class="cart-thumb">${p && p.image ? `<img src="${escapeHtml(p.image)}" alt="" />` : ''}</a>
       <div class="cart-info">
         <a href="${productPage(line.slug)}" class="cart-name">${escapeHtml(p ? p.name : line.slug)}</a>
+        <span class="cart-options">${optionsLabel(line)}</span>
         ${ok ? `<span class="cart-unit">${money(p.price)} each</span>`
              : '<span class="form-error">No longer available online &mdash; please remove it.</span>'}
       </div>
@@ -49,13 +50,13 @@ function render(products) {
     </aside></div>`;
 
   root.querySelectorAll('.cart-line').forEach((el) => {
-    const slug = el.dataset.slug;
+    const key = el.dataset.key;
     el.querySelector('.qty-select').addEventListener('change', (e) => {
-      setCart(getCart().map((i) => (i.slug === slug ? { ...i, quantity: Number(e.target.value) } : i)));
+      setCart(getCart().map((i) => (lineKey(i) === key ? { ...i, quantity: Number(e.target.value) } : i)));
       render(products);
     });
     el.querySelector('.cart-remove').addEventListener('click', () => {
-      setCart(getCart().filter((i) => i.slug !== slug));
+      setCart(getCart().filter((i) => lineKey(i) !== key));
       render(products);
     });
   });

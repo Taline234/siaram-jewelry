@@ -113,6 +113,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Product options: say when the chosen metal or size is made to order
+  document.querySelectorAll('.product-options').forEach((box) => {
+    const note = box.querySelector('.made-to-order-note');
+    const size = box.querySelector('.size-select');
+    const update = () => {
+      const metal = box.querySelector('[name=metal]:checked')?.value;
+      const sizeMto = size?.selectedOptions[0]?.hasAttribute('data-made-to-order');
+      note.hidden = metal === 'yellow' && !sizeMto;
+      if (size?.value) size.classList.remove('invalid');
+    };
+    box.addEventListener('change', update);
+    update();
+  });
+
+  // Size guide pop-ups
+  document.querySelectorAll('.size-guide-open').forEach((btn) => {
+    const dialog = document.getElementById(`size-guide-${btn.dataset.guide}`);
+    if (!dialog) return;
+    btn.addEventListener('click', () => dialog.showModal());
+    dialog.querySelector('.size-guide-close').addEventListener('click', () => dialog.close());
+    // A click on the dimmed backdrop closes it too
+    dialog.addEventListener('click', (e) => {
+      const r = dialog.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    });
+  });
+
   // FAQ accordion
   document.querySelectorAll('.faq-question').forEach((btn) => {
     btn.addEventListener('click', () => {

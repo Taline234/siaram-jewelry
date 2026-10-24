@@ -87,6 +87,33 @@ update public.products p set sku = v.sku
   ) as v(slug, sku)
  where p.slug = v.slug and p.sku is null;
 
+-- Sizes a piece can be ordered in (rings and bracelets; empty = no size to choose) and the size
+-- it is made in and stocked. Any other size, or rose or white gold, is made to order.
+-- Filled in by tools/build_products.py.
+alter table public.products add column if not exists sizes text[];
+alter table public.products add column if not exists stock_size text;
+-- product sizes start
+update public.products p set sizes = v.sizes, stock_size = v.stock_size
+  from (values
+    ('horseshoe-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm'], '15–17 cm'),
+    ('horseshoe-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
+    ('horse-eye-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
+    ('horse-eye-bracelet', array['16–17.5 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm'], '16–17.5 cm'),
+    ('curved-marquise-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm'], '15–17 cm'),
+    ('fatima-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
+    ('moon-star-handchain', array['16–18 cm', '14 cm', '15 cm', '19 cm', '20 cm'], '16–18 cm'),
+    ('qamar-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55'),
+    ('crescent-moon-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
+    ('sun-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 54'),
+    ('seahorse-pearl-bracelet', array['15–16 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm'], '15–16 cm'),
+    ('wave-bracelet', array['15–16.5 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm'], '15–16.5 cm'),
+    ('arrow-bracelet', array['16–17 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm'], '16–17 cm'),
+    ('arrow-open-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55'),
+    ('arrow-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'], 'EU 55')
+  ) as v(slug, sizes, stock_size)
+ where p.slug = v.slug;
+-- product sizes end
+
 -- Lebanon only. South Lebanon does not accept orders.
 create table if not exists public.delivery_areas (
   governorate     text primary key,
@@ -279,6 +306,13 @@ create table if not exists public.order_items (
   primary key (order_id, product_slug)
 );
 alter table public.order_items add column if not exists sku text;
+-- The same piece can be ordered in more than one metal or size, so each combination is its own line.
+alter table public.order_items add column if not exists metal text not null default 'yellow'
+  check (metal in ('yellow', 'rose', 'white'));
+alter table public.order_items add column if not exists size text not null default '';
+alter table public.order_items add column if not exists made_to_order boolean not null default false;
+alter table public.order_items drop constraint if exists order_items_pkey;
+alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size);
 
 -- ---------------------------------------------------------------- gift vouchers
 create table if not exists public.gift_vouchers (
@@ -410,6 +444,8 @@ declare
   v_item      jsonb;
   v_product   public.products;
   v_qty       int;
+  v_metal     text;
+  v_size      text;
   v_subtotal  numeric(10,2) := 0;
   v_discount  numeric(10,2) := 0;
   v_total     numeric(10,2);
@@ -480,9 +516,21 @@ begin
     if v_qty < 1 or v_qty > 10 then
       raise exception 'Please choose a quantity between 1 and 10.' using errcode = 'P0001';
     end if;
-    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity)
-    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty)
-    on conflict (order_id, product_slug) do update set quantity = least(order_items.quantity + excluded.quantity, 10);
+    v_metal := coalesce(nullif(v_item->>'metal', ''), 'yellow');
+    if v_metal not in ('yellow', 'rose', 'white') then
+      raise exception 'Please choose yellow, rose or white gold.' using errcode = 'P0001';
+    end if;
+    v_size := coalesce(trim(v_item->>'size'), '');
+    if v_product.sizes is null then
+      v_size := '';
+    elsif not (v_size = any(v_product.sizes)) then
+      raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
+    end if;
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size,
+            v_metal <> 'yellow' or (v_product.sizes is not null and v_size is distinct from v_product.stock_size))
+    on conflict (order_id, product_slug, metal, size)
+      do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
 
@@ -517,7 +565,8 @@ begin
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
       'whish_number', s.whish_number, 'whish_name', s.whish_name,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
-                                                    'quantity', i.quantity) order by i.name)
+                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
+                                                    'made_to_order', i.made_to_order) order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s
      where o.id = v_order_id and s.id = 1);

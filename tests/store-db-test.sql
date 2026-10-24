@@ -83,7 +83,7 @@ select pg_temp.check((
   select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325
          and r->>'email' = 'rana@example.com' and r->>'whish_number' = '+961 76 052 068'
     from (select place_order(pg_temp.order_json('Nabatieh',
-      '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
+      '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
   'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
 select pg_temp.check((select reference = 'SO16' from orders),
   'order numbers carry on from the workbook (SO16), and rejected orders do not use up a number');
@@ -91,23 +91,46 @@ select pg_temp.check((select array_agg(sku order by sku) = array['NK-07', 'RG-01
   'order items keep the SKU from the workbook');
 select pg_temp.check((select count(*) = 0 from products where sku is null), 'every product has a SKU');
 
+-- Metal and size
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]'))$$,
+  'choose a size for the Crescent Moon Ring');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 99"}]'))$$,
+  'choose a size for the Crescent Moon Ring');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1,"metal":"silver"}]'))$$,
+  'yellow, rose or white gold');
+select pg_temp.check((
+  select jsonb_array_length(r->'items') = 3 and (r->>'subtotal')::numeric = 290
+    from (select place_order(pg_temp.order_json('Beirut',
+      '[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"},
+        {"slug":"crescent-moon-ring","quantity":1,"size":"EU 50","metal":"rose"},
+        {"slug":"v-bird-necklace","quantity":1,"metal":"white","size":"ignored"}]'))) t(r)),
+  'the same piece in two metals or sizes is two lines; prices do not change with the metal');
+select pg_temp.check((select array_agg(metal || '/' || size || '/' || made_to_order order by metal, size) =
+    array['rose/EU 50/true', 'white//true', 'yellow/EU 54/false']
+    from order_items i join orders o on o.id = i.order_id
+   where o.reference = (select max(reference) from orders)),
+  'stocked metal and size are not made to order; other metals and sizes are, and necklaces have no size');
+-- Undo that order so the numbering checks below are unaffected.
+delete from orders where reference = (select max(reference) from orders);
+update store_settings set next_order_number = next_order_number - 1 where id = 1;
+
 update delivery_areas set delivery_fee = 5 where governorate = 'Beirut';
 select pg_temp.check((select (r->>'total')::numeric = 85 and (r->>'delivery_fee')::numeric = 5
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]'),
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'),
                              '00000000-0000-0000-0000-00000000000a')) t(r)),
   'delivery fee is recorded but paid to the courier, not added to the Whish total');
 select pg_temp.check((select (r->>'total')::numeric = 85 and r->>'fulfilment' = 'collection' and r->>'governorate' is null
-    from (select place_order(pg_temp.order_json('South','[{"slug":"crescent-moon-ring","quantity":1}]',
+    from (select place_order(pg_temp.order_json('South','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
       '{"fulfilment":"collection","city":"","street":""}'))) t(r)),
   'collection by appointment needs no address and has no delivery fee');
 select pg_temp.check((select r->>'payment_method' = 'whish' and r->>'status' = 'awaiting_payment'
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]'))) t(r)),
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
   'Whish is the default and the order waits for payment');
 select pg_temp.check((select r->>'payment_method' = 'cash' and r->>'status' = 'preparing' and (r->>'total')::numeric = 85
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
       '{"payment_method":"cash"}'))) t(r)),
   'cash on delivery orders go straight to preparation');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
   '{"payment_method":"card"}'))$$, 'Whish or cash on delivery');
 
 -- ---------------------------------------------------------------- gift vouchers
@@ -118,7 +141,7 @@ insert into gift_vouchers (code, recipient_name, purchaser_name, amount, balance
 update gift_vouchers set status = 'void' where code = 'SIARAM-VOID-0000';
 
 select pg_temp.expect_error($$select check_voucher('SIARAM-OLD1-0000')$$, 'expired on');
-select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]','{"voucher_code":"SIARAM-OLD1-0000"}'))$$,
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]','{"voucher_code":"SIARAM-OLD1-0000"}'))$$,
   'expired on');
 select pg_temp.expect_error($$select check_voucher('SIARAM-VOID-0000')$$, 'not valid');
 select pg_temp.expect_error($$select check_voucher('NOPE')$$, 'not valid');
@@ -127,13 +150,13 @@ select pg_temp.check((select (check_voucher(' siaram-good-0000 ')->>'balance')::
 
 select pg_temp.check((select (r->>'total')::numeric = 0 and (r->>'voucher_amount')::numeric = 85
                              and (r->>'delivery_fee')::numeric = 5
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
                                                 '{"voucher_code":"siaram-good-0000"}'))) t(r)),
   'voucher covers the jewellery (85 of 100 used) but not the courier fee');
 select pg_temp.check((select balance = 15 from gift_vouchers where code = 'SIARAM-GOOD-0000'),
   'voucher keeps the 15 left as balance');
 select pg_temp.check((select (r->>'total')::numeric = 70 and (r->>'voucher_amount')::numeric = 15
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
                                                 '{"voucher_code":"SIARAM-GOOD-0000"}'))) t(r)),
   'remaining balance is used on the next order');
 select pg_temp.expect_error($$select check_voucher('SIARAM-GOOD-0000')$$, 'fully used');
@@ -157,10 +180,10 @@ select pg_temp.check((select (check_voucher(:'new_code', 'someone@else.com', '71
 select pg_temp.expect_error(format('select check_voucher(%L, %L, %L)', :'new_code', 'someone@else.com', '70 000 000'),
   'only be used by its recipient');
 select pg_temp.expect_error(format('select check_voucher(%L)', :'new_code'), 'only be used by its recipient');
-select pg_temp.expect_error(format($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+select pg_temp.expect_error(format($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
   jsonb_build_object('voucher_code', %L)))$$, :'new_code'), 'only be used by its recipient');
 select pg_temp.check((select (r->>'voucher_amount')::numeric = 85
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]',
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
       jsonb_build_object('voucher_code', :'new_code', 'email', 'lea@example.com', 'customer_name', 'Lea')))) t(r)),
   'the recipient can pay with the voucher');
 select pg_temp.check((select issue_gift_voucher('Lea', 'Nour', 100, null, '70000000') like 'GV0002-%'), 'the next voucher is GV0002');

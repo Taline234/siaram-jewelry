@@ -122,10 +122,20 @@ export function payLabel(order) {
   return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
 }
 
+// Metal and size under each piece. Anything but yellow gold, or a size other than the stocked one,
+// is made to order.
+const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
+function itemOptions(i) {
+  const parts = [METALS[i.metal] || METALS.yellow];
+  if (i.size) parts.push(i.size);
+  if (i.made_to_order) parts.push('Made to order (3 to 4 weeks)');
+  return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
+}
+
 // The shop's copy also shows each piece's SKU, to match the finance workbook.
 export function orderSummaryHtml(order, { sku = false } = {}) {
   const rows = (order.items || [])
-    .map((i) => `<tr><td style="padding:6px 0">${sku && i.sku ? `${escapeHtml(i.sku)} &middot; ` : ''}${escapeHtml(i.name)} &times; ${i.quantity}</td>
+    .map((i) => `<tr><td style="padding:6px 0">${sku && i.sku ? `${escapeHtml(i.sku)} &middot; ` : ''}${escapeHtml(i.name)} &times; ${i.quantity}${itemOptions(i)}</td>
       <td align="right" style="padding:6px 0">${money(i.unit_price * i.quantity)}</td></tr>`)
     .join('');
   const collection = order.fulfilment === 'collection';
