@@ -116,7 +116,7 @@ P = [
     item("fatima-pearl-earrings", "Fatima &amp; Pearl Drop Asymmetric Earrings", "Earrings", "fatima", 450,
          "An asymmetric pair in 18k yellow gold: a geometric triangle stud with a fine drop chain finished with a luminous white pearl, and an openwork Fatima hand charm.",
          "White pearl", "Asymmetric gold Fatima and pearl drop earrings, worn", imgs=3),
-    item("fatima-necklace", "Fatima Necklace", "Necklaces", "fatima", 649,
+    item("fatima-necklace", "Fatima Necklace", "Necklaces", "fatima", 645,
          "A delicate Y-shaped 18k yellow gold necklace with an intricate Fatima hand charm, accented with three turquoise-toned pearls and finished with a dangling white pearl.",
          "Turquoise-toned pearls and a white pearl", "Y-shaped gold Fatima hand necklace with turquoise-toned pearls, worn with a white shirt", imgs=3),
     item("fatima-ring", "Fatima Ring", "Rings", "fatima", 355,
@@ -211,7 +211,7 @@ def links(p):
 def card(p):
     mail, _ = links(p)
     return f"""      <article class="product-card" data-category="{p['cat'].lower()}" data-collection="{p['coll']}">
-        <a href="{p['page']}" class="product-media"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
+        <a href="{p['page']}" class="product-media" data-photos="{','.join(p['imgs'])}"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
         <div class="product-body">
           <span class="product-cat">{COLL[p['coll']][0]} Collection</span>
           <h3><a href="{p['page']}">{p['name']}</a></h3>
