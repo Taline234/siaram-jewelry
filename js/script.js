@@ -113,6 +113,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Clear the "choose a size" warning once a size is picked
+  document.querySelectorAll('.size-select').forEach((size) => {
+    size.addEventListener('change', () => { if (size.value) size.classList.remove('invalid'); });
+  });
+
+  // Size guide pop-ups
+  document.querySelectorAll('.size-guide-open').forEach((btn) => {
+    const dialog = document.getElementById(`size-guide-${btn.dataset.guide}`);
+    if (!dialog) return;
+    btn.addEventListener('click', () => dialog.showModal());
+    dialog.querySelector('.size-guide-close').addEventListener('click', () => dialog.close());
+    // A click on the dimmed backdrop closes it too
+    dialog.addEventListener('click', (e) => {
+      const r = dialog.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    });
+  });
+
   // FAQ accordion
   document.querySelectorAll('.faq-question').forEach((btn) => {
     btn.addEventListener('click', () => {

@@ -1,6 +1,6 @@
 // Checkout page: guest or signed-in checkout, Lebanon-only delivery, gift vouchers, Whish or cash on delivery.
 import {
-  escapeHtml, getCart, getClient, getSession, loadProducts, money, purchasable, setCart, storeEnabled,
+  escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -46,7 +46,8 @@ function renderSummary() {
   const t = totals();
   const lines = t.cart.map((i) => {
     const p = state.products[i.slug];
-    return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}</span><span>${money(p.price * i.quantity)}</span></div>`;
+    return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}
+      <small class="summary-options">${optionsLabel(i)}</small></span><span>${money(p.price * i.quantity)}</span></div>`;
   }).join('');
   const delivery = t.collect ? 'Collection by appointment is free.'
     : !t.areaChosen ? 'Choose your area to see the delivery fee.'
@@ -247,7 +248,7 @@ async function submit(e) {
   const payload = {
     ...data,
     age_confirmed: Boolean(state.session) || form.elements.age_confirmed.checked,
-    items: getCart().map(({ slug, quantity }) => ({ slug, quantity })),
+    items: getCart().map(({ slug, quantity, metal, size }) => ({ slug, quantity, metal, size })),
   };
   try {
     const headers = { 'content-type': 'application/json' };

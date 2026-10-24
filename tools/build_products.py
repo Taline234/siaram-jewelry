@@ -66,15 +66,15 @@ P = [
          "Our signature horseshoe pendant on a fine 18k yellow gold chain, with a long drop ending in a white zircon.",
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-necklace-black-stone", "Horse Shoe Necklace &ndash; Black Stone", "Necklaces", "equestrian", 525,
+    item("horseshoe-necklace-black-stone", "Midnight Horseshoe Necklace", "Necklaces", "equestrian", 525,
          "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black stones, finished with a fine drop chain ending in a white stone.",
          "Black and white zircon", "Y-shaped gold necklace with a black stone horseshoe, worn with a white top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-bracelet", "Horse Shoe Bracelet", "Bracelets", "equestrian", 450,
+    item("horseshoe-bracelet", "Midnight Horseshoe Bracelet", "Bracelets", "equestrian", 450,
          "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black stones, paired with a brilliant white stone.",
          "Black and white zircon", "Gold chain bracelet with a black stone horseshoe and a white stone, on the wrist", imgs=3),
     item("horseshoe-ring", "Horse Shoe Ring", "Rings", "equestrian", 350,
-         "An open horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
+         "A horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
          "Pav&eacute; zircon", "Gold horseshoe ring set with pavé zircon, worn on the hand",
          "A nod to the bond between a horse and its rider that gave Siaram its name. Delicate enough to stack, easy to wear every day.",
          imgs=3),
@@ -117,14 +117,14 @@ P = [
          "An asymmetric pair in 18k yellow gold: a geometric triangle stud with a fine drop chain finished with a luminous white pearl, and an openwork Fatima hand charm.",
          "White pearl", "Asymmetric gold Fatima and pearl drop earrings, worn", imgs=3),
     item("fatima-necklace", "Fatima Necklace", "Necklaces", "fatima", 645,
-         "A delicate Y-shaped 18k yellow gold necklace with an intricate Fatima hand charm, accented with three turquoise-toned pearls and finished with a dangling white pearl.",
-         "Turquoise-toned pearls and a white pearl", "Y-shaped gold Fatima hand necklace with turquoise-toned pearls, worn with a white shirt", imgs=3),
+         "A delicate Y-shaped 18k yellow gold necklace with an intricate Fatima hand charm, accented with three blue freshwater pearls and finished with a dangling white pearl.",
+         "Turquoise-toned pearls and a white pearl", "Y-shaped gold Fatima hand necklace with blue freshwater pearls, worn with a white shirt", imgs=3),
     item("fatima-ring", "Fatima Ring", "Rings", "fatima", 355,
          "A minimal open ring in 18k yellow gold with a fine chain and a small Fatima hand outline set with a white stone.",
          "White zircon", "Minimal gold Fatima ring worn by the sea", imgs=3),
     item("fatima-anklet", "Fatima Anklet", "Anklets", "fatima", 420,
-         "A delicate 18k yellow gold chain anklet with an open Fatima hand charm and three turquoise-toned pearls along the chain.",
-         "Turquoise-toned pearls", "Gold Fatima anklet with turquoise-toned pearls, laid out with other pieces", imgs=3),
+         "A delicate 18k yellow gold chain anklet with an open Fatima hand charm and three blue freshwater pearls along the chain.",
+         "Turquoise-toned pearls", "Gold Fatima anklet with blue freshwater pearls, laid out with other pieces", imgs=3),
     # Geometric
     item("v-pendant-necklace", "V Pendant", "Necklaces", "geometric", 489,
          "A Y-shaped 18k yellow gold necklace with a sleek V-shaped centrepiece, finished with a fine drop chain and a geometric pendant accented with a white stone.",
@@ -184,13 +184,82 @@ P = [
     item("arrow-earrings", "Arrow Earring", "Earrings", "arrow", 499,
          "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white stones and a vibrant red centre stone.",
          "White zircon and a red centre stone", "Gold arrow threader earring, worn", imgs=3),
-    item("arrow-open-ring", "Arrow Open Ring", "Rings", "arrow", 589,
+    item("arrow-open-ring", "Diverge Arrow Ring", "Rings", "arrow", 589,
          "An open 18k yellow gold ring with the two ends of an arrow facing in opposite directions, set with contrasting black and white stones.",
          "Black and white zircon", "Gold open arrow ring with black and white stones", imgs=3),
-    item("arrow-ring", "Arrow Ring", "Rings", "arrow", 679,
+    item("arrow-ring", "Sahm Ring", "Rings", "arrow", 679,
          "An 18k yellow gold ring where two arrowheads meet: one traced with white stones around a vivid coloured centre stone, the other polished gold.",
          "White zircon and a coloured centre stone", "Gold arrow ring with a coloured centre stone", imgs=3),
 ]
+
+# ---- details from the owner (24 October 2026): SKU from the finance workbook, stones, other
+#      materials, and sizes. ring = the size the ring is made in; wrist = adjustable chain (cm).
+D = {
+    "horseshoe-necklace": dict(sku="NK-01", stone="White zircon", dims=[("Chain", "40 cm"), ("Drop chain", "6 cm")]),
+    "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Chain", "39.5&ndash;41.5 cm (adjustable)"), ("Drop chain", "5 cm")]),
+    "horseshoe-bracelet": dict(sku="BR-02", stone="Black zircon, white zircon", wrist=(15, 17)),
+    "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
+    "horseshoe-chain-earrings": dict(sku="EA-03", stone="Black zircon, white zircon"),
+    "horse-eye-ring": dict(sku="RG-07", stone="Red stone (marquise cut), white zircon", ring=54),
+    "horse-eye-stud": dict(sku="EA-08", stone="Red stone (marquise cut), white zircon"),
+    "horse-eye-bracelet": dict(sku="BR-08", stone="Red stone (marquise cut), white zircon", wrist=(16, 17.5)),
+    "horse-eye-necklace": dict(sku="NK-10", stone="Red stone (marquise cut), white zircon", dims=[("Chain", "37&ndash;40 cm (adjustable)")]),
+    "curved-marquise-necklace": dict(sku="NK-12", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
+    "curved-marquise-bracelet": dict(sku="BR-07", stone="White zircon", wrist=(15, 17)),
+    "curved-marquise-earrings": dict(sku="EA-10", stone="White zircon", dims=[("Drop chain", "2 cm")]),
+    "eye-necklace": dict(sku="NK-02", stone="Turquoise stone (centre), white zircon", other="White freshwater pearls", dims=[("Chain", "40&ndash;52.5 cm (adjustable)")]),
+    "fatima-pearl-earrings": dict(sku="EA-01/EA-02", other="White freshwater pearl", dims=[("Drop chain", "3 cm")]),
+    "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Chain", "38&ndash;40 cm (adjustable)"), ("Blue pearls to white pearl", "5.5 cm")]),
+    "fatima-ring": dict(sku="RG-03", stone="White zircon", ring=54),
+    "fatima-anklet": dict(sku="AK-01", other="Blue freshwater pearls", dims=[("Chain", "21&ndash;22 cm (adjustable)")]),
+    "v-pendant-necklace": dict(sku="NK-08", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
+    "triangle-necklace": dict(sku="NK-09", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
+    "v-bird-necklace": dict(sku="NK-07", stone="White zircon", dims=[("Chain", "39&ndash;41.5 cm (adjustable)")]),
+    "moon-star-handchain": dict(sku="BR-04", stone="White zircon", wrist=(16, 18), dims=[("Moon to star", "2.5 cm"), ("Finger chain", "7 cm")]),
+    "moon-star-pendant-earring": dict(sku="EA-04/EA-05", stone="White zircon, black zircon", dims=[("Star chain", "2.5 cm"), ("Moon chain", "3.5 cm")]),
+    "crescent-moon-earrings": dict(sku="EA-07", stone="White zircon", other="White freshwater pearls"),
+    "star-moon-necklace": dict(sku="NK-03", stone="White zircon", dims=[("Chain", "43 cm"), ("Drop chain", "3 cm")]),
+    "qamar-ring": dict(sku="RG-02", stone="White zircon", ring=55),
+    "crescent-moon-ring": dict(sku="RG-01", stone="White zircon", ring=54),
+    "sun-necklace": dict(sku="NK-11", stone="White zircon", other="White freshwater pearl", dims=[("Chain", "35&ndash;38 cm (adjustable)")]),
+    "sun-ring": dict(sku="RG-08", stone="White zircon", ring=54),
+    "sun-stud-earrings": dict(sku="EA-09", stone="White zircon"),
+    "seahorse-pearl-bracelet": dict(sku="BR-01", stone="White zircon", other="White freshwater pearls", wrist=(15, 16)),
+    "wave-bracelet": dict(sku="BR-06", other="White freshwater pearl", wrist=(15, 16.5)),
+    "arrow-necklace": dict(sku="NK-04", stone="White zircon", dims=[("Chain", "41 cm"), ("Drop chain", "5.5 cm")]),
+    "arrow-bracelet": dict(sku="BR-05", stone="Red stone (centre), white zircon", wrist=(16, 17)),
+    "arrow-earrings": dict(sku="EA-06", stone="Red stone (centre), white zircon", dims=[("Drop chain", "4 cm")]),
+    "arrow-open-ring": dict(sku="RG-05", stone="Black zircon, white zircon", ring=55),
+    "arrow-ring": dict(sku="RG-06", stone="Red stone (centre), white zircon", ring=55),
+}
+assert set(D) == {p["slug"] for p in P}
+
+# Ring sizes from the size guide: EU size (the inside circumference in mm) and its US equivalent.
+RING_SIZES = [(45, "3.5"), (47, "4"), (48, "4.5"), (49, "5"), (50, "5.5"), (51, "6"), (52, "6.5"),
+              (54, "7"), (55, "7.5"), (56, "8"), (58, "8.5"), (59, "9")]
+CUSTOM_WRISTS = range(14, 21)  # other chain lengths in cm
+cm = lambda v: f"{v:g}"
+
+def size_options(d):
+    """[(value, label)] for the size picker, or [] when the piece has no size."""
+    if "ring" in d:
+        return [(f"EU {eu}", f"EU {eu} &middot; US {us}") for eu, us in RING_SIZES]
+    if "wrist" in d:
+        lo, hi = d["wrist"]
+        std = f"{cm(lo)}&ndash;{cm(hi)} cm"
+        return ([(html.unescape(std), f"{std} (adjustable, standard)")]
+                + [(f"{n} cm", f"{n} cm") for n in CUSTOM_WRISTS if not lo <= n <= hi])
+    return []
+
+for p in P:
+    d = D[p["slug"]]
+    p.update(sku=d["sku"], stone=d.get("stone"), other=d.get("other"), sizes=size_options(d),
+             size_kind="ring" if "ring" in d else "bracelet" if "wrist" in d else "necklace" if p["cat"] == "Necklaces" else None)
+    dims = list(d.get("dims", []))
+    if "wrist" in d:
+        dims.insert(0, ("Wrist chain" if p["slug"] == "moon-star-handchain" else "Length",
+                        f"{cm(d['wrist'][0])}&ndash;{cm(d['wrist'][1])} cm (adjustable)"))
+    p["dims"] = dims
 for p in P:
     p["imgs"] = [f"images/products/{p['slug']}-{i}.jpg" for i in range(1, p["nimgs"] + 1)]
     p["img"] = p["imgs"][0]
@@ -223,6 +292,123 @@ def card(p):
           </a>
         </div>
       </article>"""
+
+METALS = [("yellow", "18k yellow gold"), ("rose", "18k rose gold"), ("white", "18k white gold")]
+
+# Necklace length guide, laid out like the ring and bracelet guides, with the lengths from the
+# owner's reference chart.
+NECKLACE_GUIDE = """<dialog class="size-guide" id="size-guide-necklace" aria-labelledby="necklace-guide-title">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+  <h2 id="necklace-guide-title">Necklace Length Guide</h2>
+  <p>Each necklace lists its chain length in the details. Use this chart to see where that length sits; most of our chains are adjustable, so you can wear them a little higher or lower.</p>
+  <table class="size-table">
+    <thead><tr><th>Style</th><th>Inches</th><th>Centimetres</th></tr></thead>
+    <tbody>
+        <tr><td>Collar</td><td>12&ndash;13&Prime;</td><td>30&ndash;33 cm</td></tr>
+        <tr><td>Choker</td><td>14&ndash;16&Prime;</td><td>35&ndash;40 cm</td></tr>
+        <tr><td>Princess</td><td>17&ndash;19&Prime;</td><td>43&ndash;48 cm</td></tr>
+        <tr><td>Matinee</td><td>20&ndash;24&Prime;</td><td>50&ndash;60 cm</td></tr>
+        <tr><td>Opera</td><td>28&ndash;34&Prime;</td><td>70&ndash;86 cm</td></tr>
+        <tr><td>Rope</td><td>over 45&Prime;</td><td>over 115 cm</td></tr>
+    </tbody>
+  </table>
+  <p class="size-guide-note">A choker sits at the base of the neck, a princess length just below the collarbone and a matinee length above the neckline. Want a different length? Add it to the order notes at checkout or message us; if it is out of stock, it may take 3 to 4 weeks to make.</p>
+</dialog>
+
+"""
+
+def options_html(p):
+    """Metal and size pickers. They show on every product page; the cart reads them."""
+    metals = "\n".join(
+        f'            <label class="metal-choice"><input type="radio" name="metal" value="{v}"{" checked" if v == "yellow" else ""} />'
+        f'<span class="metal-swatch metal-{v}" aria-hidden="true"></span><span>{label}</span></label>'
+        for v, label in METALS)
+    size = ""
+    if p["sizes"]:
+        opts = "\n".join(f'              <option value="{html.escape(v, quote=True)}">{label}</option>'
+                         for v, label in p["sizes"])
+        what = "Ring size" if p["size_kind"] == "ring" else "Length"
+        size = f"""          <div class="option-group">
+            <div class="option-head"><label for="size-select">{what}</label>
+              <button type="button" class="link-btn size-guide-open" data-guide="{p['size_kind']}">Size guide</button></div>
+            <select id="size-select" class="size-select" name="size" required>
+              <option value="">Select a {what.lower()}</option>
+{opts}
+            </select>
+          </div>
+"""
+    necklace_guide = ""
+    if p["size_kind"] == "necklace":
+        necklace_guide = """          <div class="option-head"><span class="option-label">Chain length</span>
+            <button type="button" class="link-btn size-guide-open" data-guide="necklace">Necklace length guide</button></div>
+"""
+    return f"""        <div class="product-options" data-size-kind="{p['size_kind'] or ''}">
+          <fieldset class="option-group">
+            <legend>Metal</legend>
+            <div class="metal-choices">
+{metals}
+            </div>
+          </fieldset>
+{size}{necklace_guide}          <p class="made-to-order-note">If a piece is out of stock, it may take 3 to 4 weeks to make.</p>
+        </div>
+"""
+
+def specs_html(p):
+    rows = [("SKU", p["sku"]), ("Collection", COLL[p["coll"]][0]), ("Category", p["cat"]),
+            ("Metal", "18k yellow, rose or white gold")]
+    if p["stone"]:
+        rows.append(("Stone", p["stone"]))
+    if p["other"]:
+        rows.append(("Other", p["other"]))
+    rows += p["dims"]
+    rows.append(("Care", '<a href="journal-gold-jewelry-care.html">How to care for your gold jewelry</a>'))
+    body = "\n".join(f"          <dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
+    return f"""        <h2 class="specs-title">Details</h2>
+        <dl class="product-specs">
+{body}
+        </dl>
+"""
+
+def guide_dialog(p):
+    if p["size_kind"] == "ring":
+        rows = "\n".join(f"        <tr><td>{eu / 3.14159:.1f}</td><td>{us}</td><td>{eu}</td></tr>" for eu, us in RING_SIZES)
+        return f"""<dialog class="size-guide" id="size-guide-ring" aria-labelledby="ring-guide-title">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+  <h2 id="ring-guide-title">Ring Size Guide</h2>
+  <p>Take a ring that fits you well and measure the inside diameter: straight across the centre, at the widest part of the circle. Find that measurement below to get your size.</p>
+  <table class="size-table">
+    <thead><tr><th>Diameter (mm)</th><th>US</th><th>EU</th></tr></thead>
+    <tbody>
+{rows}
+    </tbody>
+  </table>
+  <p class="size-guide-note">Between two sizes? Choose the larger one. If your size is out of stock, it may take 3 to 4 weeks to make.</p>
+</dialog>
+
+"""
+    if p["size_kind"] == "bracelet":
+        return """<dialog class="size-guide" id="size-guide-bracelet" aria-labelledby="bracelet-guide-title">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+  <h2 id="bracelet-guide-title">Bracelet Size Guide</h2>
+  <p>Wrap a soft tape measure, or a strip of paper you then lay against a ruler, around your wrist just above the wrist bone. Add 1 cm for a close fit or 2 cm for a looser drape.</p>
+  <table class="size-table">
+    <thead><tr><th>Your wrist</th><th>Close fit</th><th>Loose fit</th></tr></thead>
+    <tbody>
+        <tr><td>13 cm</td><td>14 cm</td><td>15 cm</td></tr>
+        <tr><td>14 cm</td><td>15 cm</td><td>16 cm</td></tr>
+        <tr><td>15 cm</td><td>16 cm</td><td>17 cm</td></tr>
+        <tr><td>16 cm</td><td>17 cm</td><td>18 cm</td></tr>
+        <tr><td>17 cm</td><td>18 cm</td><td>19 cm</td></tr>
+        <tr><td>18 cm</td><td>19 cm</td><td>20 cm</td></tr>
+    </tbody>
+  </table>
+  <p class="size-guide-note">Our standard chain is adjustable, so it fits a range of wrists. For a length outside that range, choose it from the list. If it is out of stock, it may take 3 to 4 weeks to make.</p>
+</dialog>
+
+"""
+    if p["size_kind"] == "necklace":
+        return NECKLACE_GUIDE
+    return ""
 
 def gallery_thumbs(p):
     if len(p["imgs"]) < 2:
@@ -258,20 +444,13 @@ for p in P:
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
 {paras}
-        <dl class="product-specs">
-          <dt>Collection</dt><dd>{COLL[p['coll']][0]}</dd>
-          <dt>Material</dt><dd>18k yellow gold</dd>
-          <dt>Stones</dt><dd>{p['stones']}</dd>
-          <dt>Custom options</dt><dd>Sizing and bespoke changes on request</dd>
-          <dt>Care</dt><dd><a href="journal-gold-jewelry-care.html">How to care for your gold jewelry</a></dd>
-        </dl>
-        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
+{options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>
           <a class="btn btn-outline" href="{wa}" target="_blank" rel="noopener">{WA_ICON}WhatsApp Us</a>
         </div>
         <p class="product-note">We'll reply with sizing and availability. See our <a href="returns.html">exchange &amp; return policy</a>.</p>
-      </div>
+{specs_html(p)}      </div>
     </div>
   </div>
 </section>
@@ -288,7 +467,7 @@ for p in P:
 </section>"""
     title = f"{p['name']} — Siaram Jewelry"
     jsonld = [{"@context": "https://schema.org", "@type": "Product", "name": p["plain"], "image": [BASE + i for i in p["imgs"]],
-               "description": p["desc"], "category": p["cat"], "material": "18k yellow gold",
+               "description": p["desc"], "sku": p["sku"], "category": p["cat"], "material": "18k yellow gold",
                "offers": {"@type": "Offer", "price": f"{p['price']:.2f}", "priceCurrency": "USD",
                           "availability": "https://schema.org/InStock", "url": url_for(p["page"])},
                "brand": {"@type": "Brand", "name": "Siaram Jewelry"}, "url": url_for(p["page"])},
@@ -310,7 +489,7 @@ for p in P:
 
 {body}
 
-{FOOTER}"""
+{guide_dialog(p)}{FOOTER}"""
     open(p["page"], "w", encoding="utf-8").write(doc)
 
 for old in []:
@@ -358,9 +537,14 @@ open("sitemap.xml", "w").write(s)
 # ---- database seed
 sql = lambda v: "'" + v.replace("'", "''") + "'"
 seed = "insert into public.products (slug, name, category, image, price) values\n" + ",\n".join(
-    f"  ({sql(p['slug'])}, {sql(p['plain'])}, {sql(p['cat'])}, {sql(p['img'])}, {p['price']})" for p in P) + "\non conflict (slug) do nothing;"
+    f"  ({sql(p['slug'])}, {sql(p['plain'])}, {sql(p['cat'])}, {sql(p['img'])}, {p['price']})" for p in P) + "\non conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;"
 s = open("supabase/schema.sql", encoding="utf-8").read()
-s, n = re.subn(r"insert into public\.products \(slug, name, category, image(, price)?\) values\n.*?on conflict \(slug\) do nothing;", lambda m: seed, s, flags=re.S)
+s, n = re.subn(r"insert into public\.products \(slug, name, category, image(, price)?\) values\n.*?on conflict \(slug\) do [^;]*;", lambda m: seed, s, flags=re.S)
+assert n == 1
+sizes = "update public.products p set sizes = v.sizes\n  from (values\n" + ",\n".join(
+    f"    ({sql(p['slug'])}, array[{', '.join(sql(v) for v, _ in p['sizes'])}])"
+    for p in P if p["sizes"]) + "\n  ) as v(slug, sizes)\n where p.slug = v.slug;"
+s, n = re.subn(r"(-- product sizes start\n).*?(-- product sizes end)", lambda m: m.group(1) + sizes + "\n" + m.group(2), s, flags=re.S)
 assert n == 1
 open("supabase/schema.sql", "w", encoding="utf-8").write(s)
 print("ok")

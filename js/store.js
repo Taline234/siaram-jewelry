@@ -65,7 +65,21 @@ let memoryCart = null;
 
 export function getCart() {
   memoryCart ||= storageGet(CART_KEY, []);
-  return memoryCart.filter((i) => i && typeof i.slug === 'string' && i.quantity > 0);
+  return memoryCart
+    .filter((i) => i && typeof i.slug === 'string' && i.quantity > 0)
+    .map((i) => ({ metal: 'yellow', size: '', ...i }));
+}
+
+// One cart line per piece, metal and size.
+export const lineKey = (i) => `${i.slug}|${i.metal || 'yellow'}|${i.size || ''}`;
+
+export const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
+
+// "18k rose gold · EU 54", for the cart and checkout.
+export function optionsLabel(i) {
+  const parts = [METALS[i.metal] || METALS.yellow];
+  if (i.size) parts.push(i.size);
+  return parts.map(escapeHtml).join(' &middot; ');
 }
 
 export function setCart(items) {
@@ -82,11 +96,12 @@ export function setCart(items) {
   document.dispatchEvent(new CustomEvent('cart:change'));
 }
 
-export function addToCart(slug, quantity = 1) {
+export function addToCart(slug, quantity = 1, options = {}) {
   const cart = getCart();
-  const line = cart.find((i) => i.slug === slug);
+  const item = { slug, metal: options.metal || 'yellow', size: options.size || '' };
+  const line = cart.find((i) => lineKey(i) === lineKey(item));
   if (line) line.quantity = Math.min(line.quantity + quantity, 10);
-  else cart.push({ slug, quantity: Math.min(quantity, 10) });
+  else cart.push({ ...item, quantity: Math.min(quantity, 10) });
   setCart(cart);
 }
 
@@ -193,7 +208,16 @@ async function setupBuyBox(products) {
     box.innerHTML = `<label class="qty-label">Quantity <select class="qty-select" aria-label="Quantity">${options}</select></label>
       <button type="button" class="btn btn-primary add-to-cart">Add to Cart</button>`;
     box.querySelector('.add-to-cart').addEventListener('click', () => {
-      addToCart(slug, Number(box.querySelector('.qty-select').value));
+      const options = document.querySelector('.product-options');
+      const metal = options?.querySelector('[name=metal]:checked')?.value || 'yellow';
+      const size = options?.querySelector('.size-select');
+      if (size && !size.value) {
+        size.classList.add('invalid');
+        size.focus();
+        toast('Please choose a size first.');
+        return;
+      }
+      addToCart(slug, Number(box.querySelector('.qty-select').value), { metal, size: size ? size.value : '' });
       toast(`Added to your cart &middot; <a href="cart.html">View cart</a>`);
     });
     // Once the piece can be bought online, Add to Cart replaces the email enquiry;
@@ -213,6 +237,15 @@ function setupCardButtons(products) {
     const slug = card.querySelector('[data-price-for]')?.dataset.priceFor;
     const enquire = card.querySelector('.btn-contact');
     if (!enquire || !purchasable(products[slug])) return;
+    // Rings and bracelets need a size, which is chosen on the piece's own page.
+    if (['rings', 'bracelets'].includes(card.dataset.category)) {
+      const link = document.createElement('a');
+      link.className = 'btn btn-contact card-add';
+      link.href = productPage(slug);
+      link.textContent = 'Choose Size';
+      enquire.replaceWith(link);
+      return;
+    }
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'btn btn-contact card-add';

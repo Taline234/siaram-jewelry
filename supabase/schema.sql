@@ -30,8 +30,8 @@ alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image, price) values
   ('horseshoe-necklace', 'Horse Shoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 490),
-  ('horseshoe-necklace-black-stone', 'Horse Shoe Necklace – Black Stone', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
-  ('horseshoe-bracelet', 'Horse Shoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
+  ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
+  ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
   ('horseshoe-ring', 'Horse Shoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 350),
   ('horseshoe-chain-earrings', 'Horse Shoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 420),
   ('horse-eye-ring', 'Horse Eye Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 555),
@@ -63,9 +63,9 @@ insert into public.products (slug, name, category, image, price) values
   ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 489),
   ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 689),
   ('arrow-earrings', 'Arrow Earring', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
-  ('arrow-open-ring', 'Arrow Open Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
-  ('arrow-ring', 'Arrow Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
-on conflict (slug) do nothing;
+  ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
+  ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
+on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
 
 -- The product code from the finance workbook. Shown on orders so they match the spreadsheet.
 -- Pieces sold as an asymmetric pair list both codes.
@@ -86,6 +86,31 @@ update public.products p set sku = v.sku
     ('arrow-earrings', 'EA-06'), ('arrow-open-ring', 'RG-05'), ('arrow-ring', 'RG-06')
   ) as v(slug, sku)
  where p.slug = v.slug and p.sku is null;
+
+-- Sizes a piece can be ordered in (rings and bracelets; empty = no size to choose).
+-- Every piece is made to order. Filled in by tools/build_products.py.
+alter table public.products add column if not exists sizes text[];
+-- product sizes start
+update public.products p set sizes = v.sizes
+  from (values
+    ('horseshoe-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm']),
+    ('horseshoe-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('horse-eye-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('horse-eye-bracelet', array['16–17.5 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm']),
+    ('curved-marquise-bracelet', array['15–17 cm', '14 cm', '18 cm', '19 cm', '20 cm']),
+    ('fatima-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('moon-star-handchain', array['16–18 cm', '14 cm', '15 cm', '19 cm', '20 cm']),
+    ('qamar-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('crescent-moon-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('sun-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('seahorse-pearl-bracelet', array['15–16 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm']),
+    ('wave-bracelet', array['15–16.5 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm']),
+    ('arrow-bracelet', array['16–17 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm']),
+    ('arrow-open-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59']),
+    ('arrow-ring', array['EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59'])
+  ) as v(slug, sizes)
+ where p.slug = v.slug;
+-- product sizes end
 
 -- Lebanon only. South Lebanon does not accept orders.
 create table if not exists public.delivery_areas (
@@ -279,6 +304,12 @@ create table if not exists public.order_items (
   primary key (order_id, product_slug)
 );
 alter table public.order_items add column if not exists sku text;
+-- The same piece can be ordered in more than one metal or size, so each combination is its own line.
+alter table public.order_items add column if not exists metal text not null default 'yellow'
+  check (metal in ('yellow', 'rose', 'white'));
+alter table public.order_items add column if not exists size text not null default '';
+alter table public.order_items drop constraint if exists order_items_pkey;
+alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size);
 
 -- ---------------------------------------------------------------- gift vouchers
 create table if not exists public.gift_vouchers (
@@ -410,6 +441,8 @@ declare
   v_item      jsonb;
   v_product   public.products;
   v_qty       int;
+  v_metal     text;
+  v_size      text;
   v_subtotal  numeric(10,2) := 0;
   v_discount  numeric(10,2) := 0;
   v_total     numeric(10,2);
@@ -480,9 +513,20 @@ begin
     if v_qty < 1 or v_qty > 10 then
       raise exception 'Please choose a quantity between 1 and 10.' using errcode = 'P0001';
     end if;
-    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity)
-    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty)
-    on conflict (order_id, product_slug) do update set quantity = least(order_items.quantity + excluded.quantity, 10);
+    v_metal := coalesce(nullif(v_item->>'metal', ''), 'yellow');
+    if v_metal not in ('yellow', 'rose', 'white') then
+      raise exception 'Please choose yellow, rose or white gold.' using errcode = 'P0001';
+    end if;
+    v_size := coalesce(trim(v_item->>'size'), '');
+    if v_product.sizes is null then
+      v_size := '';
+    elsif not (v_size = any(v_product.sizes)) then
+      raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
+    end if;
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size)
+    on conflict (order_id, product_slug, metal, size)
+      do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
 
@@ -517,7 +561,8 @@ begin
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
       'whish_number', s.whish_number, 'whish_name', s.whish_name,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
-                                                    'quantity', i.quantity) order by i.name)
+                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
+                                                    order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s
      where o.id = v_order_id and s.id = 1);

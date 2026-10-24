@@ -40,7 +40,8 @@ const savedOrder = {
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
   subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
   whish_number: '+961 76 052 068', whish_name: 'Siaram Jewelry',
-  items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1 }],
+  items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1, metal: 'yellow', size: '' },
+          { sku: 'RG-01', name: 'Crescent Moon Ring', unit_price: 85, quantity: 1, metal: 'rose', size: 'EU 52' }],
 };
 
 const emails = () => calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => c.body);
@@ -56,7 +57,7 @@ test('guest order is saved and both emails are sent', async () => {
   assert.equal(rpc.body.p_user_id, null);
   assert.equal(rpc.body.p.age_confirmed, true);
   assert.equal(rpc.body.p.payment_method, 'whish', 'Whish is the default payment method');
-  assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2 }], 'browser prices are dropped');
+  assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2, metal: 'yellow', size: '' }], 'browser prices are dropped');
   assert.equal(rpc.headers.apikey, 'eyJservice');
   assert.equal(rpc.headers.authorization, 'Bearer eyJservice', 'legacy JWT key is also sent as Bearer');
 
@@ -69,6 +70,8 @@ test('guest order is saved and both emails are sent', async () => {
   assert.equal(shop.reply_to, 'rana@example.com');
   assert.match(shop.subject, /SO16/);
   assert.match(shop.html, /NK-07 &middot; V-Bird Necklace/, 'the shop email shows the SKU');
+  assert.match(customer.html, /Crescent Moon Ring &times; 1<br><span[^>]*>18k rose gold &middot; EU 52<\/span>/, 'emails show metal and size');
+  assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold<\/span>/, 'pieces without a size show the metal only');
   assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
 });
