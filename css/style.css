@@ -1414,13 +1414,15 @@ legend {
 .size-table td { text-align: center; padding: 7px 8px; border-bottom: 1px solid var(--line); }
 .size-table tbody tr:nth-child(odd) { background: var(--cream); }
 .size-guide-note { font-size: 0.95rem !important; color: #5c5c50; margin-bottom: 0; }
-.neck-diagram { display: block; width: 100%; max-width: 380px; margin: 4px auto 0; }
-.neck-diagram .sketch path { fill: none; stroke: #8d8270; stroke-width: 1.1; stroke-linecap: round; }
-.neck-diagram .sketch path.soft { stroke: #b9ae9b; stroke-width: 0.8; }
-.neck-diagram .neck-line { fill: none; stroke: var(--gold); stroke-width: 1.3; }
-.neck-diagram .dot { fill: var(--gold); }
-.neck-diagram line { stroke: #cfc6b6; stroke-width: 0.6; stroke-dasharray: 1.5 3; }
-.neck-diagram text { font-family: var(--font-sans); font-size: 10px; fill: var(--green-deep); letter-spacing: 0.03em; }
+.neck-diagram { display: block; width: 100%; margin: 8px auto 0; }
+.neck-diagram .body { fill: none; stroke: #7d7466; stroke-width: 1.1; stroke-linecap: round; }
+.neck-diagram .body.soft { stroke: #b3a995; }
+.neck-diagram .neck-line { fill: none; stroke: var(--gold); stroke-width: 1.2; }
+.neck-diagram text { font-family: var(--font-sans); fill: var(--green-deep); }
+.neck-diagram .len { font-size: 9px; paint-order: stroke; stroke: var(--ivory); stroke-width: 3px; }
+.neck-diagram .style { font-family: var(--font-serif); font-size: 15px; }
+.neck-diagram .range { font-family: var(--font-sans); font-size: 11px; fill: var(--green-mid); }
+.neck-diagram .head { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--green-mid); }
 .size-guide-sub { font-size: 1.25rem !important; margin: 20px 0 8px !important; }
 .size-guide-tips { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; font-family: var(--font-serif); font-size: 1.02rem; line-height: 1.45; }
 .size-guide-tips strong { font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-mid); font-weight: 500; }
