@@ -1366,6 +1366,7 @@ legend {
   color: inherit;
 }
 .size-select.invalid { border-color: #a33a2a; }
+.option-value { margin: 0; font-family: var(--font-serif); font-size: 1.05rem; }
 .made-to-order-note { margin: 0; font-size: 1rem; color: var(--green-mid); font-style: italic; font-family: var(--font-serif); }
 .specs-title {
   font-size: 0.72rem;

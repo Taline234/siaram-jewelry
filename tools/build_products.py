@@ -195,38 +195,38 @@ P = [
 # ---- details from the owner (24 October 2026): SKU from the finance workbook, stones, other
 #      materials, and sizes. ring = the size the ring is made in; wrist = adjustable chain (cm).
 D = {
-    "horseshoe-necklace": dict(sku="NK-01", stone="White zircon", dims=[("Chain", "40 cm"), ("Drop chain", "6 cm")]),
-    "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Chain", "39.5&ndash;41.5 cm (adjustable)"), ("Drop chain", "5 cm")]),
+    "horseshoe-necklace": dict(sku="NK-01", stone="White zircon", dims=[("Length", "40 cm chain + 6 cm drop chain")]),
+    "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Length", "39.5&ndash;41.5 cm chain (adjustable) + 5 cm drop chain")]),
     "horseshoe-bracelet": dict(sku="BR-02", stone="Black zircon, white zircon", wrist=(15, 17)),
     "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
     "horseshoe-chain-earrings": dict(sku="EA-03", stone="Black zircon, white zircon"),
     "horse-eye-ring": dict(sku="RG-07", stone="Red stone (marquise cut), white zircon", ring=54),
     "horse-eye-stud": dict(sku="EA-08", stone="Red stone (marquise cut), white zircon"),
     "horse-eye-bracelet": dict(sku="BR-08", stone="Red stone (marquise cut), white zircon", wrist=(16, 17.5)),
-    "horse-eye-necklace": dict(sku="NK-10", stone="Red stone (marquise cut), white zircon", dims=[("Chain", "37&ndash;40 cm (adjustable)")]),
-    "curved-marquise-necklace": dict(sku="NK-12", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
+    "horse-eye-necklace": dict(sku="NK-10", stone="Red stone (marquise cut), white zircon", dims=[("Length", "37&ndash;40 cm chain (adjustable)")]),
+    "curved-marquise-necklace": dict(sku="NK-12", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
     "curved-marquise-bracelet": dict(sku="BR-07", stone="White zircon", wrist=(15, 17)),
     "curved-marquise-earrings": dict(sku="EA-10", stone="White zircon", dims=[("Drop chain", "2 cm")]),
-    "eye-necklace": dict(sku="NK-02", stone="Turquoise stone (centre), white zircon", other="White freshwater pearls", dims=[("Chain", "40&ndash;52.5 cm (adjustable)")]),
+    "eye-necklace": dict(sku="NK-02", stone="Turquoise stone (centre), white zircon", other="White freshwater pearls", dims=[("Length", "40&ndash;52.5 cm chain (adjustable)")]),
     "fatima-pearl-earrings": dict(sku="EA-01/EA-02", other="White freshwater pearl", dims=[("Drop chain", "3 cm")]),
-    "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Chain", "38&ndash;40 cm (adjustable)"), ("Blue pearls to white pearl", "5.5 cm")]),
+    "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Length", "38&ndash;40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white pearl)")]),
     "fatima-ring": dict(sku="RG-03", stone="White zircon", ring=54),
     "fatima-anklet": dict(sku="AK-01", other="Blue freshwater pearls", dims=[("Chain", "21&ndash;22 cm (adjustable)")]),
-    "v-pendant-necklace": dict(sku="NK-08", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
-    "triangle-necklace": dict(sku="NK-09", stone="White zircon", dims=[("Chain", "50&ndash;52 cm (adjustable)")]),
-    "v-bird-necklace": dict(sku="NK-07", stone="White zircon", dims=[("Chain", "39&ndash;41.5 cm (adjustable)")]),
+    "v-pendant-necklace": dict(sku="NK-08", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
+    "triangle-necklace": dict(sku="NK-09", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
+    "v-bird-necklace": dict(sku="NK-07", stone="White zircon", dims=[("Length", "39&ndash;41.5 cm chain (adjustable)")]),
     "moon-star-handchain": dict(sku="BR-04", stone="White zircon", wrist=(16, 18), dims=[("Moon to star", "2.5 cm"), ("Finger chain", "7 cm")]),
     "moon-star-pendant-earring": dict(sku="EA-04/EA-05", stone="White zircon, black zircon", dims=[("Star chain", "2.5 cm"), ("Moon chain", "3.5 cm")]),
     "crescent-moon-earrings": dict(sku="EA-07", stone="White zircon", other="White freshwater pearls"),
-    "star-moon-necklace": dict(sku="NK-03", stone="White zircon", dims=[("Chain", "43 cm"), ("Drop chain", "3 cm")]),
+    "star-moon-necklace": dict(sku="NK-03", stone="White zircon", dims=[("Length", "43 cm chain + 3 cm drop chain")]),
     "qamar-ring": dict(sku="RG-02", stone="White zircon", ring=55),
     "crescent-moon-ring": dict(sku="RG-01", stone="White zircon", ring=54),
-    "sun-necklace": dict(sku="NK-11", stone="White zircon", other="White freshwater pearl", dims=[("Chain", "35&ndash;38 cm (adjustable)")]),
+    "sun-necklace": dict(sku="NK-11", stone="White zircon", other="White freshwater pearl", dims=[("Length", "35&ndash;38 cm chain (adjustable)")]),
     "sun-ring": dict(sku="RG-08", stone="White zircon", ring=54),
     "sun-stud-earrings": dict(sku="EA-09", stone="White zircon"),
     "seahorse-pearl-bracelet": dict(sku="BR-01", stone="White zircon", other="White freshwater pearls", wrist=(15, 16)),
     "wave-bracelet": dict(sku="BR-06", other="White freshwater pearl", wrist=(15, 16.5)),
-    "arrow-necklace": dict(sku="NK-04", stone="White zircon", dims=[("Chain", "41 cm"), ("Drop chain", "5.5 cm")]),
+    "arrow-necklace": dict(sku="NK-04", stone="White zircon", dims=[("Length", "41 cm chain + 5.5 cm drop chain")]),
     "arrow-bracelet": dict(sku="BR-05", stone="Red stone (centre), white zircon", wrist=(16, 17)),
     "arrow-earrings": dict(sku="EA-06", stone="Red stone (centre), white zircon", dims=[("Drop chain", "4 cm")]),
     "arrow-open-ring": dict(sku="RG-05", stone="Black zircon, white zircon", ring=55),
@@ -235,9 +235,10 @@ D = {
 assert set(D) == {p["slug"] for p in P}
 
 # Ring sizes from the size guide: EU size (the inside circumference in mm) and its US equivalent.
-RING_SIZES = [(45, "3.5"), (47, "4"), (48, "4.5"), (49, "5"), (50, "5.5"), (51, "6"), (52, "6.5"),
-              (54, "7"), (55, "7.5"), (56, "8"), (58, "8.5"), (59, "9")]
-CUSTOM_WRISTS = range(14, 21)  # other chain lengths in cm
+RING_SIZES = [(44, "3"), (45, "3.5"), (47, "4"), (48, "4.5"), (49, "5"), (50, "5.5"), (51, "6"), (52, "6.5"),
+              (54, "7"), (55, "7.5"), (56, "8"), (58, "8.5"), (59, "9"), (61, "9.5"), (62, "10"),
+              (63, "10.5"), (65, "11"), (66, "11.5"), (67, "12"), (69, "12.5"), (70, "13")]
+CUSTOM_WRISTS = range(13, 23)  # other chain lengths in cm
 cm = lambda v: f"{v:g}"
 
 def size_options(d):
@@ -345,8 +346,12 @@ def options_html(p):
 """
     necklace_guide = ""
     if p["size_kind"] == "necklace":
-        necklace_guide = """          <div class="option-head"><span class="option-label">Chain length</span>
-            <button type="button" class="link-btn size-guide-open" data-guide="necklace">Necklace length guide</button></div>
+        length = dict(p["dims"]).get("Length", "")
+        necklace_guide = f"""          <div class="option-group">
+            <div class="option-head"><span class="option-label">Length</span>
+              <button type="button" class="link-btn size-guide-open" data-guide="necklace">Necklace length guide</button></div>
+            <p class="option-value">{length}</p>
+          </div>
 """
     return f"""        <div class="product-options" data-size-kind="{p['size_kind'] or ''}">
           <fieldset class="option-group">
@@ -400,12 +405,15 @@ def guide_dialog(p):
   <table class="size-table">
     <thead><tr><th>Your wrist</th><th>Close fit</th><th>Loose fit</th></tr></thead>
     <tbody>
+        <tr><td>12 cm</td><td>13 cm</td><td>14 cm</td></tr>
         <tr><td>13 cm</td><td>14 cm</td><td>15 cm</td></tr>
         <tr><td>14 cm</td><td>15 cm</td><td>16 cm</td></tr>
         <tr><td>15 cm</td><td>16 cm</td><td>17 cm</td></tr>
         <tr><td>16 cm</td><td>17 cm</td><td>18 cm</td></tr>
         <tr><td>17 cm</td><td>18 cm</td><td>19 cm</td></tr>
         <tr><td>18 cm</td><td>19 cm</td><td>20 cm</td></tr>
+        <tr><td>19 cm</td><td>20 cm</td><td>21 cm</td></tr>
+        <tr><td>20 cm</td><td>21 cm</td><td>22 cm</td></tr>
     </tbody>
   </table>
   <p class="size-guide-note">Our standard chain is adjustable, so it fits a range of wrists. For a length outside that range, choose it from the list. If it is out of stock, it may take 3 to 4 weeks to make.</p>
