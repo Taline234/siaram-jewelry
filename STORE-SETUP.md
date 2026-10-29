@@ -82,8 +82,8 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order SO16" in Outlook. Order numbers carry on from the finance workbook
-   (SO16, SO17, ...). The subject says **Whish** or **cash**, and the email lists the items with their
+1. You get an email "New order S016" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
+   (S016, S017, ...). The subject says **Whish** or **cash**, and the email lists the items with their
    SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
 2. **Whish orders** start as `awaiting_payment`. When the Whish payment with that reference arrives, open

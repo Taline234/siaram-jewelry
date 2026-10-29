@@ -135,9 +135,19 @@ function renderForm(profile) {
 
       <fieldset class="checkout-confirm">
         ${signedIn ? '' : '<label class="check"><input type="checkbox" name="age_confirmed" required /> <span>I confirm I am 18 or older.</span></label>'}
-        <label class="check"><input type="checkbox" name="accept_terms" required /> <span>I agree to the
-          <a href="terms.html" target="_blank">Terms &amp; Conditions</a>,
-          <a href="returns.html" target="_blank">Returns policy</a> and
+        <div class="terms-summary">
+          <p class="terms-summary-title">Delivery and returns</p>
+          <ul>
+            <li>You pay the delivery fee. For international orders, you also pay customs clearance, import duties, taxes and any related fees.</li>
+            <li>If you return a piece because you no longer want it, you get a refund for the piece, but you pay all return costs, and the original delivery fee is not refunded.</li>
+            <li>If we sent a defective or incorrect piece, we cover the return costs.</li>
+            <li>A refund may be refused or reduced if the piece is not returned in its original good condition and packaging.</li>
+          </ul>
+          <p>Full details and how to return a piece: <a href="shipping.html" target="_blank">Shipping</a> and
+            <a href="returns.html" target="_blank">Returns</a>.</p>
+        </div>
+        <label class="check"><input type="checkbox" name="accept_terms" required /> <span>I agree to the delivery and
+          returns terms above, the <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and the
           <a href="privacy.html" target="_blank">Privacy Policy</a>.</span></label>
         <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       </fieldset>
@@ -248,6 +258,7 @@ async function submit(e) {
   const payload = {
     ...data,
     age_confirmed: Boolean(state.session) || form.elements.age_confirmed.checked,
+    terms_accepted: form.elements.accept_terms.checked,
     items: getCart().map(({ slug, quantity, metal, size }) => ({ slug, quantity, metal, size })),
   };
   try {

@@ -130,6 +130,27 @@ function itemOptions(i) {
   return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
 }
 
+// For the shop's email: one row per piece, in the order of the blue columns on the finance
+// workbook's Sales tab, so each order can be typed (or pasted cell by cell) straight in.
+// Whish counts as "Mobile Payment" in the workbook. Cash Received Now stays 0 until the money arrives.
+export function financeRowsHtml(order, today = new Date()) {
+  const date = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Beirut', day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
+  const method = order.payment_method === 'cash' ? 'Cash' : 'Mobile Payment';
+  const head = ['Invoice #', 'Sale Date', 'Customer', 'Sales Channel', 'SKU', 'Qty', 'Agreed Unit Price', 'Payment Method',
+    'Cash Received Now', 'Gift Voucher Code', 'Paid by Voucher ($)'];
+  const cell = 'padding:4px 8px;border:1px solid #d9d2c3;font-size:12px;white-space:nowrap';
+  const rows = (order.items || []).map((i, n) => [
+    order.reference, date, order.customer_name, 'Website', i.sku || '', i.quantity, Number(i.unit_price).toFixed(2), method, '0',
+    n === 0 && Number(order.voucher_amount) > 0 ? order.voucher_code : '',
+    n === 0 && Number(order.voucher_amount) > 0 ? Number(order.voucher_amount).toFixed(2) : '',
+  ]);
+  const tr = (cells, tag) => `<tr>${cells.map((c) => `<${tag} style="${cell}">${escapeHtml(String(c))}</${tag}>`).join('')}</tr>`;
+  return `<h3 style="font-size:15px;margin:24px 0 6px">For your finance workbook (Sales tab)</h3>
+    <p style="font-size:13px;line-height:1.5;margin:0 0 8px">One row per piece, same invoice # on each. Add the customer on the Customers tab first if they are new.
+    When the money arrives, type it in Cash Received Now.</p>
+    <table style="border-collapse:collapse">${tr(head, 'th')}${rows.map((r) => tr(r, 'td')).join('')}</table>`;
+}
+
 // The shop's copy also shows each piece's SKU, to match the finance workbook.
 export function orderSummaryHtml(order, { sku = false } = {}) {
   const rows = (order.items || [])

@@ -1,6 +1,6 @@
 // POST /api/place-order — validates and saves an order, then emails the shop and the customer.
 import {
-  CustomerError, configured, emailLayout, escapeHtml, json, orderSummaryHtml, readJson,
+  CustomerError, configured, emailLayout, escapeHtml, financeRowsHtml, json, orderSummaryHtml, readJson,
   paymentInstructionsHtml, rpc, sendEmail, userFromRequest,
 } from '../lib/store.mjs';
 
@@ -14,7 +14,7 @@ export default async (req) => {
     const body = await readJson(req);
     if (body.website) return json({ error: 'Invalid request.' }, 400); // spam trap field
 
-    const order = { items: [], age_confirmed: body.age_confirmed === true };
+    const order = { items: [], age_confirmed: body.age_confirmed === true, terms_accepted: body.terms_accepted === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
     order.fulfilment = order.fulfilment === 'collection' ? 'collection' : 'delivery';
     order.payment_method = order.payment_method === 'cash' ? 'cash' : 'whish';
@@ -48,7 +48,7 @@ export default async (req) => {
           `<p style="font-size:15px;line-height:1.6">${saved.payment_method === 'cash'
             ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}. Status: being prepared`
             : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
-           ${orderSummaryHtml(saved, { sku: true })}`),
+           ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
       }),
     ]);
 

@@ -1,6 +1,6 @@
 # Terms and conditions
 
-*Last updated 17 October 2026*
+*Last updated 29 October 2026*
 
 ## About Siaram
 
@@ -16,7 +16,7 @@ Photographs show the design, but screen settings may affect colour and photograp
 
 ## Prices and delivery charges
 
-Prices are quoted in US dollars. The price, any applicable taxes or charges, delivery fee and payment arrangements will be shown or confirmed before you commit to the order. Collection by appointment is free. A delivery fee paid directly to the courier is still disclosed before you place your order.
+Prices are quoted in US dollars. The price, any applicable taxes or charges, delivery fee and payment arrangements will be shown or confirmed before you commit to the order. Collection by appointment is free. You are responsible for paying the delivery fee, which is disclosed before you place your order even when you pay it directly to the courier. For international orders, you are also responsible for customs clearance, import duties, taxes and any related fees, as set out in our Shipping policy. At checkout you confirm that you agree to these delivery and returns terms.
 
 A written quotation is valid for 48 hours unless it states another expiry time. After acceptance and the required payment, we will not increase the agreed price because gold prices change. Customer-requested changes require a separate approved quotation.
 
@@ -104,7 +104,7 @@ We may photograph and share our pieces without identifying the customer. We will
 
 # Shipping and collection
 
-*Last updated 17 October 2026*
+*Last updated 29 October 2026*
 
 ## Where we deliver
 
@@ -122,9 +122,15 @@ These are estimated arrival times, not merely dispatch times. We will notify you
 
 ## Charges and receipt
 
-We arrange the courier. Delivery charges depend on the destination and service and are disclosed before you commit to the order. The disclosed delivery fee is paid to the courier in cash. Please provide an accurate address and a working phone number and ensure an authorised recipient can receive the package.
+We arrange the courier. Delivery charges depend on the destination and service and are disclosed before you commit to the order. You are responsible for paying the delivery fee. Within Lebanon, it is paid to the courier in cash. Please provide an accurate address and a working phone number and ensure an authorised recipient can receive the package.
 
 We will share dispatch and delivery information, including a tracking reference where the selected service provides one. Please check the package on arrival. If it appears opened or damaged, photograph it if possible and notify us promptly, preferably within 48 hours. Keep the packaging while we review the issue. You do not need an unboxing video to make a claim.
+
+## International orders
+
+When we deliver outside Lebanon, the international shipping fee is shown or confirmed before you place your order, and you pay it. You are also responsible for customs clearance and for any import duties, taxes, brokerage, handling or other fees charged in the destination country. These are not included in our prices and are usually collected by the courier or the customs authority before the parcel is released.
+
+If a parcel is refused, or not collected because these charges were not paid, and it is returned to us, we refund the price of the jewellery minus the original shipping fee, the cost of returning the parcel to us and any charges we incurred.
 
 ## Delayed lost or damaged deliveries
 
@@ -138,7 +144,7 @@ If an incorrect address, absence at an arranged delivery or refusal causes a fai
 
 # Returns and exchanges
 
-*Last updated 17 October 2026*
+*Last updated 29 October 2026*
 
 ## Our 14 day offer
 
@@ -170,15 +176,21 @@ We arrange prepaid return delivery for confirmed defects, damage on arrival or i
 
 ## How to request a return
 
-Contact customerservice@siaramjewelry.com or the channel used to place the order. Give your order reference, the item and whether you want a refund or exchange. For a fault or incorrect item, please describe the problem so we can arrange the appropriate process.
+Step 1. Contact us within 14 days of receiving your order, at customerservice@siaramjewelry.com or through the channel you used to order. Give your order reference, the piece you want to return and whether you would like a refund or an exchange. For a defective or incorrect piece, describe the problem and send photographs.
 
-Send your request within the applicable return period. We will provide a return address and arrangements privately. For our voluntary offer, hand the piece to the agreed carrier or return it by appointment within five calendar days after we send usable return instructions. If the fifth day is a public holiday or no agreed return service is available, contact us to arrange the next available day. A timely request is not lost because our reply is delayed.
+Step 2. We reply with the return address and how to send the piece. Please do not send anything before you receive our instructions.
 
-Pack the piece securely and keep the collection or postage receipt. Do not send gold jewellery through a service that does not accept it. A carrier delay after timely handover does not by itself invalidate your return. If the voluntary deadline is missed, we may decline that voluntary return; statutory claims remain available where they apply.
+Step 3. Pack the piece securely in its original box and pouch, with any certificate and other packaging it came with. Do not wear it, and do not send gold jewellery through a service that does not accept it.
+
+Step 4. Hand the parcel to the courier, or bring it to us by appointment, within five calendar days of receiving our instructions. Keep the collection or postage receipt. For a change-of-mind return, you arrange and pay for the return delivery; for a defective or incorrect piece, we arrange and pay for it.
+
+Step 5. We inspect the piece and tell you the outcome in writing, then process your refund or exchange as described below.
+
+If the fifth day is a public holiday or no agreed return service is available, contact us to arrange the next available day. A timely request is not lost because our reply is delayed, and a carrier delay after timely handover does not by itself invalidate your return. If the voluntary deadline is missed, we may decline that voluntary return; statutory claims remain available where they apply.
 
 ## Inspection and repayment
 
-We aim to inspect returned pieces within three business days of receipt and tell you the outcome in writing. If we believe a voluntary return does not meet its conditions, we will explain the reason and provide relevant photographs or other findings. We do not treat our assessment as removing your ability to challenge the outcome.
+We aim to inspect returned pieces within three business days of receipt and tell you the outcome in writing. We may refuse or reduce a refund under our 14-day offer if the piece is not returned in its original good condition (unworn, undamaged and unaltered) with its original packaging. In that case we can send the piece back to you at your cost. If we believe a voluntary return does not meet its conditions, we will explain the reason and provide relevant photographs or other findings. We do not treat our assessment as removing your ability to challenge the outcome.
 
 We initiate approved refunds promptly and no later than 14 calendar days after the inspection decision, or earlier where the law requires. We will not delay an inspection or decision to avoid a repayment obligation. Your bank or payment provider may take additional time to display the funds.
 
@@ -186,7 +198,7 @@ Refunds normally go to the original purchaser using the original payment method.
 
 ## Delivery costs
 
-For a return under our 14-day offer, you pay the return delivery and, for an exchange, delivery of the replacement. The original delivery charge is not refunded under our voluntary offer once delivery has been completed. Any delivery amount that must be refunded under applicable law will be refunded. We will explain any relevant charge before arranging it.
+If you return a piece for any reason other than a defect or an incorrect item, for example because you changed your mind or no longer want it, you receive a refund for the piece, but you are responsible for all return costs: the return delivery, and any courier, customs or other fees involved. For an exchange, you also pay the delivery of the replacement. The original delivery fee is not refunded once delivery has been completed. Any delivery amount that must be refunded under applicable law will be refunded. We will explain any relevant charge before arranging it.
 
 For a confirmed defective, arrival-damaged or incorrect item, we arrange and pay for the necessary return and replacement delivery. Where a refund is due by law for such an item, it includes the price paid and the delivery charges attributable to it. If you paid the courier directly, provide the delivery receipt or other available evidence so we can arrange reimbursement.
 
