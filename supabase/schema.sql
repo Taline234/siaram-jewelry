@@ -11,7 +11,7 @@
 --   orders          incoming orders; change status when paid / dispatched
 --   gift_vouchers   issue vouchers with:
 --                     select issue_gift_voucher('Recipient', 'Purchaser', 150, 'recipient@email.com', '+961 70 000 000');
---   store_settings  also holds the next order number (SO16, SO17, ...) and the next voucher number (GV0001, ...)
+--   store_settings  also holds the next order number (S016, S017, ...) and the next voucher number (GV0001, ...)
 -- ==========================================================================
 
 -- ---------------------------------------------------------------- catalogue
@@ -67,25 +67,25 @@ insert into public.products (slug, name, category, image, price) values
   ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
 on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
 
--- The product code from the finance workbook. Shown on orders so they match the spreadsheet.
--- Pieces sold as an asymmetric pair list both codes.
+-- The product code from the finance workbook (Products tab). Shown on orders so they match the spreadsheet.
+-- Earring pairs have one code each since the workbook's 22 October 2026 renumbering.
 alter table public.products add column if not exists sku text;
 update public.products p set sku = v.sku
   from (values
     ('horseshoe-necklace', 'NK-01'), ('horseshoe-necklace-black-stone', 'NK-05'), ('horseshoe-bracelet', 'BR-02'),
-    ('horseshoe-ring', 'RG-04'), ('horseshoe-chain-earrings', 'EA-03'), ('horse-eye-ring', 'RG-07'),
-    ('horse-eye-stud', 'EA-08'), ('horse-eye-bracelet', 'BR-08'), ('horse-eye-necklace', 'NK-10'),
-    ('curved-marquise-necklace', 'NK-12'), ('curved-marquise-bracelet', 'BR-07'), ('curved-marquise-earrings', 'EA-10'),
-    ('eye-necklace', 'NK-02'), ('fatima-pearl-earrings', 'EA-01/EA-02'), ('fatima-necklace', 'NK-06'),
+    ('horseshoe-ring', 'RG-04'), ('horseshoe-chain-earrings', 'EA-02'), ('horse-eye-ring', 'RG-07'),
+    ('horse-eye-stud', 'EA-06'), ('horse-eye-bracelet', 'BR-08'), ('horse-eye-necklace', 'NK-10'),
+    ('curved-marquise-necklace', 'NK-12'), ('curved-marquise-bracelet', 'BR-07'), ('curved-marquise-earrings', 'EA-08'),
+    ('eye-necklace', 'NK-02'), ('fatima-pearl-earrings', 'EA-01'), ('fatima-necklace', 'NK-06'),
     ('fatima-ring', 'RG-03'), ('fatima-anklet', 'AK-01'), ('v-pendant-necklace', 'NK-08'),
     ('triangle-necklace', 'NK-09'), ('v-bird-necklace', 'NK-07'), ('moon-star-handchain', 'BR-04'),
-    ('moon-star-pendant-earring', 'EA-04/EA-05'), ('crescent-moon-earrings', 'EA-07'), ('star-moon-necklace', 'NK-03'),
+    ('moon-star-pendant-earring', 'EA-03'), ('crescent-moon-earrings', 'EA-05'), ('star-moon-necklace', 'NK-03'),
     ('qamar-ring', 'RG-02'), ('crescent-moon-ring', 'RG-01'), ('sun-necklace', 'NK-11'),
-    ('sun-ring', 'RG-08'), ('sun-stud-earrings', 'EA-09'), ('seahorse-pearl-bracelet', 'BR-01'),
+    ('sun-ring', 'RG-08'), ('sun-stud-earrings', 'EA-07'), ('seahorse-pearl-bracelet', 'BR-01'),
     ('wave-bracelet', 'BR-06'), ('arrow-necklace', 'NK-04'), ('arrow-bracelet', 'BR-05'),
-    ('arrow-earrings', 'EA-06'), ('arrow-open-ring', 'RG-05'), ('arrow-ring', 'RG-06')
+    ('arrow-earrings', 'EA-04'), ('arrow-open-ring', 'RG-05'), ('arrow-ring', 'RG-06')
   ) as v(slug, sku)
- where p.slug = v.slug and p.sku is null;
+ where p.slug = v.slug and p.sku is distinct from v.sku;
 
 -- Sizes a piece can be ordered in (rings and bracelets; empty = no size to choose).
 -- Every piece is made to order. Filled in by tools/build_products.py.
@@ -133,7 +133,7 @@ create table if not exists public.store_settings (
 );
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
 
--- Order numbers carry on from the finance workbook (last order SO15); gift vouchers start at GV0001.
+-- Order numbers carry on from the finance workbook's invoice numbers (last sale S015); gift vouchers start at GV0001.
 -- Taken inside the same transaction as the order or voucher, so a failed order never skips a number.
 alter table public.store_settings add column if not exists next_order_number int not null default 16;
 alter table public.store_settings add column if not exists next_voucher_number int not null default 1;
@@ -288,6 +288,8 @@ create table if not exists public.orders (
 );
 
 alter table public.orders add column if not exists fulfilment text not null default 'delivery';
+-- When the customer ticked "I agree to the delivery and returns terms" at checkout.
+alter table public.orders add column if not exists terms_accepted_at timestamptz;
 -- How the customer pays: 'whish' before dispatch, or 'cash' to the courier on delivery (or at collection).
 alter table public.orders drop constraint if exists orders_payment_method_check;
 alter table public.orders add constraint orders_payment_method_check check (payment_method in ('whish', 'cash'));
@@ -456,6 +458,10 @@ begin
     raise exception 'You must confirm you are 18 or older to order.' using errcode = 'P0001';
   end if;
 
+  if coalesce((p->>'terms_accepted')::boolean, false) is not true then
+    raise exception 'Please agree to the delivery and returns terms to place your order.' using errcode = 'P0001';
+  end if;
+
   if coalesce(p->>'fulfilment', 'delivery') not in ('delivery', 'collection') then
     raise exception 'Please choose delivery or collection.' using errcode = 'P0001';
   end if;
@@ -488,10 +494,10 @@ begin
   end if;
 
   update public.store_settings set next_order_number = next_order_number + 1 where id = 1
-  returning 'SO' || (next_order_number - 1) into v_ref;
+  returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
-                             payment_method, status)
+                             payment_method, status, terms_accepted_at)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
@@ -499,7 +505,7 @@ begin
           0, v_area.delivery_fee, 0, true,
           -- Cash orders are paid on delivery or collection, so they go straight to preparation.
           case when v_cash then 'cash' else 'whish' end,
-          case when v_cash then 'preparing' else 'awaiting_payment' end)
+          case when v_cash then 'preparing' else 'awaiting_payment' end, now())
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop

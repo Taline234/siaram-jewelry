@@ -199,16 +199,16 @@ D = {
     "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Length", "39.5&ndash;41.5 cm chain (adjustable) + 5 cm drop chain")]),
     "horseshoe-bracelet": dict(sku="BR-02", stone="Black zircon, white zircon", wrist=(15, 17)),
     "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
-    "horseshoe-chain-earrings": dict(sku="EA-03", stone="Black zircon, white zircon"),
+    "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black zircon, white zircon"),
     "horse-eye-ring": dict(sku="RG-07", stone="Red stone (marquise cut), white zircon", ring=54),
-    "horse-eye-stud": dict(sku="EA-08", stone="Red stone (marquise cut), white zircon"),
+    "horse-eye-stud": dict(sku="EA-06", stone="Red stone (marquise cut), white zircon"),
     "horse-eye-bracelet": dict(sku="BR-08", stone="Red stone (marquise cut), white zircon", wrist=(16, 17.5)),
     "horse-eye-necklace": dict(sku="NK-10", stone="Red stone (marquise cut), white zircon", dims=[("Length", "37&ndash;40 cm chain (adjustable)")]),
     "curved-marquise-necklace": dict(sku="NK-12", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
     "curved-marquise-bracelet": dict(sku="BR-07", stone="White zircon", wrist=(15, 17)),
-    "curved-marquise-earrings": dict(sku="EA-10", stone="White zircon", dims=[("Drop chain", "2 cm")]),
+    "curved-marquise-earrings": dict(sku="EA-08", stone="White zircon", dims=[("Drop chain", "2 cm")]),
     "eye-necklace": dict(sku="NK-02", stone="Turquoise stone (centre), white zircon", other="White freshwater pearls", dims=[("Length", "40&ndash;52.5 cm chain (adjustable)")]),
-    "fatima-pearl-earrings": dict(sku="EA-01/EA-02", other="White freshwater pearl", dims=[("Drop chain", "3 cm")]),
+    "fatima-pearl-earrings": dict(sku="EA-01", other="White freshwater pearl", dims=[("Drop chain", "3 cm")]),
     "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Length", "38&ndash;40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white pearl)")]),
     "fatima-ring": dict(sku="RG-03", stone="White zircon", ring=54),
     "fatima-anklet": dict(sku="AK-01", other="Blue freshwater pearls", dims=[("Chain", "21&ndash;22 cm (adjustable)")]),
@@ -216,19 +216,19 @@ D = {
     "triangle-necklace": dict(sku="NK-09", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
     "v-bird-necklace": dict(sku="NK-07", stone="White zircon", dims=[("Length", "39&ndash;41.5 cm chain (adjustable)")]),
     "moon-star-handchain": dict(sku="BR-04", stone="White zircon", wrist=(16, 18), dims=[("Moon to star", "2.5 cm"), ("Finger chain", "7 cm")]),
-    "moon-star-pendant-earring": dict(sku="EA-04/EA-05", stone="White zircon, black zircon", dims=[("Star chain", "2.5 cm"), ("Moon chain", "3.5 cm")]),
-    "crescent-moon-earrings": dict(sku="EA-07", stone="White zircon", other="White freshwater pearls"),
+    "moon-star-pendant-earring": dict(sku="EA-03", stone="White zircon, black zircon", dims=[("Star chain", "2.5 cm"), ("Moon chain", "3.5 cm")]),
+    "crescent-moon-earrings": dict(sku="EA-05", stone="White zircon", other="White freshwater pearls"),
     "star-moon-necklace": dict(sku="NK-03", stone="White zircon", dims=[("Length", "43 cm chain + 3 cm drop chain")]),
     "qamar-ring": dict(sku="RG-02", stone="White zircon", ring=55),
     "crescent-moon-ring": dict(sku="RG-01", stone="White zircon", ring=54),
     "sun-necklace": dict(sku="NK-11", stone="White zircon", other="White freshwater pearl", dims=[("Length", "35&ndash;38 cm chain (adjustable)")]),
     "sun-ring": dict(sku="RG-08", stone="White zircon", ring=54),
-    "sun-stud-earrings": dict(sku="EA-09", stone="White zircon"),
+    "sun-stud-earrings": dict(sku="EA-07", stone="White zircon"),
     "seahorse-pearl-bracelet": dict(sku="BR-01", stone="White zircon", other="White freshwater pearls", wrist=(15, 16)),
     "wave-bracelet": dict(sku="BR-06", other="White freshwater pearl", wrist=(15, 16.5)),
     "arrow-necklace": dict(sku="NK-04", stone="White zircon", dims=[("Length", "41 cm chain + 5.5 cm drop chain")]),
     "arrow-bracelet": dict(sku="BR-05", stone="Red stone (centre), white zircon", wrist=(16, 17)),
-    "arrow-earrings": dict(sku="EA-06", stone="Red stone (centre), white zircon", dims=[("Drop chain", "4 cm")]),
+    "arrow-earrings": dict(sku="EA-04", stone="Red stone (centre), white zircon", dims=[("Drop chain", "4 cm")]),
     "arrow-open-ring": dict(sku="RG-05", stone="Black zircon, white zircon", ring=55),
     "arrow-ring": dict(sku="RG-06", stone="Red stone (centre), white zircon", ring=55),
 }
@@ -561,4 +561,11 @@ sizes = "update public.products p set sizes = v.sizes\n  from (values\n" + ",\n"
 s, n = re.subn(r"(-- product sizes start\n).*?(-- product sizes end)", lambda m: m.group(1) + sizes + "\n" + m.group(2), s, flags=re.S)
 assert n == 1
 open("supabase/schema.sql", "w", encoding="utf-8").write(s)
+# ---- product details for the order documents (receipt item descriptions), keyed by SKU
+cat = {p["sku"]: {"name": p["plain"], "category": p["cat"], "collection": COLL[p["coll"]][0],
+                  "stone": html.unescape(p["stone"] or ""), "other": html.unescape(p["other"] or ""),
+                  "details": [[k, html.unescape(v)] for k, v in p["dims"]]} for p in P}
+open("netlify/lib/catalogue.mjs", "w", encoding="utf-8").write(
+    "// Generated by tools/build_products.py: what each piece is made of, for receipts and customs.\n"
+    "export const CATALOGUE = " + json.dumps(cat, indent=2, ensure_ascii=False) + ";\n")
 print("ok")

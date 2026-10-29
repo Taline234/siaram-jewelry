@@ -36,7 +36,7 @@ const request = (path, body, headers = {}) =>
   new Request(`https://siaram.test${path}`, { method: 'POST', body: JSON.stringify(body), headers });
 
 const savedOrder = {
-  reference: 'SO16', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
+  reference: 'S016', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
   subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
   whish_number: '+961 76 052 068', whish_name: 'Siaram Jewelry',
@@ -68,11 +68,20 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(customer.html, /\+961 76 052 068/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
   assert.equal(shop.reply_to, 'rana@example.com');
-  assert.match(shop.subject, /SO16/);
+  assert.match(shop.subject, /S016/);
   assert.match(shop.html, /NK-07 &middot; V-Bird Necklace/, 'the shop email shows the SKU');
   assert.match(customer.html, /Crescent Moon Ring &times; 1<br><span[^>]*>18k rose gold &middot; EU 52<\/span>/, 'emails show metal and size');
   assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold<\/span>/, 'pieces without a size show the metal only');
   assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
+  assert.match(shop.html, /For your finance workbook/, 'the shop email lists rows for the finance workbook');
+  assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Mobile Payment<\/td>/,
+    'rows follow the Sales tab columns; Whish is Mobile Payment');
+  assert.doesNotMatch(customer.html, /finance workbook/, 'customers do not see it');
+  assert.deepEqual(customer.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf', 'Siaram-care-and-warranty-S016.pdf'],
+    'the customer gets the receipt and the care and warranty card');
+  assert.deepEqual(shop.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf'], 'the shop gets the receipt');
+  const pdf = Buffer.from(customer.attachments[0].content, 'base64');
+  assert.equal(pdf.subarray(0, 5).toString(), '%PDF-', 'the receipt is a PDF');
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
 });
 
