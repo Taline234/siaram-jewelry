@@ -93,7 +93,8 @@ ${bodyHtml}
 </td></tr></table></td></tr></table></body></html>`;
 }
 
-export async function sendEmail({ to, subject, html, replyTo }) {
+// attachments: [{ filename, content }] with content as bytes.
+export async function sendEmail({ to, subject, html, replyTo, attachments }) {
   if (!env('RESEND_API_KEY') || !to) {
     console.warn('Email not sent (RESEND_API_KEY or recipient missing):', subject);
     return false;
@@ -107,6 +108,9 @@ export async function sendEmail({ to, subject, html, replyTo }) {
       subject,
       html,
       reply_to: replyTo || env('ORDER_NOTIFY_EMAIL') || undefined,
+      attachments: attachments?.length
+        ? attachments.map((a) => ({ filename: a.filename, content: Buffer.from(a.content).toString('base64') }))
+        : undefined,
     }),
   });
   if (!res.ok) {

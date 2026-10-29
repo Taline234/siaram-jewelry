@@ -8,6 +8,8 @@ cd "$(dirname "$0")"
 export E2E_DB="${E2E_DB:-siaram_e2e}"
 
 [ -d node_modules ] || npm install --silent
+# The order functions draw PDF receipts with the packages in the repository root.
+[ -d ../../node_modules ] || (cd ../.. && npm install --silent)
 npx esbuild --bundle --format=esm --platform=browser --log-level=warning \
   node_modules/@supabase/supabase-js/dist/module/index.js --outfile=supabase.esm.js
 

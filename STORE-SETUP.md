@@ -86,6 +86,9 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
    (S016, S017, ...). The subject says **Whish** or **cash**, and the email lists the items with their
    SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
+   The receipt PDF is attached, and the email ends with a "For your finance workbook" table: one row
+   per piece in the order of the Sales tab's columns. The customer's email has the receipt and the
+   care and warranty card attached (both drawn after the "Siaram Invoice" Canva template).
 2. **Whish orders** start as `awaiting_payment`. When the Whish payment with that reference arrives, open
    **Supabase → Table Editor → orders** and change the order's **status** to `paid`, then `preparing`.
    If payment never arrives, set the status to `cancelled`.

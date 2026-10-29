@@ -3,6 +3,7 @@ import {
   CustomerError, configured, emailLayout, escapeHtml, financeRowsHtml, json, orderSummaryHtml, readJson,
   paymentInstructionsHtml, rpc, sendEmail, userFromRequest,
 } from '../lib/store.mjs';
+import { careWarrantyPdf, receiptPdf } from '../lib/documents.mjs';
 
 const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
 
@@ -32,13 +33,26 @@ export default async (req) => {
     const saved = await rpc('place_order', { p: order, p_user_id: user ? user.id : null });
 
     const notify = process.env.ORDER_NOTIFY_EMAIL;
+    // The receipt and the care and warranty card, from the owner's Canva template. If they cannot be
+    // drawn, the emails still go out without them: the order is already saved.
+    let receipt = null;
+    let care = null;
+    try {
+      [receipt, care] = await Promise.all([receiptPdf(saved), careWarrantyPdf(saved)]);
+    } catch (err) {
+      console.error('Order documents failed', saved.reference, err);
+    }
+    const receiptFile = receipt && { filename: `Siaram-receipt-${saved.reference}.pdf`, content: receipt };
+    const careFile = care && { filename: `Siaram-care-and-warranty-${saved.reference}.pdf`, content: care };
     await Promise.all([
       sendEmail({
         to: saved.email,
         subject: `Your Siaram order ${saved.reference}`,
         html: emailLayout(`Thank you, ${saved.customer_name.split(' ')[0]}!`,
           `<p style="font-size:15px;line-height:1.6">We have received your order <strong>${escapeHtml(saved.reference)}</strong>.</p>
-           ${paymentInstructionsHtml(saved)}${orderSummaryHtml(saved)}`),
+           ${paymentInstructionsHtml(saved)}${orderSummaryHtml(saved)}
+           <p style="font-size:14px;line-height:1.6">Your receipt and your care and warranty card are attached.</p>`),
+        attachments: [receiptFile, careFile].filter(Boolean),
       }),
       sendEmail({
         to: notify,
@@ -49,6 +63,7 @@ export default async (req) => {
             ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}. Status: being prepared`
             : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
+        attachments: [receiptFile].filter(Boolean),
       }),
     ]);
 

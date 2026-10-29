@@ -77,6 +77,11 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Mobile Payment<\/td>/,
     'rows follow the Sales tab columns; Whish is Mobile Payment');
   assert.doesNotMatch(customer.html, /finance workbook/, 'customers do not see it');
+  assert.deepEqual(customer.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf', 'Siaram-care-and-warranty-S016.pdf'],
+    'the customer gets the receipt and the care and warranty card');
+  assert.deepEqual(shop.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf'], 'the shop gets the receipt');
+  const pdf = Buffer.from(customer.attachments[0].content, 'base64');
+  assert.equal(pdf.subarray(0, 5).toString(), '%PDF-', 'the receipt is a PDF');
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
 });
 
