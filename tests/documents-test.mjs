@@ -20,7 +20,7 @@ test('every website piece has catalogue details', () => {
 
 test('receipt and care card are PDFs, with a second receipt page for long orders', async () => {
   const items = Array.from({ length: 9 }, () => ({ sku: 'NK-05', name: 'Midnight Horseshoe Necklace', unit_price: 525, quantity: 1, metal: 'yellow', size: '' }));
-  const order = { reference: 'S016', customer_name: 'Rana Haddad', email: 'r@example.com', phone: '70', fulfilment: 'collection',
+  const order = { reference: 'S016', customer_name: 'Rana Haddad', email: 'r@example.com', phone: '70', fulfilment: 'delivery', governorate: 'Beirut', city: 'Achrafieh', street: 'Rue Monnot',
     payment_method: 'cash', subtotal: 4725, total: 4725, voucher_amount: 0, items };
   const receipt = Buffer.from(await receiptPdf(order));
   const care = Buffer.from(await careWarrantyPdf(order));

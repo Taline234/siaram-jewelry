@@ -123,10 +123,8 @@ select pg_temp.check((select (r->>'total')::numeric = 85 and (r->>'delivery_fee'
     from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'),
                              '00000000-0000-0000-0000-00000000000a')) t(r)),
   'delivery fee is recorded but paid to the courier, not added to the jewellery total');
-select pg_temp.check((select (r->>'total')::numeric = 85 and r->>'fulfilment' = 'collection' and r->>'governorate' is null
-    from (select place_order(pg_temp.order_json('South','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
-      '{"fulfilment":"collection","city":"","street":""}'))) t(r)),
-  'collection by appointment needs no address and has no delivery fee');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
+      '{"fulfilment":"collection"}'))$$, 'Collection is no longer available');
 select pg_temp.check((select r->>'payment_method' = 'cash' and r->>'status' = 'received'
     from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
   'website orders are cash and start as received, waiting for us to confirm them');
@@ -172,7 +170,7 @@ select pg_temp.check((select (r->>'total')::numeric = 70 and (r->>'voucher_amoun
   'remaining balance is used on the next order');
 select pg_temp.expect_error($$select check_voucher('SIARAM-GOOD-0000')$$, 'fully used');
 
-select pg_temp.check((select array_agg(reference order by reference) = array['S017','S018','S019','S020','S021','S022','S023']
+select pg_temp.check((select array_agg(reference order by reference) = array['S017','S018','S019','S020','S021','S022']
                         from orders),
   'each order takes the next SO number');
 
@@ -276,7 +274,7 @@ select pg_temp.check(not has_function_privilege('anon', 'public.sales_export(dat
 delete from auth.users where email = 'rana@example.com';
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana')
                      and (select count(*) = 0 from addresses) and (select count(*) = 0 from wishlist)
-                     and (select count(*) = 8 from orders) and (select count(*) = 0 from orders where user_id is not null),
+                     and (select count(*) = 7 from orders) and (select count(*) = 0 from orders where user_id is not null),
   'deleting an account removes profile, addresses and wishlist but keeps orders');
 
 \o

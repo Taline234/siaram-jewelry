@@ -1,4 +1,4 @@
-// Checkout page: guest or signed-in checkout, Lebanon-only delivery or collection, gift vouchers, cash payment.
+// Checkout page: guest, sign-in or new-account checkout, Lebanon-only delivery, gift vouchers, cash payment.
 import {
   escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
@@ -12,31 +12,12 @@ const field = (name, label, attrs = '') => `<label class="field"><span>${label}<
 function totals() {
   const cart = getCart();
   const subtotal = cart.reduce((sum, i) => sum + (state.products[i.slug]?.price || 0) * i.quantity, 0);
-  const collect = isCollection();
   const gov = root.querySelector('[name=governorate]')?.value;
-  const area = collect ? null : state.areas.find((a) => a.governorate === gov);
+  const area = state.areas.find((a) => a.governorate === gov);
   const fee = area ? area.delivery_fee : null;
   // Delivery is paid to the courier in cash, so neither the jewellery total nor a voucher covers it.
   const discount = state.voucher ? Math.min(state.voucher.balance, subtotal) : 0;
-  return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area), collect };
-}
-
-const isCollection = () => root.querySelector('[name=fulfilment]:checked')?.value === 'collection';
-function payLabel() {
-  return isCollection() ? 'To pay in cash at collection' : 'To pay in cash on delivery';
-}
-
-// Collection needs no address: hide the address fields and leave them out of validation.
-function applyFulfilment() {
-  const collect = isCollection();
-  const address = root.querySelector('.address-fields');
-  address.hidden = collect;
-  address.querySelectorAll('input, select, textarea').forEach((el) => { el.disabled = collect; });
-  root.querySelector('.cash-title').textContent = collect ? 'Cash at collection' : 'Cash on delivery';
-  root.querySelector('.cash-text').textContent = collect
-    ? 'You pay in cash when you collect your order.'
-    : 'You pay the driver in cash when your order arrives, together with the delivery fee.';
-  renderSummary();
+  return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area) };
 }
 
 function renderSummary() {
@@ -46,14 +27,13 @@ function renderSummary() {
     return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}
       <small class="summary-options">${optionsLabel(i)}</small></span><span>${money(p.price * i.quantity)}</span></div>`;
   }).join('');
-  const delivery = t.collect ? 'Collection by appointment is free.'
-    : !t.areaChosen ? 'Choose your area to see the delivery fee.'
+  const delivery = !t.areaChosen ? 'Choose your area to see the delivery fee.'
     : t.fee === null ? 'Delivery fee confirmed before dispatch, paid to the courier in cash.'
     : `Delivery: ${money(t.fee)}, paid to the courier in cash.`;
   root.querySelector('.summary-lines').innerHTML = `${lines}
     <div class="summary-row summary-sub"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     ${t.discount ? `<div class="summary-row"><span>Gift voucher</span><span>&minus;${money(t.discount)}</span></div>` : ''}
-    <div class="summary-row summary-total"><span>${payLabel()}</span><span>${money(t.total)}</span></div>
+    <div class="summary-row summary-total"><span>To pay in cash on delivery</span><span>${money(t.total)}</span></div>
     <p class="summary-note">${delivery}</p>`;
 }
 
@@ -81,26 +61,23 @@ function renderForm(profile) {
         </div>
         <div class="checkout-mode-option">
           <strong>Have an account?</strong>
-          <span><a href="account.html?next=checkout.html">Sign in</a> to use your saved addresses. This is optional.</span>
+          <span><a href="account.html?next=checkout.html">Sign in</a> or <a href="account.html?next=checkout.html#create">create an account</a>
+            to save your addresses and see your orders. This is optional.</span>
         </div>
       </div>`}
 
       <fieldset><legend>Contact</legend>
         <div class="form-grid">
           ${field('customer_name', 'Full name', 'required autocomplete="name"')}
-          ${field('phone', 'Phone', 'required type="tel" autocomplete="tel" placeholder="+961"')}
+          ${field('phone', 'Phone (with country code if outside Lebanon)', 'required type="tel" autocomplete="tel" placeholder="+961 70 123 456"')}
           ${field('email', 'Email', `required type="email" autocomplete="email"${signedIn ? ' readonly' : ''}`)}
         </div>
       </fieldset>
 
-      <fieldset><legend>Delivery or collection</legend>
-        <div class="fulfilment-options">
-          <label class="pay-option"><input type="radio" name="fulfilment" value="delivery" checked />
-            <span><strong>Delivery</strong><br />Within Lebanon${closed.length ? `, except ${closed.map(escapeHtml).join(', ')}` : ''}.
-            The delivery fee is paid to the courier in cash.</span></label>
-          <label class="pay-option"><input type="radio" name="fulfilment" value="collection" />
-            <span><strong>Collect by appointment</strong><br />Free. We'll message you to arrange a time.</span></label>
-        </div>
+      <fieldset><legend>Delivery address</legend>
+        <p class="field-note">We deliver within Lebanon${closed.length ? `, except ${closed.map(escapeHtml).join(', ')}` : ''}, by Wakilni.
+          The delivery fee is paid to the courier in cash. Your address also appears on your receipt.</p>
+        <input type="hidden" name="fulfilment" value="delivery" />
         <div class="address-fields">
         ${state.addresses.length ? `<label class="field"><span>Saved addresses</span>
           <select name="saved_address">${state.addresses.map((a) =>
@@ -130,7 +107,7 @@ function renderForm(profile) {
 
       <fieldset><legend>Payment</legend>
         <input type="hidden" name="payment_method" value="cash" />
-        <p class="pay-option"><span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">You pay
+        <p class="pay-option"><span><strong>Cash on delivery</strong><br /><span>You pay
           the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
         <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
           jewellery, not delivery. Pieces made to order (rose or white gold, or out of stock) are paid in full by Whish before
@@ -178,7 +155,6 @@ function renderForm(profile) {
   form.elements.saved_address?.addEventListener('change', (e) =>
     fillAddress(state.addresses.find((a) => a.id === e.target.value)));
   form.elements.governorate.addEventListener('change', renderSummary);
-  form.querySelectorAll('[name=fulfilment]').forEach((r) => r.addEventListener('change', applyFulfilment));
   form.querySelector('.voucher-apply').addEventListener('click', applyVoucher);
   form.addEventListener('submit', submit);
   renderSummary();
@@ -212,12 +188,8 @@ async function applyVoucher() {
 function showConfirmation(order) {
   const toPay = Number(order.total) <= 0
     ? '<p>Your gift voucher covers this order, so there is nothing more to pay for your jewellery.</p>'
-    : order.fulfilment === 'collection'
-      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash when you collect your order.</p>`
-      : `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives.</p>`;
-  const handover = order.fulfilment === 'collection'
-    ? '<p>You chose free collection by appointment. We\'ll message you to arrange a time.</p>'
-    : `<p>${order.delivery_fee === null || order.delivery_fee === undefined
+    : `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives.</p>`;
+  const handover = `<p>${order.delivery_fee === null || order.delivery_fee === undefined
         ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the courier in cash.'
         : `The delivery fee of ${money(order.delivery_fee)} is paid to the courier in cash.`}</p>`;
   root.innerHTML = `<div class="order-done">

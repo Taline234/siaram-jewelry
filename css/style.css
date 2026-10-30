@@ -1174,6 +1174,8 @@ legend {
 .order-done h2 { font-size: clamp(2rem, 4vw, 2.6rem); margin-bottom: 18px; }
 .order-done p { font-family: var(--font-serif); font-size: 1.12rem; line-height: 1.7; color: #4a4a3f; }
 .order-ref { background: var(--cream); padding: 14px; }
+/* Order numbers in Jost: Cormorant's old-style figures make "S016" read like "So16". */
+.order-ref strong, .order-card strong { font-family: var(--font-sans); font-weight: 500; letter-spacing: 0.04em; }
 
 /* Account */
 .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
