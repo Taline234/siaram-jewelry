@@ -214,7 +214,7 @@ A gift recipient may request an eligible exchange using a gift receipt or verifi
 
 ## One year manufacturing warranty
 
-Siaram provides a one-year warranty against manufacturing defects, starting on the date the piece is delivered to the original customer. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
+Siaram provides a one-year warranty against manufacturing defects, starting on the date of purchase. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
 
 A confirmed defective arrival is handled under our Returns policy. For a manufacturing defect discovered later, we normally offer a repair at no charge. If a suitable repair is not possible, we offer an appropriate replacement. If neither is possible within a reasonable time, we offer a refund. This sequence does not restrict a different remedy available under applicable law.
 
