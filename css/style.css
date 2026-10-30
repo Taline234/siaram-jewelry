@@ -1280,28 +1280,21 @@ legend {
   list-style: none; margin: 0; padding: 0;
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;
 }
-.custom-process { background: var(--green-deep); }
+.custom-process { background: var(--cream); }
 .custom-process .custom-steps li { text-align: center; }
-/* Each step's icon sits in a gold arch, like a jewellery display case. */
-.step-arch {
-  position: relative; display: grid; place-items: center;
-  width: 150px; height: 190px; margin: 0 auto 22px;
-  border: 1px solid var(--gold); border-radius: 75px 75px 0 0;
-}
-.step-arch::after {
-  content: ""; position: absolute; inset: 6px;
-  border: 1px solid rgba(185, 154, 91, 0.35); border-radius: 69px 69px 0 0;
-}
-.step-arch svg {
-  width: 84px; height: 84px; fill: none; stroke: var(--gold);
-  stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round;
-}
+/* Hand-drawn sketch for each step, from the brand's Canva board. */
+.step-sketch { display: block; width: 210px; height: 210px; object-fit: contain; margin: 0 auto 18px; }
+.step-line { display: block; width: 40px; height: 1px; background: var(--gold); margin: 0 auto 14px; }
 .step-num { font-family: var(--font-serif); font-style: italic; font-size: 1.05rem; color: var(--gold); }
 .custom-steps h2 {
-  font-size: 1.25rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-soft);
+  font-size: 1.25rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green-deep);
   margin: 10px 0 16px;
 }
-.custom-steps p { font-family: var(--font-serif); font-size: 1.08rem; line-height: 1.75; color: #efe8da; margin: 0; }
+.custom-steps p { font-family: var(--font-serif); font-size: 1.08rem; line-height: 1.75; color: var(--green-mid); margin: 0; }
+.custom-steps small {
+  display: block; margin-top: 10px; font-family: var(--font-sans); font-size: 0.78rem;
+  letter-spacing: 0.04em; color: var(--green-mid);
+}
 .custom-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .custom-gallery figure { margin: 0; }
 .custom-gallery img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }

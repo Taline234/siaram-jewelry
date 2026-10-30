@@ -200,9 +200,7 @@ export async function receiptPdf(order, when = new Date()) {
   if (order.fulfilment !== 'collection') {
     rows.push(['Delivery:', order.delivery_fee == null ? 'Paid to the courier' : `${money(order.delivery_fee)}, paid to the courier`]);
   }
-  const until = new Date(when);
-  until.setFullYear(until.getFullYear() + 1);
-  rows.push(['Warranty valid until:', day(until)]);
+  rows.push(['Warranty:', '6 months from delivery']);
   const bx = W - M - 240;
   const bh = rows.length * 17 + 12;
   y -= 14;
@@ -246,8 +244,6 @@ export async function receiptPdf(order, when = new Date()) {
 export async function careWarrantyPdf(order, when = new Date()) {
   const { doc, f, logo } = await newDoc();
   doc.setTitle(`Siaram Jewelry care and warranty ${order.reference}`);
-  const until = new Date(when);
-  until.setFullYear(until.getFullYear() + 1);
 
   // 1. Thank-you letter
   let p = page(doc);
@@ -280,7 +276,7 @@ export async function careWarrantyPdf(order, when = new Date()) {
     lines.forEach((l, i) => text(p, l, x + 130, y - i * 16, font, size));
     y -= Math.max(1, lines.length) * 16 + 12;
   }
-  y = para(p, `Warranty valid for 1 year from the date of purchase, until ${day(until)}.`, x, y - 4, cw, f.serif, 14, C.green);
+  y = para(p, 'Warranty valid for 6 months from the date your piece is delivered.', x, y - 4, cw, f.serif, 14, C.green);
   const list = (title, items) => {
     y -= 12;
     text(p, title, x, y, f.sansMed, 9, C.green);

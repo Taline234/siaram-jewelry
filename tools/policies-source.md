@@ -68,7 +68,7 @@ Updated policies apply to future orders from the stated effective date. The vers
 
 # Custom orders
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## Design and approval
 
@@ -78,9 +78,9 @@ Approval covers the design, spelling and lettering, size, metal colour, stones, 
 
 ## Deposit and balance
 
-After approval, we request a 50% deposit by payment link. Once it clears, we submit the order for production and confirm submission. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
+After approval, we send a Whish payment request for a 50% deposit. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the deposit clears, we submit the order for production and email you to confirm it is in production. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
 
-For courier orders, the remaining 50% must be paid before delivery. For collection or delivery personally by Siaram Jewelry, the balance is paid at handover, before we release the piece. Any delivery fee is separate and disclosed in advance.
+The remaining 50% is paid in cash to the courier on delivery. Any delivery fee is separate and disclosed in advance.
 
 If, after taking payment, Siaram cannot supply the agreed piece and you do not accept an alternative, we will refund the payments for that piece. This is different from a customer deciding to cancel a producible, approved piece after production submission.
 
@@ -210,11 +210,11 @@ A gift recipient may request an eligible exchange using a gift receipt or verifi
 
 # Warranty and repairs
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
-## One year manufacturing warranty
+## Six month manufacturing warranty
 
-Siaram provides a one-year warranty against manufacturing defects, starting when the original customer receives or collects the piece. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
+Siaram provides a six-month warranty against manufacturing defects, starting on the date the piece is delivered to the original customer. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
 
 A confirmed defective arrival is handled under our Returns policy. For a manufacturing defect discovered later, we normally offer a repair at no charge. If a suitable repair is not possible, we offer an appropriate replacement. If neither is possible within a reasonable time, we offer a refund. This sequence does not restrict a different remedy available under applicable law.
 
@@ -222,7 +222,7 @@ A confirmed defective arrival is handled under our Returns policy. For a manufac
 
 The warranty does not cover ordinary wear, accidental damage, loss, theft, misuse or damage caused by inappropriate handling, chemicals or work by another jeweller. Another jeweller's work only excludes coverage to the extent it caused or contributed to the problem. A broken chain or missing stone is assessed according to its cause; it is not automatically treated as customer damage.
 
-The one-year warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
+The six-month warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
 
 ## How assessment works
 
