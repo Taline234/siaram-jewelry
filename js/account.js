@@ -42,7 +42,7 @@ function renderSignedOut(notice = '') {
       <button type="button" class="link-btn forgot">Forgot your password?</button>
     </form>
 
-    <form class="auth-card" data-form="signup" novalidate>
+    <form class="auth-card" data-form="signup" id="create" novalidate>
       <h2>Create an Account</h2>
       <p class="field-note">Save your details, delivery addresses and wishlist, and see your orders. You must be 18 or older.</p>
       <div class="form-grid">
@@ -50,7 +50,7 @@ function renderSignedOut(notice = '') {
         ${field('last_name', 'Last name', 'required autocomplete="family-name"')}
       </div>
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
-      ${field('phone', 'Phone', 'type="tel" required autocomplete="tel" placeholder="+961"')}
+      ${field('phone', 'Phone (with country code if outside Lebanon)', 'type="tel" required autocomplete="tel" placeholder="+961 70 123 456"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
       ${field('date_of_birth', 'Birthday (optional)', 'type="date" autocomplete="bday"')}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
@@ -87,6 +87,11 @@ function renderSignedOut(notice = '') {
   });
 
   const signup = root.querySelector('[data-form=signup]');
+  // Checkout's "create an account" link lands here.
+  if (location.hash === '#create') {
+    signup.scrollIntoView({ block: 'start' });
+    signup.elements.first_name.focus({ preventScroll: true });
+  }
   signup.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = signup.elements;

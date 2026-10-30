@@ -122,7 +122,7 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
 
 // What the customer pays and how, for the line under the items.
 export function payLabel(order) {
-  return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
+  return 'To pay in cash on delivery';
 }
 
 // Metal and size under each piece.
@@ -160,9 +160,7 @@ export function orderSummaryHtml(order, { sku = false } = {}) {
     .map((i) => `<tr><td style="padding:6px 0">${sku && i.sku ? `${escapeHtml(i.sku)} &middot; ` : ''}${escapeHtml(i.name)} &times; ${i.quantity}${itemOptions(i)}</td>
       <td align="right" style="padding:6px 0">${money(i.unit_price * i.quantity)}</td></tr>`)
     .join('');
-  const collection = order.fulfilment === 'collection';
-  const delivery = collection ? 'Collection by appointment (free)'
-    : order.delivery_fee === null || order.delivery_fee === undefined
+  const delivery = order.delivery_fee === null || order.delivery_fee === undefined
       ? 'Confirmed before dispatch, paid to the courier in cash'
       : `${money(order.delivery_fee)}, paid to the courier in cash`;
   const voucher = Number(order.voucher_amount) > 0
@@ -175,11 +173,9 @@ ${rows}
 <tr><td style="padding:6px 0;border-top:1px solid #e3dccd">Subtotal</td><td align="right" style="padding:6px 0;border-top:1px solid #e3dccd">${money(order.subtotal)}</td></tr>
 ${voucher}
 <tr><td style="padding:8px 0;font-weight:bold">${payLabel(order)}</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
-<tr><td style="padding:6px 0;color:#6b6b5f">${collection ? 'Collection' : 'Delivery'}</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
+<tr><td style="padding:6px 0;color:#6b6b5f">Delivery</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
-<p style="font-size:15px;line-height:1.6;margin:0 0 6px">${collection
-    ? `<strong>Collection by appointment:</strong> ${escapeHtml(order.customer_name)}. We will message you to arrange a time.`
-    : `<strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}`}</p>
+<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}</p>
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Phone:</strong> ${escapeHtml(order.phone)} &nbsp; <strong>Email:</strong> ${escapeHtml(order.email)}</p>
 ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Notes:</strong> ${escapeHtml(order.notes)}</p>` : ''}`;
 }
@@ -188,9 +184,6 @@ export function paymentInstructionsHtml(order) {
   if (Number(order.total) <= 0) {
     return '<p style="font-size:15px;line-height:1.6">Your gift voucher covers this order, so there is nothing to pay.</p>';
   }
-  return order.fulfilment === 'collection'
-    ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
-We will contact you to confirm your order and arrange a time.</p>`
-    : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
+  return `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
 when your order arrives, plus the delivery fee. We will email you when your order ships.</p>`;
 }

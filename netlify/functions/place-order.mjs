@@ -17,7 +17,7 @@ export default async (req) => {
 
     const order = { items: [], age_confirmed: body.age_confirmed === true, terms_accepted: body.terms_accepted === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
-    order.fulfilment = order.fulfilment === 'collection' ? 'collection' : 'delivery';
+    order.fulfilment = 'delivery'; // website orders are delivered by courier; collection is not offered
     order.payment_method = 'cash'; // website orders are cash only
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
       slug: String(i?.slug ?? '').slice(0, 80),
@@ -61,7 +61,7 @@ export default async (req) => {
         replyTo: saved.email,
         subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} cash (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
-          `<p style="font-size:15px;line-height:1.6">Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}.
+          `<p style="font-size:15px;line-height:1.6">Payment: cash on delivery.
             Status: received — new order to prepare${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
         attachments: [receiptFile].filter(Boolean),

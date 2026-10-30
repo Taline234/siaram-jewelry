@@ -1,4 +1,4 @@
-// The two PDFs sent with every order, drawn after the owner's Canva template "Siaram Invoice":
+// The two PDFs sent with every order, drawn after the owner's Canva brand template "Siaram Invoice":
 //   receiptPdf        the receipt: invoice number, customer, and each piece with SKU, materials,
 //                     size, price, quantity and totals (detailed enough for customs)
 //   careWarrantyPdf   the thank-you letter, the filled-in warranty card and the care guide
@@ -18,7 +18,6 @@ const C = {
   rule: rgb(0.725, 0.682, 0.608),
 };
 const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
-const CONTACT = ['@siaram.jewelry  ·  +961 76 052 068', 'customerservice@siaramjewelry.com  ·  finance@siaramjewelry.com'];
 
 const b64 = (s) => Uint8Array.from(Buffer.from(s, 'base64'));
 const money = (v) => `$${Number(v || 0).toFixed(2)}`;
@@ -36,7 +35,8 @@ async function newDoc() {
     sansMed: await doc.embedFont(b64(ASSETS.sansMedium), { subset: true }),
   };
   const logo = await doc.embedPng(b64(ASSETS.logo));
-  return { doc, f, logo };
+  const qr = await doc.embedPng(b64(ASSETS.instagramQr));
+  return { doc, f, logo, qr };
 }
 
 function page(doc) {
@@ -104,147 +104,188 @@ export function itemDescription(item) {
 }
 
 function paymentLabel(order) {
-  return order.fulfilment === 'collection' ? 'Cash at collection' : 'Cash on delivery';
+  if (Number(order.total) <= 0) return 'Gift voucher';
+  return order.payment_method === 'whish' ? 'Whish' : 'Cash on delivery';
 }
 
 function billTo(order) {
   const lines = [order.customer_name];
-  if (order.fulfilment === 'collection') lines.push('Collection by appointment');
-  else {
-    lines.push([order.street, order.building && `Building ${order.building}`, order.floor && `Floor ${order.floor}`].filter(Boolean).join(', '));
-    lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
-  }
+  lines.push([order.street, order.building && `Building ${order.building}`, order.floor && `Floor ${order.floor}`].filter(Boolean).join(', '));
+  lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
   lines.push(order.phone, order.email);
   return lines.filter(Boolean);
 }
 
-const COLS = [
-  ['SKU', 52], ['Product', 104], ['Item description', 196], ['Price', 60], ['Qty', 36], ['Total', 67],
-];
+// Small line icons, drawn in a 24-unit box (SVG coordinates, y down).
+const ICONS = {
+  instagram: { stroke: ['M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z', 'M12 7.5a4.5 4.5 0 1 0 0 9a4.5 4.5 0 1 0 0-9z'],
+               fill: ['M17.5 5.3a1.2 1.2 0 1 0 0 2.4a1.2 1.2 0 1 0 0-2.4z'] },
+  whatsapp: { stroke: ['M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z'],
+              fill: ['M8.5 7.5c.3-.6.8-.6 1.1-.1l1 1.8c.2.4.1.8-.2 1.1l-.6.6c.5 1.2 1.6 2.3 2.8 2.8l.6-.6c.3-.3.7-.4 1.1-.2l1.8 1c.5.3.5.8-.1 1.1-1 .7-2.2.8-3.3.3-2.2-1-4-2.8-5-5-.5-1.1-.4-2.3.3-3.3z'] },
+  email: { stroke: ['M3 5h18v14H3z', 'M3 5l9 7l9-7'], fill: [] },
+};
+
+// Draws an icon `size` points wide with its bottom-left corner at (x, y).
+function icon(p, name, x, y, size, color = C.green) {
+  const scale = size / 24;
+  for (const path of ICONS[name].stroke) p.drawSvgPath(path, { x, y: y + size, scale, borderColor: color, borderWidth: 1.6 });
+  for (const path of ICONS[name].fill) p.drawSvgPath(path, { x, y: y + size, scale, color });
+}
+
+// Icon followed by text; returns the x after it.
+function iconText(p, f, name, str, x, y, size = 8) {
+  icon(p, name, x, y - 1.5, size + 2);
+  text(p, str, x + size + 6, y, f.sans, size, C.ink);
+  return x + size + 6 + f.sans.widthOfTextAtSize(str, size);
+}
+
+// Columns as on the owner's "Siaram Invoice" brand template.
+const COLS = [['SKU', 52], ['Product', 112], ['Item Description', 183], ['Price', 62], ['Qty', 36], ['Total', 70]];
+const TABLE_W = COLS.reduce((s, [, w]) => s + w, 0);
+const MIN_ROWS = 8;
+
+function gridRow(p, y, h, fill) {
+  let x = M;
+  p.drawRectangle({ x: M, y: y - h, width: TABLE_W, height: h, borderColor: C.rule, borderWidth: 0.6, ...(fill ? { color: fill } : {}) });
+  for (const [, w] of COLS.slice(0, -1)) {
+    x += w;
+    p.drawLine({ start: { x, y }, end: { x, y: y - h }, thickness: 0.6, color: C.rule });
+  }
+}
 
 function tableHeader(p, f, y) {
+  gridRow(p, y, 24, C.paper);
   let x = M;
-  p.drawRectangle({ x: M, y: y - 22, width: W - 2 * M, height: 22, borderColor: C.rule, borderWidth: 0.6 });
   for (const [label, w] of COLS) {
-    text(p, label.toUpperCase(), x + w / 2, y - 14.5, f.sansMed, 7.5, C.green, 'center');
+    text(p, label, x + w / 2, y - 15.5, f.serif, 10.5, C.ink, 'center');
     x += w;
-    if (x < W - M) p.drawLine({ start: { x, y }, end: { x, y: y - 22 }, thickness: 0.6, color: C.rule });
   }
-  return y - 22;
+  return y - 24;
+}
+
+function whitePage(doc) {
+  const p = doc.addPage([W, H]);
+  p.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(1, 1, 1) });
+  return p;
 }
 
 export async function receiptPdf(order, when = new Date()) {
   const { doc, f, logo } = await newDoc();
   doc.setTitle(`Siaram Jewelry receipt ${order.reference}`);
-  let p = page(doc);
+  let p = whitePage(doc);
 
-  // Header: title, logo and contact details, as in the template
-  text(p, 'RECEIPT', M, H - 78, f.serif, 34, C.green);
-  const lw = 150;
+  // Header: RECEIPT on the left; logo with Instagram, WhatsApp and email on the right
+  text(p, 'RECEIPT', M, H - 82, f.serif, 36, C.green);
+  const lw = 160;
   const lh = (lw * logo.height) / logo.width;
-  p.drawImage(logo, { x: W - M - lw, y: H - 42 - lh, width: lw, height: lh });
-  CONTACT.forEach((line, i) => text(p, line, W - M, H - 104 - i * 12, f.sans, 7.5, C.ink, 'right'));
+  p.drawImage(logo, { x: W - M - lw, y: H - 34 - lh, width: lw, height: lh });
+  // Instagram and WhatsApp on one line; email with both addresses below, as on the template
+  const cx0 = W - M - lw + 6;
+  let cy = H - 46 - lh;
+  const cx = iconText(p, f, 'instagram', '@siaram.jewelry', cx0, cy) + 14;
+  iconText(p, f, 'whatsapp', '+961 76 052 068', cx, cy);
+  cy -= 15;
+  iconText(p, f, 'email', 'customerservice@siaramjewelry.com', cx0, cy);
+  text(p, 'finance@siaramjewelry.com', cx0 + 14, cy - 11, f.sans, 8, C.ink);
 
-  let y = H - 130;
-  const field = (label, value) => {
-    text(p, label, M, y, f.sansMed, 8, C.green);
-    text(p, value, M + 70, y, f.sans, 10.5);
-    rule(p, M, y - 6, M + 260);
-    y -= 26;
+  // Date, invoice number and bill-to, each on its own line, as on the owner's receipt
+  let y = H - 132;
+  // Numbers use Jost: Cormorant's old-style figures make "S017" read like "So17".
+  const field = (label, lines, numeric = false) => {
+    text(p, label, M, y, f.serif, 10.5, C.ink);
+    y -= 19;
+    lines.forEach((line, i) => {
+      const first = i === 0;
+      const digits = numeric || /^\+?[\d\s]+$/.test(line);
+      const font = digits ? f.sans : f.serif;
+      text(p, line, M + 14, y, font, first ? (digits ? 12.5 : 15) : (digits ? 9.5 : 11.5), first ? C.green : C.ink);
+      y -= first ? 16 : 13.5;
+    });
+    rule(p, M, y + 8, M + 230, C.green, 0.7);
+    y -= 14;
   };
-  field('Date:', day(when));
-  field('Invoice No.:', order.reference);
-  text(p, 'Bill to:', M, y, f.sansMed, 8, C.green);
-  for (const line of billTo(order)) {
-    text(p, line, M + 70, y, f.serif, 12);
-    y -= 15;
-  }
-  rule(p, M, y + 9, M + 260);
-  y -= 20;
+  field('Date:', [day(when)], true);
+  field('Invoice No.:', [order.reference], true);
+  field('Bill to:', billTo(order));
 
-  // Line items
+  // Line items in a full table, with empty rows below as on the template
+  y -= 6;
   y = tableHeader(p, f, y);
-  for (const item of order.items || []) {
-    const desc = wrap(itemDescription(item), f.serif, 10, COLS[2][1] - 12);
+  const items = order.items || [];
+  for (const item of items) {
     const name = wrap(item.name, f.serif, 10.5, COLS[1][1] - 12);
-    const rowH = Math.max(desc.length, name.length) * 12.5 + 12;
-    if (y - rowH < 250) {
-      p = page(doc);
+    const lines = wrap(itemDescription(item), f.serif, 9.5, COLS[2][1] - 12);
+    const rowH = Math.max(26, Math.max(name.length, lines.length) * 12 + 12);
+    if (y - rowH < 260) {
+      p = whitePage(doc);
       y = tableHeader(p, f, H - M);
     }
-    const cells = [[item.sku || ''], name, desc, [money(item.unit_price)], [String(item.quantity)], [money(item.unit_price * item.quantity)]];
+    gridRow(p, y, rowH);
     let x = M;
-    cells.forEach((lines, i) => {
-      const w = COLS[i][1];
-      const right = i >= 3;
-      lines.forEach((line, n) => {
-        const numeric = i === 0 || i >= 3;
-        const font = numeric ? f.sans : f.serif;
-        const size = numeric ? 8.5 : 10.5 - (i === 2 ? 0.5 : 0);
-        text(p, line, right ? x + w - 6 : x + 6, y - 15 - n * 12.5, font, size, C.ink, right ? 'right' : 'left');
-      });
-      x += w;
-      if (x < W - M) p.drawLine({ start: { x, y }, end: { x, y: y - rowH }, thickness: 0.6, color: C.rule });
-    });
-    p.drawLine({ start: { x: M, y }, end: { x: M, y: y - rowH }, thickness: 0.6, color: C.rule });
-    p.drawLine({ start: { x: W - M, y }, end: { x: W - M, y: y - rowH }, thickness: 0.6, color: C.rule });
+    text(p, item.sku || '', x + COLS[0][1] / 2, y - 16, f.sans, 8.5, C.ink, 'center');
+    x += COLS[0][1];
+    name.forEach((line, n) => text(p, line, x + 6, y - 16 - n * 12, f.serif, 10.5, C.green));
+    x += COLS[1][1];
+    lines.forEach((line, n) => text(p, line, x + 6, y - 16 - n * 12, f.serif, 9.5, C.ink));
+    x += COLS[2][1];
+    [[money(item.unit_price), COLS[3][1]], [String(item.quantity), COLS[4][1]], [money(item.unit_price * item.quantity), COLS[5][1]]]
+      .forEach(([v, w]) => { text(p, v, x + w / 2, y - 16, f.sans, 8.5, C.ink, 'center'); x += w; });
     y -= rowH;
-    rule(p, M, y, W - M);
+  }
+  for (let i = items.length; i < MIN_ROWS && y - 24 > 270; i++) {
+    gridRow(p, y, 24);
+    y -= 24;
   }
 
-  // Totals box, right
-  const rows = [['Subtotal:', money(order.subtotal)]];
-  if (Number(order.voucher_amount) > 0) rows.push([`Gift voucher ${order.voucher_code}:`, `-${money(order.voucher_amount)}`]);
-  rows.push(['Payment method:', paymentLabel(order)]);
-  rows.push(['Total:', money(order.total)]);
-  if (order.fulfilment !== 'collection') {
-    rows.push(['Delivery:', order.delivery_fee == null ? 'Paid to the courier' : `${money(order.delivery_fee)}, paid to the courier`]);
-  }
-  const until = new Date(when);
-  until.setFullYear(until.getFullYear() + 1);
-  rows.push(['Warranty valid until:', day(until)]);
-  const bx = W - M - 240;
-  const bh = rows.length * 17 + 12;
-  y -= 14;
-  p.drawRectangle({ x: bx, y: y - bh, width: 240, height: bh, borderColor: C.rule, borderWidth: 0.6 });
-  rows.forEach(([k, v], i) => {
-    const ty = y - 17 - i * 17;
-    const bold = k === 'Total:';
-    text(p, k, bx + 10, ty, bold ? f.sansMed : f.sans, 8.5, C.green);
-    text(p, v, bx + 230, ty, bold ? f.sansMed : f.sans, bold ? 10.5 : 9, C.ink, 'right');
-  });
-
-  // Thank-you and policy notes along the bottom
-  const top = Math.min(y - bh - 26, 230);
-  text(p, 'THANK YOU', M, top, f.serif, 24, C.green);
-  const boxTop = top - 12;
+  // Bottom: THANK YOU with care and returns notes on the left; totals and the letter on the right
+  const top = Math.min(y - 28, 248);
+  text(p, 'THANK YOU', M, top, f.serif, 26, C.green);
+  const boxW = 240;
   const notes = [
     ['JEWELRY CARE:', 'Avoid contact with perfume, lotion and harsh chemicals. Store in the provided pouch.'],
-    ['EXCHANGE / RETURN POLICY:', 'Returns and exchanges within 14 days of delivery, unworn, undamaged and in the original packaging. Return costs are paid by the customer unless the piece is defective or incorrect. Custom pieces are final sale.'],
-    ['', 'Full terms, care guide and policies: siaramjewelry.com/returns.html'],
+    ['EXCHANGE / RETURN POLICY:', 'In-stock pieces may be returned or exchanged within 14 days of delivery in original, unworn, undamaged condition. Made-to-order and custom pieces are final sale.'],
+    ['', 'Please see our full terms and policies, including the care guide: siaramjewelry.com/returns.html'],
   ];
-  let ny = boxTop - 14;
-  const boxW = 250;
   const noteLines = [];
   for (const [head, body] of notes) {
-    if (head) noteLines.push([head, f.sansMed, 7.5, C.green]);
+    if (head) noteLines.push([head, f.serif, 10, C.ink]);
     for (const l of wrap(body, f.serif, 9.5, boxW - 16)) noteLines.push([l, f.serif, 9.5, C.ink]);
-    noteLines.push(['', f.serif, 4, C.ink]);
+    noteLines.push(['', f.serif, 5, C.ink]);
   }
-  const nh = noteLines.reduce((s, [, , size]) => s + size * 1.3, 0) + 12;
-  p.drawRectangle({ x: M, y: boxTop - nh, width: boxW, height: nh, color: C.panel, borderColor: C.rule, borderWidth: 0.6 });
+  const boxTop = top - 10;
+  const nh = noteLines.reduce((s, [, , size]) => s + size * 1.3, 0) + 10;
+  p.drawRectangle({ x: M, y: boxTop - nh, width: boxW, height: nh, color: C.paper, borderColor: C.rule, borderWidth: 0.6 });
+  let ny = boxTop - 13;
   for (const [l, font, size, color] of noteLines) {
     if (l) text(p, l, M + 8, ny, font, size, color);
     ny -= size * 1.3;
   }
+
+  const rows = [['Subtotal:', money(order.subtotal)]];
+  if (Number(order.voucher_amount) > 0) rows.push([`Gift voucher ${order.voucher_code}:`, `-${money(order.voucher_amount)}`]);
+  rows.push(['Payment Method:', paymentLabel(order)]);
+  rows.push(['Total:', money(order.total)]);
+  const until = new Date(when);
+  until.setFullYear(until.getFullYear() + 1);
+  rows.push(['Warranty valid until:', day(until)]);
+  const bx = M + boxW + 22;
+  const bw = W - M - bx;
+  const bh = rows.length * 15 + 12;
+  p.drawRectangle({ x: bx, y: top + 18 - bh, width: bw, height: bh, color: C.paper, borderColor: C.rule, borderWidth: 0.6 });
+  rows.forEach(([k, v], i) => {
+    const ty = top + 18 - 15 - i * 15;
+    const bold = k === 'Total:';
+    text(p, k, bx + 8, ty, f.serif, 10.5, C.ink);
+    text(p, v, bx + bw - 8, ty, bold ? f.sansMed : f.sans, 8.5, C.ink, 'right');
+  });
   para(p, 'Thank you for choosing Siaram Jewelry.\nEach piece is created with intention and care, designed to reflect confidence, elegance and individuality. We are honored to be part of your journey and hope your jewelry becomes a cherished part of your everyday moments.\n\nWith gratitude,\nSiaram Jewelry\nSimply Elegant. Endlessly Yours.',
-    M + boxW + 25, boxTop - 14, W - 2 * M - boxW - 25, f.serif, 10, C.ink, 1.4);
+    bx, top + 18 - bh - 20, bw, f.serif, 9.5, C.ink, 1.4);
 
   return doc.save();
 }
 
 export async function careWarrantyPdf(order, when = new Date()) {
-  const { doc, f, logo } = await newDoc();
+  const { doc, f, logo, qr } = await newDoc();
   doc.setTitle(`Siaram Jewelry care and warranty ${order.reference}`);
   const until = new Date(when);
   until.setFullYear(until.getFullYear() + 1);
@@ -307,8 +348,13 @@ export async function careWarrantyPdf(order, when = new Date()) {
     p.drawCircle({ x: x + 6, y: y + 5, size: 2, color: C.green });
     y = para(p, it, x + 18, y, cw - 18, f.serif, 15, C.green, 1.4);
   }
-  ['siaramjewelry.com  ·  @siaram.jewelry  ·  +961 76 052 068', 'customerservice@siaramjewelry.com  ·  finance@siaramjewelry.com']
-    .forEach((line, i) => text(p, line, W / 2, 70 - i * 14, f.sans, 9, C.ink, 'center'));
+  // Footer as on the template: a QR code to Instagram, then WhatsApp and Instagram
+  p.drawImage(qr, { x: M + 20, y: 40, width: 74, height: 74 });
+  const fx = M + 108;
+  iconText(p, f, 'instagram', 'SIARAM.JEWELRY', fx, 100, 9);
+  iconText(p, f, 'whatsapp', '+961 76 052 068', fx, 80, 9);
+  iconText(p, f, 'email', 'customerservice@siaramjewelry.com', fx, 60, 9);
+  text(p, 'finance@siaramjewelry.com', fx + 15, 47, f.sans, 9, C.ink);
 
   return doc.save();
 }

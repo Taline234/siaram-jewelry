@@ -6,7 +6,7 @@
 
 Siaram Jewelry is operated by \[LEGAL OPERATOR NAME\], trading as Siaram Jewelry, at \[BUSINESS ADDRESS\], Lebanon. Registration details: \[REGISTRATION NUMBER AND PLACE, AS APPLICABLE\]. Contact us at customerservice@siaramjewelry.com or +961 76052068
 
-These terms apply to purchases through our website, Instagram, WhatsApp, appointments and events. We currently accept orders for delivery or collection in Lebanon only. You must be at least 18 to place an order. A parent or legal guardian may purchase for someone under 18 and is responsible for the order.
+These terms apply to purchases through our website, Instagram, WhatsApp, appointments and events. We currently accept orders for delivery in Lebanon only. You must be at least 18 to place an order. A parent or legal guardian may purchase for someone under 18 and is responsible for the order.
 
 ## Our jewellery and product information
 
@@ -16,7 +16,7 @@ Photographs show the design, but screen settings may affect colour and photograp
 
 ## Prices and delivery charges
 
-Prices are quoted in US dollars. The price, any applicable taxes or charges, delivery fee and payment arrangements will be shown or confirmed before you commit to the order. Collection by appointment is free. You are responsible for paying the delivery fee, which is disclosed before you place your order even when you pay it directly to the courier. For international orders, you are also responsible for customs clearance, import duties, taxes and any related fees, as set out in our Shipping policy. At checkout you confirm that you agree to these delivery and returns terms.
+Prices are quoted in US dollars. The price, any applicable taxes or charges, delivery fee and payment arrangements will be shown or confirmed before you commit to the order. You are responsible for paying the delivery fee, which is disclosed before you place your order even when you pay it directly to the courier. For international orders, you are also responsible for customs clearance, import duties, taxes and any related fees, as set out in our Shipping policy. At checkout you confirm that you agree to these delivery and returns terms.
 
 A written quotation is valid for 48 hours unless it states another expiry time. After acceptance and the required payment, we will not increase the agreed price because gold prices change. Customer-requested changes require a separate approved quotation.
 
@@ -104,15 +104,13 @@ Unless exclusivity is agreed in writing, Siaram may reproduce and sell its own d
 
 We may photograph and share our pieces without identifying the customer. We will seek permission before sharing customer photographs, names, identifying personal inscriptions or other details that link a piece to an identifiable person. Product-only photographs that contain no such identifying information do not require separate customer approval.
 
-# Shipping and collection
+# Shipping and delivery
 
 *Last updated 30 October 2026*
 
 ## Where we deliver
 
-We deliver within the Lebanese areas available at checkout or confirmed before a message order is accepted. We do not currently deliver to South Lebanon. Delivery availability may change; we check the address before accepting payment. If we later cannot deliver an accepted order, we will contact you about collection, an alternative arrangement or a refund where the order cannot be fulfilled.
-
-Collection by appointment is free. If you send your own driver to collect, tell us their name in advance and provide the order reference and written authorisation. We will record the handover. This does not remove rights relating to a defect or incorrect item supplied by Siaram.
+We deliver within the Lebanese areas available at checkout or confirmed before a message order is accepted. We do not currently deliver to South Lebanon. Delivery availability may change; we check the address before accepting payment. If we later cannot deliver an accepted order, we will contact you about an alternative arrangement or a refund where the order cannot be fulfilled.
 
 ## Delivery estimates
 
@@ -142,7 +140,7 @@ You do not have to pursue our courier directly as a condition of receiving a rem
 
 ## Unsuccessful delivery
 
-If an incorrect address, absence at an arranged delivery or refusal causes a failed delivery, we will contact you to arrange another attempt or collection. We may charge the actual additional delivery cost, disclosed before the attempt. We do not charge for an additional attempt caused by Siaram's error or the courier's error. Your order payment is not automatically forfeited, and cancellation and return rights continue to apply.
+If an incorrect address, absence at an arranged delivery or refusal causes a failed delivery, we will contact you to arrange another attempt. We may charge the actual additional delivery cost, disclosed before the attempt. We do not charge for an additional attempt caused by Siaram's error or the courier's error. Your order payment is not automatically forfeited, and cancellation and return rights continue to apply.
 
 # Returns and exchanges
 
@@ -150,7 +148,7 @@ If an incorrect address, absence at an arranged delivery or refusal causes a fai
 
 ## Our 14 day offer
 
-For eligible ordinary pieces, including in-stock designs, you may request a refund or exchange within 14 calendar days after receiving or collecting your order. The offer applies to website, Instagram, WhatsApp, appointment and event purchases. The day after receipt or collection is day one. Return or exchange requests made after this 14-day period are not accepted under this policy. This cutoff does not apply to separate defect or warranty claims or override mandatory legal rights.
+For eligible ordinary pieces, including in-stock designs, you may request a refund or exchange within 14 calendar days after receiving your order. The offer applies to website, Instagram, WhatsApp, appointment and event purchases. The day after receipt or collection is day one. Return or exchange requests made after this 14-day period are not accepted under this policy. This cutoff does not apply to separate defect or warranty claims or override mandatory legal rights.
 
 Under this voluntary offer, the piece must be unworn, unused, unaltered and undamaged, with its original packaging and proof of purchase. We accept an order reference together with information that allows us to verify the purchase if the receipt is unavailable.
 
@@ -266,7 +264,7 @@ If a purchase uses only part of the voucher, the remaining value stays on the sa
 
 The purchaser may request cancellation and a refund of an entirely unused voucher within 14 calendar days of purchase. Once a voucher has been partly or fully used, this voluntary cancellation offer no longer applies. Apart from this offer, the approved-return arrangements below and any applicable legal refund right, vouchers are not exchanged for cash.
 
-Jewellery purchased using a gift voucher follows our Returns and exchanges policy. Request an eligible return or exchange within 14 calendar days after receiving or collecting the piece and meet the applicable return conditions. For an approved return, the voucher-funded amount is restored as voucher value with its original expiry date; any refundable top-up is returned to the original payment method. Returning an item does not extend the voucher's validity.
+Jewellery purchased using a gift voucher follows our Returns and exchanges policy. Request an eligible return or exchange within 14 calendar days after receiving the piece and meet the applicable return conditions. For an approved return, the voucher-funded amount is restored as voucher value with its original expiry date; any refundable top-up is returned to the original payment method. Returning an item does not extend the voucher's validity.
 
 You may choose an exchange instead of restoring voucher value. If the voucher expires during the return process, you may still apply the voucher-funded amount from the approved return directly towards a replacement piece. Any top-up retained towards the exchange also counts towards its value. You pay any additional amount if the replacement costs more. This arrangement does not extend or reactivate any other expired voucher balance.
 
@@ -288,7 +286,7 @@ Siaram Jewelry is responsible for the customer information described here. Conta
 
 ## Information we collect and why
 
-When you enquire or place an order, we collect your name, contact details, delivery or collection arrangements, order details and relevant messages. We use them to answer you, confirm and fulfil orders, arrange payment and delivery, and handle returns, repairs and complaints. You can shop as a guest. Required checkout fields are marked; without essential contact, payment or delivery information, we may be unable to complete an order.
+When you enquire or place an order, we collect your name, contact details, delivery arrangements, order details and relevant messages. We use them to answer you, confirm and fulfil orders, arrange payment and delivery, and handle returns, repairs and complaints. You can shop as a guest. Required checkout fields are marked; without essential contact, payment or delivery information, we may be unable to complete an order.
 
 If you choose an account, we keep your login information, saved addresses, order history and the cart and wishlist information associated with the enabled features. These features help you manage purchases and preferences. You may optionally provide your birthday so we can send you a birthday message; it is not required to create an account or make a purchase. Birthday messages are sent only if you have chosen the relevant marketing channel.
 

@@ -20,8 +20,8 @@ PAGES = [
     # (doc heading, file, page title, eyebrow, description)
     ("Terms and conditions", "terms.html", "Terms &amp; Conditions",
      "Terms for buying Siaram Jewelry pieces in Lebanon: product information, prices, orders, cash payment, accounts and your rights."),
-    ("Shipping and collection", "shipping.html", "Shipping &amp; Collection",
-     "Siaram Jewelry delivers within Lebanon (not currently to South Lebanon) and offers free collection by appointment. Delivery times, fees and claims."),
+    ("Shipping and delivery", "shipping.html", "Shipping &amp; Delivery",
+     "Siaram Jewelry delivers within Lebanon by courier (not currently to South Lebanon). Delivery times, fees and claims."),
     ("Returns and exchanges", "returns.html", "Returns &amp; Exchanges",
      "Our 14-day returns and exchanges offer, legal withdrawal rights, and what to do if a piece arrives damaged, defective or incorrect."),
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",
@@ -73,14 +73,6 @@ REPLACE = [
      "This website and our shop are operated by Siaram Jewelry, a jewellery business based in Lebanon. Our address is care of "
      "Safieddine, Khoury &amp; Jezzini law firm, 55 Taleb, Hbeish Street, Beirut, Lebanon. Contact us at customerservice@siaramjewelry.com "
      "or on WhatsApp at +961 76 052 068."),
-    ("Available online payment methods are [CONFIRMED CARD PROVIDER AND/OR WHISH PAYMENT METHOD]. "
-     "Follow our official checkout or payment link and do not send card numbers or security codes through messages.",
-     "Website orders are paid in cash: to the courier when your order arrives, or to us at collection. Valid gift-voucher "
-     "credit can be redeemed at checkout, and any remaining balance is payable in cash. We do not take card payments on "
-     "our website, and we will never ask you for card numbers or security codes."),
-    ("Ordinary orders delivered by courier must be paid in full before dispatch. The disclosed courier delivery fee is payable to the courier in cash.",
-     "With cash on delivery, you pay the order amount to the courier when your order arrives, together with the disclosed "
-     "delivery fee. For collection, you pay at collection."),
     ("Payment providers process payments and any payment credentials you choose to save through their supported features. ",
      ""),
     (" [SAVED-PAYMENT FEATURE AND STORAGE ARRANGEMENT]",
@@ -193,7 +185,7 @@ def slug(text):
 FOOTER_POLICIES = """<h4>Policies</h4>
         <ul>
           <li><a href="terms.html">Terms &amp; Conditions</a></li>
-          <li><a href="shipping.html">Shipping &amp; Collection</a></li>
+          <li><a href="shipping.html">Shipping &amp; Delivery</a></li>
           <li><a href="returns.html">Returns &amp; Exchanges</a></li>
           <li><a href="warranty.html">Warranty &amp; Repairs</a></li>
           <li><a href="custom-orders.html">Custom Orders</a></li>

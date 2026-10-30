@@ -292,7 +292,7 @@ create table if not exists public.orders (
 alter table public.orders add column if not exists fulfilment text not null default 'delivery';
 -- When the customer ticked "I agree to the delivery and returns terms" at checkout.
 alter table public.orders add column if not exists terms_accepted_at timestamptz;
--- How the customer pays: 'whish' before dispatch, or 'cash' to the courier on delivery (or at collection).
+-- How the customer pays: 'whish' before production, or 'cash' to the courier on delivery. Older orders may be collections.
 alter table public.orders drop constraint if exists orders_payment_method_check;
 alter table public.orders add constraint orders_payment_method_check check (payment_method in ('whish', 'cash'));
 -- Website orders are cash only (Whish stays allowed for older orders). A new order starts as 'received':
@@ -499,8 +499,9 @@ begin
     raise exception 'Please agree to the delivery and returns terms to place your order.' using errcode = 'P0001';
   end if;
 
-  if coalesce(p->>'fulfilment', 'delivery') not in ('delivery', 'collection') then
-    raise exception 'Please choose delivery or collection.' using errcode = 'P0001';
+  -- Collection was withdrawn on 30 October 2026: website orders are delivered by courier.
+  if coalesce(p->>'fulfilment', 'delivery') <> 'delivery' then
+    raise exception 'Collection is no longer available. We deliver within Lebanon by courier.' using errcode = 'P0001';
   end if;
   if coalesce(p->>'payment_method', 'cash') <> 'cash' then
     raise exception 'Website orders are paid in cash.' using errcode = 'P0001';
