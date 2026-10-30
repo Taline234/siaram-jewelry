@@ -12,6 +12,8 @@ const { default: placeOrder } = await import('../netlify/functions/place-order.m
 const { default: checkVoucher } = await import('../netlify/functions/check-voucher.mjs');
 const { default: deleteAccount } = await import('../netlify/functions/delete-account.mjs');
 const { default: inactiveAccounts } = await import('../netlify/functions/inactive-accounts.mjs');
+const { default: exportSales } = await import('../netlify/functions/export-sales.mjs');
+const { salesCsv, customersCsv } = await import('../netlify/lib/workbook.mjs');
 
 let calls;
 let handlers;
@@ -213,4 +215,55 @@ test('inactivity email is retried tomorrow if sending fails', async () => {
   handlers['/emails'] = () => [500, {}];
   await inactiveAccounts();
   assert.ok(!calls.some((c) => c.url.endsWith('/mark_inactivity_email')));
+});
+
+// ---------------------------------------------------------------- workbook backup download
+const exportOrders = [
+  { reference: 'S017', sale_date: '2026-11-02', customer_name: 'Rana Haddad', email: 'rana@example.com', phone: '70',
+    address: 'St 1, Achrafieh, Beirut', status: 'delivered', payment_method: 'cash', voucher_code: 'GV0001-AAAAAA', voucher_amount: 100,
+    items: [{ sku: 'BR-02', unit_price: 450, quantity: 1 }, { sku: 'EA-04', unit_price: 120, quantity: 2 }] },
+  { reference: 'S018', sale_date: '2026-11-03', customer_name: 'Lea "Lou" Khoury', email: 'lea@example.com', phone: '71',
+    address: '', status: 'received', payment_method: 'cash', voucher_code: null, voucher_amount: 0,
+    items: [{ sku: 'NK-01', unit_price: 490, quantity: 1 }] },
+];
+
+test('the sales download matches the Sales tab columns and leaves formula columns empty', () => {
+  const lines = salesCsv(exportOrders).replace(/^\uFEFF/, '').trim().split('\r\n').map((l) => l.split(','));
+  assert.equal(lines[0].length, 26, 'columns A to Z');
+  assert.equal(lines[0][24], 'Gift Voucher Code');
+  assert.deepEqual(lines[1], ['S017', '2026-11-02', 'Rana Haddad', 'Website', 'BR-02', '', '1', '450.00', 'Percentage', '0', '',
+    'Cash', '350.00', '', '', '', '', '', '', '', '', '', '', '', 'GV0001-AAAAAA', '100.00']);
+  assert.deepEqual(lines[2].slice(0, 13), ['S017', '2026-11-02', 'Rana Haddad', 'Website', 'EA-04', '', '2', '120.00', 'Percentage', '0', '', 'Cash', '240.00']);
+  assert.equal(lines[2][24], '', 'the voucher is used up on the first piece');
+  assert.equal(lines[3][12], '0.00', 'nothing counts as received before delivery');
+});
+
+test('the customers download lists each customer once, quoting names with commas or quotes', () => {
+  const csv = customersCsv([...exportOrders, exportOrders[0]]);
+  assert.equal(csv.trim().split('\r\n').length, 3);
+  assert.match(csv, /"Lea ""Lou"" Khoury",71,,lea@example.com,,,Website/);
+});
+
+test('only the owner can download the workbook files', async () => {
+  let who = { email: 'rana@example.com', email_confirmed_at: '2026-01-01' };
+  handlers['/auth/v1/user'] = () => [200, who];
+  handlers['/rest/v1/rpc/sales_export'] = () => [200, exportOrders];
+  const get = (q) => exportSales(new Request(`https://siaram.test/api/export-sales?${q}`, { headers: { authorization: 'Bearer t' } }));
+
+  assert.equal((await exportSales(new Request('https://siaram.test/api/export-sales?check=1'))).status, 401);
+  assert.deepEqual(await (await get('check=1')).json(), { owner: false }, 'a customer is not the owner');
+  assert.equal((await get('kind=sales')).status, 403, 'and cannot download');
+  who = { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: null };
+  assert.deepEqual(await (await get('check=1')).json(), { owner: false }, 'the owner email must be confirmed');
+  who = { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: '2026-01-01' };
+  assert.deepEqual(await (await get('check=1')).json(), { owner: true });
+
+  const res = await get('kind=sales&from=2026-11-01&to=bad');
+  assert.equal(res.status, 200);
+  assert.match(res.headers.get('content-disposition'), /Siaram-website-sales-from-2026-11-01\.csv/);
+  assert.match(await res.text(), /S018,2026-11-03/);
+  assert.deepEqual(calls.find((c) => c.url.endsWith('/rpc/sales_export')).body, { p_from: '2026-11-01', p_to: null });
+  const bytes = Buffer.from(await (await get('kind=customers')).arrayBuffer());
+  assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf], 'starts with the marker Excel needs for accents');
+  assert.match(bytes.toString('utf8', 3), /^Name,Phone/);
 });

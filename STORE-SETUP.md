@@ -80,8 +80,8 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order S016" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
-   (S016, S017, ...). Website orders are cash only, and the email lists the items with their
+1. You get an email "New order S017" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
+   (S017, S018, ...). Website orders are cash only, and the email lists the items with their
    SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
    The receipt PDF is attached, and the email ends with a "For your finance workbook" table: one row
@@ -129,6 +129,16 @@ a deletion notice after 24 months, and deletion 30 days later unless the custome
 records are kept.
 
 ---
+
+**Finance workbook backup download** — sign in on the website's **My Account** page with your shop email
+(siaramjewelry@hotmail.com, finance@ or customerservice@siaramjewelry.com; to use other emails, set `OWNER_EMAILS`
+in Netlify to a comma-separated list). A **Workbook** tab appears only for you. Pick dates (or none for everything)
+and download:
+- **Sales**: one row per piece in the Sales tab's columns A to Z, with the formula columns left empty. Copy the rows
+  under the heading, click column A of the first empty Sales row, then Paste Special → Values with **Skip blanks**
+  ticked, so the workbook's formulas stay. Cash Received Now is filled in only for delivered orders.
+- **Customers**: name, phone, email, address and "Website", in the Customers tab's columns A to G. Paste only names
+  that are not there yet; the workbook matches customers by name.
 
 ## For developers
 

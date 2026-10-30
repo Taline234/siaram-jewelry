@@ -1194,6 +1194,7 @@ legend {
   padding: 0 0 12px; border-bottom: 2px solid transparent; margin-bottom: -1px;
 }
 .account-tabs a.active, .account-tabs a:hover { color: var(--green-deep); border-bottom-color: var(--gold); }
+.workbook-steps { margin: 22px 0 12px; padding-left: 1.2em; line-height: 1.7; }
 .order-card {
   display: grid; grid-template-columns: 1.2fr 2fr 1fr auto; gap: 20px; align-items: center;
   padding: 18px 0; border-bottom: 1px solid var(--line); font-family: var(--font-serif); font-size: 1.02rem;

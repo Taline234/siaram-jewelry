@@ -20,6 +20,7 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = SERVICE;
 process.env.RESEND_API_KEY = 'resend-test';
 process.env.ORDER_NOTIFY_EMAIL = 'customerservice@siaramjewelry.com';
 process.env.SITE_URL = ORIGIN;
+process.env.OWNER_EMAILS = 'owner@siaram.test';
 
 const realFetch = globalThis.fetch;
 globalThis.fetch = async (url, init) => {
@@ -230,6 +231,7 @@ const server = http.createServer(async (req, res) => {
 
   if (url.pathname === '/__state') {
     if (req.method === 'POST') Object.assign(state, body);
+    if (body?.ownerEmails) process.env.OWNER_EMAILS = body.ownerEmails;
     res.writeHead(200, { 'content-type': 'application/json' });
     return res.end(JSON.stringify(state));
   }

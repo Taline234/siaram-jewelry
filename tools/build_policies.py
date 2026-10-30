@@ -25,7 +25,7 @@ PAGES = [
     ("Returns and exchanges", "returns.html", "Returns &amp; Exchanges",
      "Our 14-day returns and exchanges offer, legal withdrawal rights, and what to do if a piece arrives damaged, defective or incorrect."),
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",
-     "Siaram Jewelry's six-month manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
+     "Siaram Jewelry's one-year manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
     ("Custom orders", "custom-orders.html", "Custom Orders",
      "How bespoke Siaram Jewelry pieces are designed, approved, paid for (50% deposit) and made, and how customer stones are handled."),
     ("Digital gift vouchers", "gift-vouchers.html", "Gift Vouchers",
@@ -60,7 +60,7 @@ HEADINGS = {
     "Exchanges gifts and store credit": "Exchanges, gifts and store credit",
     "Security children and policy changes": "Security, children and policy changes",
     "Marketing photographs and reviews": "Marketing, photographs and reviews",
-    "Six month manufacturing warranty": "Six-month manufacturing warranty",
+    "One year manufacturing warranty": "One-year manufacturing warranty",
     "Returns and customer supplied materials": "Returns and customer-supplied materials",
 }
 
@@ -70,7 +70,8 @@ REPLACE = [
     # Operator details are not known yet: keep the sentence about where we trade and how to reach us.
     ("Siaram Jewelry is operated by [LEGAL OPERATOR NAME], trading as Siaram Jewelry, at [BUSINESS ADDRESS], Lebanon. "
      "Registration details: [REGISTRATION NUMBER AND PLACE, AS APPLICABLE]. Contact us at customerservice@siaramjewelry.com or +961 76052068",
-     "This website and our shop are operated by Siaram Jewelry, a jewellery business based in Lebanon. Contact us at customerservice@siaramjewelry.com "
+     "This website and our shop are operated by Siaram Jewelry, a jewellery business based in Lebanon. Our address is care of "
+     "Safieddine, Khoury &amp; Jezzini law firm, 55 Taleb, Hbeish Street, Beirut, Lebanon. Contact us at customerservice@siaramjewelry.com "
      "or on WhatsApp at +961 76 052 068."),
     ("Available online payment methods are [CONFIRMED CARD PROVIDER AND/OR WHISH PAYMENT METHOD]. "
      "Follow our official checkout or payment link and do not send card numbers or security codes through messages.",
@@ -83,7 +84,9 @@ REPLACE = [
     ("Payment providers process payments and any payment credentials you choose to save through their supported features. ",
      ""),
     (" [SAVED-PAYMENT FEATURE AND STORAGE ARRANGEMENT]",
-     " Our website does not take or store card details."),
+     " Our website does not take or store card details. Made-to-order pieces and custom deposits are paid through "
+     "Whish Money payment requests, which Whish processes under its own terms; we receive the payment status, amount and "
+     "reference for our order and accounting records."),
     ("Accounts: while active, then reviewed after 24 months of inactivity; we notify you before deleting the account profile.",
      "Accounts: while active. After 12 months without activity we send a reminder; after 24 months we notify you that "
      "the account profile, saved addresses and wishlist will be deleted 30 days later unless you sign in."),
@@ -105,12 +108,15 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           wishlists and orders. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Microsoft Outlook</strong> hosts our customer service mailbox.
+        <li><strong>Microsoft 365</strong> hosts our customer service mailbox (Outlook) and our order and accounting
+          workbook (Excel on OneDrive): order reference, date, pieces, amounts, payment method and customer name.
           <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Privacy statement</a></li>
         <li><strong>Google Fonts</strong> and <strong>jsDelivr</strong> deliver the website's fonts and sign-in library;
           your browser's request shares your IP address with them, but they set no cookies.</li>
-        <li><strong>Our courier</strong> (Lebanon) delivers orders and collects cash-on-delivery payments; it receives the
+        <li><strong>Wakilni</strong> (Lebanon), our courier, delivers orders and collects cash-on-delivery payments; it receives the
           recipient's name, phone number, delivery address and the amount to collect.</li>
+        <li><strong>Whish Money</strong> (Lebanon) processes payment requests for made-to-order pieces and custom deposits.</li>
+
       </ul>
       <p>Technical logs kept by our hosting and database providers are kept for short periods set by those providers
         (typically days to weeks) for security and troubleshooting."""
@@ -132,8 +138,8 @@ COOKIE_TABLE = """<div class="table-wrap"><table class="legal-table">
         </tbody></table></div>
       <p>We do not set any cookies. If you never add to the cart or sign in, nothing is stored.</p>"""
 
-EMBEDDED = ("<p>No payment or embedded services on our website store anything on your device. Orders are paid in cash, "
-            "outside our website. Our pages load fonts from Google Fonts and our sign-in library from jsDelivr; "
+EMBEDDED = ("<p>No payment or embedded services on our website store anything on your device. Orders are paid in cash or "
+            "by Whish payment request, outside our website. Our pages load fonts from Google Fonts and our sign-in library from jsDelivr; "
             "these set no cookies.</p>")
 
 # Link mentions of other policies. Longest phrases first.

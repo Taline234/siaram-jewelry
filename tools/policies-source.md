@@ -36,7 +36,9 @@ Pieces made to order (rose or white gold, or a piece that is out of stock) are p
 
 ## Cancellations before dispatch
 
-We do not offer an additional voluntary cancellation right for ordinary orders before dispatch. This does not affect any cancellation or refund right provided by law or eligibility under our Returns and exchanges policy. To request a cancellation, contact customerservice@siaramjewelry.com or the channel used to place the order. Personalised and bespoke orders follow the production and deposit rules in our Custom orders policy.
+Pieces in stock can be cancelled free of charge until the order is dispatched. To cancel, contact customerservice@siaramjewelry.com or the channel you used to place the order, with your order reference. Any gift-voucher credit used goes back onto the voucher.
+
+Made-to-order pieces (rose or white gold, or a design that is out of stock) cannot be cancelled once ordered, because production starts straight away. They are final sale, so they cannot be returned or exchanged for a change of mind. Custom, personalised and engraved pieces are also final sale and follow our Custom orders policy. This does not affect any cancellation or refund right provided by law.
 
 ## Accounts and website use
 
@@ -104,7 +106,7 @@ We may photograph and share our pieces without identifying the customer. We will
 
 # Shipping and collection
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## Where we deliver
 
@@ -144,7 +146,7 @@ If an incorrect address, absence at an arranged delivery or refusal causes a fai
 
 # Returns and exchanges
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## Our 14 day offer
 
@@ -154,7 +156,7 @@ Under this voluntary offer, the piece must be unworn, unused, unaltered and unda
 
 ## Items outside the voluntary offer
 
-Our 14-day returns and exchanges policy excludes bespoke and personalised pieces, sale items and limited editions identified as final sale before purchase.
+Our 14-day returns and exchanges policy excludes final-sale pieces: made-to-order pieces (rose or white gold, or a design that was out of stock when you ordered it), custom, personalised and engraved pieces, and sale items or limited editions identified as final sale before purchase. We tell you a piece is final sale before you order it.
 
 These exclusions do not remove an applicable legal withdrawal right or remedies for a defective, incorrect or misdescribed piece. In particular, a sale or limited-edition label alone does not remove a legal withdrawal right.
 
@@ -212,9 +214,9 @@ A gift recipient may request an eligible exchange using a gift receipt or verifi
 
 *Last updated 30 October 2026*
 
-## Six month manufacturing warranty
+## One year manufacturing warranty
 
-Siaram provides a six-month warranty against manufacturing defects, starting on the date the piece is delivered to the original customer. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
+Siaram provides a one-year warranty against manufacturing defects, starting on the date of purchase. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
 
 A confirmed defective arrival is handled under our Returns policy. For a manufacturing defect discovered later, we normally offer a repair at no charge. If a suitable repair is not possible, we offer an appropriate replacement. If neither is possible within a reasonable time, we offer a refund. This sequence does not restrict a different remedy available under applicable law.
 
@@ -222,7 +224,7 @@ A confirmed defective arrival is handled under our Returns policy. For a manufac
 
 The warranty does not cover ordinary wear, accidental damage, loss, theft, misuse or damage caused by inappropriate handling, chemicals or work by another jeweller. Another jeweller's work only excludes coverage to the extent it caused or contributed to the problem. A broken chain or missing stone is assessed according to its cause; it is not automatically treated as customer damage.
 
-The six-month warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
+The one-year warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
 
 ## How assessment works
 
@@ -278,7 +280,7 @@ Tell us promptly if a reference may have been misused. We will check the remaini
 
 # Privacy policy
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## Who handles your information
 
@@ -288,7 +290,7 @@ Siaram Jewelry is responsible for the customer information described here. Conta
 
 When you enquire or place an order, we collect your name, contact details, delivery or collection arrangements, order details and relevant messages. We use them to answer you, confirm and fulfil orders, arrange payment and delivery, and handle returns, repairs and complaints. You can shop as a guest. Required checkout fields are marked; without essential contact, payment or delivery information, we may be unable to complete an order.
 
-If you choose an account, we keep your login information, saved addresses, order history and the cart and wishlist information associated with the enabled features. These features help you manage purchases and preferences. You may optionally provide your birthday for birthday offers; it is not required to create an account or make a purchase. Birthday promotions are sent only if you have chosen the relevant marketing channel.
+If you choose an account, we keep your login information, saved addresses, order history and the cart and wishlist information associated with the enabled features. These features help you manage purchases and preferences. You may optionally provide your birthday so we can send you a birthday message; it is not required to create an account or make a purchase. Birthday messages are sent only if you have chosen the relevant marketing channel.
 
 For a custom order, we retain the design brief, references, relevant images, sizes, engraving or lettering, approved specifications, quotations and approval messages. These records help us make the approved piece and resolve later questions. Please do not send unnecessary sensitive information about yourself or others.
 
@@ -338,7 +340,7 @@ Accounts and purchases are intended for adults aged 18 and over. A parent or gua
 
 # Cookie policy
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## What website storage does
 

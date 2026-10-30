@@ -87,8 +87,8 @@ select pg_temp.check((
     from (select place_order(pg_temp.order_json('Nabatieh',
       '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
   'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
-select pg_temp.check((select reference = 'S016' from orders),
-  'order numbers carry on from the workbook (S016), and rejected orders do not use up a number');
+select pg_temp.check((select reference = 'S017' from orders),
+  'order numbers carry on from the workbook (S017), and rejected orders do not use up a number');
 select pg_temp.check((select array_agg(sku order by sku) = array['NK-07', 'RG-01'] from order_items),
   'order items keep the SKU from the workbook');
 select pg_temp.check((select count(*) = 0 from products where sku is null), 'every product has a SKU');
@@ -172,7 +172,7 @@ select pg_temp.check((select (r->>'total')::numeric = 70 and (r->>'voucher_amoun
   'remaining balance is used on the next order');
 select pg_temp.expect_error($$select check_voucher('SIARAM-GOOD-0000')$$, 'fully used');
 
-select pg_temp.check((select array_agg(reference order by reference) = array['S016','S017','S018','S019','S020','S021','S022']
+select pg_temp.check((select array_agg(reference order by reference) = array['S017','S018','S019','S020','S021','S022','S023']
                         from orders),
   'each order takes the next SO number');
 
@@ -261,6 +261,16 @@ update profiles set last_active_at = now() - interval '13 months' where first_na
 update auth.users set last_sign_in_at = now() - interval '13 months' where email = 'maya@example.com';
 select pg_temp.check((select action = 'reminder' from inactivity_due() where first_name = 'Maya'),
   'reminders start again after the customer comes back and goes quiet');
+
+-- Backup download for the finance workbook.
+select pg_temp.check((select json_array_length(sales_export(null, null)) = (select count(*) from orders where status <> 'cancelled')),
+  'the workbook download lists every order that is not cancelled');
+select pg_temp.check((select json_array_length(sales_export(current_date + 1, null)) = 0
+                         and json_array_length((sales_export(null, null))->0->'items') >= 1),
+  'the workbook download respects the date range and includes the pieces');
+select pg_temp.check(not has_function_privilege('anon', 'public.sales_export(date, date)', 'execute')
+                     and not has_function_privilege('authenticated', 'public.sales_export(date, date)', 'execute'),
+  'only the server can read the workbook download');
 
 -- Deleting an account keeps the order record without the link to the account.
 delete from auth.users where email = 'rana@example.com';

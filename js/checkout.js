@@ -134,7 +134,7 @@ function renderForm(profile) {
           the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
         <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
           jewellery, not delivery. Pieces made to order (rose or white gold, or out of stock) are paid in full by Whish before
-          production; we send you a Whish payment request. We do not take card payments. You get an order received email now and another when
+          production, cannot be cancelled once ordered and are final sale; we send you a Whish payment request. We do not take card payments. You get an order received email now and another when
           your order ships.</p>
       </fieldset>
 

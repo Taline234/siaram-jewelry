@@ -11,7 +11,7 @@
 --   orders          incoming orders; change status when paid / dispatched
 --   gift_vouchers   issue vouchers with:
 --                     select issue_gift_voucher('Recipient', 'Purchaser', 150, 'recipient@email.com', '+961 70 000 000');
---   store_settings  also holds the next order number (S016, S017, ...) and the next voucher number (GV0001, ...)
+--   store_settings  also holds the next order number (S017, S018, ...) and the next voucher number (GV0001, ...)
 -- ==========================================================================
 
 -- ---------------------------------------------------------------- catalogue
@@ -133,10 +133,12 @@ create table if not exists public.store_settings (
 );
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
 
--- Order numbers carry on from the finance workbook's invoice numbers (last sale S015); gift vouchers start at GV0001.
+-- Order numbers carry on from the finance workbook's invoice numbers (last sale S016, in person); gift vouchers start at GV0001.
 -- Taken inside the same transaction as the order or voucher, so a failed order never skips a number.
 alter table public.store_settings add column if not exists next_order_number int not null default 16;
 alter table public.store_settings add column if not exists next_voucher_number int not null default 1;
+-- S016 went to an in-person sale on 29 October 2026, so website orders start at S017. Never moves the number back.
+update public.store_settings set next_order_number = 17 where id = 1 and next_order_number < 17;
 
 -- ---------------------------------------------------------------- customers
 create table if not exists public.profiles (
@@ -682,6 +684,26 @@ revoke insert, update, delete on public.orders, public.order_items from anon, au
 revoke all on public.gift_vouchers, public.voucher_redemptions from anon, authenticated;
 revoke insert, update, delete on public.products, public.delivery_areas, public.store_settings from anon, authenticated;
 
+-- Website sales for the finance workbook backup download, one entry per order (cancelled orders left out).
+-- Dates are Beirut dates; either bound may be null.
+create or replace function public.sales_export(p_from date, p_to date) returns json
+language sql stable security definer set search_path = public as $$
+  select coalesce(json_agg(x order by x.reference), '[]'::json) from (
+    select o.reference, (o.created_at at time zone 'Asia/Beirut')::date as sale_date,
+           o.customer_name, o.email, o.phone,
+           concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
+                     nullif(o.city, ''), nullif(o.governorate, '')) as address,
+           o.status, o.payment_method, o.voucher_code, o.voucher_amount,
+           (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity)
+                            order by i.product_slug, i.metal, i.size)
+              from public.order_items i where i.order_id = o.id) as items
+      from public.orders o
+     where o.status <> 'cancelled'
+       and (p_from is null or (o.created_at at time zone 'Asia/Beirut')::date >= p_from)
+       and (p_to is null or (o.created_at at time zone 'Asia/Beirut')::date <= p_to)
+  ) x;
+$$;
+
 -- Server-only functions.
 revoke execute on function public.place_order(jsonb, uuid)            from public, anon, authenticated;
 revoke execute on function public.check_voucher(text, text, text)    from public, anon, authenticated;
@@ -690,7 +712,8 @@ revoke execute on function public.usable_voucher(text, boolean)       from publi
 revoke execute on function public.issue_gift_voucher(text, text, numeric, text, text) from public, anon, authenticated;
 revoke execute on function public.inactivity_due()                    from public, anon, authenticated;
 revoke execute on function public.mark_inactivity_email(uuid, text)   from public, anon, authenticated;
+revoke execute on function public.sales_export(date, date)            from public, anon, authenticated;
 grant execute on function public.place_order(jsonb, uuid), public.check_voucher(text, text, text),
-  public.inactivity_due(), public.mark_inactivity_email(uuid, text) to service_role;
+  public.inactivity_due(), public.mark_inactivity_email(uuid, text), public.sales_export(date, date) to service_role;
 revoke execute on function public.touch_activity() from public, anon;
 grant execute on function public.touch_activity() to authenticated;

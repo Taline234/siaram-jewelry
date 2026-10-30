@@ -65,7 +65,7 @@ await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForSelector('.add-to-cart');
 assert.equal(await page.locator('.product-price').textContent(), '$120.00');
 assert.equal(await page.locator('.product-actions a[href^="mailto:"]').count(), 0);
-assert.match(await page.locator('.made-to-order-note').textContent(), /out of stock, it may take 3 to 4 weeks/);
+assert.match(await page.locator('.made-to-order-note').textContent(), /made to order: allow 3 to 4 weeks\. Made-to-order pieces are final sale\./);
 await page.click('.metal-choice:has([value=rose])');
 await page.selectOption('.product-buy .qty-select', '2');
 await page.click('.add-to-cart');
@@ -239,6 +239,19 @@ assert.match(await page.locator('.order-card').textContent(), new RegExp(`${ref2
 assert.equal(await page.locator('.order-card').count(), 1, 'guest order by someone else is not shown');
 await shot('account-orders');
 step('order history shows the order and its status');
+
+assert.equal(await page.locator('.account-tabs a[href="#workbook"]').count(), 0, 'customers do not see the Workbook tab');
+await setState({ ownerEmails: 'rana@example.com' });
+await page.goto(`${ORIGIN}/account.html#workbook`);
+await page.reload();
+await page.waitForSelector('.workbook-form');
+const [download] = await Promise.all([page.waitForEvent('download'), page.click('.workbook-form [data-kind=sales]')]);
+assert.match(download.suggestedFilename(), /^Siaram-website-sales\.csv$/);
+const salesFile = fs.readFileSync(await download.path(), 'utf8');
+assert.match(salesFile, new RegExp(`\\r\\n${ref2},\\d{4}-\\d{2}-\\d{2},Rana Haddad,Website,`));
+await shot('account-workbook');
+await setState({ ownerEmails: 'owner@siaram.test' });
+step('the owner gets a Workbook tab and downloads website sales laid out like the Sales tab');
 
 await page.goto(`${ORIGIN}/account.html#details`);
 await page.waitForSelector('.details-form');

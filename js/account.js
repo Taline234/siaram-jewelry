@@ -1,5 +1,6 @@
 // Account page: sign in, create account (18+), password reset, and the signed-in area
-// with orders, wishlist, saved addresses and personal details.
+// with orders, wishlist, saved addresses and personal details. The shop owner also gets a Workbook tab
+// with the backup download of website sales for the finance workbook.
 import { escapeHtml, getClient, loadProducts, money, productPage, storeEnabled } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -152,14 +153,18 @@ async function renderAccount() {
     return;
   }
 
-  const { data: profile } = await client.from('profiles').select('*').maybeSingle();
+  const [{ data: profile }, owner] = await Promise.all([
+    client.from('profiles').select('*').maybeSingle(),
+    isOwner(session),
+  ]);
+  const tabs = ['orders', 'wishlist', 'addresses', 'details', ...(owner ? ['workbook'] : [])];
   const tab = location.hash.replace('#', '') || 'orders';
   root.innerHTML = `<div class="account-head">
       <h2>Hello, ${escapeHtml(profile ? profile.first_name : '')}</h2>
       <button type="button" class="link-btn sign-out">Sign out</button>
     </div>
     <nav class="account-tabs" role="tablist">
-      ${['orders', 'wishlist', 'addresses', 'details'].map((t) =>
+      ${tabs.map((t) =>
         `<a href="#${t}" role="tab" class="${t === tab ? 'active' : ''}" aria-selected="${t === tab}">${t[0].toUpperCase() + t.slice(1)}</a>`).join('')}
     </nav>
     <div class="account-panel"></div>`;
@@ -170,7 +175,8 @@ async function renderAccount() {
     renderSignedOut();
   });
   const panel = root.querySelector('.account-panel');
-  const views = { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails };
+  const views = { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails,
+    ...(owner ? { workbook: renderWorkbook } : {}) };
   await (views[tab] || renderOrders)(panel, session, profile);
 }
 
@@ -378,4 +384,65 @@ if (storeEnabled) {
     console.error(err);
     root.innerHTML = '<p class="form-error">Sorry, your account could not be loaded. Please refresh the page.</p>';
   });
+}
+
+// ---------------------------------------------------------------- owner: workbook backup
+async function isOwner(session) {
+  try {
+    const res = await fetch('/api/export-sales?check=1', { headers: { authorization: `Bearer ${session.access_token}` } });
+    return res.ok && (await res.json()).owner === true;
+  } catch {
+    return false;
+  }
+}
+
+function renderWorkbook(panel, session) {
+  panel.innerHTML = `<form class="auth-card workbook-form" novalidate>
+      <h3>Download for Your Workbook</h3>
+      <p class="field-note">Website orders laid out like your workbook, as a file Excel opens. Cancelled orders are left out.
+        Leave the dates empty to get every website order.</p>
+      <div class="form-grid">
+        ${field('from', 'From (order date)', 'type="date"')}
+        ${field('to', 'To (order date)', 'type="date"')}
+      </div>
+      <p class="form-msg form-error" role="alert"></p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-primary" data-kind="sales">Download Sales</button>
+        <button type="button" class="btn btn-outline" data-kind="customers">Download Customers</button>
+      </div>
+      <ol class="field-note workbook-steps">
+        <li>Open the file and copy the rows under the heading row.</li>
+        <li>In your workbook, on the Sales tab, click column A of the first empty row.</li>
+        <li>Choose Paste Special, then Values, and tick <strong>Skip blanks</strong> so your formulas stay as they are.</li>
+        <li>For the customers file, paste only the names that are not on your Customers tab yet.</li>
+      </ol>
+      <p class="field-note">Cash Received Now is filled in once an order is marked delivered; before that it shows 0.</p>
+    </form>`;
+  const form = panel.querySelector('form');
+  form.querySelectorAll('[data-kind]').forEach((btn) => btn.addEventListener('click', async () => {
+    formMessage(form, '');
+    const params = new URLSearchParams({ kind: btn.dataset.kind });
+    if (form.elements.from.value) params.set('from', form.elements.from.value);
+    if (form.elements.to.value) params.set('to', form.elements.to.value);
+    btn.disabled = true;
+    try {
+      const { data: { session: current } } = await client.auth.getSession();
+      const res = await fetch(`/api/export-sales?${params}`, {
+        headers: { authorization: `Bearer ${(current || session).access_token}` },
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not prepare the download.');
+      const name = (res.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Siaram-website.csv';
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(await res.blob());
+      link.download = name;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    } catch (err) {
+      formMessage(form, err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }));
 }
