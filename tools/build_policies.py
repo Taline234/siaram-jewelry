@@ -25,7 +25,7 @@ PAGES = [
     ("Returns and exchanges", "returns.html", "Returns &amp; Exchanges",
      "Our 14-day returns and exchanges offer, legal withdrawal rights, and what to do if a piece arrives damaged, defective or incorrect."),
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",
-     "Siaram Jewelry's six-month manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
+     "Siaram Jewelry's one-year manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
     ("Custom orders", "custom-orders.html", "Custom Orders",
      "How bespoke Siaram Jewelry pieces are designed, approved, paid for (50% deposit) and made, and how customer stones are handled."),
     ("Digital gift vouchers", "gift-vouchers.html", "Gift Vouchers",
@@ -60,7 +60,7 @@ HEADINGS = {
     "Exchanges gifts and store credit": "Exchanges, gifts and store credit",
     "Security children and policy changes": "Security, children and policy changes",
     "Marketing photographs and reviews": "Marketing, photographs and reviews",
-    "Six month manufacturing warranty": "Six-month manufacturing warranty",
+    "One year manufacturing warranty": "One-year manufacturing warranty",
     "Returns and customer supplied materials": "Returns and customer-supplied materials",
 }
 
