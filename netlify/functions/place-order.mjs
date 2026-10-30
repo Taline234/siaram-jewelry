@@ -5,7 +5,7 @@ import {
 } from '../lib/store.mjs';
 import { careWarrantyPdf, receiptPdf } from '../lib/documents.mjs';
 
-const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code'];
+const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code', 'submission_id'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -18,7 +18,7 @@ export default async (req) => {
     const order = { items: [], age_confirmed: body.age_confirmed === true, terms_accepted: body.terms_accepted === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
     order.fulfilment = order.fulfilment === 'collection' ? 'collection' : 'delivery';
-    order.payment_method = order.payment_method === 'cash' ? 'cash' : 'whish';
+    order.payment_method = 'cash'; // website orders are cash only
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
       slug: String(i?.slug ?? '').slice(0, 80),
       quantity: Number.parseInt(i?.quantity, 10) || 0,
@@ -31,6 +31,8 @@ export default async (req) => {
     if (user) order.age_confirmed = true;
 
     const saved = await rpc('place_order', { p: order, p_user_id: user ? user.id : null });
+    // A repeated submission of the same checkout: the order and its emails already exist.
+    if (saved.duplicate) return json({ order: saved });
 
     const notify = process.env.ORDER_NOTIFY_EMAIL;
     // The receipt and the care and warranty card, from the owner's Canva template. If they cannot be
@@ -57,11 +59,10 @@ export default async (req) => {
       sendEmail({
         to: notify,
         replyTo: saved.email,
-        subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} ${saved.payment_method === 'cash' ? 'cash' : 'Whish'} (${saved.customer_name})`,
+        subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} cash (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
-          `<p style="font-size:15px;line-height:1.6">${saved.payment_method === 'cash'
-            ? `Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}. Status: being prepared`
-            : 'Status: awaiting Whish payment'}${user ? ' — placed from a customer account' : ' — guest order'}.</p>
+          `<p style="font-size:15px;line-height:1.6">Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}.
+            Status: received — please confirm the order with the customer${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
         attachments: [receiptFile].filter(Boolean),
       }),

@@ -1,4 +1,4 @@
-// Checkout page: guest or signed-in checkout, Lebanon-only delivery, gift vouchers, Whish or cash on delivery.
+// Checkout page: guest or signed-in checkout, Lebanon-only delivery or collection, gift vouchers, cash payment.
 import {
   escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
@@ -22,10 +22,7 @@ function totals() {
 }
 
 const isCollection = () => root.querySelector('[name=fulfilment]:checked')?.value === 'collection';
-const isCash = () => root.querySelector('[name=payment_method]:checked')?.value === 'cash';
-
 function payLabel() {
-  if (!isCash()) return 'To pay via Whish';
   return isCollection() ? 'To pay in cash at collection' : 'To pay in cash on delivery';
 }
 
@@ -37,8 +34,8 @@ function applyFulfilment() {
   address.querySelectorAll('input, select, textarea').forEach((el) => { el.disabled = collect; });
   root.querySelector('.cash-title').textContent = collect ? 'Cash at collection' : 'Cash on delivery';
   root.querySelector('.cash-text').textContent = collect
-    ? 'Pay in cash when you collect your order.'
-    : 'Pay the driver in cash when your order arrives, together with the delivery fee.';
+    ? 'You pay in cash when you collect your order.'
+    : 'You pay the driver in cash when your order arrives, together with the delivery fee.';
   renderSummary();
 }
 
@@ -77,8 +74,16 @@ function renderForm(profile) {
 
   root.innerHTML = `<form class="checkout-layout" novalidate>
     <div class="checkout-main">
-      ${signedIn ? '' : `<p class="checkout-signin">Have an account? <a href="account.html?next=checkout.html">Sign in</a>
-        for faster checkout &mdash; or continue as a guest.</p>`}
+      ${signedIn ? '' : `<div class="checkout-mode" role="group" aria-label="How to check out">
+        <div class="checkout-mode-option is-current">
+          <strong>Continue as a guest</strong>
+          <span>No account needed. Fill in your details below; you get an order reference and a confirmation email.</span>
+        </div>
+        <div class="checkout-mode-option">
+          <strong>Have an account?</strong>
+          <span><a href="account.html?next=checkout.html">Sign in</a> to use your saved addresses. This is optional.</span>
+        </div>
+      </div>`}
 
       <fieldset><legend>Contact</legend>
         <div class="form-grid">
@@ -124,13 +129,12 @@ function renderForm(profile) {
       </fieldset>
 
       <fieldset><legend>Payment</legend>
-        <label class="pay-option"><input type="radio" name="payment_method" value="whish" checked />
-          <span><strong>Whish</strong><br />After you place your order, send the total via Whish with your order
-          reference. We'll prepare your piece as soon as the payment arrives.</span></label>
-        <label class="pay-option"><input type="radio" name="payment_method" value="cash" />
-          <span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">Pay the driver in cash
-          when your order arrives, together with the delivery fee.</span></span></label>
-        <p class="field-note">Gift vouchers cover jewellery, not delivery.</p>
+        <input type="hidden" name="payment_method" value="cash" />
+        <p class="pay-option"><span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">You pay
+          the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
+        <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
+          jewellery, not delivery. We do not take card payments. After you place your order, we contact you to confirm it
+          before it is prepared.</p>
       </fieldset>
 
       <fieldset class="checkout-confirm">
@@ -174,7 +178,6 @@ function renderForm(profile) {
     fillAddress(state.addresses.find((a) => a.id === e.target.value)));
   form.elements.governorate.addEventListener('change', renderSummary);
   form.querySelectorAll('[name=fulfilment]').forEach((r) => r.addEventListener('change', applyFulfilment));
-  form.querySelectorAll('[name=payment_method]').forEach((r) => r.addEventListener('change', renderSummary));
   form.querySelector('.voucher-apply').addEventListener('click', applyVoucher);
   form.addEventListener('submit', submit);
   renderSummary();
@@ -206,17 +209,11 @@ async function applyVoucher() {
 }
 
 function showConfirmation(order) {
-  const cash = order.payment_method === 'cash';
   const toPay = Number(order.total) <= 0
     ? '<p>Your gift voucher covers this order, so there is nothing more to pay for your jewellery.</p>'
-    : cash && order.fulfilment === 'collection'
+    : order.fulfilment === 'collection'
       ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash when you collect your order.</p>`
-    : cash
-      ? `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives. We're preparing it now.</p>`
-    : `<p>Please send <strong>${money(order.total)}</strong> via Whish to
-        ${order.whish_number ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>` : 'us &mdash; we will message you our Whish details shortly'},
-        and write <strong>${escapeHtml(order.reference)}</strong> in the note.</p>
-       <p>We'll prepare your order as soon as the payment arrives.</p>`;
+      : `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives.</p>`;
   const handover = order.fulfilment === 'collection'
     ? '<p>You chose free collection by appointment. We\'ll message you to arrange a time.</p>'
     : `<p>${order.delivery_fee === null || order.delivery_fee === undefined
@@ -228,6 +225,7 @@ function showConfirmation(order) {
     <p class="order-ref">Your order reference is <strong>${escapeHtml(order.reference)}</strong></p>
     ${toPay}
     ${handover}
+    <p>We have received your order and will contact you to confirm it before it is prepared.</p>
     <p>A confirmation has been sent to ${escapeHtml(order.email)}.</p>
     <a href="shop.html" class="btn btn-outline">Continue Shopping</a>
   </div>`;
@@ -255,8 +253,11 @@ async function submit(e) {
   button.disabled = true;
   button.textContent = 'Placing order…';
   const data = Object.fromEntries(new FormData(form));
+  // The same id is sent if this checkout is submitted again, so it can never create a second order.
+  state.submissionId ||= crypto.randomUUID();
   const payload = {
     ...data,
+    submission_id: state.submissionId,
     age_confirmed: Boolean(state.session) || form.elements.age_confirmed.checked,
     terms_accepted: form.elements.accept_terms.checked,
     items: getCart().map(({ slug, quantity, metal, size }) => ({ slug, quantity, metal, size })),

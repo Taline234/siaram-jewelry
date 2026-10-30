@@ -141,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set active nav link
   let path = window.location.pathname.split('/').pop() || 'index.html';
   if (path.startsWith('product-')) path = 'shop.html';
-  if (path.startsWith('journal-')) path = 'journal.html';
   document.querySelectorAll('.nav-links a, .mobile-menu a').forEach((a) => {
     if (a.getAttribute('href') === path) a.classList.add('active');
   });

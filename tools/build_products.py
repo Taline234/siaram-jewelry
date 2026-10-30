@@ -372,7 +372,7 @@ def specs_html(p):
     if p["other"]:
         rows.append(("Other", p["other"]))
     rows += p["dims"]
-    rows.append(("Care", '<a href="journal-gold-jewelry-care.html">How to care for your gold jewelry</a>'))
+    rows.append(("Care", "Store in its Siaram pouch; avoid perfume, lotion and harsh chemicals; clean with a soft, dry cloth"))
     body = "\n".join(f"          <dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
     return f"""        <h2 class="specs-title">Details</h2>
         <dl class="product-specs">
@@ -461,9 +461,10 @@ for p in P:
 {options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>
-          <a class="btn btn-outline" href="{wa}" target="_blank" rel="noopener">{WA_ICON}WhatsApp Us</a>
         </div>
-        <p class="product-note">We'll reply with sizing and availability. See our <a href="returns.html">exchange &amp; return policy</a>.</p>
+        <p class="product-note">Questions about sizing or a custom version? <a href="contact.html">Contact us</a>.
+          See our <a href="shipping.html">delivery &amp; collection</a>, <a href="returns.html">returns &amp; exchanges</a> and
+          <a href="warranty.html">warranty</a> policies.</p>
 {specs_html(p)}      </div>
     </div>
   </div>

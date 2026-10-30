@@ -104,7 +104,6 @@ export function itemDescription(item) {
 }
 
 function paymentLabel(order) {
-  if (order.payment_method !== 'cash') return 'Whish';
   return order.fulfilment === 'collection' ? 'Cash at collection' : 'Cash on delivery';
 }
 

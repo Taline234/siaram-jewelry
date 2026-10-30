@@ -21,11 +21,9 @@ some keys into Netlify. Allow about an hour.
    - **products** → all 36 pieces are already there with the prices from your October 2026 catalogue
      (US dollars). Change a **price** here and the website follows; clear it to show "Price on request"
      and stop online orders for that piece.
-   - **store_settings** → your **whish_number** (e.g. `+961 76 052 068`) and **whish_name** (the name
-     customers will see on Whish).
    - **delivery_areas** → a **delivery_fee** per governorate, from your Wakilni rates. As your Shipping
      policy says, the customer pays this fee to the courier in cash, so it is shown at checkout but not
-     added to the Whish amount. Leave it empty and checkout says the fee is confirmed before dispatch. South is already set to not accept orders;
+     added to the jewellery total. Leave it empty and checkout says the fee is confirmed before dispatch. South is already set to not accept orders;
      untick **accepts_orders** for any other area you want to block (for example Nabatieh).
 4. Open **Authentication → URL Configuration**:
    - Site URL: `https://siaramjewelry.com`
@@ -83,17 +81,17 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 
 **A new order arrives**
 1. You get an email "New order S016" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
-   (S016, S017, ...). The subject says **Whish** or **cash**, and the email lists the items with their
+   (S016, S017, ...). Website orders are cash only, and the email lists the items with their
    SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
    The receipt PDF is attached, and the email ends with a "For your finance workbook" table: one row
    per piece in the order of the Sales tab's columns. The customer's email has the receipt and the
    care and warranty card attached (both drawn after the "Siaram Invoice" Canva template).
-2. **Whish orders** start as `awaiting_payment`. When the Whish payment with that reference arrives, open
-   **Supabase → Table Editor → orders** and change the order's **status** to `paid`, then `preparing`.
-   If payment never arrives, set the status to `cancelled`.
-3. **Cash orders** start as `preparing`. Book the delivery with Wakilni as cash on delivery, for the order
-   total plus the delivery fee (the email shows both); for a collection, take the cash at handover.
+2. New orders start as `received`: the customer has submitted it, and you have not accepted it yet.
+   Contact the customer to confirm, then open **Supabase → Table Editor → orders** and set the status
+   to `preparing` (or `cancelled` if it cannot go ahead).
+3. Book the delivery with Wakilni as cash on delivery, for the order total plus the delivery fee (the
+   email shows both); for a collection, take the cash at handover.
 4. Then set `dispatched` and `delivered` as the order moves along. Customers with an account see this
    status under **My Account → Orders**.
 

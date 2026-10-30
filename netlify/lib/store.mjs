@@ -122,7 +122,6 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
 
 // What the customer pays and how, for the line under the items.
 export function payLabel(order) {
-  if (order.payment_method !== 'cash') return 'To pay via Whish';
   return order.fulfilment === 'collection' ? 'To pay in cash at collection' : 'To pay in cash on delivery';
 }
 
@@ -136,10 +135,10 @@ function itemOptions(i) {
 
 // For the shop's email: one row per piece, in the order of the blue columns on the finance
 // workbook's Sales tab, so each order can be typed (or pasted cell by cell) straight in.
-// Whish counts as "Mobile Payment" in the workbook. Cash Received Now stays 0 until the money arrives.
+// Website orders are cash. Cash Received Now stays 0 until the money arrives.
 export function financeRowsHtml(order, today = new Date()) {
   const date = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Beirut', day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
-  const method = order.payment_method === 'cash' ? 'Cash' : 'Mobile Payment';
+  const method = 'Cash';
   const head = ['Invoice #', 'Sale Date', 'Customer', 'Sales Channel', 'SKU', 'Qty', 'Agreed Unit Price', 'Payment Method',
     'Cash Received Now', 'Gift Voucher Code', 'Paid by Voucher ($)'];
   const cell = 'padding:4px 8px;border:1px solid #d9d2c3;font-size:12px;white-space:nowrap';
@@ -189,17 +188,9 @@ export function paymentInstructionsHtml(order) {
   if (Number(order.total) <= 0) {
     return '<p style="font-size:15px;line-height:1.6">Your gift voucher covers this order, so there is nothing to pay.</p>';
   }
-  if (order.payment_method === 'cash') {
-    return order.fulfilment === 'collection'
-      ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
-We will message you to arrange a time.</p>`
-      : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
-when your order arrives, plus the delivery fee. We are preparing your order now.</p>`;
-  }
-  const to = order.whish_number
-    ? `${escapeHtml(order.whish_name || 'Siaram Jewelry')} on <strong>${escapeHtml(order.whish_number)}</strong>`
-    : 'us (we will send you our Whish details shortly)';
-  return `<p style="font-size:15px;line-height:1.6">Please send <strong>${money(order.total)}</strong> via Whish to ${to},
-and write your order reference <strong>${escapeHtml(order.reference)}</strong> in the note.
-We will prepare your order as soon as the payment arrives.</p>`;
+  return order.fulfilment === 'collection'
+    ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
+We will contact you to confirm your order and arrange a time.</p>`
+    : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
+when your order arrives, plus the delivery fee. We will contact you to confirm your order before it is prepared.</p>`;
 }
