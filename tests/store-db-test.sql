@@ -262,6 +262,16 @@ update auth.users set last_sign_in_at = now() - interval '13 months' where email
 select pg_temp.check((select action = 'reminder' from inactivity_due() where first_name = 'Maya'),
   'reminders start again after the customer comes back and goes quiet');
 
+-- Backup download for the finance workbook.
+select pg_temp.check((select json_array_length(sales_export(null, null)) = (select count(*) from orders where status <> 'cancelled')),
+  'the workbook download lists every order that is not cancelled');
+select pg_temp.check((select json_array_length(sales_export(current_date + 1, null)) = 0
+                         and json_array_length((sales_export(null, null))->0->'items') >= 1),
+  'the workbook download respects the date range and includes the pieces');
+select pg_temp.check(not has_function_privilege('anon', 'public.sales_export(date, date)', 'execute')
+                     and not has_function_privilege('authenticated', 'public.sales_export(date, date)', 'execute'),
+  'only the server can read the workbook download');
+
 -- Deleting an account keeps the order record without the link to the account.
 delete from auth.users where email = 'rana@example.com';
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana')

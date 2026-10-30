@@ -130,6 +130,16 @@ records are kept.
 
 ---
 
+**Finance workbook backup download** — sign in on the website's **My Account** page with your shop email
+(siaramjewelry@hotmail.com, finance@ or customerservice@siaramjewelry.com; to use other emails, set `OWNER_EMAILS`
+in Netlify to a comma-separated list). A **Workbook** tab appears only for you. Pick dates (or none for everything)
+and download:
+- **Sales**: one row per piece in the Sales tab's columns A to Z, with the formula columns left empty. Copy the rows
+  under the heading, click column A of the first empty Sales row, then Paste Special → Values with **Skip blanks**
+  ticked, so the workbook's formulas stay. Cash Received Now is filled in only for delivered orders.
+- **Customers**: name, phone, email, address and "Website", in the Customers tab's columns A to G. Paste only names
+  that are not there yet; the workbook matches customers by name.
+
 ## For developers
 
 - `supabase/schema.sql` — tables, access rules (row-level security) and business rules (`place_order`,
