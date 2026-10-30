@@ -67,7 +67,7 @@
   status = 404
   force = true
 
-# Unpublished drafts (the journal) stay in the repository but are never served.
+# Unpublished drafts (journal articles, until each is ready) stay in the repository but are never served.
 [[redirects]]
   from = "/drafts/*"
   to = "/"
