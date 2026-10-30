@@ -83,7 +83,7 @@ select pg_temp.check((select count(*) = 0 from orders), 'rejected orders leave n
 -- Prices come from the database, not from the browser.
 select pg_temp.check((
   select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325
-         and r->>'email' = 'rana@example.com' and r->>'whish_number' = '+961 76 052 068'
+         and r->>'email' = 'rana@example.com'
     from (select place_order(pg_temp.order_json('Nabatieh',
       '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
   'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
@@ -122,20 +122,27 @@ update delivery_areas set delivery_fee = 5 where governorate = 'Beirut';
 select pg_temp.check((select (r->>'total')::numeric = 85 and (r->>'delivery_fee')::numeric = 5
     from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'),
                              '00000000-0000-0000-0000-00000000000a')) t(r)),
-  'delivery fee is recorded but paid to the courier, not added to the Whish total');
+  'delivery fee is recorded but paid to the courier, not added to the jewellery total');
 select pg_temp.check((select (r->>'total')::numeric = 85 and r->>'fulfilment' = 'collection' and r->>'governorate' is null
     from (select place_order(pg_temp.order_json('South','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
       '{"fulfilment":"collection","city":"","street":""}'))) t(r)),
   'collection by appointment needs no address and has no delivery fee');
-select pg_temp.check((select r->>'payment_method' = 'whish' and r->>'status' = 'awaiting_payment'
+select pg_temp.check((select r->>'payment_method' = 'cash' and r->>'status' = 'received'
     from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
-  'Whish is the default and the order waits for payment');
-select pg_temp.check((select r->>'payment_method' = 'cash' and r->>'status' = 'preparing' and (r->>'total')::numeric = 85
-    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
-      '{"payment_method":"cash"}'))) t(r)),
-  'cash on delivery orders go straight to preparation');
+  'website orders are cash and start as received, waiting for us to confirm them');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
-  '{"payment_method":"card"}'))$$, 'Whish or cash on delivery');
+  '{"payment_method":"whish"}'))$$, 'paid in cash');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]',
+  '{"payment_method":"card"}'))$$, 'paid in cash');
+
+-- A repeated submission returns the first order instead of creating a second one.
+create temp table dup as select count(*) as n from orders;
+select pg_temp.check((
+  select (a->>'reference') = (b->>'reference') and (b->>'duplicate')::boolean and not coalesce((a->>'duplicate')::boolean, false)
+    from (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]','{"submission_id":"sub-1"}'))) x(a),
+         lateral (select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]','{"submission_id":"sub-1"}'))) y(b)),
+  'the same submission twice gives the same order, marked as a duplicate');
+select pg_temp.check((select count(*) = (select n from dup) + 1 from orders), 'and only one order is stored');
 
 -- ---------------------------------------------------------------- gift vouchers
 insert into gift_vouchers (code, recipient_name, purchaser_name, amount, balance, expires_at) values

@@ -293,6 +293,14 @@ alter table public.orders add column if not exists terms_accepted_at timestamptz
 -- How the customer pays: 'whish' before dispatch, or 'cash' to the courier on delivery (or at collection).
 alter table public.orders drop constraint if exists orders_payment_method_check;
 alter table public.orders add constraint orders_payment_method_check check (payment_method in ('whish', 'cash'));
+-- Website orders are cash only (Whish stays allowed for older orders). A new order starts as 'received':
+-- submitted by the customer and waiting for us to confirm it.
+alter table public.orders alter column payment_method set default 'cash';
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders add constraint orders_status_check
+  check (status in ('received','awaiting_payment','paid','preparing','dispatched','delivered','cancelled'));
+-- One order per checkout submission: a repeated or double-clicked submission returns the first order.
+alter table public.orders add column if not exists submission_id text unique;
 alter table public.orders alter column governorate drop not null;
 alter table public.orders alter column city drop not null;
 alter table public.orders alter column street drop not null;
@@ -435,6 +443,24 @@ end $$;
 -- ---------------------------------------------------------------- place an order
 -- Called only by the website's server (Netlify function) with the service key.
 -- Prices, delivery rules and vouchers are all checked here, never trusted from the browser.
+-- What the website and the order emails get back about an order.
+create or replace function public.order_summary(p_order_id uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+    select jsonb_build_object(
+      'reference', o.reference, 'customer_name', o.customer_name, 'email', o.email, 'phone', o.phone,
+      'fulfilment', o.fulfilment, 'payment_method', o.payment_method, 'status', o.status,
+      'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
+      'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
+      'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
+      'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
+                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
+                                                    order by i.name)
+                  from public.order_items i where i.order_id = o.id))
+      from public.orders o cross join public.store_settings s
+     where o.id = p_order_id and s.id = 1;
+$$;
+revoke all on function public.order_summary(uuid) from public, anon, authenticated;
+
 create or replace function public.place_order(p jsonb, p_user_id uuid default null) returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare
@@ -452,8 +478,17 @@ declare
   v_order_id  uuid;
   v_field     text;
   v_collect   boolean := coalesce(p->>'fulfilment', 'delivery') = 'collection';
-  v_cash      boolean := coalesce(p->>'payment_method', 'whish') = 'cash';
+  v_existing  uuid;
 begin
+  -- A repeated submission (double click, retry after a dropped connection) returns the order already placed.
+  if coalesce(p->>'submission_id', '') <> '' then
+    perform pg_advisory_xact_lock(hashtext('order:' || (p->>'submission_id')));
+    select id into v_existing from public.orders where submission_id = p->>'submission_id';
+    if found then
+      return public.order_summary(v_existing) || jsonb_build_object('duplicate', true);
+    end if;
+  end if;
+
   if coalesce((p->>'age_confirmed')::boolean, false) is not true then
     raise exception 'You must confirm you are 18 or older to order.' using errcode = 'P0001';
   end if;
@@ -465,8 +500,8 @@ begin
   if coalesce(p->>'fulfilment', 'delivery') not in ('delivery', 'collection') then
     raise exception 'Please choose delivery or collection.' using errcode = 'P0001';
   end if;
-  if coalesce(p->>'payment_method', 'whish') not in ('whish', 'cash') then
-    raise exception 'Please choose Whish or cash on delivery.' using errcode = 'P0001';
+  if coalesce(p->>'payment_method', 'cash') <> 'cash' then
+    raise exception 'Website orders are paid in cash.' using errcode = 'P0001';
   end if;
   foreach v_field in array (case when v_collect then array['customer_name','email','phone']
                                  else array['customer_name','email','phone','governorate','city','street'] end) loop
@@ -497,15 +532,14 @@ begin
   returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
-                             payment_method, status, terms_accepted_at)
+                             payment_method, status, terms_accepted_at, submission_id)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
           nullif(trim(p->>'building'), ''), nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''),
           0, v_area.delivery_fee, 0, true,
           -- Cash orders are paid on delivery or collection, so they go straight to preparation.
-          case when v_cash then 'cash' else 'whish' end,
-          case when v_cash then 'preparing' else 'awaiting_payment' end, now())
+          'cash', 'received', now(), nullif(p->>'submission_id', ''))
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop
@@ -558,20 +592,7 @@ begin
      where id = p_user_id;
   end if;
 
-  return (
-    select jsonb_build_object(
-      'reference', o.reference, 'customer_name', o.customer_name, 'email', o.email, 'phone', o.phone,
-      'fulfilment', o.fulfilment, 'payment_method', o.payment_method, 'status', o.status,
-      'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
-      'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
-      'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
-      'whish_number', s.whish_number, 'whish_name', s.whish_name,
-      'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
-                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
-                                                    order by i.name)
-                  from public.order_items i where i.order_id = o.id))
-      from public.orders o cross join public.store_settings s
-     where o.id = v_order_id and s.id = 1);
+  return public.order_summary(v_order_id);
 end $$;
 
 -- ---------------------------------------------------------------- account activity

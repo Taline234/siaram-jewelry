@@ -18,8 +18,8 @@ on it and say "read HANDOVER.md first".
 - Categories: Necklaces, Earrings, Rings, Bracelets (the Moon/Star Handchain is a bracelet), Anklets.
 - Delivery: Lebanon only, **not South Lebanon**; free collection by appointment. The courier is Wakilni,
   but **the courier is not named anywhere on the site** (owner's choice).
-- Payment: customer chooses **Whish** (pay before dispatch) or **cash on delivery** (cash at collection
-  for collections). The delivery fee is always paid to the courier in cash, never via Whish or a voucher.
+- Payment: website orders are **cash** (to the courier on delivery, or at collection); gift-voucher credit
+  is applied first. The delivery fee is always paid to the courier in cash, never by voucher.
 - Customers must be 18+ (tick box); birthday optional. Marketing by email/WhatsApp is opt-in.
 - Gift vouchers: from $100, valid 6 months, jewellery only. Inactive accounts: reminder at 12 months,
   deletion notice at 24 months, deleted 30 days later; orders are kept.

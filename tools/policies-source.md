@@ -1,6 +1,6 @@
 # Terms and conditions
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## About Siaram
 
@@ -22,15 +22,15 @@ A written quotation is valid for 48 hours unless it states another expiry time. 
 
 ## Placing and accepting orders
 
-For website orders, your order is accepted when checkout and the required payment are successfully completed and an order confirmation is issued. Product availability and any made-to-order delivery estimate are shown before checkout. For message, appointment or event orders, we confirm the item, price, delivery or collection arrangements and required payment with you before accepting the order.
+For website orders, your order is accepted when checkout and the required payment are successfully completed and an order confirmation is issued. Product availability and any made-to-order delivery estimate are shown before checkout. For message, appointment or event orders, we confirm the item, price, delivery arrangements and required payment with you before accepting the order.
 
 Please check your contact details, delivery address, size and order details. Tell us promptly about an error. If we discover an availability or pricing error after acceptance, we will contact you and offer a correction for you to accept or a cancellation and refund of the affected order. We will not substitute an item or increase an accepted price without your agreement.
 
 ## Payment
 
-Available online payment methods are \[CONFIRMED CARD PROVIDER AND/OR WHISH PAYMENT METHOD\]. Follow our official checkout or payment link and do not send card numbers or security codes through messages.
+Website orders for pieces in stock are paid in cash to the courier on delivery, together with the courier's delivery fee. Gift-voucher credit is applied first.
 
-Ordinary orders delivered by courier must be paid in full before dispatch. The disclosed courier delivery fee is payable to the courier in cash. For collection or delivery personally by Siaram, the piece must be paid for in cash or by confirmed transfer at handover. We do not release an unpaid piece. Custom deposits and balances follow our Custom orders policy.
+Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment request. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom deposits and balances follow our Custom orders policy.
 
 # Terms and conditions continued
 
@@ -68,7 +68,7 @@ Updated policies apply to future orders from the stated effective date. The vers
 
 # Custom orders
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## Design and approval
 
@@ -78,9 +78,9 @@ Approval covers the design, spelling and lettering, size, metal colour, stones, 
 
 ## Deposit and balance
 
-After approval, we request a 50% deposit by payment link. Once it clears, we submit the order for production and confirm submission. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
+After approval, we send a Whish payment request for a 50% deposit. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the deposit clears, we submit the order for production and email you to confirm it is in production. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
 
-For courier orders, the remaining 50% must be paid before delivery. For collection or delivery personally by Siaram Jewelry, the balance is paid at handover, before we release the piece. Any delivery fee is separate and disclosed in advance.
+The remaining 50% is paid in cash to the courier on delivery. Any delivery fee is separate and disclosed in advance.
 
 If, after taking payment, Siaram cannot supply the agreed piece and you do not accept an alternative, we will refund the payments for that piece. This is different from a customer deciding to cancel a producible, approved piece after production submission.
 
@@ -210,11 +210,11 @@ A gift recipient may request an eligible exchange using a gift receipt or verifi
 
 # Warranty and repairs
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
-## One year manufacturing warranty
+## Six month manufacturing warranty
 
-Siaram provides a one-year warranty against manufacturing defects, starting when the original customer receives or collects the piece. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
+Siaram provides a six-month warranty against manufacturing defects, starting on the date the piece is delivered to the original customer. It covers a defect in materials or workmanship that causes a failure during normal, appropriate use. Keep your receipt or a verifiable order reference. Gift recipients may claim using proof of the original purchase.
 
 A confirmed defective arrival is handled under our Returns policy. For a manufacturing defect discovered later, we normally offer a repair at no charge. If a suitable repair is not possible, we offer an appropriate replacement. If neither is possible within a reasonable time, we offer a refund. This sequence does not restrict a different remedy available under applicable law.
 
@@ -222,7 +222,7 @@ A confirmed defective arrival is handled under our Returns policy. For a manufac
 
 The warranty does not cover ordinary wear, accidental damage, loss, theft, misuse or damage caused by inappropriate handling, chemicals or work by another jeweller. Another jeweller's work only excludes coverage to the extent it caused or contributed to the problem. A broken chain or missing stone is assessed according to its cause; it is not automatically treated as customer damage.
 
-The one-year warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
+The six-month warranty is additional to mandatory legal rights. Expiry of this warranty, or failure to report within 48 hours of delivery, does not by itself decide whether a separate legal claim is valid. Report a suspected problem promptly after discovering it and stop wearing the piece if continued use could worsen the damage.
 
 ## How assessment works
 

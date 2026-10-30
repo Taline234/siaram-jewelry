@@ -6,7 +6,7 @@ const root = document.getElementById('store-root');
 let client;
 
 const STATUS = {
-  awaiting_payment: 'Awaiting payment', paid: 'Paid', preparing: 'Being prepared',
+  received: 'Order received', awaiting_payment: 'Awaiting payment', paid: 'Paid', preparing: 'Being prepared',
   dispatched: 'On its way', delivered: 'Delivered', cancelled: 'Cancelled',
 };
 
@@ -51,10 +51,10 @@ function renderSignedOut(notice = '') {
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
       ${field('phone', 'Phone', 'type="tel" required autocomplete="tel" placeholder="+961"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
-      ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
+      ${field('date_of_birth', 'Birthday (optional)', 'type="date" autocomplete="bday"')}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
         <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>.</span></label>
-      <p class="field-note marketing-note">Would you like to hear about new pieces and offers? (Optional)</p>
+      <p class="field-note marketing-note">Would you like to hear about new collections, styling and care advice and stories from Siaram? (Optional; leave unticked if not.)</p>
       <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
       <label class="check"><input type="checkbox" name="marketing_whatsapp" /> <span>Yes, by WhatsApp</span></label>
       <p class="form-msg form-error" role="alert"></p>
@@ -287,9 +287,9 @@ async function renderDetails(panel, session, profile) {
         ${field('last_name', 'Last name', 'required')}
         ${field('phone', 'Phone', 'type="tel" required')}
         ${field('email', 'Email', 'readonly')}
-        ${field('date_of_birth', 'Birthday (optional, for birthday offers)', 'type="date" autocomplete="bday"')}
+        ${field('date_of_birth', 'Birthday (optional)', 'type="date" autocomplete="bday"')}
       </div>
-      <p class="field-note marketing-note">News about new pieces and offers (you can change this at any time):</p>
+      <p class="field-note marketing-note">News about new collections, styling and care advice (you can change this at any time):</p>
       <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
       <label class="check"><input type="checkbox" name="marketing_whatsapp" /> <span>Yes, by WhatsApp</span></label>
       <p class="form-msg form-error" role="alert"></p>

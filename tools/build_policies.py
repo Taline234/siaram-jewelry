@@ -19,13 +19,13 @@ FOOTER = TEMPLATE[FOOTER_START:]
 PAGES = [
     # (doc heading, file, page title, eyebrow, description)
     ("Terms and conditions", "terms.html", "Terms &amp; Conditions",
-     "Terms for buying Siaram Jewelry pieces in Lebanon: product information, prices, orders, payment by Whish or cash on delivery, accounts and your rights."),
+     "Terms for buying Siaram Jewelry pieces in Lebanon: product information, prices, orders, cash payment, accounts and your rights."),
     ("Shipping and collection", "shipping.html", "Shipping &amp; Collection",
      "Siaram Jewelry delivers within Lebanon (not currently to South Lebanon) and offers free collection by appointment. Delivery times, fees and claims."),
     ("Returns and exchanges", "returns.html", "Returns &amp; Exchanges",
      "Our 14-day returns and exchanges offer, legal withdrawal rights, and what to do if a piece arrives damaged, defective or incorrect."),
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",
-     "Siaram Jewelry's one-year manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
+     "Siaram Jewelry's six-month manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
     ("Custom orders", "custom-orders.html", "Custom Orders",
      "How bespoke Siaram Jewelry pieces are designed, approved, paid for (50% deposit) and made, and how customer stones are handled."),
     ("Digital gift vouchers", "gift-vouchers.html", "Gift Vouchers",
@@ -60,7 +60,7 @@ HEADINGS = {
     "Exchanges gifts and store credit": "Exchanges, gifts and store credit",
     "Security children and policy changes": "Security, children and policy changes",
     "Marketing photographs and reviews": "Marketing, photographs and reviews",
-    "One year manufacturing warranty": "One-year manufacturing warranty",
+    "Six month manufacturing warranty": "Six-month manufacturing warranty",
     "Returns and customer supplied materials": "Returns and customer-supplied materials",
 }
 
@@ -74,17 +74,16 @@ REPLACE = [
      "or on WhatsApp at +961 76 052 068."),
     ("Available online payment methods are [CONFIRMED CARD PROVIDER AND/OR WHISH PAYMENT METHOD]. "
      "Follow our official checkout or payment link and do not send card numbers or security codes through messages.",
-     "Online orders can be paid by Whish or in cash on delivery, as you choose at checkout. With Whish, you send the amount "
-     "shown at checkout via Whish with your order reference. With cash on delivery, you pay the courier in cash when your "
-     "order arrives. Follow the payment details in our official checkout or order confirmation and do not send card "
-     "numbers or security codes through messages."),
+     "Website orders are paid in cash: to the courier when your order arrives, or to us at collection. Valid gift-voucher "
+     "credit can be redeemed at checkout, and any remaining balance is payable in cash. We do not take card payments on "
+     "our website, and we will never ask you for card numbers or security codes."),
     ("Ordinary orders delivered by courier must be paid in full before dispatch. The disclosed courier delivery fee is payable to the courier in cash.",
-     "Orders paid by Whish must be paid in full before dispatch. With cash on delivery, you pay the full order amount to the "
-     "courier when your order arrives. The disclosed courier delivery fee is payable to the courier in cash."),
+     "With cash on delivery, you pay the order amount to the courier when your order arrives, together with the disclosed "
+     "delivery fee. For collection, you pay at collection."),
     ("Payment providers process payments and any payment credentials you choose to save through their supported features. ",
-     "Whish processes your payment under its own terms. "),
+     ""),
     (" [SAVED-PAYMENT FEATURE AND STORAGE ARRANGEMENT]",
-     " Our website does not store card or Whish account details."),
+     " Our website does not take or store card details."),
     ("Accounts: while active, then reviewed after 24 months of inactivity; we notify you before deleting the account profile.",
      "Accounts: while active. After 12 months without activity we send a reminder; after 24 months we notify you that "
      "the account profile, saved addresses and wishlist will be deleted 30 days later unless you sign in."),
@@ -108,7 +107,6 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Microsoft Outlook</strong> hosts our customer service mailbox.
           <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Privacy statement</a></li>
-        <li><strong>Whish</strong> (Lebanon) processes Whish payments.</li>
         <li><strong>Google Fonts</strong> and <strong>jsDelivr</strong> deliver the website's fonts and sign-in library;
           your browser's request shares your IP address with them, but they set no cookies.</li>
         <li><strong>Our courier</strong> (Lebanon) delivers orders and collects cash-on-delivery payments; it receives the
@@ -134,8 +132,8 @@ COOKIE_TABLE = """<div class="table-wrap"><table class="legal-table">
         </tbody></table></div>
       <p>We do not set any cookies. If you never add to the cart or sign in, nothing is stored.</p>"""
 
-EMBEDDED = ("<p>No payment or embedded services on our website store anything on your device. Whish payments happen in the "
-            "Whish app, outside our website. Our pages load fonts from Google Fonts and our sign-in library from jsDelivr; "
+EMBEDDED = ("<p>No payment or embedded services on our website store anything on your device. Orders are paid in cash, "
+            "outside our website. Our pages load fonts from Google Fonts and our sign-in library from jsDelivr; "
             "these set no cookies.</p>")
 
 # Link mentions of other policies. Longest phrases first.

@@ -39,7 +39,6 @@ const savedOrder = {
   reference: 'S016', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
   subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
-  whish_number: '+961 76 052 068', whish_name: 'Siaram Jewelry',
   items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1, metal: 'yellow', size: '' },
           { sku: 'RG-01', name: 'Crescent Moon Ring', unit_price: 85, quantity: 1, metal: 'rose', size: 'EU 52' }],
 };
@@ -56,16 +55,16 @@ test('guest order is saved and both emails are sent', async () => {
   const rpc = calls.find((c) => c.url.endsWith('/rpc/place_order'));
   assert.equal(rpc.body.p_user_id, null);
   assert.equal(rpc.body.p.age_confirmed, true);
-  assert.equal(rpc.body.p.payment_method, 'whish', 'Whish is the default payment method');
+  assert.equal(rpc.body.p.payment_method, 'cash', 'website orders are cash');
   assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2, metal: 'yellow', size: '' }], 'browser prices are dropped');
   assert.equal(rpc.headers.apikey, 'eyJservice');
   assert.equal(rpc.headers.authorization, 'Bearer eyJservice', 'legacy JWT key is also sent as Bearer');
 
   const [customer, shop] = emails();
   assert.deepEqual(customer.to, ['rana@example.com']);
-  assert.match(customer.html, /send <strong>\$120\.00<\/strong> via Whish/);
+  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the driver/);
+  assert.match(customer.html, /email you when your order ships/);
   assert.match(customer.html, /Confirmed before dispatch, paid to the courier in cash/);
-  assert.match(customer.html, /\+961 76 052 068/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
   assert.equal(shop.reply_to, 'rana@example.com');
   assert.match(shop.subject, /S016/);
@@ -74,8 +73,8 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold<\/span>/, 'pieces without a size show the metal only');
   assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
   assert.match(shop.html, /For your finance workbook/, 'the shop email lists rows for the finance workbook');
-  assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Mobile Payment<\/td>/,
-    'rows follow the Sales tab columns; Whish is Mobile Payment');
+  assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Cash<\/td>/,
+    'rows follow the Sales tab columns');
   assert.doesNotMatch(customer.html, /finance workbook/, 'customers do not see it');
   assert.deepEqual(customer.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf', 'Siaram-care-and-warranty-S016.pdf'],
     'the customer gets the receipt and the care and warranty card');
@@ -100,10 +99,18 @@ test('cash on delivery order tells the customer to pay the driver', async () => 
   assert.match(shop.html, /cash on delivery/);
 });
 
-test('an unknown payment method is treated as Whish', async () => {
+test('any other payment method is sent as cash', async () => {
   handlers['/rest/v1/rpc/place_order'] = () => [200, savedOrder];
   await placeOrder(request('/api/place-order', { payment_method: 'card', age_confirmed: true, items: [] }));
-  assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'whish');
+  assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'cash');
+});
+
+test('a repeated submission sends no second set of emails', async () => {
+  handlers['/rest/v1/rpc/place_order'] = () => [200, { ...savedOrder, duplicate: true }];
+  const res = await placeOrder(request('/api/place-order', { submission_id: 'abc', age_confirmed: true, items: [] }));
+  assert.equal(res.status, 200);
+  assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.submission_id, 'abc');
+  assert.equal(emails().length, 0);
 });
 
 test('signed-in order is linked to the account', async () => {
