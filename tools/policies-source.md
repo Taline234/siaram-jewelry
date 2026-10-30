@@ -36,7 +36,9 @@ Pieces made to order (rose or white gold, or a piece that is out of stock) are p
 
 ## Cancellations before dispatch
 
-You can cancel an order free of charge at any time before it is dispatched. To cancel, contact customerservice@siaramjewelry.com or the channel you used to place the order, with your order reference. If you have already paid anything, we refund it in the same way as an approved return, and any gift-voucher credit used goes back onto the voucher. Once an order has been dispatched it can no longer be cancelled, but our Returns and exchanges policy still applies. Custom pieces follow the deposit rules in our Custom orders policy. This does not affect any cancellation or refund right provided by law.
+Pieces in stock can be cancelled free of charge until the order is dispatched. To cancel, contact customerservice@siaramjewelry.com or the channel you used to place the order, with your order reference. Any gift-voucher credit used goes back onto the voucher.
+
+Made-to-order pieces (rose or white gold, or a design that is out of stock) cannot be cancelled once ordered, because production starts straight away. After delivery, our 14-day Returns and exchanges policy applies to them as to any other piece. Custom pieces follow our Custom orders policy. This does not affect any cancellation or refund right provided by law.
 
 ## Accounts and website use
 
