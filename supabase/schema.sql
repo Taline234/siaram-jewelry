@@ -11,7 +11,7 @@
 --   orders          incoming orders; change status when paid / dispatched
 --   gift_vouchers   issue vouchers with:
 --                     select issue_gift_voucher('Recipient', 'Purchaser', 150, 'recipient@email.com', '+961 70 000 000');
---   store_settings  also holds the next order number (S016, S017, ...) and the next voucher number (GV0001, ...)
+--   store_settings  also holds the next order number (S017, S018, ...) and the next voucher number (GV0001, ...)
 -- ==========================================================================
 
 -- ---------------------------------------------------------------- catalogue
@@ -133,10 +133,12 @@ create table if not exists public.store_settings (
 );
 insert into public.store_settings (id) values (1) on conflict (id) do nothing;
 
--- Order numbers carry on from the finance workbook's invoice numbers (last sale S015); gift vouchers start at GV0001.
+-- Order numbers carry on from the finance workbook's invoice numbers (last sale S016, in person); gift vouchers start at GV0001.
 -- Taken inside the same transaction as the order or voucher, so a failed order never skips a number.
 alter table public.store_settings add column if not exists next_order_number int not null default 16;
 alter table public.store_settings add column if not exists next_voucher_number int not null default 1;
+-- S016 went to an in-person sale on 29 October 2026, so website orders start at S017. Never moves the number back.
+update public.store_settings set next_order_number = 17 where id = 1 and next_order_number < 17;
 
 -- ---------------------------------------------------------------- customers
 create table if not exists public.profiles (
