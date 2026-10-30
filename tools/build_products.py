@@ -361,7 +361,7 @@ def options_html(p):
 {metals}
             </div>
           </fieldset>
-{size}{necklace_guide}          <p class="made-to-order-note">If a piece is out of stock, it may take 3 to 4 weeks to make.</p>
+{size}{necklace_guide}          <p class="made-to-order-note">Rose and white gold, and pieces that are out of stock, are made to order: allow 3 to 4 weeks. Made-to-order pieces are final sale.</p>
         </div>
 """
 
