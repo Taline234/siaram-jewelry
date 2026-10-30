@@ -278,7 +278,7 @@ Tell us promptly if a reference may have been misused. We will check the remaini
 
 # Privacy policy
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## Who handles your information
 
@@ -288,7 +288,7 @@ Siaram Jewelry is responsible for the customer information described here. Conta
 
 When you enquire or place an order, we collect your name, contact details, delivery or collection arrangements, order details and relevant messages. We use them to answer you, confirm and fulfil orders, arrange payment and delivery, and handle returns, repairs and complaints. You can shop as a guest. Required checkout fields are marked; without essential contact, payment or delivery information, we may be unable to complete an order.
 
-If you choose an account, we keep your login information, saved addresses, order history and the cart and wishlist information associated with the enabled features. These features help you manage purchases and preferences. You may optionally provide your birthday for birthday offers; it is not required to create an account or make a purchase. Birthday promotions are sent only if you have chosen the relevant marketing channel.
+If you choose an account, we keep your login information, saved addresses, order history and the cart and wishlist information associated with the enabled features. These features help you manage purchases and preferences. You may optionally provide your birthday so we can send you a birthday message; it is not required to create an account or make a purchase. Birthday messages are sent only if you have chosen the relevant marketing channel.
 
 For a custom order, we retain the design brief, references, relevant images, sizes, engraving or lettering, approved specifications, quotations and approval messages. These records help us make the approved piece and resolve later questions. Please do not send unnecessary sensitive information about yourself or others.
 
@@ -338,7 +338,7 @@ Accounts and purchases are intended for adults aged 18 and over. A parent or gua
 
 # Cookie policy
 
-*Last updated 17 October 2026*
+*Last updated 30 October 2026*
 
 ## What website storage does
 
