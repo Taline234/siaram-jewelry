@@ -80,8 +80,8 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
 ## Day-to-day
 
 **A new order arrives**
-1. You get an email "New order S016" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
-   (S016, S017, ...). Website orders are cash only, and the email lists the items with their
+1. You get an email "New order S017" in Outlook. Order numbers carry on from the finance workbook's invoice numbers
+   (S017, S018, ...). Website orders are cash only, and the email lists the items with their
    SKUs, the amount to collect, and either the delivery address or "Collection by appointment"
    (free; message the customer to arrange a time). Replying to it emails the customer directly.
    The receipt PDF is attached, and the email ends with a "For your finance workbook" table: one row
