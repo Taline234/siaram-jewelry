@@ -108,16 +108,15 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           wishlists and orders. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Microsoft Outlook</strong> hosts our customer service mailbox.
+        <li><strong>Microsoft 365</strong> hosts our customer service mailbox (Outlook) and our order and accounting
+          workbook (Excel on OneDrive): order reference, date, pieces, amounts, payment method and customer name.
           <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Privacy statement</a></li>
         <li><strong>Google Fonts</strong> and <strong>jsDelivr</strong> deliver the website's fonts and sign-in library;
           your browser's request shares your IP address with them, but they set no cookies.</li>
         <li><strong>Wakilni</strong> (Lebanon), our courier, delivers orders and collects cash-on-delivery payments; it receives the
           recipient's name, phone number, delivery address and the amount to collect.</li>
         <li><strong>Whish Money</strong> (Lebanon) processes payment requests for made-to-order pieces and custom deposits.</li>
-        <li><strong>Google Sheets</strong> (Google) holds our order and accounting records: order reference, date, pieces,
-          amounts, payment method and customer name.
-          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
+
       </ul>
       <p>Technical logs kept by our hosting and database providers are kept for short periods set by those providers
         (typically days to weeks) for security and troubleshooting."""
