@@ -36,7 +36,7 @@ Pieces made to order (rose or white gold, or a piece that is out of stock) are p
 
 ## Cancellations before dispatch
 
-We do not offer an additional voluntary cancellation right for ordinary orders before dispatch. This does not affect any cancellation or refund right provided by law or eligibility under our Returns and exchanges policy. To request a cancellation, contact customerservice@siaramjewelry.com or the channel used to place the order. Personalised and bespoke orders follow the production and deposit rules in our Custom orders policy.
+You can cancel an order free of charge at any time before it is dispatched. To cancel, contact customerservice@siaramjewelry.com or the channel you used to place the order, with your order reference. If you have already paid anything, we refund it in the same way as an approved return, and any gift-voucher credit used goes back onto the voucher. Once an order has been dispatched it can no longer be cancelled, but our Returns and exchanges policy still applies. Custom pieces follow the deposit rules in our Custom orders policy. This does not affect any cancellation or refund right provided by law.
 
 ## Accounts and website use
 
@@ -104,7 +104,7 @@ We may photograph and share our pieces without identifying the customer. We will
 
 # Shipping and collection
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## Where we deliver
 
@@ -144,7 +144,7 @@ If an incorrect address, absence at an arranged delivery or refusal causes a fai
 
 # Returns and exchanges
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## Our 14 day offer
 
