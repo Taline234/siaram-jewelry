@@ -133,8 +133,9 @@ function renderForm(profile) {
         <p class="pay-option"><span><strong class="cash-title">Cash on delivery</strong><br /><span class="cash-text">You pay
           the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
         <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
-          jewellery, not delivery. We do not take card payments. After you place your order, we contact you to confirm it
-          before it is prepared.</p>
+          jewellery, not delivery. Pieces made to order (rose or white gold, or out of stock) are paid in full by Whish before
+          production; we send you a Whish payment request. We do not take card payments. You get an order received email now and another when
+          your order ships.</p>
       </fieldset>
 
       <fieldset class="checkout-confirm">
@@ -225,7 +226,7 @@ function showConfirmation(order) {
     <p class="order-ref">Your order reference is <strong>${escapeHtml(order.reference)}</strong></p>
     ${toPay}
     ${handover}
-    <p>We have received your order and will contact you to confirm it before it is prepared.</p>
+    <p>We have received your order. We will email you when it ships.</p>
     <p>A confirmation has been sent to ${escapeHtml(order.email)}.</p>
     <a href="shop.html" class="btn btn-outline">Continue Shopping</a>
   </div>`;

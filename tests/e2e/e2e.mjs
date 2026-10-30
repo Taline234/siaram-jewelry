@@ -125,7 +125,7 @@ const doneText = await page.locator('.order-done').textContent();
 const ref = doneText.match(/S\d{3,}/)[0];
 assert.match(doneText, /\$70\.00/);
 assert.match(doneText, /delivery fee of \$5\.00 is paid to the courier in cash/);
-assert.match(doneText, /contact you to confirm it before it is prepared/, 'the customer is told the order is not yet accepted');
+assert.match(doneText, /We will email you when it ships/, 'the customer is told what happens next');
 await shot('order-confirmation');
 const [guestOrder] = await q('select * from orders where reference = $1', [ref]);
 assert.ok(guestOrder.terms_accepted_at, 'the order records that the delivery and returns terms were accepted');
@@ -235,7 +235,7 @@ step(`signed-in checkout prefilled from profile + preferred address; collection 
 
 await page.goto(`${ORIGIN}/account.html#orders`);
 await page.waitForSelector('.order-card');
-assert.match(await page.locator('.order-card').textContent(), new RegExp(`${ref2}.*Received, awaiting confirmation`, 's'));
+assert.match(await page.locator('.order-card').textContent(), new RegExp(`${ref2}.*Order received`, 's'));
 assert.equal(await page.locator('.order-card').count(), 1, 'guest order by someone else is not shown');
 await shot('account-orders');
 step('order history shows the order and its status');

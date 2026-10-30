@@ -192,5 +192,5 @@ export function paymentInstructionsHtml(order) {
     ? `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash when you collect your order.
 We will contact you to confirm your order and arrange a time.</p>`
     : `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
-when your order arrives, plus the delivery fee. We will contact you to confirm your order before it is prepared.</p>`;
+when your order arrives, plus the delivery fee. We will email you when your order ships.</p>`;
 }

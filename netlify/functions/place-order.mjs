@@ -62,7 +62,7 @@ export default async (req) => {
         subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} cash (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
           `<p style="font-size:15px;line-height:1.6">Payment: cash ${saved.fulfilment === 'collection' ? 'at collection' : 'on delivery'}.
-            Status: received — please confirm the order with the customer${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
+            Status: received — new order to prepare${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
         attachments: [receiptFile].filter(Boolean),
       }),

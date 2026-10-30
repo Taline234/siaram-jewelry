@@ -87,9 +87,10 @@ Then fill in `js/store-config.js` with the Project URL and anon key, and redeplo
    The receipt PDF is attached, and the email ends with a "For your finance workbook" table: one row
    per piece in the order of the Sales tab's columns. The customer's email has the receipt and the
    care and warranty card attached (both drawn after the "Siaram Invoice" Canva template).
-2. New orders start as `received`: the customer has submitted it, and you have not accepted it yet.
-   Contact the customer to confirm, then open **Supabase → Table Editor → orders** and set the status
-   to `preparing` (or `cancelled` if it cannot go ahead).
+2. New orders start as `received`, and the customer has already had an "order received" email.
+   If the order has a made-to-order piece (rose or white gold, or out of stock), send the customer a
+   Whish payment request for it and start production once it clears. Then open **Supabase → Table
+   Editor → orders** and set the status to `preparing` (or `cancelled` if it cannot go ahead).
 3. Book the delivery with Wakilni as cash on delivery, for the order total plus the delivery fee (the
    email shows both); for a collection, take the cash at handover.
 4. Then set `dispatched` and `delivered` as the order moves along. Customers with an account see this

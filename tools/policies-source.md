@@ -1,6 +1,6 @@
 # Terms and conditions
 
-*Last updated 29 October 2026*
+*Last updated 30 October 2026*
 
 ## About Siaram
 
@@ -22,15 +22,15 @@ A written quotation is valid for 48 hours unless it states another expiry time. 
 
 ## Placing and accepting orders
 
-For website orders, your order is accepted when checkout and the required payment are successfully completed and an order confirmation is issued. Product availability and any made-to-order delivery estimate are shown before checkout. For message, appointment or event orders, we confirm the item, price, delivery or collection arrangements and required payment with you before accepting the order.
+For website orders, your order is accepted when checkout and the required payment are successfully completed and an order confirmation is issued. Product availability and any made-to-order delivery estimate are shown before checkout. For message, appointment or event orders, we confirm the item, price, delivery arrangements and required payment with you before accepting the order.
 
 Please check your contact details, delivery address, size and order details. Tell us promptly about an error. If we discover an availability or pricing error after acceptance, we will contact you and offer a correction for you to accept or a cancellation and refund of the affected order. We will not substitute an item or increase an accepted price without your agreement.
 
 ## Payment
 
-Available online payment methods are \[CONFIRMED CARD PROVIDER AND/OR WHISH PAYMENT METHOD\]. Follow our official checkout or payment link and do not send card numbers or security codes through messages.
+Website orders for pieces in stock are paid in cash to the courier on delivery, together with the courier's delivery fee. Gift-voucher credit is applied first.
 
-Ordinary orders delivered by courier must be paid in full before dispatch. The disclosed courier delivery fee is payable to the courier in cash. For collection or delivery personally by Siaram, the piece must be paid for in cash or by confirmed transfer at handover. We do not release an unpaid piece. Custom deposits and balances follow our Custom orders policy.
+Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment request. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom deposits and balances follow our Custom orders policy.
 
 # Terms and conditions continued
 

@@ -6,7 +6,7 @@ const root = document.getElementById('store-root');
 let client;
 
 const STATUS = {
-  received: 'Received, awaiting confirmation', awaiting_payment: 'Awaiting payment', paid: 'Paid', preparing: 'Being prepared',
+  received: 'Order received', awaiting_payment: 'Awaiting payment', paid: 'Paid', preparing: 'Being prepared',
   dispatched: 'On its way', delivered: 'Delivered', cancelled: 'Cancelled',
 };
 

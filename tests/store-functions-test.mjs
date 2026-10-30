@@ -63,7 +63,7 @@ test('guest order is saved and both emails are sent', async () => {
   const [customer, shop] = emails();
   assert.deepEqual(customer.to, ['rana@example.com']);
   assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the driver/);
-  assert.match(customer.html, /contact you to confirm your order/);
+  assert.match(customer.html, /email you when your order ships/);
   assert.match(customer.html, /Confirmed before dispatch, paid to the courier in cash/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
   assert.equal(shop.reply_to, 'rana@example.com');
