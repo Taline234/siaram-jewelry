@@ -238,7 +238,7 @@ assert set(D) == {p["slug"] for p in P}
 RING_SIZES = [(44, "3"), (45, "3.5"), (47, "4"), (48, "4.5"), (49, "5"), (50, "5.5"), (51, "6"), (52, "6.5"),
               (54, "7"), (55, "7.5"), (56, "8"), (58, "8.5"), (59, "9"), (61, "9.5"), (62, "10"),
               (63, "10.5"), (65, "11"), (66, "11.5"), (67, "12"), (69, "12.5"), (70, "13")]
-CUSTOM_WRISTS = range(13, 23)  # other chain lengths in cm
+CUSTOM_WRISTS = [n / 2 for n in range(22, 45)]  # other chain lengths, 11 to 22 cm in half-centimetre steps
 cm = lambda v: f"{v:g}"
 
 def size_options(d):
@@ -248,8 +248,9 @@ def size_options(d):
     if "wrist" in d:
         lo, hi = d["wrist"]
         std = f"{cm(lo)}&ndash;{cm(hi)} cm"
-        return ([(html.unescape(std), f"{std} (adjustable, standard)")]
-                + [(f"{n} cm", f"{n} cm") for n in CUSTOM_WRISTS if not lo <= n <= hi])
+        smaller = [(f"{cm(n)} cm", f"{cm(n)} cm") for n in CUSTOM_WRISTS if n < lo]
+        larger = [(f"{cm(n)} cm", f"{cm(n)} cm") for n in CUSTOM_WRISTS if n > hi]
+        return smaller + [(html.unescape(std), f"{std} (adjustable, standard)")] + larger
     return []
 
 for p in P:
@@ -405,6 +406,7 @@ def guide_dialog(p):
   <table class="size-table">
     <thead><tr><th>Your wrist</th><th>Close fit</th><th>Loose fit</th></tr></thead>
     <tbody>
+        <tr><td>11 cm</td><td>12 cm</td><td>13 cm</td></tr>
         <tr><td>12 cm</td><td>13 cm</td><td>14 cm</td></tr>
         <tr><td>13 cm</td><td>14 cm</td><td>15 cm</td></tr>
         <tr><td>14 cm</td><td>15 cm</td><td>16 cm</td></tr>

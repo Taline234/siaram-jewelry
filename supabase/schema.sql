@@ -93,19 +93,19 @@ alter table public.products add column if not exists sizes text[];
 -- product sizes start
 update public.products p set sizes = v.sizes
   from (values
-    ('horseshoe-bracelet', array['15–17 cm', '13 cm', '14 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
+    ('horseshoe-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15–17 cm', '17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
     ('horseshoe-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
     ('horse-eye-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
-    ('horse-eye-bracelet', array['16–17.5 cm', '13 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
-    ('curved-marquise-bracelet', array['15–17 cm', '13 cm', '14 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
+    ('horse-eye-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15 cm', '15.5 cm', '16–17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
+    ('curved-marquise-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15–17 cm', '17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
     ('fatima-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
-    ('moon-star-handchain', array['16–18 cm', '13 cm', '14 cm', '15 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
+    ('moon-star-handchain', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15 cm', '15.5 cm', '16–18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
     ('qamar-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
     ('crescent-moon-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
     ('sun-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
-    ('seahorse-pearl-bracelet', array['15–16 cm', '13 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
-    ('wave-bracelet', array['15–16.5 cm', '13 cm', '14 cm', '17 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
-    ('arrow-bracelet', array['16–17 cm', '13 cm', '14 cm', '15 cm', '18 cm', '19 cm', '20 cm', '21 cm', '22 cm']),
+    ('seahorse-pearl-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15–16 cm', '16.5 cm', '17 cm', '17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
+    ('wave-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15–16.5 cm', '17 cm', '17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
+    ('arrow-bracelet', array['11 cm', '11.5 cm', '12 cm', '12.5 cm', '13 cm', '13.5 cm', '14 cm', '14.5 cm', '15 cm', '15.5 cm', '16–17 cm', '17.5 cm', '18 cm', '18.5 cm', '19 cm', '19.5 cm', '20 cm', '20.5 cm', '21 cm', '21.5 cm', '22 cm']),
     ('arrow-open-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70']),
     ('arrow-ring', array['EU 44', 'EU 45', 'EU 47', 'EU 48', 'EU 49', 'EU 50', 'EU 51', 'EU 52', 'EU 54', 'EU 55', 'EU 56', 'EU 58', 'EU 59', 'EU 61', 'EU 62', 'EU 63', 'EU 65', 'EU 66', 'EU 67', 'EU 69', 'EU 70'])
   ) as v(slug, sizes)
