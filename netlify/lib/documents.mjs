@@ -1,4 +1,4 @@
-// The two PDFs sent with every order, drawn after the owner's own Canva receipts (e.g. "Siaram Jewelry Invoice S014"):
+// The two PDFs sent with every order, drawn after the owner's Canva brand template "Siaram Invoice":
 //   receiptPdf        the receipt: invoice number, customer, and each piece with SKU, materials,
 //                     size, price, quantity and totals (detailed enough for customs)
 //   careWarrantyPdf   the thank-you letter, the filled-in warranty card and the care guide
@@ -139,8 +139,8 @@ function iconText(p, f, name, str, x, y, size = 8) {
   return x + size + 6 + f.sans.widthOfTextAtSize(str, size);
 }
 
-// Columns as on the owner's receipt: Product (the SKU), Item Description, Price, Qty, Total.
-const COLS = [['Product', 70], ['Item Description', 247], ['Price', 70], ['Qty', 38], ['Total', 90]];
+// Columns as on the owner's "Siaram Invoice" brand template.
+const COLS = [['SKU', 52], ['Product', 112], ['Item Description', 183], ['Price', 62], ['Qty', 36], ['Total', 70]];
 const TABLE_W = COLS.reduce((s, [, w]) => s + w, 0);
 const MIN_ROWS = 8;
 
@@ -179,15 +179,14 @@ export async function receiptPdf(order, when = new Date()) {
   const lw = 160;
   const lh = (lw * logo.height) / logo.width;
   p.drawImage(logo, { x: W - M - lw, y: H - 34 - lh, width: lw, height: lh });
+  // Instagram and WhatsApp on one line; email with both addresses below, as on the template
+  const cx0 = W - M - lw + 6;
   let cy = H - 46 - lh;
-  const igW = 14 + f.sans.widthOfTextAtSize('@siaram.jewelry', 8);
-  const waW = 14 + f.sans.widthOfTextAtSize('+961 76 052 068', 8);
-  let cx = W - M - (igW + 16 + waW);
-  cx = iconText(p, f, 'instagram', '@siaram.jewelry', cx, cy) + 16;
+  const cx = iconText(p, f, 'instagram', '@siaram.jewelry', cx0, cy) + 14;
   iconText(p, f, 'whatsapp', '+961 76 052 068', cx, cy);
   cy -= 15;
-  const mail = 'customerservice@siaramjewelry.com';
-  iconText(p, f, 'email', mail, W - M - (14 + f.sans.widthOfTextAtSize(mail, 8)), cy);
+  iconText(p, f, 'email', 'customerservice@siaramjewelry.com', cx0, cy);
+  text(p, 'finance@siaramjewelry.com', cx0 + 14, cy - 11, f.sans, 8, C.ink);
 
   // Date, invoice number and bill-to, each on its own line, as on the owner's receipt
   let y = H - 132;
@@ -214,8 +213,9 @@ export async function receiptPdf(order, when = new Date()) {
   y = tableHeader(p, f, y);
   const items = order.items || [];
   for (const item of items) {
-    const lines = [item.name, ...wrap(itemDescription(item), f.serif, 9.5, COLS[1][1] - 14)];
-    const rowH = Math.max(26, lines.length * 12 + 12);
+    const name = wrap(item.name, f.serif, 10.5, COLS[1][1] - 12);
+    const lines = wrap(itemDescription(item), f.serif, 9.5, COLS[2][1] - 12);
+    const rowH = Math.max(26, Math.max(name.length, lines.length) * 12 + 12);
     if (y - rowH < 260) {
       p = whitePage(doc);
       y = tableHeader(p, f, H - M);
@@ -224,9 +224,11 @@ export async function receiptPdf(order, when = new Date()) {
     let x = M;
     text(p, item.sku || '', x + COLS[0][1] / 2, y - 16, f.sans, 8.5, C.ink, 'center');
     x += COLS[0][1];
-    lines.forEach((line, n) => text(p, line, x + 7, y - 16 - n * 12, f.serif, n === 0 ? 10.5 : 9.5, n === 0 ? C.green : C.ink));
+    name.forEach((line, n) => text(p, line, x + 6, y - 16 - n * 12, f.serif, 10.5, C.green));
     x += COLS[1][1];
-    [[money(item.unit_price), COLS[2][1]], [String(item.quantity), COLS[3][1]], [money(item.unit_price * item.quantity), COLS[4][1]]]
+    lines.forEach((line, n) => text(p, line, x + 6, y - 16 - n * 12, f.serif, 9.5, C.ink));
+    x += COLS[2][1];
+    [[money(item.unit_price), COLS[3][1]], [String(item.quantity), COLS[4][1]], [money(item.unit_price * item.quantity), COLS[5][1]]]
       .forEach(([v, w]) => { text(p, v, x + w / 2, y - 16, f.sans, 8.5, C.ink, 'center'); x += w; });
     y -= rowH;
   }
@@ -263,7 +265,9 @@ export async function receiptPdf(order, when = new Date()) {
   if (Number(order.voucher_amount) > 0) rows.push([`Gift voucher ${order.voucher_code}:`, `-${money(order.voucher_amount)}`]);
   rows.push(['Payment Method:', paymentLabel(order)]);
   rows.push(['Total:', money(order.total)]);
-  rows.push(['Delivery:', order.delivery_fee == null ? 'Paid to the courier' : `${money(order.delivery_fee)}, paid to the courier`]);
+  const until = new Date(when);
+  until.setFullYear(until.getFullYear() + 1);
+  rows.push(['Warranty valid until:', day(until)]);
   const bx = M + boxW + 22;
   const bw = W - M - bx;
   const bh = rows.length * 15 + 12;
@@ -345,10 +349,12 @@ export async function careWarrantyPdf(order, when = new Date()) {
     y = para(p, it, x + 18, y, cw - 18, f.serif, 15, C.green, 1.4);
   }
   // Footer as on the template: a QR code to Instagram, then WhatsApp and Instagram
-  p.drawImage(qr, { x: M + 20, y: 46, width: 62, height: 62 });
-  let fx = iconText(p, f, 'whatsapp', '+961 76 052 068', M + 110, 66, 9) + 30;
-  fx = iconText(p, f, 'instagram', 'SIARAM.JEWELRY', fx, 66, 9) + 30;
-  iconText(p, f, 'email', 'customerservice@siaramjewelry.com', fx, 66, 9);
+  p.drawImage(qr, { x: M + 20, y: 40, width: 74, height: 74 });
+  const fx = M + 108;
+  iconText(p, f, 'instagram', 'SIARAM.JEWELRY', fx, 100, 9);
+  iconText(p, f, 'whatsapp', '+961 76 052 068', fx, 80, 9);
+  iconText(p, f, 'email', 'customerservice@siaramjewelry.com', fx, 60, 9);
+  text(p, 'finance@siaramjewelry.com', fx + 15, 47, f.sans, 9, C.ink);
 
   return doc.save();
 }

@@ -103,7 +103,7 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
     method: 'POST',
     headers: { authorization: `Bearer ${env('RESEND_API_KEY')}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      from: env('STORE_EMAIL_FROM') || 'Siaram Jewelry <orders@siaramjewelry.com>',
+      from: env('STORE_EMAIL_FROM') || 'Siaram Jewelry <customerservice@siaramjewelry.com>',
       to: [to],
       subject,
       html,
