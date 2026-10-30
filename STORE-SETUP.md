@@ -65,7 +65,7 @@ In **Netlify → siaram-jewelry → Site configuration → Environment variables
 | `SUPABASE_URL` | the Supabase Project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | the Supabase **service_role** key (tick "Contains secret values") |
 | `RESEND_API_KEY` | the Resend API key (secret) |
-| `STORE_EMAIL_FROM` | `Siaram Jewelry <customerservice@siaramjewelry.com>` |
+| `STORE_EMAIL_FROM` | `Siaram Jewelry <orders@siaramjewelry.com>` |
 | `ORDER_NOTIFY_EMAIL` | `customerservice@siaramjewelry.com` (where new orders arrive) |
 | `SITE_URL` | `https://siaramjewelry.com` |
 
