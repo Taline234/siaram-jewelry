@@ -65,7 +65,7 @@ await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForSelector('.add-to-cart');
 assert.equal(await page.locator('.product-price').textContent(), '$120.00');
 assert.equal(await page.locator('.product-actions a[href^="mailto:"]').count(), 0);
-assert.match(await page.locator('.made-to-order-note').textContent(), /out of stock, it may take 3 to 4 weeks/);
+assert.match(await page.locator('.made-to-order-note').textContent(), /made to order: allow 3 to 4 weeks\. Made-to-order pieces are final sale\./);
 await page.click('.metal-choice:has([value=rose])');
 await page.selectOption('.product-buy .qty-select', '2');
 await page.click('.add-to-cart');
