@@ -20,6 +20,6 @@ jobs:
         with:
           version: latest
       - name: Deploy functions
-        run: supabase functions deploy --project-ref vdfxyjusmakqnpptniiy --use-api
+        run: supabase functions deploy --project-ref vdfxyjusmakqnpptniiy --use-api --yes
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
