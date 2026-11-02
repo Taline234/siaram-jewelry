@@ -81,6 +81,7 @@ await page.check('.custom-form [name=piece][value=Ring]', { force: true });
 await page.check('.custom-form [name=gold][value="Rose gold"]', { force: true });
 await page.check('.custom-form [name=stones][value=Diamond]', { force: true });
 await page.selectOption('.custom-form [name=cut]', 'Oval');
+await page.selectOption('.custom-form [name=setting]', 'Halo');
 await page.fill('.custom-form [name=size]', 'EU 54');
 await page.fill('.custom-form [name=description]', 'An oval diamond ring with my initials inside');
 await page.setInputFiles('.custom-form [name=files]', { name: 'sketch.png', mimeType: 'image/png', buffer: Buffer.from([137, 80, 78, 71]) });
@@ -91,9 +92,9 @@ assert.equal(await page.locator('.custom-form a[href="size-guide.html"]').count(
 await page.click('.custom-form button[type=submit]');
 await page.waitForSelector('.custom-done');
 assert.match(await page.locator('.custom-done').textContent(), /CR\d{3}/);
-const [customRow] = await q("select piece, gold, stones, cut, files from custom_requests where email = 'nour@example.com'");
-assert.deepEqual([customRow.piece, customRow.gold, customRow.stones, customRow.cut, customRow.files],
-  ['Ring', 'Rose gold', ['Diamond'], 'Oval', ['sketch.png']]);
+const [customRow] = await q("select piece, gold, stones, cut, setting, files from custom_requests where email = 'nour@example.com'");
+assert.deepEqual([customRow.piece, customRow.gold, customRow.stones, customRow.cut, customRow.setting, customRow.files],
+  ['Ring', 'Rose gold', ['Diamond'], 'Oval', 'Halo', ['sketch.png']]);
 const customMails = (await setState({})).emails.filter((e) => /Custom request|custom piece request/.test(e.subject));
 assert.equal(customMails.length, 2);
 assert.deepEqual(customMails.find((e) => e.to[0] === 'customerservice@siaramjewelry.com').attachments.map((a) => a.filename), ['sketch.png']);

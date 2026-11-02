@@ -10,6 +10,7 @@ const STONES = ['No stones', 'Diamond', 'White zircon', 'Black zircon', 'Emerald
   'Turquoise', 'Black onyx', 'Birthstone', 'My own stone', 'Other', 'Not sure, I need guidance'];
 const CUTS = ['Round brilliant', 'Oval', 'Princess', 'Cushion', 'Emerald cut', 'Pear', 'Marquise', 'Heart', 'Baguette',
   'Cabochon', 'Not sure yet'];
+const SETTINGS = ['Prong (claw)', 'Bezel', 'Pavé', 'Channel', 'Halo', 'Flush', 'Bar', 'Cluster', 'Not sure yet'];
 const BUDGETS = ['Under $500', '$500–$1,000', '$1,000–$2,000', 'Over $2,000', 'Not sure yet'];
 const MAX_FILES = 3;
 const MAX_FILE_BYTES = 8 * 1024 * 1024;
@@ -38,6 +39,7 @@ export default async (req) => {
       gold: oneOf(text(form, 'gold'), GOLDS),
       stones: form.getAll('stones').map(String).filter((s) => STONES.includes(s)),
       cut: oneOf(text(form, 'cut'), CUTS),
+      setting: oneOf(text(form, 'setting'), SETTINGS),
       size: text(form, 'size', 80),
       description: text(form, 'description', 4000),
       occasion: /^\d{4}-\d{2}-\d{2}$/.test(text(form, 'occasion')) ? text(form, 'occasion') : '',
@@ -59,7 +61,7 @@ export default async (req) => {
 
     const rows = [
       ['Piece', request.piece], ['Gold', request.gold], ['Stones', request.stones.join(', ') || '—'],
-      ['Cut', request.cut || '—'], ['Size', request.size || '—'], ['Occasion date', request.occasion || '—'],
+      ['Cut', request.cut || '—'], ['Setting', request.setting || '—'], ['Size', request.size || '—'], ['Occasion date', request.occasion || '—'],
       ['Budget', request.budget || '—'],
     ].map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b665a">${k}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
     const details = `<table role="presentation" style="font-size:15px;margin:8px 0 14px">${rows}</table>

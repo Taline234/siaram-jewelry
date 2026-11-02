@@ -1494,6 +1494,8 @@ legend {
 .cut-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 18px; margin: -14px 0 56px; }
 .cut-card { text-align: center; padding: 18px 10px; border: 1px solid var(--line); background: var(--ivory); }
 .cut-card svg { width: 54px; height: 54px; fill: none; stroke: var(--gold); stroke-width: 1.4; }
+.setting-grid { grid-template-columns: repeat(4, 1fr); }
+.cut-card svg .fill { fill: var(--gold); }
 .cut-card h3 { font-size: 1rem; letter-spacing: 0.06em; color: var(--green-deep); margin: 10px 0 6px; }
 .cut-card p { font-family: var(--font-serif); font-size: 0.92rem; line-height: 1.5; margin: 0; color: var(--green-mid); }
 .birth-table { max-width: 520px; }

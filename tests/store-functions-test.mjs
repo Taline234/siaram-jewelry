@@ -340,7 +340,7 @@ test('if the email fails, the order can be emailed again later', async () => {
 // ---------------------------------------------------------------- custom-piece requests
 function customForm(extra = {}) {
   const f = new FormData();
-  const fields = { piece: 'Ring', gold: 'Rose gold', cut: 'Oval', size: 'EU 54', description: 'An oval emerald ring',
+  const fields = { piece: 'Ring', gold: 'Rose gold', cut: 'Oval', setting: 'Bezel', size: 'EU 54', description: 'An oval emerald ring',
     name: 'Rana Haddad', email: 'rana@example.com', phone: '+961 70 000 000', budget: '$500–$1,000', ...extra };
   for (const [k, v] of Object.entries(fields)) f.append(k, v);
   f.append('stones', 'Emerald');
@@ -358,6 +358,7 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
   assert.deepEqual(saved.stones, ['Emerald'], 'only listed stones are kept');
   assert.deepEqual(saved.files, ['my sketch.png']);
+  assert.equal(saved.setting, 'Bezel');
   const [shop, customer] = emails();
   assert.equal(shop.subject, 'Custom request CR001 — Ring (Rana Haddad)');
   assert.equal(shop.reply_to, 'rana@example.com');

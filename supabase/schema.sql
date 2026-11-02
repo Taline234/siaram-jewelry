@@ -703,6 +703,7 @@ create table if not exists public.custom_requests (
   gold         text not null,
   stones       text[] not null default '{}',
   cut          text,
+  setting      text,
   size         text,
   description  text not null,
   occasion     date,
@@ -713,6 +714,7 @@ create table if not exists public.custom_requests (
   created_at   timestamptz not null default now()
 );
 alter table public.custom_requests enable row level security;
+alter table public.custom_requests add column if not exists setting text;
 alter table public.store_settings add column if not exists next_custom_number int not null default 1;
 
 create or replace function public.save_custom_request(p jsonb) returns jsonb
@@ -731,11 +733,11 @@ begin
   end if;
   update public.store_settings set next_custom_number = next_custom_number + 1 where id = 1
   returning 'CR' || lpad((next_custom_number - 1)::text, 3, '0') into v_ref;
-  insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, size, description,
+  insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, setting, size, description,
                                       occasion, budget, files)
   values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), p->>'piece', p->>'gold',
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'stones') x), '{}'),
-          nullif(p->>'cut', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
+          nullif(p->>'cut', ''), nullif(p->>'setting', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
           nullif(p->>'occasion', '')::date, nullif(p->>'budget', ''),
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'));
   return jsonb_build_object('reference', v_ref);
