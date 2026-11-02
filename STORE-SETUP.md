@@ -170,6 +170,22 @@ and download:
 - **Customers**: name, phone, email, address and "Website", in the Customers tab's columns A to G. Paste only names
   that are not there yet; the workbook matches customers by name.
 
+## Backups
+
+Every Sunday, `.github/workflows/backup-database.yml` copies the whole database and keeps the copy for 90 days
+(GitHub → **Actions → Weekly database backup** → a run → **Artifacts**). The repository is public, so each copy is
+locked with your passphrase; without it the file cannot be opened.
+
+Setup (once): in GitHub → **Settings → Secrets and variables → Actions → New repository secret**, add
+- `SUPABASE_DB_URL`: Supabase → **Connect** → **Session pooler** connection string, with your database password in
+  place of `[YOUR-PASSWORD]` (forgot it? Supabase → Project Settings → Database → Reset database password);
+- `BACKUP_PASSPHRASE`: a long passphrase you invent. Save it in your password manager: it is the only way to open
+  the backups.
+
+To open a copy: download the artifact, then in Terminal
+`gpg --decrypt siaram-backup-DATE.tar.gz.gpg | tar xz` (it asks for the passphrase). Restoring is a developer job:
+`structure.sql`, then `logins.sql`, then `data.sql`, into a fresh Supabase project.
+
 ## For developers
 
 - `supabase/schema.sql` — tables, access rules (row-level security) and business rules (`place_order`,

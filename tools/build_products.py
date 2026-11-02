@@ -17,7 +17,8 @@ shop = open("shop.html", encoding="utf-8").read()
 HEADER = shop[shop.index('<header class="site-header">'):shop.index("</header>") + len("</header>")]
 FOOTER = shop[shop.index('<footer class="site-footer">'):]
 
-def url_for(page): return BASE if page == "index.html" else BASE + page
+# Cloudflare serves /shop.html at /shop, so canonical links and the sitemap use the short address.
+def url_for(page): return BASE if page == "index.html" else BASE + page.removesuffix(".html")
 
 def seo_tags(page, title, desc, image, og_type, jsonld):
     t = html.escape(title, quote=True); d = html.escape(desc, quote=True)
@@ -279,13 +280,16 @@ def links(p):
     wa = f"https://wa.me/{WA}?text=" + quote(f"Hello Siaram, I'm interested in the {p['plain']}.")
     return html.escape(mail, quote=True), html.escape(wa, quote=True)
 
-# The Equestrian Collection is the bestseller: a badge on its cards and pages, and its own home section.
+# The horseshoe pieces (Equestrian Collection) are the bestsellers: a badge on their cards and pages,
+# and their own home section.
 BESTSELLER = "equestrian"
+BESTSELLERS = ["horseshoe-necklace", "horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring",
+               "horseshoe-chain-earrings"]
 BADGE = '<span class="card-badge">Bestseller</span>'
 
 def card(p):
     mail, _ = links(p)
-    badge = f"\n        {BADGE}" if p["coll"] == BESTSELLER else ""
+    badge = f"\n        {BADGE}" if p["slug"] in BESTSELLERS else ""
     return f"""      <article class="product-card" data-category="{p['cat'].lower()}" data-collection="{p['coll']}">{badge}
         <a href="{p['page']}" class="product-media" data-photos="{','.join(p['imgs'])}"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
         <div class="product-body">
@@ -461,7 +465,7 @@ for p in P:
         </div>
 {gallery_thumbs(p)}      </div>
       <div class="product-detail-info reveal">
-        <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["coll"] == BESTSELLER else ""}
+        <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["slug"] in BESTSELLERS else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
 {paras}
@@ -535,7 +539,7 @@ if BEST_GRID not in home:
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Bestsellers</span>
-      <h2>The Equestrian Collection</h2>
+      <h2>Our Horseshoe Pieces</h2>
       <p>{COLL[BESTSELLER][1]}</p>
     </div>
 
@@ -547,8 +551,7 @@ if BEST_GRID not in home:
 
 """ + featured, 1)
     open("index.html", "w", encoding="utf-8").write(home)
-replace_grid("index.html", [by[s] for s in ["horseshoe-necklace", "horseshoe-necklace-black-stone", "horseshoe-bracelet",
-                                            "horseshoe-ring", "horseshoe-chain-earrings", "horse-eye-necklace"]], BEST_GRID)
+replace_grid("index.html", [by[slug] for slug in BESTSELLERS], BEST_GRID)
 replace_grid("index.html", [by["eye-necklace"], by["fatima-necklace"], by["sun-ring"]])
 
 # ---- shop filters: type and collection
@@ -575,8 +578,8 @@ def edit(fname, pairs):
 # ---- sitemap
 s = open("sitemap.xml").read()
 s = re.sub(r"  <url><loc>https://siaramjewelry\.com/product-[^<]+</loc></url>\n", "", s)
-prod = "".join(f"  <url><loc>{BASE}{p['page']}</loc></url>\n" for p in P)
-s = s.replace(f"  <url><loc>{BASE}shop.html</loc></url>\n", f"  <url><loc>{BASE}shop.html</loc></url>\n" + prod)
+prod = "".join(f"  <url><loc>{url_for(p['page'])}</loc></url>\n" for p in P)
+s = s.replace(f"  <url><loc>{url_for('shop.html')}</loc></url>\n", f"  <url><loc>{url_for('shop.html')}</loc></url>\n" + prod)
 open("sitemap.xml", "w").write(s)
 
 # ---- database seed

@@ -1,0 +1,50 @@
+# Weekly copy of the store's database (products, stock, orders, customers, vouchers, mailing list, logins).
+# The repository is public, so the copy is locked with a password before it is stored: only someone with
+# BACKUP_PASSPHRASE can open it. Each copy is kept for 90 days under Actions -> this workflow -> the run.
+# Needs two repository secrets: SUPABASE_DB_URL (Supabase -> Connect -> Session pooler, with the database
+# password filled in) and BACKUP_PASSPHRASE. How to open a copy: STORE-SETUP.md, "Backups".
+name: Weekly database backup
+
+on:
+  schedule:
+    - cron: '17 2 * * 0'   # Sundays, 02:17 UTC
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the secrets are set
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          [ -n "$SUPABASE_DB_URL" ] || { echo "Add the SUPABASE_DB_URL repository secret."; exit 1; }
+          [ -n "$BACKUP_PASSPHRASE" ] || { echo "Add the BACKUP_PASSPHRASE repository secret."; exit 1; }
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Copy the database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          mkdir backup
+          supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/structure.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f backup/data.sql
+          supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --schema auth -f backup/logins.sql
+          ls -l backup
+      - name: Lock the copy with the passphrase
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          name="siaram-backup-$(date -u +%Y-%m-%d)"
+          tar czf - backup | gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" -o "$name.tar.gz.gpg"
+          rm -rf backup
+          echo "NAME=$name" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.NAME }}
+          path: ${{ env.NAME }}.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error

@@ -56,8 +56,9 @@ step('shop cards show prices and Add to Cart; unpriced pieces keep the email enq
 
 await page.goto(`${ORIGIN}/index.html`);
 await page.waitForSelector('.nav-store');
-assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 6, 'six Equestrian bestsellers on the home page');
-assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 6);
+assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 5, 'the five horseshoe bestsellers on the home page');
+assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 5);
+assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horse-eye-necklace"]').count(), 0);
 await page.fill('.newsletter-form [name=email]', 'not an email');
 await page.click('.newsletter-form button');
 assert.match(await page.locator('.newsletter-msg').textContent(), /valid email/);
@@ -70,7 +71,7 @@ assert.equal(sub.source, 'index.html');
 await page.fill('.newsletter-form [name=email]', 'maya@example.com');
 await page.click('.newsletter-form button');
 await page.waitForFunction(() => /already on our list/.test(document.querySelector('.newsletter-msg').textContent));
-step('home shows the Equestrian bestsellers; the footer sign-up saves the email once, with its consent wording');
+step('home shows the horseshoe bestsellers; the footer sign-up saves the email once, with its consent wording');
 
 await page.goto(`${ORIGIN}/product-horseshoe-ring.html`);
 await page.waitForSelector('.product-buy:not([hidden])');
