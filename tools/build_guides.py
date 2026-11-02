@@ -7,6 +7,8 @@ Builds the two guide pages, linked from product pages and the custom-order form:
 The page shell (header, footer) is copied from about.html, like the policy pages."""
 import re
 
+from gem_art import CUT_ART, DEFS, SETTING_ART, art
+
 BASE = "https://siaramjewelry.com/"
 TEMPLATE = open("about.html", encoding="utf-8").read()
 HEADER = TEMPLATE[:TEMPLATE.index("<section class=\"page-hero\">")]
@@ -180,45 +182,30 @@ STONES = [
     ("Black Onyx", "Deep black", "strength, focus and protection", "6.5&ndash;7", "Good for everyday wear."),
 ]
 
-# name, short description, SVG outline (in a 40 x 40 box)
+# name, short description (drawings are in gem_art.py)
 CUTS = [
-    ("Round brilliant", "The most popular cut, made for maximum sparkle.", '<circle cx="20" cy="20" r="15"/>'),
-    ("Oval", "A soft, elongated round that flatters the finger.", '<ellipse cx="20" cy="20" rx="11" ry="16"/>'),
-    ("Princess", "A square cut with brilliant sparkle and clean corners.", '<rect x="6" y="6" width="28" height="28"/>'),
-    ("Cushion", "A square with soft rounded corners; romantic and vintage.",
-     '<rect x="6" y="6" width="28" height="28" rx="8"/>'),
-    ("Emerald cut", "A long rectangle with cut corners and calm, mirror-like steps.",
-     '<polygon points="12,4 28,4 32,8 32,32 28,36 12,36 8,32 8,8"/>'),
-    ("Pear", "A teardrop, round at one end and pointed at the other.",
-     '<path d="M20 4 C30 16 32 22 32 26 A12 12 0 0 1 8 26 C8 22 10 16 20 4 Z"/>'),
-    ("Marquise", "A long boat shape with two points; it makes fingers look longer.",
-     '<path d="M20 3 C31 13 31 27 20 37 C9 27 9 13 20 3 Z"/>'),
-    ("Heart", "A romantic heart outline.",
-     '<path d="M20 34 C8 25 4 19 4 13 A8 8 0 0 1 20 10 A8 8 0 0 1 36 13 C36 19 32 25 20 34 Z"/>'),
-    ("Baguette", "A slim rectangle, often set beside a centre stone or in rows.",
-     '<rect x="12" y="4" width="16" height="32"/>'),
-    ("Cabochon", "Polished smooth and domed, without facets; used for turquoise, opal and onyx.",
-     '<ellipse cx="20" cy="20" rx="14" ry="11"/>'),
+    ('Round brilliant', 'The most popular cut, made for maximum sparkle.'),
+    ('Oval', 'A soft, elongated round that flatters the finger.'),
+    ('Princess', 'A square cut with brilliant sparkle and clean corners.'),
+    ('Cushion', 'A square with soft rounded corners; romantic and vintage.'),
+    ('Emerald cut', 'A long rectangle with cut corners and calm, mirror-like steps.'),
+    ('Pear', 'A teardrop, round at one end and pointed at the other.'),
+    ('Marquise', 'A long boat shape with two points; it makes fingers look longer.'),
+    ('Heart', 'A romantic heart outline.'),
+    ('Baguette', 'A slim rectangle, often set beside a centre stone or in rows.'),
+    ('Cabochon', 'Polished smooth and domed, without facets; used for turquoise, opal and onyx.'),
 ]
 
-# stone settings: name, short description, SVG drawing (in a 40 x 40 box)
+# stone settings: name, short description (drawings are in gem_art.py)
 SETTINGS = [
-    ('Prong (claw)', 'Small metal claws hold the stone and let in the most light; classic for solitaires.',
-     '<circle cx="20" cy="20" r="11"/><circle cx="28.5" cy="28.5" r="2.2" class="fill"/><circle cx="11.5" cy="28.5" r="2.2" class="fill"/><circle cx="11.5" cy="11.5" r="2.2" class="fill"/><circle cx="28.5" cy="11.5" r="2.2" class="fill"/>'),
-    ('Bezel', 'A thin rim of gold wraps around the stone; smooth, modern and very secure for everyday wear.',
-     '<circle cx="20" cy="20" r="10"/><circle cx="20" cy="20" r="14" stroke-width="3"/>'),
-    ('Pavé', 'Many tiny stones set close together, so the surface looks paved with sparkle.',
-     '<rect x="3" y="13" width="34" height="14" rx="2"/><circle cx="8" cy="17" r="2.2"/><circle cx="8" cy="23" r="2.2"/><circle cx="14" cy="17" r="2.2"/><circle cx="14" cy="23" r="2.2"/><circle cx="20" cy="17" r="2.2"/><circle cx="20" cy="23" r="2.2"/><circle cx="26" cy="17" r="2.2"/><circle cx="26" cy="23" r="2.2"/><circle cx="32" cy="17" r="2.2"/><circle cx="32" cy="23" r="2.2"/>'),
-    ('Channel', 'Stones sit in a row between two walls of gold, with no metal between them; sleek and snag-free.',
-     '<line x1="3" y1="13" x2="37" y2="13" stroke-width="2.4"/><line x1="3" y1="27" x2="37" y2="27" stroke-width="2.4"/><rect x="5" y="15.5" width="6" height="9"/><rect x="13" y="15.5" width="6" height="9"/><rect x="21" y="15.5" width="6" height="9"/><rect x="29" y="15.5" width="6" height="9"/>'),
-    ('Halo', 'A circle of small stones around a centre stone; it makes the centre look larger and brighter.',
-     '<circle cx="20" cy="20" r="8"/><circle cx="33.0" cy="20.0" r="2.2"/><circle cx="31.3" cy="26.5" r="2.2"/><circle cx="26.5" cy="31.3" r="2.2"/><circle cx="20.0" cy="33.0" r="2.2"/><circle cx="13.5" cy="31.3" r="2.2"/><circle cx="8.7" cy="26.5" r="2.2"/><circle cx="7.0" cy="20.0" r="2.2"/><circle cx="8.7" cy="13.5" r="2.2"/><circle cx="13.5" cy="8.7" r="2.2"/><circle cx="20.0" cy="7.0" r="2.2"/><circle cx="26.5" cy="8.7" r="2.2"/><circle cx="31.3" cy="13.5" r="2.2"/>'),
-    ('Flush', 'The stone sits level with the gold, almost hidden in the metal; minimal and very protected.',
-     '<rect x="3" y="12" width="34" height="16" rx="8"/><circle cx="20" cy="20" r="4.5"/><circle cx="20" cy="20" r="6.5" stroke-dasharray="1.5 1.5"/>'),
-    ('Bar', 'Stones in a row with a thin bar of gold between each one; open and airy.',
-     '<line x1="3" y1="13" x2="37" y2="13"/><line x1="3" y1="27" x2="37" y2="27"/><circle cx="8" cy="20" r="3.4"/><circle cx="16" cy="20" r="3.4"/><circle cx="24" cy="20" r="3.4"/><circle cx="32" cy="20" r="3.4"/><line x1="12" y1="13" x2="12" y2="27" stroke-width="2"/><line x1="20" y1="13" x2="20" y2="27" stroke-width="2"/><line x1="28" y1="13" x2="28" y2="27" stroke-width="2"/>'),
-    ('Cluster', 'Several stones grouped together to form one larger shape, often a flower.',
-     '<circle cx="20" cy="20" r="5"/><circle cx="30.5" cy="20.0" r="4.6"/><circle cx="25.2" cy="29.1" r="4.6"/><circle cx="14.8" cy="29.1" r="4.6"/><circle cx="9.5" cy="20.0" r="4.6"/><circle cx="14.7" cy="10.9" r="4.6"/><circle cx="25.2" cy="10.9" r="4.6"/>'),
+    ('Prong (claw)', 'Small metal claws hold the stone and let in the most light; classic for solitaires.'),
+    ('Bezel', 'A thin rim of gold wraps around the stone; smooth, modern and very secure for everyday wear.'),
+    ('Pavé', 'Many tiny stones set close together, so the surface looks paved with sparkle.'),
+    ('Channel', 'Stones sit in a row between two walls of gold, with no metal between them; sleek and snag-free.'),
+    ('Halo', 'A circle of small stones around a centre stone; it makes the centre look larger and brighter.'),
+    ('Flush', 'The stone sits level with the gold, almost hidden in the metal; minimal and very protected.'),
+    ('Bar', 'Stones in a row with a thin bar of gold between each one; open and airy.'),
+    ('Cluster', 'Several stones grouped together to form one larger shape, often a flower.'),
 ]
 
 BIRTHSTONES = [("January", "Garnet"), ("February", "Amethyst"), ("March", "Aquamarine"), ("April", "Diamond"),
@@ -238,16 +225,16 @@ stone_rows = "\n".join(f"""          <tr><th scope="row">{name}</th><td>{colours
             <td>{hard}</td><td>{note}</td></tr>""" for name, colours, meaning, hard, note in STONES)
 
 cut_cards = "\n".join(f"""      <div class="cut-card reveal">
-        <svg viewBox="0 0 40 40" aria-hidden="true">{svg}</svg>
+        {art(CUT_ART[name], name + " cut")}
         <h3>{name}</h3>
         <p>{desc}</p>
-      </div>""" for name, desc, svg in CUTS)
+      </div>""" for name, desc in CUTS)
 
 setting_cards = "\n".join(f"""      <div class="cut-card setting-card reveal">
-        <svg viewBox="0 0 40 40" aria-hidden="true">{svg}</svg>
+        {art(SETTING_ART[name], name + " setting")}
         <h3>{name}</h3>
         <p>{desc}</p>
-      </div>""" for name, desc, svg in SETTINGS)
+      </div>""" for name, desc in SETTINGS)
 
 birth_rows = "\n".join(f"          <tr><td>{m}</td><td>{s}</td></tr>" for m, s in BIRTHSTONES)
 
@@ -279,6 +266,7 @@ materials_body = f"""
       <p class="size-guide-note">You can also bring a stone you already own; we will check it can be set safely.</p>
     </div>
 
+    {DEFS}
     <div class="guide-section reveal" id="cuts">
       <h2>Cuts</h2>
       <p>The cut is the shape a stone is given. It changes how the stone catches the light and how the piece looks on you.</p>
