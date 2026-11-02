@@ -122,7 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.size-guide-open').forEach((btn) => {
     const dialog = document.getElementById(`size-guide-${btn.dataset.guide}`);
     if (!dialog) return;
-    btn.addEventListener('click', () => dialog.showModal());
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); // guide links on the Custom page fall back to the guide pages without JavaScript
+      dialog.showModal();
+    });
     dialog.querySelector('.size-guide-close').addEventListener('click', () => dialog.close());
     // A click on the dimmed backdrop closes it too
     dialog.addEventListener('click', (e) => {
