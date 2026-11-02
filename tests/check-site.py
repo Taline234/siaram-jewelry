@@ -108,7 +108,9 @@ def check_page(path: str, all_failures: list):
         target_path = href.split("#")[0].split("?")[0]
         if not target_path:
             continue
-        resolved = os.path.normpath(os.path.join(page_dir, target_path))
+        # "/x.html" is relative to the site root (used by 404.html, which can appear at any address).
+        resolved = os.path.normpath(os.path.join(ROOT, target_path.lstrip("/")) if target_path.startswith("/")
+                                    else os.path.join(page_dir, target_path))
         if not os.path.isfile(resolved):
             all_failures.append(f"{rel_path}:{line}: broken link -> {href}")
 
@@ -118,7 +120,8 @@ def check_page(path: str, all_failures: list):
             continue
         if is_external_or_special(src):
             continue
-        resolved = os.path.normpath(os.path.join(page_dir, src))
+        resolved = os.path.normpath(os.path.join(ROOT, src.lstrip("/")) if src.startswith("/")
+                                    else os.path.join(page_dir, src))
         if not os.path.isfile(resolved):
             all_failures.append(f"{rel_path}:{line}: broken image -> {src}")
         if not alt or not alt.strip():

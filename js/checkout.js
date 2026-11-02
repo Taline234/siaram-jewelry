@@ -1,6 +1,6 @@
 // Checkout page: guest, sign-in or new-account checkout, Lebanon-only delivery, gift vouchers, cash payment.
 import {
-  escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
+  apiUrl, escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -171,7 +171,7 @@ async function applyVoucher() {
   }
   msg.textContent = 'Checking…';
   try {
-    const res = await fetch('/api/check-voucher', {
+    const res = await fetch(apiUrl('check-voucher'), {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ code, email: form.elements.email.value.trim(), phone: form.elements.phone.value.trim() }),
     });
@@ -238,7 +238,7 @@ async function submit(e) {
   try {
     const headers = { 'content-type': 'application/json' };
     if (state.session) headers.authorization = `Bearer ${state.session.access_token}`;
-    const res = await fetch('/api/place-order', { method: 'POST', headers, body: JSON.stringify(payload) });
+    const res = await fetch(apiUrl('place-order'), { method: 'POST', headers, body: JSON.stringify(payload) });
     const body = await res.json();
     if (!res.ok) throw new Error(body.error);
 

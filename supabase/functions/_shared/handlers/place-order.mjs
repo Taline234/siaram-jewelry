@@ -1,9 +1,9 @@
-// POST /api/place-order — validates and saves an order, then emails the shop and the customer.
+// POST /functions/v1/place-order — validates and saves an order, then emails the shop and the customer.
 import {
-  CustomerError, configured, emailLayout, escapeHtml, financeRowsHtml, json, orderSummaryHtml, readJson,
+  CustomerError, configured, emailLayout, env, escapeHtml, financeRowsHtml, json, orderSummaryHtml, readJson,
   paymentInstructionsHtml, rpc, sendEmail, userFromRequest,
-} from '../lib/store.mjs';
-import { careWarrantyPdf, receiptPdf } from '../lib/documents.mjs';
+} from '../store.mjs';
+import { careWarrantyPdf, receiptPdf } from '../documents.mjs';
 
 const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code', 'submission_id'];
 
@@ -34,7 +34,7 @@ export default async (req) => {
     // A repeated submission of the same checkout: the order and its emails already exist.
     if (saved.duplicate) return json({ order: saved });
 
-    const notify = process.env.ORDER_NOTIFY_EMAIL;
+    const notify = env('ORDER_NOTIFY_EMAIL');
     // The receipt and the care and warranty card, from the owner's Canva template. If they cannot be
     // drawn, the emails still go out without them: the order is already saved.
     let receipt = null;
@@ -75,5 +75,3 @@ export default async (req) => {
     return json({ error: 'Sorry, something went wrong placing your order. Please try again or contact us.' }, 500);
   }
 };
-
-export const config = { path: '/api/place-order' };

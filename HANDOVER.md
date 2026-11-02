@@ -4,10 +4,10 @@ Everything needed to keep working on the site is in this repository. Start a new
 on it and say "read HANDOVER.md first".
 
 ## What the site is
-- Plain HTML/CSS/JS, hosted on Netlify (publish directory is the repository root, no build step).
-- Online store: Supabase (database + customer logins), Netlify Functions (`netlify/functions/`) and
-  Resend (order emails). It stays **switched off** until `js/store-config.js` holds the Supabase URL and
-  anon key. Setup steps: `STORE-SETUP.md`.
+- Plain HTML/CSS/JS, hosted on Cloudflare Pages (build `bash tools/build-site.sh`, output `dist/`), all on
+  free plans. Netlify is being retired; `netlify.toml` can be deleted once the domain points to Cloudflare.
+- Online store: Supabase (database, customer logins and the Edge Functions in `supabase/functions/`, deployed
+  by `.github/workflows/deploy-functions.yml`) and Resend (order emails). Setup steps: `STORE-SETUP.md`.
 - Tests: `python3 tests/check-site.py`, `node --test tests/store-functions-test.mjs`,
   `tests/run-store-db-test.sh` (Postgres), `tests/e2e/run.sh` (Chromium + Postgres).
 
@@ -37,6 +37,5 @@ on it and say "read HANDOVER.md first".
   ("Siaram Shoot July 2026").
 
 ## Where things stand
-- All work is on the branch `claude/clever-newton-ss0xqg`, pull request #1 (green, ready to merge).
-- Next: merge the PR, then follow `STORE-SETUP.md` (Supabase → Resend + name.com DNS → Netlify
-  environment variables → put the Supabase URL and anon key in `js/store-config.js` → test order).
+- The store is live (website orders from S017). Moving hosting from Netlify to Cloudflare Pages and the
+  order code to Supabase Edge Functions: see `STORE-SETUP.md` sections 3 and 4.

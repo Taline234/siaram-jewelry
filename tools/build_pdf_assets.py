@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Run from anywhere:  python3 tools/build_pdf_assets.py
 
-Pack the fonts in netlify/lib/fonts, the logo (recoloured to the brand green) and a QR code to
-Instagram into netlify/lib/pdf-assets.mjs, so the order documents (receipt, care and warranty) can be
-drawn by the Netlify function without reading files. Needs Pillow and qrcode (pip install qrcode)."""
+Pack the fonts in tools/pdf-fonts, the logo (recoloured to the brand green) and a QR code to
+Instagram into supabase/functions/_shared/pdf-assets.mjs, so the order documents (receipt, care and warranty) can be
+drawn by the order function without reading files. Needs Pillow and qrcode (pip install qrcode)."""
 import base64, io, os
 
 import qrcode
@@ -11,10 +11,10 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FILES = {
-    "serif": "netlify/lib/fonts/cormorant-garamond-latin-500-normal.woff",
-    "serifItalic": "netlify/lib/fonts/cormorant-garamond-latin-400-italic.woff",
-    "sans": "netlify/lib/fonts/jost-latin-400-normal.woff",
-    "sansMedium": "netlify/lib/fonts/jost-latin-500-normal.woff",
+    "serif": "tools/pdf-fonts/cormorant-garamond-latin-500-normal.woff",
+    "serifItalic": "tools/pdf-fonts/cormorant-garamond-latin-400-italic.woff",
+    "sans": "tools/pdf-fonts/jost-latin-400-normal.woff",
+    "sansMedium": "tools/pdf-fonts/jost-latin-500-normal.woff",
 }
 GREEN = (10, 59, 46)
 INSTAGRAM = "https://www.instagram.com/siaram.jewelry/"
@@ -46,5 +46,5 @@ for key, path in FILES.items():
 out.append(f"  logo: '{base64.b64encode(green_logo()).decode()}',")
 out.append(f"  instagramQr: '{base64.b64encode(instagram_qr()).decode()}',")
 out.append("};\n")
-open(os.path.join(ROOT, "netlify/lib/pdf-assets.mjs"), "w").write("\n".join(out))
+open(os.path.join(ROOT, "supabase/functions/_shared/pdf-assets.mjs"), "w").write("\n".join(out))
 print("ok")

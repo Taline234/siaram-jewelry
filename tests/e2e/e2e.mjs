@@ -310,7 +310,7 @@ assert.equal(sw, 390, 'no horizontal scroll on phone');
 step('mobile layout has no horizontal scroll');
 
 console.log('   failed requests:', failed);
-const expected = ['400 /api/check-voucher', '400 /sb/auth/v1/token?grant_type=password'];
+const expected = ['400 /sb/functions/v1/check-voucher', '400 /sb/auth/v1/token?grant_type=password'];
 assert.deepEqual(failed, expected, 'only the deliberate failures (expired voucher, wrong password)');
 assert.deepEqual(errors.filter((e) => !/Failed to load resource/.test(e)), []);
 step('no JavaScript errors');

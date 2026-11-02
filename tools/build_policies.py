@@ -94,13 +94,13 @@ def fill(text):
 
 PROVIDERS = """<p>Other main providers and processing locations are:</p>
       <ul>
-        <li><strong>Netlify</strong> (United States) hosts the website and runs our order functions.
-          <a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Supabase</strong> (database hosted in the European Union) stores accounts, saved addresses,
-          wishlists and orders. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><strong>Cloudflare</strong> (global network) hosts the website.
+          <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists and
+          orders, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Microsoft 365</strong> hosts our customer service mailbox (Outlook) and our order and accounting
+        <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook) and our order and accounting
           workbook (Excel on OneDrive): order reference, date, pieces, amounts, payment method and customer name.
           <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Privacy statement</a></li>
         <li><strong>Google Fonts</strong> and <strong>jsDelivr</strong> deliver the website's fonts and sign-in library;

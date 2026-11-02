@@ -1,4 +1,4 @@
-// Local test server: static site + Netlify functions + a small Supabase stand-in
+// Local test server: static site + the store's Edge Functions + a small Supabase stand-in
 // (auth + PostgREST subset) backed by the real local Postgres with the real schema and RLS.
 import http from 'node:http';
 import fs from 'node:fs';
@@ -31,10 +31,12 @@ globalThis.fetch = async (url, init) => {
   return realFetch(url, init);
 };
 
+// The store's Supabase Edge Functions, served where Supabase serves them: /functions/v1/<name>.
+const { withCors } = await import(`${REPO}/supabase/functions/_shared/http.mjs`);
 const functions = {};
-for (const f of fs.readdirSync(`${REPO}/netlify/functions`)) {
-  const mod = await import(`${REPO}/netlify/functions/${f}`);
-  if (mod.config?.path) functions[mod.config.path] = mod.default;
+for (const f of fs.readdirSync(`${REPO}/supabase/functions/_shared/handlers`)) {
+  const mod = await import(`${REPO}/supabase/functions/_shared/handlers/${f}`);
+  functions[`/sb/functions/v1/${f.replace('.mjs', '')}`] = withCors(mod.default);
 }
 
 // ---------------------------------------------------------------- auth stand-in

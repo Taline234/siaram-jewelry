@@ -4,8 +4,9 @@ The website now has a cart, checkout, customer accounts and wishlists. **Until t
 site keeps working exactly as before** (catalogue prices shown, "Enquire by Email" buttons only, no cart), so it is safe to
 publish first and set up afterwards.
 
-You will create two free accounts (Supabase and Resend), add a few DNS records at name.com, and paste
-some keys into Netlify. Allow about an hour.
+Everything runs on free plans: **Cloudflare Pages** shows the website, **Supabase** stores the data and runs
+the order code (placing orders, receipts, vouchers, the Workbook download, the daily account job), and
+**Resend** sends the automatic emails. Updates pushed to GitHub go live on their own.
 
 ---
 
@@ -28,13 +29,14 @@ some keys into Netlify. Allow about an hour.
 4. Open **Authentication → URL Configuration**:
    - Site URL: `https://siaramjewelry.com`
    - Redirect URLs: add `https://siaramjewelry.com/account.html` and
-     `https://deploy-preview-*--siaram-jewelry.netlify.app/**` (so previews work too).
+     `https://*.siaram-jewelry.pages.dev/**` (so Cloudflare previews work too).
 5. Open **Project Settings → API keys** and note the keys below. If Supabase shows a **Legacy API keys** tab, use the
    **anon** and **service_role** keys from there (the website code is tested with those; a new-style `sb_secret_…`
    key also works for the server key):
    - **Project URL** and **anon / public key** → these go in `js/store-config.js` (send them to Claude,
      or paste them in yourself). They are safe to publish.
-   - **service_role key** → **secret**. It goes only into Netlify (step 3). Never paste it in the website files or send it by email.
+   - **service_role key** → **secret**. Supabase gives it to the order code by itself, so you never need to copy
+     it anywhere. Never paste it in the website files or send it by email.
 
 ## 2. Resend — sending order emails from your domain
 
@@ -56,21 +58,36 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
    - Host `smtp.resend.com`, port `465`, username `resend`, password = the Resend API key
    - Sender email `orders@siaramjewelry.com`, sender name `Siaram Jewelry`
 
-## 3. Netlify — connect the website to the store
+## 3. Supabase — the order code and its settings
 
-In **Netlify → siaram-jewelry → Site configuration → Environment variables**, add:
+1. **Secrets** (Supabase → **Edge Functions → Secrets**, or Project Settings → Edge Functions): add
 
-| Key | Value |
-|---|---|
-| `SUPABASE_URL` | the Supabase Project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | the Supabase **service_role** key (tick "Contains secret values") |
-| `RESEND_API_KEY` | the Resend API key (secret) |
-| `STORE_EMAIL_FROM` | `Siaram Jewelry <orders@siaramjewelry.com>` |
-| `ORDER_NOTIFY_EMAIL` | `customerservice@siaramjewelry.com` (where new orders arrive) |
-| `SITE_URL` | `https://siaramjewelry.com` |
+   | Name | Value |
+   |---|---|
+   | `RESEND_API_KEY` | the Resend API key (secret) |
+   | `STORE_EMAIL_FROM` | `Siaram Jewelry <orders@siaramjewelry.com>` |
+   | `ORDER_NOTIFY_EMAIL` | `customerservice@siaramjewelry.com` (where new orders arrive) |
+   | `SITE_URL` | `https://siaramjewelry.com` |
 
-Then fill in `js/store-config.js` with the Project URL and anon key, and redeploy
-(**Deploys → Trigger deploy**). The cart and account icons appear in the header once this is live.
+   `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided by Supabase automatically.
+2. **Automatic updates of the order code**: Supabase → your avatar → **Account → Access Tokens → Generate new
+   token** (name it `GitHub`). In GitHub → the repository → **Settings → Secrets and variables → Actions → New
+   repository secret**, name `SUPABASE_ACCESS_TOKEN`, paste the token. From then on, every change to
+   `supabase/functions` on `main` is sent to Supabase by `.github/workflows/deploy-functions.yml`
+   (GitHub → **Actions** shows each run; **Run workflow** sends it by hand).
+3. **Daily account job**: run [`supabase/cron.sql`](supabase/cron.sql) once in the SQL Editor. It asks the
+   database to call the `inactive-accounts` function every night, which also keeps the free project awake.
+
+## 4. Cloudflare Pages — the website
+
+1. Sign up at <https://dash.cloudflare.com> → **Workers & Pages → Create → Pages → Connect to Git** → choose the
+   `siaram-jewelry` repository.
+2. Production branch `main`; framework preset **None**; build command `bash tools/build-site.sh`;
+   build output directory `dist`. **Save and Deploy.** The site appears at `siaram-jewelry.pages.dev`.
+3. **Custom domains → Set up a custom domain** → `siaramjewelry.com` (and `www.siaramjewelry.com`), and follow
+   Cloudflare's instructions for name.com. Keep your existing MX records so Outlook email keeps working.
+
+`js/store-config.js` holds the Supabase Project URL and anon key; both are safe to publish.
 
 **Before announcing:** place a test order yourself, check both emails arrive (yours and the
 "customer's"), then set that test order's status to `cancelled` in Supabase.
@@ -131,8 +148,8 @@ records are kept.
 ---
 
 **Finance workbook backup download** — sign in on the website's **My Account** page with your shop email
-(siaramjewelry@hotmail.com, finance@ or customerservice@siaramjewelry.com; to use other emails, set `OWNER_EMAILS`
-in Netlify to a comma-separated list). A **Workbook** tab appears only for you. Pick dates (or none for everything)
+(siaramjewelry@hotmail.com, finance@ or customerservice@siaramjewelry.com; to use other emails, add an `OWNER_EMAILS`
+secret in Supabase with a comma-separated list). A **Workbook** tab appears only for you. Pick dates (or none for everything)
 and download:
 - **Sales**: one row per piece in the Sales tab's columns A to Z, with the formula columns left empty. Copy the rows
   under the heading, click column A of the first empty Sales row, then Paste Special → Values with **Skip blanks**
@@ -144,7 +161,10 @@ and download:
 
 - `supabase/schema.sql` — tables, access rules (row-level security) and business rules (`place_order`,
   vouchers, 18+, inactivity). Safe to re-run.
-- `netlify/functions/` — `place-order`, `check-voucher`, `delete-account`, and the daily `inactive-accounts` job.
+- `supabase/functions/` — Supabase Edge Functions: `place-order`, `check-voucher`, `delete-account`, `export-sales`
+  and the daily `inactive-accounts` job (started by `supabase/cron.sql`). Each `index.ts` is a two-line entry point;
+  the code is in `_shared/handlers/`, which the Node tests import directly.
+- `tools/build-site.sh` — Cloudflare Pages build: copies the public files into `dist/`.
 - `js/store.js`, `cart.js`, `checkout.js`, `account.js` — browser code; does nothing until `js/store-config.js` is filled in.
 - Tests: `python3 tests/check-site.py` · `node --test tests/store-functions-test.mjs` · `tests/run-store-db-test.sh` (needs Postgres) ·
   `tests/e2e/run.sh` (needs Postgres + Chromium).

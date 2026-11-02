@@ -1,5 +1,5 @@
-// POST /api/check-voucher — tells the checkout whether a gift voucher can be used, and its balance.
-import { CustomerError, configured, json, readJson, rpc } from '../lib/store.mjs';
+// POST /functions/v1/check-voucher — tells the checkout whether a gift voucher can be used, and its balance.
+import { CustomerError, configured, json, readJson, rpc } from '../store.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -18,5 +18,3 @@ export default async (req) => {
     return json({ error: 'Could not check this voucher right now. Please try again.' }, 500);
   }
 };
-
-export const config = { path: '/api/check-voucher' };
