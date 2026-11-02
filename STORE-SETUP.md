@@ -29,7 +29,7 @@ the order code (placing orders, receipts, vouchers, the Workbook download, the d
 4. Open **Authentication → URL Configuration**:
    - Site URL: `https://siaramjewelry.com`
    - Redirect URLs: add `https://siaramjewelry.com/account.html` and
-     `https://*.siaram-jewelry.pages.dev/**` (so Cloudflare previews work too).
+     the Cloudflare address shown after the first deploy (`https://siaram-jewelry.<account>.workers.dev/**`).
 5. Open **Project Settings → API keys** and note the keys below. If Supabase shows a **Legacy API keys** tab, use the
    **anon** and **service_role** keys from there (the website code is tested with those; a new-style `sb_secret_…`
    key also works for the server key):
@@ -80,10 +80,10 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
 
 ## 4. Cloudflare Pages — the website
 
-1. Sign up at <https://dash.cloudflare.com> → **Workers & Pages → Create → Pages → Connect to Git** → choose the
-   `siaram-jewelry` repository.
-2. Production branch `main`; framework preset **None**; build command `bash tools/build-site.sh`;
-   build output directory `dist`. **Save and Deploy.** The site appears at `siaram-jewelry.pages.dev`.
+1. In <https://dash.cloudflare.com> → **Workers & Pages → Create** → import the `siaram-jewelry` GitHub repository.
+2. Project name `siaram-jewelry`; build command `bash tools/build-site.sh`; deploy command `npx wrangler deploy`
+   (the settings are in `wrangler.jsonc`: the files in `dist/` are served as they are, with `404.html` for unknown
+   addresses). The site appears at `siaram-jewelry.<account>.workers.dev`.
 3. **Custom domains → Set up a custom domain** → `siaramjewelry.com` (and `www.siaramjewelry.com`), and follow
    Cloudflare's instructions for name.com. Keep your existing MX records so Outlook email keeps working.
 
