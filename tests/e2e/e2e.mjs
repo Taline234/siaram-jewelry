@@ -54,6 +54,25 @@ assert.equal(await page.locator('.nav-store .cart-count').textContent(), '1');
 await page.evaluate(() => localStorage.clear());
 step('shop cards show prices and Add to Cart; unpriced pieces keep the email enquiry');
 
+await page.goto(`${ORIGIN}/index.html`);
+await page.waitForSelector('.nav-store');
+assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 5, 'the five horseshoe bestsellers on the home page');
+assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 5);
+assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horse-eye-necklace"]').count(), 0);
+await page.fill('.newsletter-form [name=email]', 'not an email');
+await page.click('.newsletter-form button');
+assert.match(await page.locator('.newsletter-msg').textContent(), /valid email/);
+await page.fill('.newsletter-form [name=email]', 'Maya@Example.com');
+await page.click('.newsletter-form button');
+await page.waitForFunction(() => /on the list/.test(document.querySelector('.newsletter-msg').textContent));
+const [sub] = await q("select status, source, consent_wording from newsletter_subscribers where email = 'maya@example.com'");
+assert.equal(sub.status, 'subscribed');
+assert.equal(sub.source, 'index.html');
+await page.fill('.newsletter-form [name=email]', 'maya@example.com');
+await page.click('.newsletter-form button');
+await page.waitForFunction(() => /already on our list/.test(document.querySelector('.newsletter-msg').textContent));
+step('home shows the horseshoe bestsellers; the footer sign-up saves the email once, with its consent wording');
+
 await page.goto(`${ORIGIN}/product-horseshoe-ring.html`);
 await page.waitForSelector('.product-buy:not([hidden])');
 assert.equal(await page.locator('.add-to-cart').count(), 0);

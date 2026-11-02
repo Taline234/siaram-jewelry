@@ -146,10 +146,11 @@ def main():
     for filename in html_files:
         with open(os.path.join(ROOT, filename), "r", encoding="utf-8") as f:
             if '<meta name="robots" content="noindex"' in f.read():
-                if f"/{filename}</loc>" in sitemap:
+                if f"/{filename.removesuffix('.html')}</loc>" in sitemap:
                     failures.append(f"sitemap.xml: lists noindex page {filename}")
                 continue
-        loc = "/</loc>" if filename == "index.html" else f"/{filename}</loc>"
+        # Cloudflare serves /shop.html at /shop, so the sitemap lists the short address.
+        loc = "/</loc>" if filename == "index.html" else f"/{filename.removesuffix('.html')}</loc>"
         if loc not in sitemap:
             failures.append(f"sitemap.xml: missing {filename}")
 

@@ -326,6 +326,16 @@ section { padding: 96px 0; }
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
 .product-card.in-view { opacity: 1; transform: translateY(0); }
+.product-card { position: relative; }
+/* "Bestseller" on Equestrian Collection cards and pages. */
+.card-badge {
+  display: inline-block; font-family: var(--font-sans); font-size: 0.62rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--green-deep); background: var(--ivory); border: 1px solid var(--gold);
+  padding: 5px 10px; line-height: 1;
+}
+.product-card > .card-badge { position: absolute; top: 14px; left: 14px; z-index: 2; }
+.product-detail-info .card-badge { margin-left: 10px; vertical-align: middle; }
+.section-cta { text-align: center; margin-top: 44px; }
 
 .product-media {
   aspect-ratio: 1 / 1;
@@ -831,6 +841,28 @@ a.product-media { display: block; }
   background: var(--green-deep);
   color: var(--cream);
   padding: 64px 0 28px;
+}
+.footer-newsletter {
+  display: grid; grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: start;
+  padding-bottom: 44px; margin-bottom: 44px; border-bottom: 1px solid rgba(243, 237, 226, 0.15);
+}
+.footer-newsletter h4 { margin-bottom: 10px; }
+.footer-newsletter-text p { font-family: var(--font-serif); color: var(--cream-soft); line-height: 1.6; margin: 0; max-width: 420px; }
+.newsletter-row { display: flex; gap: 10px; }
+.newsletter-row input[type=email] {
+  flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid rgba(243, 237, 226, 0.4); background: transparent;
+  color: var(--cream-soft); font-family: var(--font-sans); font-size: 0.9rem;
+}
+.newsletter-row input[type=email]::placeholder { color: rgba(243, 237, 226, 0.6); }
+.newsletter-row .btn { white-space: nowrap; background: var(--gold); border-color: var(--gold); color: var(--green-deep); }
+.newsletter-consent { font-family: var(--font-sans); font-size: 0.72rem; line-height: 1.6; color: rgba(243, 237, 226, 0.75); margin: 10px 0 0; }
+.newsletter-consent a { color: var(--cream-soft); text-decoration: underline; }
+.newsletter-msg { font-family: var(--font-sans); font-size: 0.82rem; color: var(--gold-soft); margin: 8px 0 0; min-height: 1em; }
+/* Without the online store set up, the form cannot send anything, so it is hidden. */
+html:not(.store-on) .footer-newsletter { display: none; }
+@media (max-width: 760px) {
+  .footer-newsletter { grid-template-columns: 1fr; gap: 18px; }
+  .newsletter-row { flex-direction: column; }
 }
 .footer-grid {
   display: grid;

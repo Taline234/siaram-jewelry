@@ -121,6 +121,11 @@ empty for necklaces and earrings, `EU 54` for rings, the length as listed on the
 a piece off automatically, and setting an order to `cancelled` puts it back. When you sell on Instagram,
 WhatsApp or in person, lower the quantity yourself; when new pieces arrive, add a row (**Insert**) or raise it.
 
+**Mailing list** — sign-ups from the footer form are in **Table Editor → newsletter_subscribers**, each with the
+consent wording, date and page. To unsubscribe someone, set **status** to `unsubscribed` (keep the row, so they
+are never emailed again); newsletter_events keeps the history. When you start sending newsletters, export the
+`subscribed` rows (**Export → CSV**) and import them into Brevo or MailerLite.
+
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
 select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150, 'recipient@email.com', '+961 70 000 000');
@@ -164,6 +169,22 @@ and download:
   ticked, so the workbook's formulas stay. Cash Received Now is filled in only for delivered orders.
 - **Customers**: name, phone, email, address and "Website", in the Customers tab's columns A to G. Paste only names
   that are not there yet; the workbook matches customers by name.
+
+## Backups
+
+Every Sunday, `.github/workflows/backup-database.yml` copies the whole database and keeps the copy for 90 days
+(GitHub → **Actions → Weekly database backup** → a run → **Artifacts**). The repository is public, so each copy is
+locked with your passphrase; without it the file cannot be opened.
+
+Setup (once): in GitHub → **Settings → Secrets and variables → Actions → New repository secret**, add
+- `SUPABASE_DB_URL`: Supabase → **Connect** → **Session pooler** connection string, with your database password in
+  place of `[YOUR-PASSWORD]` (forgot it? Supabase → Project Settings → Database → Reset database password);
+- `BACKUP_PASSPHRASE`: a long passphrase you invent. Save it in your password manager: it is the only way to open
+  the backups.
+
+To open a copy: download the artifact, then in Terminal
+`gpg --decrypt siaram-backup-DATE.tar.gz.gpg | tar xz` (it asks for the passphrase). Restoring is a developer job:
+`structure.sql`, then `logins.sql`, then `data.sql`, into a fresh Supabase project.
 
 ## For developers
 

@@ -96,8 +96,8 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
       <ul>
         <li><strong>Cloudflare</strong> (global network) hosts the website.
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists and
-          orders, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists,
+          orders and our mailing list, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook) and our order and accounting
@@ -206,7 +206,7 @@ for doc_name, fname, title, desc in PAGES:
         inner = "\n      ".join(paragraph(p, fname) for p in paras)
         body.append(f'    <div class="legal-section reveal" id="{sid}">\n      <h2>{n}. {html.escape(heading)}</h2>\n      {inner}\n    </div>')
     related = " &middot; ".join(f'<a href="{f}">{t}</a>' for _, f, t, _ in PAGES if f != fname)
-    url = f"https://siaramjewelry.com/{fname}"
+    url = f"https://siaramjewelry.com/{fname.removesuffix('.html')}"  # Cloudflare's short address
     page = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -281,7 +281,7 @@ for path in sorted(ROOT.glob("*.html")):
 
 sm = (ROOT / "sitemap.xml").read_text()
 for _, fname, _, _ in PAGES:
-    loc = f"<url><loc>https://siaramjewelry.com/{fname}</loc></url>"
+    loc = f"<url><loc>https://siaramjewelry.com/{fname.removesuffix('.html')}</loc></url>"
     if loc not in sm:
         sm = sm.replace("</urlset>", f"  {loc}\n</urlset>")
 (ROOT / "sitemap.xml").write_text(sm)

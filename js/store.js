@@ -304,6 +304,39 @@ function setupCardButtons(products) {
   });
 }
 
+// Footer mailing-list form, on every page. Signing up is separate from buying or having an account.
+function setupNewsletter() {
+  document.querySelectorAll('.newsletter-form').forEach((form) => {
+    const msg = form.querySelector('.newsletter-msg');
+    const button = form.querySelector('button');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (form.elements.website.value) return; // spam trap
+      const email = form.elements.email;
+      if (!email.value.trim() || !email.checkValidity()) {
+        msg.textContent = 'Please enter a valid email address.';
+        email.focus();
+        return;
+      }
+      button.disabled = true;
+      msg.textContent = '';
+      try {
+        const client = await getClient();
+        const page = location.pathname.split('/').pop() || 'index.html';
+        const { data, error } = await client.rpc('subscribe_newsletter', { p_email: email.value.trim(), p_source: page });
+        if (error) throw error;
+        msg.textContent = data === 'already' ? "You're already on our list. Thank you!" : "Thank you! You're on the list.";
+        form.reset();
+      } catch (err) {
+        msg.textContent = /valid email/.test(err?.message || '') ? 'Please enter a valid email address.'
+          : 'Sorry, something went wrong. Please try again.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+}
+
 // Keeps the 12/24-month inactivity clock fresh while a customer uses the site.
 async function recordActivity() {
   const session = await getSession();
@@ -319,6 +352,7 @@ async function init() {
   if (!storeEnabled) return;
   document.documentElement.classList.add('store-on');
   addHeaderLinks();
+  setupNewsletter();
   try {
     const products = await loadProducts();
     await fillPrices(products);
