@@ -1364,6 +1364,13 @@ legend {
 .size-select.invalid { border-color: #a33a2a; }
 .option-value { margin: 0; font-family: var(--font-serif); font-size: 1.05rem; }
 .made-to-order-note { margin: 0; font-size: 1rem; color: var(--green-mid); font-style: italic; font-family: var(--font-serif); }
+/* In stock / made to order, on the piece's page, in the cart and at checkout. */
+.stock-status { margin: 14px 0 0; }
+.availability { display: block; margin-top: 4px; font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.02em; }
+.availability.in-stock { color: var(--green-mid); }
+.availability.in-stock::before { content: "\25CF  "; color: #3f8f5b; }
+.availability.made-to-order { color: #8a5a1c; }
+.availability.made-to-order::before { content: "\25CB  "; }
 .specs-title {
   font-size: 0.72rem;
   font-family: var(--font-sans);

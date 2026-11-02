@@ -121,9 +121,13 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
   return true;
 }
 
-// What the customer pays and how, for the line under the items.
-export function payLabel(order) {
-  return 'To pay in cash on delivery';
+// Made-to-order pieces are paid by Whish before production; the rest in cash on delivery.
+// Voucher credit goes to the in-stock pieces first.
+export function paymentSplit(order) {
+  const made = (order.items || []).filter((i) => i.made_to_order)
+    .reduce((sum, i) => sum + Number(i.unit_price) * i.quantity, 0);
+  const cash = Math.max(Number(order.total) - made, 0);
+  return { cash, whish: Number(order.total) - cash };
 }
 
 // Metal and size under each piece.
@@ -131,20 +135,21 @@ const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k w
 function itemOptions(i) {
   const parts = [METALS[i.metal] || METALS.yellow];
   if (i.size) parts.push(i.size);
+  parts.push(i.made_to_order ? 'Made to order (3–4 weeks, paid by Whish)' : 'In stock');
   return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
 }
 
 // For the shop's email: one row per piece, in the order of the blue columns on the finance
 // workbook's Sales tab, so each order can be typed (or pasted cell by cell) straight in.
-// Website orders are cash. Cash Received Now stays 0 until the money arrives.
+// In-stock pieces are paid in cash, made-to-order ones by Whish. Cash Received Now stays 0 until the money arrives.
 export function financeRowsHtml(order, today = new Date()) {
   const date = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Beirut', day: '2-digit', month: '2-digit', year: 'numeric' }).format(today);
-  const method = 'Cash';
   const head = ['Invoice #', 'Sale Date', 'Customer', 'Sales Channel', 'SKU', 'Qty', 'Agreed Unit Price', 'Payment Method',
     'Cash Received Now', 'Gift Voucher Code', 'Paid by Voucher ($)'];
   const cell = 'padding:4px 8px;border:1px solid #d9d2c3;font-size:12px;white-space:nowrap';
   const rows = (order.items || []).map((i, n) => [
-    order.reference, date, order.customer_name, 'Website', i.sku || '', i.quantity, Number(i.unit_price).toFixed(2), method, '0',
+    order.reference, date, order.customer_name, 'Website', i.sku || '', i.quantity, Number(i.unit_price).toFixed(2),
+    i.made_to_order ? 'Whish' : 'Cash', '0',
     n === 0 && Number(order.voucher_amount) > 0 ? order.voucher_code : '',
     n === 0 && Number(order.voucher_amount) > 0 ? Number(order.voucher_amount).toFixed(2) : '',
   ]);
@@ -153,6 +158,12 @@ export function financeRowsHtml(order, today = new Date()) {
     <p style="font-size:13px;line-height:1.5;margin:0 0 8px">One row per piece, same invoice # on each. Add the customer on the Customers tab first if they are new.
     When the money arrives, type it in Cash Received Now.</p>
     <table style="border-collapse:collapse">${tr(head, 'th')}${rows.map((r) => tr(r, 'td')).join('')}</table>`;
+}
+
+function payRows(order) {
+  const { cash, whish } = paymentSplit(order);
+  const row = (label, amount) => `<tr><td style="padding:8px 0;font-weight:bold">${label}</td><td align="right" style="padding:8px 0;font-weight:bold">${money(amount)}</td></tr>`;
+  return `${cash || !whish ? row('To pay in cash on delivery', cash) : ''}${whish ? row('To pay by Whish before production', whish) : ''}`;
 }
 
 // The shop's copy also shows each piece's SKU, to match the finance workbook.
@@ -173,7 +184,7 @@ export function orderSummaryHtml(order, { sku = false } = {}) {
 ${rows}
 <tr><td style="padding:6px 0;border-top:1px solid #e3dccd">Subtotal</td><td align="right" style="padding:6px 0;border-top:1px solid #e3dccd">${money(order.subtotal)}</td></tr>
 ${voucher}
-<tr><td style="padding:8px 0;font-weight:bold">${payLabel(order)}</td><td align="right" style="padding:8px 0;font-weight:bold">${money(order.total)}</td></tr>
+${payRows(order)}
 <tr><td style="padding:6px 0;color:#6b6b5f">Delivery</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}</p>
@@ -185,6 +196,11 @@ export function paymentInstructionsHtml(order) {
   if (Number(order.total) <= 0) {
     return '<p style="font-size:15px;line-height:1.6">Your gift voucher covers this order, so there is nothing to pay.</p>';
   }
-  return `<p style="font-size:15px;line-height:1.6">You will pay <strong>${money(order.total)}</strong> in cash to the driver
-when your order arrives, plus the delivery fee. We will email you when your order ships.</p>`;
+  const { cash, whish } = paymentSplit(order);
+  const p = (html) => `<p style="font-size:15px;line-height:1.6">${html}</p>`;
+  return (cash ? p(`You will pay <strong>${money(cash)}</strong> in cash to the driver when your order arrives, plus the
+delivery fee. We will email you when your order ships.`) : '')
+    + (whish ? p(`Your made-to-order pieces (<strong>${money(whish)}</strong>) are paid by Whish: we will send you a payment
+request, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together
+when the whole order is ready.`) : '');
 }

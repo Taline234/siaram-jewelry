@@ -325,6 +325,86 @@ alter table public.order_items add column if not exists metal text not null defa
 alter table public.order_items add column if not exists size text not null default '';
 alter table public.order_items drop constraint if exists order_items_pkey;
 alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size);
+-- True when the piece was not in stock when ordered: made to order (3-4 weeks, paid by Whish, final sale).
+alter table public.order_items add column if not exists made_to_order boolean not null default false;
+
+-- ---------------------------------------------------------------- stock
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
+-- Pieces ready to ship, per piece, metal and size ('' for pieces without sizes). Edit quantities in the
+-- Table Editor. Anything not listed here (or at 0) is made to order. Website orders take pieces off
+-- automatically, and cancelling an order puts them back.
+create table if not exists public.stock (
+  product_slug text not null references public.products (slug) on update cascade on delete cascade,
+  metal        text not null default 'yellow' check (metal in ('yellow', 'rose', 'white')),
+  size         text not null default '',
+  quantity     int  not null default 0 check (quantity >= 0),
+  updated_at   timestamptz not null default now(),
+  primary key (product_slug, metal, size)
+);
+alter table public.stock enable row level security;
+
+-- Stock on 2 November 2026 (finance workbook, Production Batches): all 18k yellow gold; rings in the
+-- sizes made, bracelets in their standard length. Only added once, so later edits are kept.
+insert into public.stock (product_slug, metal, size, quantity) values
+  ('fatima-anklet', 'yellow', '', 1),
+  ('seahorse-pearl-bracelet', 'yellow', '15–16 cm', 1),
+  ('moon-star-handchain', 'yellow', '16–18 cm', 1),
+  ('arrow-bracelet', 'yellow', '16–17 cm', 1),
+  ('wave-bracelet', 'yellow', '15–16.5 cm', 1),
+  ('curved-marquise-bracelet', 'yellow', '15–17 cm', 1),
+  ('horse-eye-bracelet', 'yellow', '16–17.5 cm', 1),
+  ('fatima-pearl-earrings', 'yellow', '', 1),
+  ('horseshoe-chain-earrings', 'yellow', '', 1),
+  ('moon-star-pendant-earring', 'yellow', '', 1),
+  ('arrow-earrings', 'yellow', '', 1),
+  ('crescent-moon-earrings', 'yellow', '', 1),
+  ('horse-eye-stud', 'yellow', '', 1),
+  ('sun-stud-earrings', 'yellow', '', 1),
+  ('curved-marquise-earrings', 'yellow', '', 1),
+  ('horseshoe-necklace', 'yellow', '', 1),
+  ('eye-necklace', 'yellow', '', 1),
+  ('star-moon-necklace', 'yellow', '', 1),
+  ('arrow-necklace', 'yellow', '', 1),
+  ('horseshoe-necklace-black-stone', 'yellow', '', 1),
+  ('fatima-necklace', 'yellow', '', 1),
+  ('v-bird-necklace', 'yellow', '', 1),
+  ('horse-eye-necklace', 'yellow', '', 1),
+  ('sun-necklace', 'yellow', '', 1),
+  ('curved-marquise-necklace', 'yellow', '', 1),
+  ('qamar-ring', 'yellow', 'EU 55', 1),
+  ('fatima-ring', 'yellow', 'EU 54', 1),
+  ('horseshoe-ring', 'yellow', 'EU 54', 1),
+  ('arrow-open-ring', 'yellow', 'EU 55', 1),
+  ('arrow-ring', 'yellow', 'EU 55', 1),
+  ('horse-eye-ring', 'yellow', 'EU 54', 1),
+  ('sun-ring', 'yellow', 'EU 54', 1)
+on conflict (product_slug, metal, size) do nothing;
+
+-- What the website may show: which piece, metal and size combinations are ready to ship (not how many).
+create or replace function public.available_stock() returns table (product_slug text, metal text, size text)
+language sql stable security definer set search_path = public as $$
+  select s.product_slug, s.metal, s.size from public.stock s where s.quantity > 0;
+$$;
+
+-- Cancelling an order puts its in-stock pieces back.
+create or replace function private.order_cancelled() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.stock (product_slug, metal, size, quantity)
+  select i.product_slug, i.metal, i.size, i.quantity from public.order_items i
+   where i.order_id = new.id and not i.made_to_order
+  on conflict (product_slug, metal, size)
+    do update set quantity = stock.quantity + excluded.quantity, updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists order_cancelled on public.orders;
+create trigger order_cancelled after update of status on public.orders
+  for each row when (new.status = 'cancelled' and old.status is distinct from 'cancelled')
+  execute function private.order_cancelled();
 
 -- ---------------------------------------------------------------- gift vouchers
 create table if not exists public.gift_vouchers (
@@ -459,7 +539,8 @@ language sql stable security definer set search_path = public as $$
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
       'tracking_number', o.tracking_number,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
-                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
+                                                    'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
+                                                    'made_to_order', i.made_to_order)
                                                     order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s
@@ -485,6 +566,7 @@ declare
   v_field     text;
   v_collect   boolean := coalesce(p->>'fulfilment', 'delivery') = 'collection';
   v_existing  uuid;
+  v_in_stock  boolean;
 begin
   -- A repeated submission (double click, retry after a dropped connection) returns the order already placed.
   if coalesce(p->>'submission_id', '') <> '' then
@@ -570,10 +652,16 @@ begin
     elsif not (v_size = any(v_product.sizes)) then
       raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
     end if;
-    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size)
-    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size)
+    -- Ready to ship if enough are in stock (taken off now, row-locked, so two orders cannot take the
+    -- same piece); otherwise the line is made to order.
+    update public.stock set quantity = quantity - v_qty, updated_at = now()
+     where product_slug = v_product.slug and metal = v_metal and size = v_size and quantity >= v_qty;
+    v_in_stock := found;
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size, not v_in_stock)
     on conflict (order_id, product_slug, metal, size)
-      do update set quantity = least(order_items.quantity + excluded.quantity, 10);
+      do update set quantity = least(order_items.quantity + excluded.quantity, 10),
+                    made_to_order = order_items.made_to_order or excluded.made_to_order;
     v_subtotal := v_subtotal + v_product.price * v_qty;
   end loop;
 
@@ -688,6 +776,8 @@ grant update (first_name, last_name, phone, date_of_birth, marketing_email, mark
 revoke insert, update, delete on public.orders, public.order_items from anon, authenticated;
 revoke all on public.gift_vouchers, public.voucher_redemptions from anon, authenticated;
 revoke insert, update, delete on public.products, public.delivery_areas, public.store_settings from anon, authenticated;
+revoke all on public.stock from anon, authenticated;
+grant execute on function public.available_stock() to anon, authenticated;
 
 -- Website sales for the finance workbook backup download, one entry per order (cancelled orders left out).
 -- Dates are Beirut dates; either bound may be null.
@@ -699,7 +789,8 @@ language sql stable security definer set search_path = public as $$
            concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
                      nullif(o.city, ''), nullif(o.governorate, '')) as address,
            o.status, o.payment_method, o.voucher_code, o.voucher_amount,
-           (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity)
+           (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity,
+                                              'made_to_order', i.made_to_order)
                             order by i.product_slug, i.metal, i.size)
               from public.order_items i where i.order_id = o.id) as items
       from public.orders o

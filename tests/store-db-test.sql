@@ -295,5 +295,31 @@ select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana
                      and (select count(*) = 7 from orders) and (select count(*) = 0 from orders where user_id is not null),
   'deleting an account removes profile, addresses and wishlist but keeps orders');
 
+-- Stock: an in-stock piece is taken off; once gone, the next one is made to order; cancelling puts it back.
+update stock set quantity = 1 where product_slug = 'sun-necklace' and metal = 'yellow' and size = '';
+select place_order(pg_temp.order_json('Beirut','[{"slug":"sun-necklace","quantity":1}]')) ->> 'reference' as stock_ref1 \gset
+select place_order(pg_temp.order_json('Beirut','[{"slug":"sun-necklace","quantity":1}]')) ->> 'reference' as stock_ref2 \gset
+select pg_temp.check((select bool_and(not made_to_order) from order_items i join orders o on o.id = i.order_id where o.reference = :'stock_ref1')
+                     and (select bool_and(made_to_order) from order_items i join orders o on o.id = i.order_id where o.reference = :'stock_ref2')
+                     and (select quantity = 0 from stock where product_slug = 'sun-necklace' and metal = 'yellow' and size = ''),
+  'an order takes the piece in stock; the next order of it is made to order');
+select pg_temp.check((select (order_summary(id)->'items'->0->>'made_to_order')::boolean from orders where reference = :'stock_ref2'),
+  'the order summary says which pieces are made to order');
+select pg_temp.check(not exists (select 1 from available_stock() where product_slug = 'sun-necklace'),
+  'a sold-out piece is not shown as in stock');
+update orders set status = 'cancelled' where reference = :'stock_ref2';
+select pg_temp.check((select quantity = 0 from stock where product_slug = 'sun-necklace' and size = ''),
+  'cancelling a made-to-order line does not add stock');
+update orders set status = 'cancelled' where reference = :'stock_ref1';
+select pg_temp.check((select quantity = 1 from stock where product_slug = 'sun-necklace' and size = '')
+                     and exists (select 1 from available_stock() where product_slug = 'sun-necklace' and metal = 'yellow'),
+  'cancelling an order puts its in-stock piece back');
+select pg_temp.check((select count(*) = 0 from available_stock() where metal <> 'yellow')
+                     and exists (select 1 from available_stock() where product_slug = 'qamar-ring' and size = 'EU 55'),
+  'the starting stock is yellow gold, with rings in the sizes made');
+select pg_temp.check(has_function_privilege('anon', 'public.available_stock()', 'execute')
+                     and not has_table_privilege('anon', 'public.stock', 'select'),
+  'visitors can see what is in stock, but not the stock table itself');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

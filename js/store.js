@@ -62,6 +62,24 @@ export async function loadProducts() {
 
 export const purchasable = (product) => Boolean(product && product.available && product.price !== null);
 
+// Which piece, metal and size combinations are ready to ship; everything else is made to order.
+let stockPromise = null;
+export async function loadStock() {
+  const client = await getClient();
+  if (!client) return new Set();
+  stockPromise ||= client.rpc('available_stock').then(({ data, error }) => {
+    if (error) throw error;
+    return new Set((data || []).map((s) => `${s.product_slug}|${s.metal}|${s.size}`));
+  });
+  return stockPromise;
+}
+
+export function availabilityHtml(stock, item) {
+  return stock.has(lineKey(item))
+    ? '<span class="availability in-stock">In stock &middot; ships in 1&ndash;2 business days</span>'
+    : '<span class="availability made-to-order">Made to order &middot; 3&ndash;4 weeks, paid by Whish, final sale</span>';
+}
+
 // ---------------------------------------------------------------- cart
 const CART_KEY = 'siaram-cart';
 let memoryCart = null;
@@ -232,6 +250,31 @@ async function setupBuyBox(products) {
   }
   box.appendChild(await wishlistButton(slug));
   box.hidden = false;
+  if (purchasable(product)) await showAvailability(slug);
+}
+
+// "In stock" or "Made to order" for the metal and size chosen on a piece's page.
+async function showAvailability(slug) {
+  const options = document.querySelector('.product-options');
+  if (!options) return;
+  let stock;
+  try {
+    stock = await loadStock();
+  } catch {
+    return;
+  }
+  const status = document.createElement('p');
+  status.className = 'stock-status';
+  status.setAttribute('aria-live', 'polite');
+  options.querySelector('.made-to-order-note')?.before(status);
+  const update = () => {
+    const metal = options.querySelector('[name=metal]:checked')?.value || 'yellow';
+    const size = options.querySelector('.size-select');
+    status.hidden = Boolean(size && !size.value);
+    if (!status.hidden) status.innerHTML = availabilityHtml(stock, { slug, metal, size: size ? size.value : '' });
+  };
+  options.addEventListener('change', update);
+  update();
 }
 
 // Product cards (shop, home, "you may also like"): Add to Cart instead of Enquire by Email.

@@ -101,12 +101,16 @@ export function itemDescription(item) {
   const details = (c.details || []).filter(([k]) => !(item.size && k === 'Length' && c.category === 'Bracelets'));
   if (item.size) parts.push(c.category === 'Rings' ? `Ring size ${item.size}` : `Length ${item.size}`);
   for (const [k, v] of details) parts.push(`${k}: ${v}`);
+  if (item.made_to_order) parts.push('Made to order (3–4 weeks), final sale');
   return parts.join('\n');
 }
 
 function paymentLabel(order) {
   if (Number(order.total) <= 0) return 'Gift voucher';
-  return order.payment_method === 'whish' ? 'Whish' : 'Cash on delivery';
+  const made = (order.items || []).some((i) => i.made_to_order);
+  const ready = (order.items || []).some((i) => !i.made_to_order);
+  if (made && ready) return 'Cash on delivery + Whish';
+  return made || order.payment_method === 'whish' ? 'Whish' : 'Cash on delivery';
 }
 
 function billTo(order) {
