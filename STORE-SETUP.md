@@ -89,6 +89,22 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
 
 `js/store-config.js` holds the Supabase Project URL and anon key; both are safe to publish.
 
+### Closing the site while you edit ("Private access" page)
+
+The site can be hidden behind a branded password page (`worker/gate.js`). It is **off** until you set a password.
+
+- **Close the site:** Cloudflare → **Workers & Pages → siaram-jewelry → Settings → Variables and Secrets → Add**.
+  Type **Secret**, name `SITE_PASSWORD`, value = the password you choose → **Deploy**. Within a minute every
+  page shows "Private access"; you (and anyone you give the password to) type it once and stay signed in for
+  30 days on that device.
+- **Open the site again:** delete the `SITE_PASSWORD` secret → **Deploy**.
+- **Lock out everyone who has the password:** change the secret's value. Everyone is signed out.
+- **Sign yourself out:** visit `siaramjewelry.com/__private-access/sign-out`.
+
+While it is closed, visitors can't browse or order on the website, so take orders on WhatsApp/Instagram.
+Order emails, Supabase and the order functions keep working. Google is told the site is briefly closed
+(not gone), so search ranking isn't lost for a short closure.
+
 **Before announcing:** place a test order yourself, check both emails arrive (yours and the
 "customer's"), then set that test order's status to `cancelled` in Supabase.
 

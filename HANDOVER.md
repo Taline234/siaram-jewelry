@@ -8,7 +8,9 @@ on it and say "read HANDOVER.md first".
   free plans. Netlify is being retired; `netlify.toml` can be deleted once the domain points to Cloudflare.
 - Online store: Supabase (database, customer logins and the Edge Functions in `supabase/functions/`, deployed
   by `.github/workflows/deploy-functions.yml`) and Resend (order emails). Setup steps: `STORE-SETUP.md`.
-- Tests: `python3 tests/check-site.py`, `node --test tests/store-functions-test.mjs`,
+- Private-access gate: `worker/gate.js`, off unless the `SITE_PASSWORD` secret is set in Cloudflare
+  (`STORE-SETUP.md`, "Closing the site while you edit").
+- Tests: `python3 tests/check-site.py`, `node --test tests/store-functions-test.mjs tests/gate-test.mjs`,
   `tests/run-store-db-test.sh` (Postgres), `tests/e2e/run.sh` (Chromium + Postgres).
 
 ## Decisions made with the owner
