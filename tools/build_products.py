@@ -279,9 +279,14 @@ def links(p):
     wa = f"https://wa.me/{WA}?text=" + quote(f"Hello Siaram, I'm interested in the {p['plain']}.")
     return html.escape(mail, quote=True), html.escape(wa, quote=True)
 
+# The Equestrian Collection is the bestseller: a badge on its cards and pages, and its own home section.
+BESTSELLER = "equestrian"
+BADGE = '<span class="card-badge">Bestseller</span>'
+
 def card(p):
     mail, _ = links(p)
-    return f"""      <article class="product-card" data-category="{p['cat'].lower()}" data-collection="{p['coll']}">
+    badge = f"\n        {BADGE}" if p["coll"] == BESTSELLER else ""
+    return f"""      <article class="product-card" data-category="{p['cat'].lower()}" data-collection="{p['coll']}">{badge}
         <a href="{p['page']}" class="product-media" data-photos="{','.join(p['imgs'])}"><img src="{p['img']}" alt="{p['alt']}" loading="lazy" /></a>
         <div class="product-body">
           <span class="product-cat">{COLL[p['coll']][0]} Collection</span>
@@ -456,7 +461,7 @@ for p in P:
         </div>
 {gallery_thumbs(p)}      </div>
       <div class="product-detail-info reveal">
-        <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>
+        <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["coll"] == BESTSELLER else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
 {paras}
@@ -513,15 +518,38 @@ for old in []:
     if os.path.exists(old): git("rm", "-q", "-f", old)
 
 # ---- product grids on shop + home
-def replace_grid(fname, items):
+def replace_grid(fname, items, opening='<div class="product-grid">'):
     s = open(fname, encoding="utf-8").read()
-    start = s.index('<div class="product-grid">') + len('<div class="product-grid">')
-    end = s.index("    </div>\n  </div>\n</section>", start)
+    start = s.index(opening) + len(opening)
+    end = s.index("\n    </div>", start) + 1
     s = s[:start] + grid(items) + s[end:]
     open(fname, "w", encoding="utf-8").write(s)
 replace_grid("shop.html", P)
 by = {p["slug"]: p for p in P}
-replace_grid("index.html", [by["horseshoe-necklace"], by["fatima-necklace"], by["sun-ring"]])
+# Home: the bestsellers section (added once, above "New & Loved"), then the featured pieces.
+BEST_GRID = '<div class="product-grid" data-grid="bestsellers">'
+home = open("index.html", encoding="utf-8").read()
+if BEST_GRID not in home:
+    featured = '<section>\n  <div class="container">\n    <div class="section-head reveal">\n      <span class="eyebrow">Featured Pieces</span>'
+    home = home.replace(featured, f"""<section class="bestsellers">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Bestsellers</span>
+      <h2>The Equestrian Collection</h2>
+      <p>{COLL[BESTSELLER][1]}</p>
+    </div>
+
+    {BEST_GRID}
+    </div>
+    <div class="section-cta reveal"><a class="btn btn-outline" href="shop.html#{BESTSELLER}">Shop the Equestrian Collection</a></div>
+  </div>
+</section>
+
+""" + featured, 1)
+    open("index.html", "w", encoding="utf-8").write(home)
+replace_grid("index.html", [by[s] for s in ["horseshoe-necklace", "horseshoe-necklace-black-stone", "horseshoe-bracelet",
+                                            "horseshoe-ring", "horseshoe-chain-earrings", "horse-eye-necklace"]], BEST_GRID)
+replace_grid("index.html", [by["eye-necklace"], by["fatima-necklace"], by["sun-ring"]])
 
 # ---- shop filters: type and collection
 s = open("shop.html", encoding="utf-8").read()

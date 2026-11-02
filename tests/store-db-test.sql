@@ -321,5 +321,28 @@ select pg_temp.check(has_function_privilege('anon', 'public.available_stock()', 
                      and not has_table_privilege('anon', 'public.stock', 'select'),
   'visitors can see what is in stock, but not the stock table itself');
 
+-- Newsletter: sign-up with consent, no duplicates, unsubscribed people can sign up again themselves.
+select subscribe_newsletter(' Nour@Example.com ', 'index.html') as nl_first \gset
+select subscribe_newsletter('nour@example.com', 'shop.html') as nl_second \gset
+select pg_temp.check(:'nl_first' = 'subscribed' and :'nl_second' = 'already'
+                     and (select count(*) = 1 from newsletter_subscribers where email = 'nour@example.com')
+                     and (select consent_wording like 'By subscribing, you agree%' and source = 'index.html'
+                            from newsletter_subscribers where email = 'nour@example.com'),
+  'a footer sign-up is saved once, with the consent wording and where it came from');
+select pg_temp.expect_error($$select subscribe_newsletter('not-an-email')$$, 'valid email address');
+update newsletter_subscribers set status = 'unsubscribed' where email = 'nour@example.com';
+select pg_temp.check((select unsubscribed_at is not null from newsletter_subscribers where email = 'nour@example.com')
+                     and (select count(*) = 2 from newsletter_events where email = 'nour@example.com'),
+  'unsubscribing is dated and recorded');
+select subscribe_newsletter('nour@example.com', 'about.html') as nl_again \gset
+select pg_temp.check(:'nl_again' = 'subscribed'
+                     and (select status = 'subscribed' and unsubscribed_at is null from newsletter_subscribers where email = 'nour@example.com'),
+  'someone who unsubscribed can sign up again themselves');
+select pg_temp.check(has_function_privilege('anon', 'public.subscribe_newsletter(text, text)', 'execute')
+                     and not has_table_privilege('anon', 'public.newsletter_subscribers', 'select'),
+  'visitors can sign up but cannot read the list');
+select pg_temp.check(not exists (select 1 from newsletter_subscribers where email in (select email from orders)),
+  'placing an order does not subscribe anyone');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

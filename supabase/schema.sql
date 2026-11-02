@@ -690,6 +690,69 @@ begin
   return public.order_summary(v_order_id);
 end $$;
 
+-- ---------------------------------------------------------------- newsletter
+-- Sign-ups from the footer form, with the consent wording shown, when and where. Nobody is added by buying,
+-- creating an account or using a voucher. To unsubscribe someone, set status to 'unsubscribed' (they stay
+-- on the list so they are never emailed again). Every change is kept in newsletter_events.
+create table if not exists public.newsletter_subscribers (
+  email           text primary key check (email = lower(email)),
+  status          text not null default 'subscribed' check (status in ('subscribed', 'unsubscribed')),
+  source          text,
+  consent_wording text not null,
+  consented_at    timestamptz not null default now(),
+  unsubscribed_at timestamptz,
+  created_at      timestamptz not null default now()
+);
+create table if not exists public.newsletter_events (
+  id              bigserial primary key,
+  email           text not null,
+  action          text not null check (action in ('subscribed', 'unsubscribed')),
+  source          text,
+  consent_wording text,
+  at              timestamptz not null default now()
+);
+alter table public.newsletter_subscribers enable row level security;
+alter table public.newsletter_events enable row level security;
+
+create or replace function public.subscribe_newsletter(p_email text, p_source text default null) returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_email   text := lower(trim(coalesce(p_email, '')));
+  v_source  text := left(coalesce(p_source, ''), 80);
+  v_wording constant text := 'By subscribing, you agree to receive marketing emails from Siaram Jewelry. '
+                             'Unsubscribe at any time. Read our Privacy Policy. (website footer, November 2026)';
+  v_status  text;
+begin
+  if length(v_email) > 254 or v_email !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Please enter a valid email address.' using errcode = 'P0001';
+  end if;
+  select status into v_status from public.newsletter_subscribers where email = v_email for update;
+  if v_status = 'subscribed' then
+    return 'already';
+  end if;
+  insert into public.newsletter_subscribers (email, source, consent_wording) values (v_email, v_source, v_wording)
+  on conflict (email) do update
+    set status = 'subscribed', source = excluded.source, consent_wording = excluded.consent_wording,
+        consented_at = now(), unsubscribed_at = null;
+  insert into public.newsletter_events (email, action, source, consent_wording)
+  values (v_email, 'subscribed', v_source, v_wording);
+  return 'subscribed';
+end $$;
+
+-- Setting status to 'unsubscribed' in the Table Editor records the date and the event.
+create or replace function private.newsletter_unsubscribed() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  new.unsubscribed_at := now();
+  insert into public.newsletter_events (email, action, source) values (new.email, 'unsubscribed', 'table editor');
+  return new;
+end;
+$$;
+drop trigger if exists newsletter_unsubscribed on public.newsletter_subscribers;
+create trigger newsletter_unsubscribed before update of status on public.newsletter_subscribers
+  for each row when (new.status = 'unsubscribed' and old.status = 'subscribed')
+  execute function private.newsletter_unsubscribed();
+
 -- ---------------------------------------------------------------- account activity
 -- The website calls this when a signed-in customer visits; it resets the inactivity clock.
 create or replace function public.touch_activity() returns void
@@ -777,6 +840,8 @@ revoke insert, update, delete on public.orders, public.order_items from anon, au
 revoke all on public.gift_vouchers, public.voucher_redemptions from anon, authenticated;
 revoke insert, update, delete on public.products, public.delivery_areas, public.store_settings from anon, authenticated;
 revoke all on public.stock from anon, authenticated;
+revoke all on public.newsletter_subscribers, public.newsletter_events from anon, authenticated;
+grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 
 -- Website sales for the finance workbook backup download, one entry per order (cancelled orders left out).

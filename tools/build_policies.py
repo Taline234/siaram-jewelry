@@ -96,8 +96,8 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
       <ul>
         <li><strong>Cloudflare</strong> (global network) hosts the website.
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists and
-          orders, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists,
+          orders and our mailing list, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook) and our order and accounting

@@ -121,6 +121,11 @@ empty for necklaces and earrings, `EU 54` for rings, the length as listed on the
 a piece off automatically, and setting an order to `cancelled` puts it back. When you sell on Instagram,
 WhatsApp or in person, lower the quantity yourself; when new pieces arrive, add a row (**Insert**) or raise it.
 
+**Mailing list** — sign-ups from the footer form are in **Table Editor → newsletter_subscribers**, each with the
+consent wording, date and page. To unsubscribe someone, set **status** to `unsubscribed` (keep the row, so they
+are never emailed again); newsletter_events keeps the history. When you start sending newsletters, export the
+`subscribed` rows (**Export → CSV**) and import them into Brevo or MailerLite.
+
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
 select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150, 'recipient@email.com', '+961 70 000 000');
