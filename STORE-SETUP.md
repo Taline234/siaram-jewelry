@@ -109,9 +109,11 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
    Whish payment request for it and start production once it clears. Then open **Supabase → Table
    Editor → orders** and set the status to `preparing` (or `cancelled` if it cannot go ahead).
 3. Book the delivery with Wakilni as cash on delivery, for the order total plus the delivery fee (the
-   email shows both); for a collection, take the cash at handover.
-4. Then set `dispatched` and `delivered` as the order moves along. Customers with an account see this
-   status under **My Account → Orders**.
+   email shows both).
+4. When Wakilni collects the parcel: in **Table Editor → orders**, optionally type Wakilni's tracking number in
+   **tracking_number**, then set **status** to `dispatched`. The customer is emailed straight away that the order is
+   on its way (with the tracking number and the cash to have ready). It is sent once per order.
+5. Set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
 
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
