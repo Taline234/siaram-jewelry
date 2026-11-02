@@ -228,8 +228,11 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, ORIGIN);
   const chunks = [];
   for await (const ch of req) chunks.push(ch);
-  const raw = Buffer.concat(chunks).toString();
-  const body = raw ? JSON.parse(raw) : null;
+  const rawBytes = Buffer.concat(chunks);
+  const raw = rawBytes.toString();
+  // Form uploads (multipart) go to the functions as they are; everything else here is JSON.
+  const isJson = !(req.headers['content-type'] || '').startsWith('multipart/');
+  const body = raw && isJson ? JSON.parse(raw) : null;
 
   if (url.pathname === '/__state') {
     if (req.method === 'POST') Object.assign(state, body);
@@ -241,7 +244,7 @@ const server = http.createServer(async (req, res) => {
   if (url.pathname.startsWith('/sb/rest/v1/')) return rest(req, res, url, body);
   if (functions[url.pathname]) {
     const r = await functions[url.pathname](new Request(`${ORIGIN}${req.url}`, {
-      method: req.method, headers: req.headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : raw }));
+      method: req.method, headers: req.headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : rawBytes }));
     res.writeHead(r.status, Object.fromEntries(r.headers));
     return res.end(await r.text());
   }

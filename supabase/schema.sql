@@ -690,6 +690,57 @@ begin
   return public.order_summary(v_order_id);
 end $$;
 
+-- ---------------------------------------------------------------- custom-piece requests
+-- From the form on the Custom page. Sketches and photos are attached to the email the shop receives;
+-- only their file names are kept here. Status is for the owner: new, quoted, approved, in production, done, declined.
+create table if not exists public.custom_requests (
+  id           uuid primary key default gen_random_uuid(),
+  reference    text not null unique,
+  name         text not null,
+  email        text not null,
+  phone        text not null,
+  piece        text not null,
+  gold         text not null,
+  stones       text[] not null default '{}',
+  cut          text,
+  size         text,
+  description  text not null,
+  occasion     date,
+  budget       text,
+  files        text[] not null default '{}',
+  status       text not null default 'new'
+               check (status in ('new', 'quoted', 'approved', 'in production', 'done', 'declined')),
+  created_at   timestamptz not null default now()
+);
+alter table public.custom_requests enable row level security;
+alter table public.store_settings add column if not exists next_custom_number int not null default 1;
+
+create or replace function public.save_custom_request(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_ref text;
+  v_field text;
+begin
+  foreach v_field in array array['name', 'email', 'phone', 'piece', 'gold', 'description'] loop
+    if coalesce(trim(p->>v_field), '') = '' then
+      raise exception 'Please fill in the % field.', v_field using errcode = 'P0001';
+    end if;
+  end loop;
+  if (p->>'email') !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Please enter a valid email address.' using errcode = 'P0001';
+  end if;
+  update public.store_settings set next_custom_number = next_custom_number + 1 where id = 1
+  returning 'CR' || lpad((next_custom_number - 1)::text, 3, '0') into v_ref;
+  insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, size, description,
+                                      occasion, budget, files)
+  values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), p->>'piece', p->>'gold',
+          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'stones') x), '{}'),
+          nullif(p->>'cut', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
+          nullif(p->>'occasion', '')::date, nullif(p->>'budget', ''),
+          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'));
+  return jsonb_build_object('reference', v_ref);
+end $$;
+
 -- ---------------------------------------------------------------- newsletter
 -- Sign-ups from the footer form, with the consent wording shown, when and where. Nobody is added by buying,
 -- creating an account or using a voucher. To unsubscribe someone, set status to 'unsubscribed' (they stay
@@ -841,6 +892,9 @@ revoke all on public.gift_vouchers, public.voucher_redemptions from anon, authen
 revoke insert, update, delete on public.products, public.delivery_areas, public.store_settings from anon, authenticated;
 revoke all on public.stock from anon, authenticated;
 revoke all on public.newsletter_subscribers, public.newsletter_events from anon, authenticated;
+revoke all on public.custom_requests from anon, authenticated;
+revoke execute on function public.save_custom_request(jsonb) from public, anon, authenticated;
+grant execute on function public.save_custom_request(jsonb) to service_role;
 grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 

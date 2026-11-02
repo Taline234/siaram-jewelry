@@ -14,6 +14,7 @@ const { default: deleteAccount } = await import('../supabase/functions/_shared/h
 const { default: inactiveAccounts } = await import('../supabase/functions/_shared/handlers/inactive-accounts.mjs');
 const { default: exportSales } = await import('../supabase/functions/_shared/handlers/export-sales.mjs');
 const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
+const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -334,4 +335,47 @@ test('if the email fails, the order can be emailed again later', async () => {
   handlers['/emails'] = () => [500, {}];
   assert.equal((await orderStatus(dispatchRequest('right'))).status, 502);
   assert.ok(calls.some((c) => c.url.endsWith('/claim_dispatch_email') && c.body.p_release === true));
+});
+
+// ---------------------------------------------------------------- custom-piece requests
+function customForm(extra = {}) {
+  const f = new FormData();
+  const fields = { piece: 'Ring', gold: 'Rose gold', cut: 'Oval', size: 'EU 54', description: 'An oval emerald ring',
+    name: 'Rana Haddad', email: 'rana@example.com', phone: '+961 70 000 000', budget: '$500–$1,000', ...extra };
+  for (const [k, v] of Object.entries(fields)) f.append(k, v);
+  f.append('stones', 'Emerald');
+  f.append('stones', 'Not a real stone');
+  return f;
+}
+const post = (form) => customRequest(new Request('https://siaram.test/functions/v1/custom-request', { method: 'POST', body: form }));
+
+test('a custom request is saved and emailed to the shop with the sketch, and the customer gets a copy', async () => {
+  handlers['/rest/v1/rpc/save_custom_request'] = () => [200, { reference: 'CR001' }];
+  const form = customForm();
+  form.append('files', new File([new Uint8Array([137, 80, 78, 71])], 'my sketch.png', { type: 'image/png' }));
+  const res = await post(form);
+  assert.deepEqual(await res.json(), { reference: 'CR001' });
+  const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.deepEqual(saved.stones, ['Emerald'], 'only listed stones are kept');
+  assert.deepEqual(saved.files, ['my sketch.png']);
+  const [shop, customer] = emails();
+  assert.equal(shop.subject, 'Custom request CR001 — Ring (Rana Haddad)');
+  assert.equal(shop.reply_to, 'rana@example.com');
+  assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
+  assert.match(shop.html, /Rose gold/);
+  assert.equal(customer.to[0], 'rana@example.com');
+  assert.match(customer.html, /reply within 3 to 5 business days/);
+  assert.equal(customer.attachments, undefined);
+});
+
+test('custom requests refuse a missing choice, wrong files and spam', async () => {
+  assert.match((await (await post(customForm({ piece: 'Spaceship' }))).json()).error, /type of piece/);
+  const big = customForm();
+  big.append('files', new File([new Uint8Array(9 * 1024 * 1024)], 'huge.jpg', { type: 'image/jpeg' }));
+  assert.match((await (await post(big)).json()).error, /larger than 8 MB/);
+  const exe = customForm();
+  exe.append('files', new File(['x'], 'virus.exe', { type: 'application/octet-stream' }));
+  assert.match((await (await post(exe)).json()).error, /not a photo or PDF/);
+  assert.equal((await post(customForm({ website: 'spam' }))).status, 400);
+  assert.equal(emails().length, 0);
 });

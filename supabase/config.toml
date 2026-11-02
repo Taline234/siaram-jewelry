@@ -26,3 +26,7 @@ import_map = "./functions/import_map.json"
 [functions.order-status]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.custom-request]
+verify_jwt = false
+import_map = "./functions/import_map.json"
