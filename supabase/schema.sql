@@ -304,6 +304,9 @@ alter table public.orders add constraint orders_status_check
 -- One order per checkout submission: a repeated or double-clicked submission returns the first order.
 alter table public.orders add column if not exists submission_id text unique;
 alter table public.orders alter column governorate drop not null;
+-- For the "on its way" email (see order_dispatched below): the courier's tracking number, and when it was sent.
+alter table public.orders add column if not exists tracking_number text;
+alter table public.orders add column if not exists dispatched_email_at timestamptz;
 alter table public.orders alter column city drop not null;
 alter table public.orders alter column street drop not null;
 
@@ -454,6 +457,7 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
+      'tracking_number', o.tracking_number,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size)
                                                     order by i.name)
@@ -720,6 +724,49 @@ language sql stable security definer set search_path = public as $$
   select exists (select 1 from private.cron where id = 1 and secret = p_secret);
 $$;
 
+-- "On its way" email. Setting an order's status to 'dispatched' (in the Table Editor) asks the order-status
+-- function to email the customer, once. Optional: type the courier's tracking number in tracking_number first.
+-- Where the database reaches the store's functions; set in supabase/cron.sql (empty in the local tests).
+alter table private.cron add column if not exists functions_url text;
+
+-- Claims the right to send the email (true once per order); release lets a failed send be retried.
+create or replace function public.claim_dispatch_email(p_order_id uuid, p_release boolean default false) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  if p_release then
+    update public.orders set dispatched_email_at = null where id = p_order_id;
+    return false;
+  end if;
+  update public.orders set dispatched_email_at = now()
+   where id = p_order_id and status = 'dispatched' and dispatched_email_at is null;
+  return found;
+end;
+$$;
+
+create or replace function private.order_dispatched() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  v_url    text;
+  v_secret text;
+begin
+  select functions_url, secret into v_url, v_secret from private.cron where id = 1;
+  if v_url is not null and exists (select 1 from pg_extension where extname = 'pg_net') then
+    perform net.http_post(
+      url := v_url || '/order-status',
+      headers := jsonb_build_object('content-type', 'application/json', 'x-cron-secret', v_secret),
+      body := jsonb_build_object('order_id', new.id)
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists order_dispatched on public.orders;
+create trigger order_dispatched after update of status on public.orders
+  for each row when (new.status = 'dispatched' and old.status is distinct from 'dispatched'
+                     and new.dispatched_email_at is null)
+  execute function private.order_dispatched();
+
 -- Server-only functions.
 revoke execute on function public.place_order(jsonb, uuid)            from public, anon, authenticated;
 revoke execute on function public.check_voucher(text, text, text)    from public, anon, authenticated;
@@ -730,7 +777,9 @@ revoke execute on function public.inactivity_due()                    from publi
 revoke execute on function public.mark_inactivity_email(uuid, text)   from public, anon, authenticated;
 revoke execute on function public.sales_export(date, date)            from public, anon, authenticated;
 revoke execute on function public.cron_secret_ok(text)                from public, anon, authenticated;
+revoke execute on function public.claim_dispatch_email(uuid, boolean) from public, anon, authenticated;
 grant execute on function public.place_order(jsonb, uuid), public.check_voucher(text, text, text),
-  public.inactivity_due(), public.mark_inactivity_email(uuid, text), public.sales_export(date, date), public.cron_secret_ok(text) to service_role;
+  public.inactivity_due(), public.mark_inactivity_email(uuid, text), public.sales_export(date, date), public.cron_secret_ok(text),
+  public.claim_dispatch_email(uuid, boolean) to service_role;
 revoke execute on function public.touch_activity() from public, anon;
 grant execute on function public.touch_activity() to authenticated;

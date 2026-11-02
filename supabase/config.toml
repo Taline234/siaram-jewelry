@@ -22,3 +22,7 @@ import_map = "./functions/import_map.json"
 [functions.inactive-accounts]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.order-status]
+verify_jwt = false
+import_map = "./functions/import_map.json"

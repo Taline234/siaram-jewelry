@@ -13,6 +13,7 @@ const { default: checkVoucher } = await import('../supabase/functions/_shared/ha
 const { default: deleteAccount } = await import('../supabase/functions/_shared/handlers/delete-account.mjs');
 const { default: inactiveAccounts } = await import('../supabase/functions/_shared/handlers/inactive-accounts.mjs');
 const { default: exportSales } = await import('../supabase/functions/_shared/handlers/export-sales.mjs');
+const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -289,4 +290,42 @@ test('the website on another domain may call the functions', async () => {
   const res = await wrapped(request('/functions/v1/check-voucher', {}));
   assert.equal(res.headers.get('access-control-allow-origin'), '*');
   assert.equal(res.status, 400);
+});
+
+// ---------------------------------------------------------------- "on its way" email
+const dispatchRequest = (secret, body = { order_id: 'o1' }) => new Request('https://siaram.test/functions/v1/order-status',
+  { method: 'POST', body: JSON.stringify(body), headers: secret ? { 'x-cron-secret': secret } : {} });
+const dispatched = { ...savedOrder, reference: 'S017', status: 'dispatched', tracking_number: 'WAK-123', delivery_fee: 5 };
+
+test('only the database can ask for the "on its way" email', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = (c) => [200, c.body.p_secret === 'right'];
+  assert.equal((await orderStatus(dispatchRequest())).status, 403);
+  assert.equal((await orderStatus(dispatchRequest('wrong'))).status, 403);
+  assert.ok(!calls.some((c) => c.url.endsWith('/claim_dispatch_email')));
+});
+
+test('a dispatched order emails the customer once, with the tracking number and the cash to pay', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_dispatch_email'] = () => [200, true];
+  handlers['/rest/v1/rpc/order_summary'] = () => [200, dispatched];
+  assert.deepEqual(await (await orderStatus(dispatchRequest('right'))).json(), { sent: true });
+  const [mail] = emails();
+  assert.equal(mail.to[0], 'rana@example.com');
+  assert.equal(mail.subject, 'Your Siaram order S017 is on its way');
+  assert.match(mail.html, /Wakilni tracking number: <strong>WAK-123<\/strong>/);
+  assert.match(mail.html, /\$\d+\.\d\d<\/strong> in cash ready for the driver,\s+plus the \$5\.00 delivery fee/);
+
+  calls.length = 0;
+  handlers['/rest/v1/rpc/claim_dispatch_email'] = () => [200, false];
+  assert.deepEqual((await (await orderStatus(dispatchRequest('right'))).json()).sent, false);
+  assert.equal(emails().length, 0, 'a second request sends nothing');
+});
+
+test('if the email fails, the order can be emailed again later', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_dispatch_email'] = (c) => [200, !c.body.p_release];
+  handlers['/rest/v1/rpc/order_summary'] = () => [200, dispatched];
+  handlers['/emails'] = () => [500, {}];
+  assert.equal((await orderStatus(dispatchRequest('right'))).status, 502);
+  assert.ok(calls.some((c) => c.url.endsWith('/claim_dispatch_email') && c.body.p_release === true));
 });

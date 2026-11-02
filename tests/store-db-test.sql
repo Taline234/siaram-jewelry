@@ -270,6 +270,24 @@ select pg_temp.check(not has_function_privilege('anon', 'public.sales_export(dat
                      and not has_function_privilege('authenticated', 'public.sales_export(date, date)', 'execute'),
   'only the server can read the workbook download');
 
+-- "On its way" email: the trigger is quiet locally (no functions_url, no pg_net); the claim works once.
+update orders set status = 'dispatched', tracking_number = 'WAK-1' where reference = 'S017';
+select pg_temp.check((select status = 'dispatched' and dispatched_email_at is null from orders where reference = 'S017'),
+  'marking an order dispatched works even where the email cannot be sent');
+select pg_temp.check((select claim_dispatch_email(id) from orders where reference = 'S017')
+                     and not (select claim_dispatch_email(id) from orders where reference = 'S017')
+                     and not (select claim_dispatch_email(id) from orders where reference = 'S018'),
+  'the "on its way" email is claimed once, and only for dispatched orders');
+select pg_temp.check((select order_summary(id)->>'tracking_number' = 'WAK-1' from orders where reference = 'S017'),
+  'the order summary includes the tracking number');
+update private.cron set functions_url = 'https://example.invalid/functions/v1' where id = 1;
+update orders set status = 'dispatched' where reference = 'S018';
+update private.cron set functions_url = null where id = 1;
+select pg_temp.check((select status = 'dispatched' from orders where reference = 'S018'),
+  'the trigger does not get in the way when the network add-on is missing');
+select pg_temp.check(not has_function_privilege('anon', 'public.claim_dispatch_email(uuid, boolean)', 'execute'),
+  'only the server can claim the email');
+
 -- Deleting an account keeps the order record without the link to the account.
 delete from auth.users where email = 'rana@example.com';
 select pg_temp.check((select count(*) = 0 from profiles where first_name = 'Rana')
