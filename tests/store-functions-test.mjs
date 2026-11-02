@@ -8,12 +8,12 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJservice';
 process.env.RESEND_API_KEY = 'resend-key';
 process.env.ORDER_NOTIFY_EMAIL = 'shop@siaram.test';
 
-const { default: placeOrder } = await import('../netlify/functions/place-order.mjs');
-const { default: checkVoucher } = await import('../netlify/functions/check-voucher.mjs');
-const { default: deleteAccount } = await import('../netlify/functions/delete-account.mjs');
-const { default: inactiveAccounts } = await import('../netlify/functions/inactive-accounts.mjs');
-const { default: exportSales } = await import('../netlify/functions/export-sales.mjs');
-const { salesCsv, customersCsv } = await import('../netlify/lib/workbook.mjs');
+const { default: placeOrder } = await import('../supabase/functions/_shared/handlers/place-order.mjs');
+const { default: checkVoucher } = await import('../supabase/functions/_shared/handlers/check-voucher.mjs');
+const { default: deleteAccount } = await import('../supabase/functions/_shared/handlers/delete-account.mjs');
+const { default: inactiveAccounts } = await import('../supabase/functions/_shared/handlers/inactive-accounts.mjs');
+const { default: exportSales } = await import('../supabase/functions/_shared/handlers/export-sales.mjs');
+const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
 let handlers;
@@ -191,7 +191,18 @@ test('delete-account deletes the signed-in user only', async () => {
   assert.ok(calls.some((c) => c.method === 'DELETE' && c.url.endsWith('/admin/users/user-1')));
 });
 
+const cronRequest = (secret) => new Request('https://siaram.test/functions/v1/inactive-accounts',
+  { method: 'POST', body: '{}', headers: secret ? { 'x-cron-secret': secret } : {} });
+
+test('only the database scheduler can start the inactivity job', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = (c) => [200, c.body.p_secret === 'right'];
+  assert.equal((await inactiveAccounts(cronRequest())).status, 403);
+  assert.equal((await inactiveAccounts(cronRequest('wrong'))).status, 403);
+  assert.ok(!calls.some((c) => c.url.endsWith('/inactivity_due')), 'nothing is looked up without the secret');
+});
+
 test('inactivity job emails, marks, and deletes', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
   handlers['/rest/v1/rpc/inactivity_due'] = () => [200, [
     { user_id: 'u1', email: 'a@x.com', first_name: 'Rana', action: 'reminder' },
     { user_id: 'u2', email: 'b@x.com', first_name: 'Maya', action: 'deletion_notice' },
@@ -199,7 +210,7 @@ test('inactivity job emails, marks, and deletes', async () => {
   ]];
   handlers['/rest/v1/rpc/mark_inactivity_email'] = () => [200, null];
   handlers['/auth/v1/admin/users/u3'] = () => [200, {}];
-  await inactiveAccounts();
+  assert.deepEqual(await (await inactiveAccounts(cronRequest('right'))).json(), { processed: 3 });
   const marks = calls.filter((c) => c.url.endsWith('/mark_inactivity_email')).map((c) => c.body);
   assert.deepEqual(marks, [{ p_user_id: 'u1', p_action: 'reminder' }, { p_user_id: 'u2', p_action: 'deletion_notice' }]);
   assert.ok(calls.some((c) => c.method === 'DELETE' && c.url.endsWith('/admin/users/u3')));
@@ -213,7 +224,8 @@ test('inactivity job emails, marks, and deletes', async () => {
 test('inactivity email is retried tomorrow if sending fails', async () => {
   handlers['/rest/v1/rpc/inactivity_due'] = () => [200, [{ user_id: 'u1', email: 'a@x.com', first_name: 'R', action: 'reminder' }]];
   handlers['/emails'] = () => [500, {}];
-  await inactiveAccounts();
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  await inactiveAccounts(cronRequest('right'));
   assert.ok(!calls.some((c) => c.url.endsWith('/mark_inactivity_email')));
 });
 
@@ -266,4 +278,15 @@ test('only the owner can download the workbook files', async () => {
   const bytes = Buffer.from(await (await get('kind=customers')).arrayBuffer());
   assert.deepEqual([...bytes.subarray(0, 3)], [0xef, 0xbb, 0xbf], 'starts with the marker Excel needs for accents');
   assert.match(bytes.toString('utf8', 3), /^Name,Phone/);
+});
+
+test('the website on another domain may call the functions', async () => {
+  const { withCors } = await import('../supabase/functions/_shared/http.mjs');
+  const wrapped = withCors(checkVoucher);
+  const pre = await wrapped(new Request('https://x.supabase.co/functions/v1/check-voucher', { method: 'OPTIONS' }));
+  assert.equal(pre.status, 204);
+  assert.match(pre.headers.get('access-control-allow-headers'), /authorization/);
+  const res = await wrapped(request('/functions/v1/check-voucher', {}));
+  assert.equal(res.headers.get('access-control-allow-origin'), '*');
+  assert.equal(res.status, 400);
 });

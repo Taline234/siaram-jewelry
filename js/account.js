@@ -1,7 +1,7 @@
 // Account page: sign in, create account (18+), password reset, and the signed-in area
 // with orders, wishlist, saved addresses and personal details. The shop owner also gets a Workbook tab
 // with the backup download of website sales for the finance workbook.
-import { escapeHtml, getClient, loadProducts, money, productPage, storeEnabled } from './store.js';
+import { apiUrl, escapeHtml, getClient, loadProducts, money, productPage, storeEnabled } from './store.js';
 
 const root = document.getElementById('store-root');
 let client;
@@ -357,7 +357,7 @@ async function renderDetails(panel, session, profile) {
   const danger = panel.querySelector('.danger-zone');
   danger.querySelector('.delete-account').addEventListener('click', async () => {
     if (!confirm('Delete your Siaram account permanently? This cannot be undone.')) return;
-    const res = await fetch('/api/delete-account', {
+    const res = await fetch(apiUrl('delete-account'), {
       method: 'POST', headers: { authorization: `Bearer ${session.access_token}` },
     });
     if (!res.ok) return formMessage(danger, (await res.json().catch(() => ({}))).error || 'Could not delete your account.');
@@ -394,7 +394,7 @@ if (storeEnabled) {
 // ---------------------------------------------------------------- owner: workbook backup
 async function isOwner(session) {
   try {
-    const res = await fetch('/api/export-sales?check=1', { headers: { authorization: `Bearer ${session.access_token}` } });
+    const res = await fetch(`${apiUrl('export-sales')}?check=1`, { headers: { authorization: `Bearer ${session.access_token}` } });
     return res.ok && (await res.json()).owner === true;
   } catch {
     return false;
@@ -432,7 +432,7 @@ function renderWorkbook(panel, session) {
     btn.disabled = true;
     try {
       const { data: { session: current } } = await client.auth.getSession();
-      const res = await fetch(`/api/export-sales?${params}`, {
+      const res = await fetch(`${apiUrl('export-sales')}?${params}`, {
         headers: { authorization: `Bearer ${(current || session).access_token}` },
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not prepare the download.');

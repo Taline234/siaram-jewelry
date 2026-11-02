@@ -705,6 +705,21 @@ language sql stable security definer set search_path = public as $$
   ) x;
 $$;
 
+-- The daily account job is started by the database's scheduler (see supabase/cron.sql). It sends this
+-- random secret, which never leaves the database, and the job checks it here before doing anything.
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+create table if not exists private.cron (
+  id     int primary key default 1 check (id = 1),
+  secret text not null default replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')
+);
+insert into private.cron (id) values (1) on conflict (id) do nothing;
+
+create or replace function public.cron_secret_ok(p_secret text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from private.cron where id = 1 and secret = p_secret);
+$$;
+
 -- Server-only functions.
 revoke execute on function public.place_order(jsonb, uuid)            from public, anon, authenticated;
 revoke execute on function public.check_voucher(text, text, text)    from public, anon, authenticated;
@@ -714,7 +729,8 @@ revoke execute on function public.issue_gift_voucher(text, text, numeric, text, 
 revoke execute on function public.inactivity_due()                    from public, anon, authenticated;
 revoke execute on function public.mark_inactivity_email(uuid, text)   from public, anon, authenticated;
 revoke execute on function public.sales_export(date, date)            from public, anon, authenticated;
+revoke execute on function public.cron_secret_ok(text)                from public, anon, authenticated;
 grant execute on function public.place_order(jsonb, uuid), public.check_voucher(text, text, text),
-  public.inactivity_due(), public.mark_inactivity_email(uuid, text), public.sales_export(date, date) to service_role;
+  public.inactivity_due(), public.mark_inactivity_email(uuid, text), public.sales_export(date, date), public.cron_secret_ok(text) to service_role;
 revoke execute on function public.touch_activity() from public, anon;
 grant execute on function public.touch_activity() to authenticated;

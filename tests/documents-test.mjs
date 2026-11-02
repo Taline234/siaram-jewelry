@@ -2,8 +2,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PDFDocument } from 'pdf-lib';
-import { careWarrantyPdf, itemDescription, receiptPdf } from '../netlify/lib/documents.mjs';
-import { CATALOGUE } from '../netlify/lib/catalogue.mjs';
+import { careWarrantyPdf, itemDescription, receiptPdf } from '../supabase/functions/_shared/documents.mjs';
+import { CATALOGUE } from '../supabase/functions/_shared/catalogue.mjs';
 
 test('item descriptions name the metal, stones, pearls and size for customs', () => {
   assert.equal(itemDescription({ sku: 'RG-06', metal: 'rose', size: 'EU 54' }),

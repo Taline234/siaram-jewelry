@@ -4,6 +4,9 @@
 const config = window.SIARAM_STORE || {};
 export const storeEnabled = Boolean(config.supabaseUrl && config.supabaseAnonKey);
 
+// The store's server functions (placing orders, vouchers, ...) run on Supabase.
+export const apiUrl = (name) => `${config.supabaseUrl}/functions/v1/${name}`;
+
 let clientPromise = null;
 export function getClient() {
   if (!storeEnabled) return Promise.resolve(null);

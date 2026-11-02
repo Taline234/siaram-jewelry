@@ -1,8 +1,9 @@
-// Runs every day. Emails customers whose accounts have been inactive for 12 months,
-// warns after 24 months that the account will be deleted in 30 days, then deletes it.
-import { configured, deleteUser, emailLayout, escapeHtml, rpc, sendEmail } from '../lib/store.mjs';
+// POST /functions/v1/inactive-accounts — called once a day by the database's scheduler (pg_cron).
+// Emails customers whose accounts have been inactive for 12 months, warns after 24 months that the
+// account will be deleted in 30 days, then deletes it. Only the scheduler knows the secret it must send.
+import { configured, deleteUser, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
 
-const site = () => process.env.SITE_URL || 'https://siaramjewelry.com';
+const site = () => env('SITE_URL') || 'https://siaramjewelry.com';
 
 const MESSAGES = {
   reminder: (name) => ({
@@ -29,8 +30,10 @@ const MESSAGES = {
   }),
 };
 
-export default async () => {
-  if (!configured()) return;
+export default async (req) => {
+  if (!configured()) return json({ error: 'Not set up.' }, 503);
+  const secret = req.headers.get('x-cron-secret') || '';
+  if (!secret || !(await rpc('cron_secret_ok', { p_secret: secret }))) return json({ error: 'Not allowed.' }, 403);
   const due = await rpc('inactivity_due', {});
   for (const account of due) {
     try {
@@ -46,6 +49,5 @@ export default async () => {
     }
   }
   console.log(`Inactivity job: ${due.length} account(s) processed`);
+  return json({ processed: due.length });
 };
-
-export const config = { schedule: '@daily' };

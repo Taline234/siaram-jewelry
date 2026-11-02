@@ -1,6 +1,6 @@
-// POST /api/delete-account — lets a signed-in customer delete their own account.
+// POST /functions/v1/delete-account — lets a signed-in customer delete their own account.
 // Order records are kept (without the link to the account) for accounting and warranty.
-import { configured, deleteUser, emailLayout, json, sendEmail, userFromRequest } from '../lib/store.mjs';
+import { configured, deleteUser, emailLayout, json, sendEmail, userFromRequest } from '../store.mjs';
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -21,5 +21,3 @@ export default async (req) => {
     return json({ error: 'Could not delete your account right now. Please contact us.' }, 500);
   }
 };
-
-export const config = { path: '/api/delete-account' };

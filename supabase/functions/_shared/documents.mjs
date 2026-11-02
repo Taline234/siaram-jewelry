@@ -2,6 +2,7 @@
 //   receiptPdf        the receipt: invoice number, customer, and each piece with SKU, materials,
 //                     size, price, quantity and totals (detailed enough for customs)
 //   careWarrantyPdf   the thank-you letter, the filled-in warranty card and the care guide
+import { Buffer } from 'node:buffer';
 import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { ASSETS } from './pdf-assets.mjs';

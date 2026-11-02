@@ -1,15 +1,16 @@
-// Shared helpers for the store's Netlify functions.
+// Shared helpers for the store's server functions (Supabase Edge Functions; the tests run them in Node).
 // Talks to Supabase and Resend over plain HTTPS, so no npm packages are needed.
 //
-// Environment variables (Netlify -> Site configuration -> Environment variables):
-//   SUPABASE_URL               https://<project>.supabase.co
-//   SUPABASE_SERVICE_ROLE_KEY  Supabase -> Project Settings -> API keys -> service_role (keep secret)
+// Environment variables. SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase itself;
+// the rest are set in Supabase -> Edge Functions -> Secrets:
 //   RESEND_API_KEY             Resend -> API Keys
 //   STORE_EMAIL_FROM           e.g. Siaram Jewelry <orders@siaramjewelry.com>
 //   ORDER_NOTIFY_EMAIL         where new orders are sent, e.g. customerservice@siaramjewelry.com
 //   SITE_URL                   https://siaramjewelry.com
+//   OWNER_EMAILS               optional: who sees the Workbook download (comma separated)
+import { Buffer } from 'node:buffer';
 
-const env = (name) => process.env[name] || '';
+export const env = (name) => (globalThis.Deno ? globalThis.Deno.env.get(name) : process.env[name]) || '';
 
 export class CustomerError extends Error {}
 

@@ -1,10 +1,7 @@
-# Netlify settings. The site itself is plain HTML (no build step);
-# the online store's server code lives in netlify/functions.
+# Old Netlify settings, kept only until the site has moved to Cloudflare Pages (then delete this file).
+# The site is plain HTML; the store's server code now runs on Supabase (supabase/functions).
 [build]
   publish = "."
-
-[functions]
-  directory = "netlify/functions"
 
 # Keep source, database and test files off the public website.
 [[redirects]]

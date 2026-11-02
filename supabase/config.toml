@@ -1,0 +1,24 @@
+# Supabase settings for deploying the store's Edge Functions (see .github/workflows/deploy-functions.yml).
+# The functions check sign-ins themselves, so Supabase's own token check is switched off: guests can order
+# without an account, and the daily job proves itself with a secret from the database instead.
+project_id = "siaram-jewelry"
+
+[functions.place-order]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.check-voucher]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.delete-account]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.export-sales]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.inactive-accounts]
+verify_jwt = false
+import_map = "./functions/import_map.json"

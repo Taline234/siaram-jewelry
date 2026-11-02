@@ -278,7 +278,7 @@ Tell us promptly if a reference may have been misused. We will check the remaini
 
 # Privacy policy
 
-*Last updated 30 October 2026*
+*Last updated 2 November 2026*
 
 ## Who handles your information
 
