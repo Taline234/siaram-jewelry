@@ -344,5 +344,18 @@ select pg_temp.check(has_function_privilege('anon', 'public.subscribe_newsletter
 select pg_temp.check(not exists (select 1 from newsletter_subscribers where email in (select email from orders)),
   'placing an order does not subscribe anyone');
 
+-- Custom-piece requests get CR numbers and keep their choices.
+select save_custom_request('{"name":"Rana","email":"Rana@Example.com","phone":"70","piece":"Ring",
+    "gold":"Rose gold","stones":["Emerald","Diamond"],"description":"An emerald ring","occasion":"2026-12-24"}'::jsonb)->>'reference' as cr_ref \gset
+select pg_temp.check(:'cr_ref' = 'CR001'
+                     and (select stones = array['Emerald','Diamond'] and email = 'rana@example.com' and occasion = '2026-12-24'
+                            from custom_requests where reference = 'CR001'),
+  'a custom request is saved with its choices and a CR number');
+select pg_temp.expect_error($$select save_custom_request('{"name":"Rana","email":"x","phone":"70","piece":"Ring","gold":"Rose gold","description":"x"}')$$,
+  'valid email address');
+select pg_temp.check(not has_function_privilege('anon', 'public.save_custom_request(jsonb)', 'execute')
+                     and not has_table_privilege('anon', 'public.custom_requests', 'select'),
+  'only the server can save or read custom requests');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

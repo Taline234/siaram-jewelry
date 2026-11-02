@@ -99,16 +99,130 @@
   </div>
 </section>
 
+<section class="custom-request" id="request">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Request a Custom Piece</span>
+      <h2>Tell Us About Your Idea</h2>
+      <p>Choose what you can; "not sure" is always fine. We reply within 3 to 5 business days with ideas, questions or a
+        first design and quote.</p>
+    </div>
+    <form class="custom-form reveal" novalidate enctype="multipart/form-data">
+      <fieldset>
+        <legend>Type of piece</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="piece" value="Ring" required /><span>Ring</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Necklace" /><span>Necklace</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Bracelet" /><span>Bracelet</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Earrings" /><span>Earrings</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Anklet" /><span>Anklet</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Pendant or charm" /><span>Pendant or charm</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Other" /><span>Other</span></label>
+          <label class="choice-pill"><input type="radio" name="piece" value="Not sure yet" /><span>Not sure yet</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Gold colour <a class="guide-link" href="materials.html#gold" target="_blank">See the gold colours</a></legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="gold" value="Yellow gold" required /><span>Yellow gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="Rose gold" /><span>Rose gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="White gold" /><span>White gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="Not sure yet" /><span>Not sure yet</span></label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Gemstones <span class="legend-note">(choose any)</span> <a class="guide-link" href="materials.html#gemstones" target="_blank">Gemstone guide</a></legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="checkbox" name="stones" value="No stones" /><span>No stones</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Diamond" /><span>Diamond</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="White zircon" /><span>White zircon</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Black zircon" /><span>Black zircon</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Emerald" /><span>Emerald</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Ruby" /><span>Ruby</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Sapphire" /><span>Sapphire</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Pearl" /><span>Pearl</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Turquoise" /><span>Turquoise</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Black onyx" /><span>Black onyx</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Birthstone" /><span>Birthstone</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="My own stone" /><span>My own stone</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Other" /><span>Other</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure, I need guidance" /><span>Not sure, I need guidance</span></label>
+        </div>
+      </fieldset>
+      <div class="form-grid">
+        <label class="field"><span>Stone cut <a class="guide-link" href="materials.html#cuts" target="_blank">See the cuts</a></span>
+          <select name="cut">
+              <option value="">Choose a cut (optional)</option>
+              <option>Round brilliant</option>
+              <option>Oval</option>
+              <option>Princess</option>
+              <option>Cushion</option>
+              <option>Emerald cut</option>
+              <option>Pear</option>
+              <option>Marquise</option>
+              <option>Heart</option>
+              <option>Baguette</option>
+              <option>Cabochon</option>
+              <option>Not sure yet</option>
+          </select></label>
+        <label class="field"><span>Stone setting <a class="guide-link" href="materials.html#settings" target="_blank">See the settings</a></span>
+          <select name="setting">
+              <option value="">Choose a setting (optional)</option>
+              <option>Prong (claw)</option>
+              <option>Bezel</option>
+              <option>Pavé</option>
+              <option>Channel</option>
+              <option>Halo</option>
+              <option>Flush</option>
+              <option>Bar</option>
+              <option>Cluster</option>
+              <option>Not sure yet</option>
+          </select></label>
+        <label class="field"><span>Size or length <a class="guide-link" href="size-guide.html" target="_blank">Size guide</a></span>
+          <input name="size" maxlength="80" placeholder="e.g. EU 54, 16 cm, 45 cm (optional)" /></label>
+      </div>
+      <label class="field"><span>Describe your piece</span>
+        <textarea name="description" rows="5" required maxlength="4000"
+          placeholder="A name or initial, the feeling you want, a piece you have seen, a stone you own…"></textarea></label>
+      <label class="field"><span>Sketch or photos (optional, up to 3 photos or PDFs, 8 MB each)</span>
+        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
+      <div class="form-grid">
+        <label class="field"><span>Occasion date (optional)</span><input type="date" name="occasion" /></label>
+        <label class="field"><span>Budget (optional)</span>
+          <select name="budget">
+              <option value="">Choose a range</option>
+              <option>Under $500</option>
+              <option>$500–$1,000</option>
+              <option>$1,000–$2,000</option>
+              <option>Over $2,000</option>
+              <option>Not sure yet</option>
+          </select></label>
+      </div>
+      <div class="form-grid">
+        <label class="field"><span>Full name</span><input name="name" required maxlength="200" autocomplete="name" /></label>
+        <label class="field"><span>Phone (with country code if outside Lebanon)</span>
+          <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
+        <label class="field"><span>Email</span><input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+      </div>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="field-note">We use these details only to reply about your piece; see our <a href="privacy.html">Privacy Policy</a>
+        and how deposits work in our <a href="custom-orders.html">Custom Orders policy</a>.</p>
+      <p class="form-msg form-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary">Send My Request</button>
+    </form>
+  </div>
+</section>
+
 <section class="alt-bg">
   <div class="container split custom-enquire">
     <div class="split-media reveal">
       <img src="images/custom/arabic-name-bracelet.jpg" alt="Gold bracelet with an Arabic name, worn on the wrist" loading="lazy" />
     </div>
     <div class="split-text reveal">
-      <span class="eyebrow">Enquire</span>
-      <h2>Start Your Piece</h2>
-      <p>Write to us with your idea and any budget you have in mind. Custom pieces normally take three to four weeks
-        from approved design and deposit; design time is extra.</p>
+      <span class="eyebrow">Prefer to Talk?</span>
+      <h2>Not Sure Where to Start?</h2>
+      <p>Email or WhatsApp us and we will guide you, from choosing a stone to finding your size. Custom pieces normally
+        take three to four weeks from approved design and deposit; design time is extra.</p>
       <p class="field-note">How deposits, changes and returns work for custom pieces is set out in our
         <a href="custom-orders.html">Custom Orders policy</a>.</p>
       <div class="hero-actions custom-actions">
@@ -151,6 +265,8 @@
           <li><a href="custom.html">Custom Pieces</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="faq.html">FAQ</a></li>
+          <li><a href="size-guide.html">Size Guide</a></li>
+          <li><a href="materials.html">Gold &amp; Gemstones</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -186,5 +302,6 @@
 <script src="js/script.js"></script>
 <script src="js/store-config.js"></script>
 <script type="module" src="js/store.js"></script>
+<script type="module" src="js/custom-request.js"></script>
 </body>
 </html>
