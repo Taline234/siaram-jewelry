@@ -1,10 +1,11 @@
 // Checkout page: guest, sign-in or new-account checkout, Lebanon-only delivery, gift vouchers, cash payment.
 import {
-  apiUrl, escapeHtml, getCart, getClient, getSession, loadProducts, money, optionsLabel, purchasable, setCart, storeEnabled,
+  apiUrl, availabilityHtml, escapeHtml, getCart, getClient, getSession, lineKey, loadProducts, loadStock, money,
+  optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
 
 const root = document.getElementById('store-root');
-const state = { voucher: null, areas: [], products: {}, session: null, addresses: [] };
+const state = { voucher: null, areas: [], products: {}, session: null, addresses: [], stock: new Set() };
 
 const field = (name, label, attrs = '') => `<label class="field"><span>${label}</span>
   <input name="${name}" ${attrs} /></label>`;
@@ -17,7 +18,16 @@ function totals() {
   const fee = area ? area.delivery_fee : null;
   // Delivery is paid to the courier in cash, so neither the jewellery total nor a voucher covers it.
   const discount = state.voucher ? Math.min(state.voucher.balance, subtotal) : 0;
-  return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area) };
+  const made = cart.filter((i) => !state.stock.has(lineKey(i)))
+    .reduce((sum, i) => sum + (state.products[i.slug]?.price || 0) * i.quantity, 0);
+  return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area), ...split(subtotal - discount, made) };
+}
+
+// Made-to-order pieces are paid by Whish before production; the rest in cash on delivery.
+// Voucher credit goes to the in-stock pieces first.
+function split(total, madeToOrder) {
+  const cash = Math.max(total - madeToOrder, 0);
+  return { cash, whish: total - cash };
 }
 
 function renderSummary() {
@@ -25,7 +35,7 @@ function renderSummary() {
   const lines = t.cart.map((i) => {
     const p = state.products[i.slug];
     return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}
-      <small class="summary-options">${optionsLabel(i)}</small></span><span>${money(p.price * i.quantity)}</span></div>`;
+      <small class="summary-options">${optionsLabel(i)}</small>${availabilityHtml(state.stock, i)}</span><span>${money(p.price * i.quantity)}</span></div>`;
   }).join('');
   const delivery = !t.areaChosen ? 'Choose your area to see the delivery fee.'
     : t.fee === null ? 'Delivery fee confirmed before dispatch, paid to the courier in cash.'
@@ -33,7 +43,8 @@ function renderSummary() {
   root.querySelector('.summary-lines').innerHTML = `${lines}
     <div class="summary-row summary-sub"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     ${t.discount ? `<div class="summary-row"><span>Gift voucher</span><span>&minus;${money(t.discount)}</span></div>` : ''}
-    <div class="summary-row summary-total"><span>To pay in cash on delivery</span><span>${money(t.total)}</span></div>
+    ${t.cash || !t.whish ? `<div class="summary-row summary-total"><span>To pay in cash on delivery</span><span>${money(t.cash)}</span></div>` : ''}
+    ${t.whish ? `<div class="summary-row summary-total"><span>To pay by Whish before production</span><span>${money(t.whish)}</span></div>` : ''}
     <p class="summary-note">${delivery}</p>`;
 }
 
@@ -186,9 +197,14 @@ async function applyVoucher() {
 }
 
 function showConfirmation(order) {
+  const made = (order.items || []).filter((i) => i.made_to_order)
+    .reduce((sum, i) => sum + Number(i.unit_price) * i.quantity, 0);
+  const pay = split(Number(order.total), made);
   const toPay = Number(order.total) <= 0
     ? '<p>Your gift voucher covers this order, so there is nothing more to pay for your jewellery.</p>'
-    : `<p>You'll pay <strong>${money(order.total)}</strong> in cash to the driver when your order arrives.</p>`;
+    : `${pay.cash ? `<p>You'll pay <strong>${money(pay.cash)}</strong> in cash to the driver when your order arrives.</p>` : ''}
+       ${pay.whish ? `<p>Your made-to-order pieces (<strong>${money(pay.whish)}</strong>) are paid by Whish: we'll send you a
+         payment request, and production starts once it is paid. They take 3&ndash;4 weeks and are final sale.</p>` : ''}`;
   const handover = `<p>${order.delivery_fee === null || order.delivery_fee === undefined
         ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the courier in cash.'
         : `The delivery fee of ${money(order.delivery_fee)} is paid to the courier in cash.`}</p>`;
@@ -267,12 +283,14 @@ async function init() {
     return;
   }
   const client = await getClient();
-  const [products, areas, session] = await Promise.all([
+  const [products, areas, session, stock] = await Promise.all([
     loadProducts(),
     client.from('delivery_areas').select('*').order('sort'),
     getSession(),
+    loadStock().catch(() => new Set()),
   ]);
   if (areas.error) throw areas.error;
+  state.stock = stock;
   state.products = products;
   state.areas = areas.data;
   state.session = session;

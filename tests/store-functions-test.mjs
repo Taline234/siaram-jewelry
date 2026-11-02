@@ -41,9 +41,9 @@ const request = (path, body, headers = {}) =>
 const savedOrder = {
   reference: 'S016', customer_name: 'Rana <b>Haddad</b>', email: 'rana@example.com', phone: '70',
   governorate: 'Beirut', city: 'Achrafieh', street: 'St 1', building: null, floor: null, notes: null,
-  subtotal: 120, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 120,
-  items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1, metal: 'yellow', size: '' },
-          { sku: 'RG-01', name: 'Crescent Moon Ring', unit_price: 85, quantity: 1, metal: 'rose', size: 'EU 52' }],
+  subtotal: 205, delivery_fee: null, voucher_code: null, voucher_amount: 0, total: 205,
+  items: [{ sku: 'NK-07', name: 'V-Bird Necklace', unit_price: 120, quantity: 1, metal: 'yellow', size: '', made_to_order: false },
+          { sku: 'RG-01', name: 'Crescent Moon Ring', unit_price: 85, quantity: 1, metal: 'rose', size: 'EU 52', made_to_order: true }],
 };
 
 const emails = () => calls.filter((c) => c.url === 'https://api.resend.com/emails').map((c) => c.body);
@@ -72,12 +72,18 @@ test('guest order is saved and both emails are sent', async () => {
   assert.equal(shop.reply_to, 'rana@example.com');
   assert.match(shop.subject, /S016/);
   assert.match(shop.html, /NK-07 &middot; V-Bird Necklace/, 'the shop email shows the SKU');
-  assert.match(customer.html, /Crescent Moon Ring &times; 1<br><span[^>]*>18k rose gold &middot; EU 52<\/span>/, 'emails show metal and size');
-  assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold<\/span>/, 'pieces without a size show the metal only');
+  assert.match(customer.html, /Crescent Moon Ring &times; 1<br><span[^>]*>18k rose gold &middot; EU 52 &middot; Made to order \(3–4 weeks, paid by Whish\)<\/span>/,
+    'emails show metal, size and whether the piece is made to order');
+  assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold &middot; In stock<\/span>/);
+  assert.match(customer.html, /You will pay <strong>\$120\.00<\/strong> in cash/);
+  assert.match(customer.html, /made-to-order pieces \(<strong>\$85\.00<\/strong>\) are paid by Whish/);
+  assert.match(shop.subject, /\$120\.00 cash \+ \$85\.00 Whish/);
+  assert.match(shop.html, /Made to order:<\/strong> send the customer a Whish\s+payment request for \$85\.00/);
   assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
   assert.match(shop.html, /For your finance workbook/, 'the shop email lists rows for the finance workbook');
   assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Cash<\/td>/,
     'rows follow the Sales tab columns');
+  assert.match(shop.html, /<td[^>]*>RG-01<\/td><td[^>]*>1<\/td><td[^>]*>85\.00<\/td><td[^>]*>Whish<\/td>/, 'made-to-order pieces are paid by Whish');
   assert.doesNotMatch(customer.html, /finance workbook/, 'customers do not see it');
   assert.deepEqual(customer.attachments.map((a) => a.filename), ['Siaram-receipt-S016.pdf', 'Siaram-care-and-warranty-S016.pdf'],
     'the customer gets the receipt and the care and warranty card');

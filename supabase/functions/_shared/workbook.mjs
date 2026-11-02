@@ -34,7 +34,7 @@ export function salesCsv(orders) {
       const byVoucher = Math.min(voucherLeft, line);
       voucherLeft -= byVoucher;
       const cash = line - byVoucher;
-      const method = cash === 0 && byVoucher > 0 ? 'Gift Voucher' : PAY[o.payment_method] || 'Cash';
+      const method = cash === 0 && byVoucher > 0 ? 'Gift Voucher' : i.made_to_order ? 'Whish' : PAY[o.payment_method] || 'Cash';
       rows.push([
         o.reference, o.sale_date, o.customer_name, 'Website', i.sku || '', '', i.quantity,
         amount(cents(i.unit_price)), 'Percentage', 0, '', method, delivered ? amount(cash) : '0.00',

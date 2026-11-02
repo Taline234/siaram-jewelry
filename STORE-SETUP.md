@@ -115,6 +115,12 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
    on its way (with the tracking number and the cash to have ready). It is sent once per order.
 5. Set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
 
+**Stock** — in **Table Editor → stock**, one row per piece, metal and size you have ready to ship (size is
+empty for necklaces and earrings, `EU 54` for rings, the length as listed on the site for bracelets, e.g.
+`16–17 cm`). The website shows "In stock" for those and "Made to order" for everything else. Website orders take
+a piece off automatically, and setting an order to `cancelled` puts it back. When you sell on Instagram,
+WhatsApp or in person, lower the quantity yourself; when new pieces arrive, add a row (**Insert**) or raise it.
+
 **Issue a gift voucher** — after the purchaser has paid, open **SQL Editor** and run:
 ```sql
 select issue_gift_voucher('Recipient Full Name', 'Purchaser Full Name', 150, 'recipient@email.com', '+961 70 000 000');

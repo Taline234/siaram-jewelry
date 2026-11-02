@@ -1,7 +1,7 @@
 // POST /functions/v1/place-order — validates and saves an order, then emails the shop and the customer.
 import {
   CustomerError, configured, emailLayout, env, escapeHtml, financeRowsHtml, json, orderSummaryHtml, readJson,
-  paymentInstructionsHtml, rpc, sendEmail, userFromRequest,
+  paymentInstructionsHtml, paymentSplit, rpc, sendEmail, userFromRequest,
 } from '../store.mjs';
 import { careWarrantyPdf, receiptPdf } from '../documents.mjs';
 
@@ -35,6 +35,9 @@ export default async (req) => {
     if (saved.duplicate) return json({ order: saved });
 
     const notify = env('ORDER_NOTIFY_EMAIL');
+    const pay = paymentSplit(saved);
+    const howPaid = [pay.cash && `$${pay.cash.toFixed(2)} cash`, pay.whish && `$${pay.whish.toFixed(2)} Whish`].filter(Boolean).join(' + ')
+      || 'gift voucher';
     // The receipt and the care and warranty card, from the owner's Canva template. If they cannot be
     // drawn, the emails still go out without them: the order is already saved.
     let receipt = null;
@@ -59,9 +62,11 @@ export default async (req) => {
       sendEmail({
         to: notify,
         replyTo: saved.email,
-        subject: `New order ${saved.reference} — $${Number(saved.total).toFixed(2)} cash (${saved.customer_name})`,
+        subject: `New order ${saved.reference} — ${howPaid} (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
-          `<p style="font-size:15px;line-height:1.6">Payment: cash on delivery.
+          `${pay.whish ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Made to order:</strong> send the customer a Whish
+            payment request for $${pay.whish.toFixed(2)}, and order production once it is paid.</p>` : ''}
+           <p style="font-size:15px;line-height:1.6">Payment: ${howPaid}${pay.cash ? ' (cash on delivery)' : ''}.
             Status: received — new order to prepare${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
         attachments: [receiptFile].filter(Boolean),

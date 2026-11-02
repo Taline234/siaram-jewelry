@@ -1,11 +1,11 @@
 // Cart page.
 import {
-  escapeHtml, getCart, lineKey, loadProducts, money, optionsLabel, productPage, purchasable, setCart, storeEnabled,
+  availabilityHtml, escapeHtml, getCart, lineKey, loadProducts, loadStock, money, optionsLabel, productPage, purchasable, setCart, storeEnabled,
 } from './store.js';
 
 const root = document.getElementById('store-root');
 
-function render(products) {
+function render(products, stock) {
   const cart = getCart();
   if (!cart.length) {
     root.innerHTML = `<div class="store-empty">
@@ -28,6 +28,7 @@ function render(products) {
       <div class="cart-info">
         <a href="${productPage(line.slug)}" class="cart-name">${escapeHtml(p ? p.name : line.slug)}</a>
         <span class="cart-options">${optionsLabel(line)}</span>
+        ${ok ? availabilityHtml(stock, line) : ''}
         ${ok ? `<span class="cart-unit">${money(p.price)} each</span>`
              : '<span class="form-error">No longer available online &mdash; please remove it.</span>'}
       </div>
@@ -53,17 +54,17 @@ function render(products) {
     const key = el.dataset.key;
     el.querySelector('.qty-select').addEventListener('change', (e) => {
       setCart(getCart().map((i) => (lineKey(i) === key ? { ...i, quantity: Number(e.target.value) } : i)));
-      render(products);
+      render(products, stock);
     });
     el.querySelector('.cart-remove').addEventListener('click', () => {
       setCart(getCart().filter((i) => lineKey(i) !== key));
-      render(products);
+      render(products, stock);
     });
   });
 }
 
 if (storeEnabled) {
-  loadProducts().then(render).catch(() => {
+  Promise.all([loadProducts(), loadStock()]).then(([products, stock]) => render(products, stock)).catch(() => {
     root.innerHTML = '<p class="form-error">Sorry, the cart could not be loaded. Please refresh the page.</p>';
   });
 }
