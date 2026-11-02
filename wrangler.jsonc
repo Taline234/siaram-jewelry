@@ -1,10 +1,15 @@
-// Cloudflare settings: the website is served as static files (no server code; the store's code runs on
-// Supabase). Cloudflare builds it with "bash tools/build-site.sh" and publishes it with "npx wrangler deploy".
+// Cloudflare settings: the website is served as static files from dist/ (the store's code runs on Supabase).
+// Cloudflare builds it with "bash tools/build-site.sh" and publishes it with "npx wrangler deploy".
+// worker/gate.js sits in front of the files: it does nothing unless the SITE_PASSWORD secret is set, in which
+// case the whole site is behind a "Private access" page (see STORE-SETUP.md, "Closing the site while you edit").
 {
   "name": "siaram-jewelry",
+  "main": "worker/gate.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",
-    "not_found_handling": "404-page"
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "run_worker_first": true
   }
 }
