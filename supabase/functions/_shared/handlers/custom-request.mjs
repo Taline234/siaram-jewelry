@@ -73,7 +73,7 @@ export default async (req) => {
         subject: `Custom request ${reference} — ${request.piece} (${request.name})`,
         html: emailLayout(`Custom request ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(request.name)}</strong> &middot; ${escapeHtml(request.email)}
-           &middot; ${escapeHtml(request.phone)}</p>${details}
+           &middot; WhatsApp ${escapeHtml(request.phone)}</p>${details}
            <p style="font-size:14px;line-height:1.6">${attachments.length ? `${attachments.length} file(s) attached.` : 'No files attached.'}
            Reply to this email to answer the customer. The request is saved in Supabase (custom_requests).</p>`),
         attachments,

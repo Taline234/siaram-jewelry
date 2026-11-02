@@ -157,29 +157,43 @@ GOLD = [
 # name, colours, traditionally associated with, Mohs hardness, everyday-wear note
 STONES = [
     ("Diamond", "Colourless, also yellow, pink and other rare colours", "love, strength and eternity",
-     "10", "The hardest natural stone: ideal for rings and pieces worn every day."),
+     "10", "The hardest natural stone: ideal for rings and pieces worn every day.",
+     "Any setting. Prong lets in the most light; halo and pav&eacute; add extra sparkle."),
     ("Zircon", "White (colourless) and black in our pieces; also blue", "clarity, wisdom and confidence",
-     "6.5&ndash;7.5", "Bright sparkle at a gentle price; good for everyday wear with a little care."),
+     "6.5&ndash;7.5", "Bright sparkle at a gentle price; good for everyday wear with a little care.",
+     "Prong or bezel. A bezel protects the edges in rings worn every day."),
     ("Emerald", "Green", "renewal, love and hope", "7.5&ndash;8",
-     "Hard but can have natural inclusions; avoid knocks and ultrasonic cleaners."),
-    ("Ruby", "Red", "passion, protection and vitality", "9", "Very durable: excellent for rings and everyday pieces."),
+     "Hard but can have natural inclusions; avoid knocks and ultrasonic cleaners.",
+     "Bezel, or prongs that cover the cut corners. A halo also protects it."),
+    ("Ruby", "Red", "passion, protection and vitality", "9", "Very durable: excellent for rings and everyday pieces.",
+     "Any setting: prong, bezel, halo, channel or cluster."),
     ("Sapphire", "Blue, also pink, yellow and white", "wisdom, loyalty and calm", "9",
-     "Very durable: excellent for rings and everyday pieces."),
+     "Very durable: excellent for rings and everyday pieces.",
+     "Any setting: prong, bezel, halo, channel or cluster."),
     ("Pearl", "White, cream, pink and blue freshwater pearls", "purity, grace and new beginnings", "2.5&ndash;4.5",
-     "Soft and delicate: put perfume on before wearing pearls, and store them apart from other jewelry."),
+     "Soft and delicate: put perfume on before wearing pearls, and store them apart from other jewelry.",
+     "A gold peg and cup (the pearl is glued on a post); bezel for rings."),
     ("Turquoise", "Sky blue to green-blue", "protection, healing and good fortune", "5&ndash;6",
-     "Porous: keep away from water, lotions and perfume."),
-    ("Amethyst", "Purple", "calm, balance and clarity", "7", "Durable for everyday wear; keep out of strong sunlight."),
-    ("Aquamarine", "Pale to sea blue", "serenity, courage and the sea", "7.5&ndash;8", "Durable and easy to wear."),
+     "Porous: keep away from water, lotions and perfume.",
+     "Bezel, as a smooth cabochon."),
+    ("Amethyst", "Purple", "calm, balance and clarity", "7", "Durable for everyday wear; keep out of strong sunlight.",
+     "Prong or bezel; bezel for rings worn every day."),
+    ("Aquamarine", "Pale to sea blue", "serenity, courage and the sea", "7.5&ndash;8", "Durable and easy to wear.",
+     "Prong or halo, to show off its pale blue colour."),
     ("Topaz", "Blue, golden, pink and colourless", "strength, friendship and warmth", "8",
-     "Hard, but a sharp knock can chip it; fine for everyday wear."),
+     "Hard, but a sharp knock can chip it; fine for everyday wear.",
+     "Prong or bezel; bezel for rings worn every day."),
     ("Garnet", "Deep red, also green and orange", "devotion, friendship and energy", "6.5&ndash;7.5",
-     "Good for everyday wear."),
+     "Good for everyday wear.",
+     "Prong, bezel or cluster."),
     ("Peridot", "Olive to lime green", "light, positivity and protection", "6.5&ndash;7",
-     "Best in pendants and earrings, or rings worn with care."),
+     "Best in pendants and earrings, or rings worn with care.",
+     "Bezel for rings; prong for earrings and pendants."),
     ("Opal", "Milky white or dark, with flashes of colour", "creativity, hope and inspiration", "5.5&ndash;6.5",
-     "Delicate: best in pendants and earrings; avoid heat and sudden temperature changes."),
-    ("Black Onyx", "Deep black", "strength, focus and protection", "6.5&ndash;7", "Good for everyday wear."),
+     "Delicate: best in pendants and earrings; avoid heat and sudden temperature changes.",
+     "Bezel, which protects its delicate edges."),
+    ("Black Onyx", "Deep black", "strength, focus and protection", "6.5&ndash;7", "Good for everyday wear.",
+     "Bezel or flush, often as a smooth cabochon or flat inlay."),
 ]
 
 # name, short description (drawings are in gem_art.py)
@@ -222,7 +236,7 @@ gold_cards = "\n".join(f"""      <article class="guide-card reveal">
       </article>""" for key, name, what, look, care in GOLD)
 
 stone_rows = "\n".join(f"""          <tr><th scope="row">{name}</th><td>{colours}</td><td>{meaning[0].upper() + meaning[1:]}</td>
-            <td>{hard}</td><td>{note}</td></tr>""" for name, colours, meaning, hard, note in STONES)
+            <td>{hard}</td><td>{note}</td><td>{best}</td></tr>""" for name, colours, meaning, hard, note, best in STONES)
 
 cut_cards = "\n".join(f"""      <div class="cut-card reveal">
         {art(CUT_ART[name], name + " cut")}
@@ -258,7 +272,7 @@ materials_body = f"""
         Hardness is on the Mohs scale, from 1 (softest) to 10 (diamond): stones of 7 or more are the most comfortable
         for rings worn every day, while softer stones are lovely in earrings and pendants.</p>
       <div class="table-wrap"><table class="size-table stone-table">
-        <thead><tr><th>Stone</th><th>Colours</th><th>Traditionally symbolises</th><th>Hardness</th><th>Everyday wear</th></tr></thead>
+        <thead><tr><th>Stone</th><th>Colours</th><th>Traditionally symbolises</th><th>Hardness</th><th>Everyday wear</th><th>Best settings</th></tr></thead>
         <tbody>
 {stone_rows}
         </tbody>
@@ -317,3 +331,37 @@ for fname, title, desc, top, body in PAGES:
         sitemap = sitemap.replace("</urlset>", f"  {loc}\n</urlset>")
     print("wrote", fname)
 open("sitemap.xml", "w", encoding="utf-8").write(sitemap)
+
+# ------------------------------------------------------------------ pop-ups on the Custom page
+# The guide links in the custom request form open these on the same page instead of going to the guide pages.
+def chunk(body, anchor):
+    """One topic from a guide page (its heading, text and any cards that follow), without the scroll animation."""
+    start = body.index(f'<div class="guide-section reveal" id="{anchor}">')
+    rest = body[start + 1:]
+    ends = [i for i in (rest.find('<div class="guide-section'), rest.find('<div class="guide-help'),
+                        rest.find('<svg class="gem-defs"')) if i != -1]
+    part = body[start:start + 1 + min(ends)]
+    return re.sub(r' id="[a-z]+"', "", part).replace(" reveal", "").rstrip() + "\n"
+
+
+POPUP_HELP = HELP.replace(" reveal", "").replace("<h2>Not sure?</h2>", "<h3>Not sure?</h3>")
+POPUPS = [
+    ("gold", "Gold colours", chunk(materials_body, "gold")),
+    ("gemstones", "Gemstones", chunk(materials_body, "gemstones")),
+    ("cuts", "Cuts", chunk(materials_body, "cuts")),
+    ("settings", "Settings", chunk(materials_body, "settings")),
+    ("size", "Size guide", "".join(chunk(size_body, a) for a in ("rings", "bracelets", "necklaces", "anklets"))),
+]
+popups = "\n".join(f"""<dialog class="size-guide guide-popup" id="size-guide-{key}" aria-label="{label}">
+  <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+{content}{POPUP_HELP}</dialog>""" for key, label, content in POPUPS)
+
+START, END = "<!-- guide pop-ups: made by tools/build_guides.py -->", "<!-- end of guide pop-ups -->"
+custom = open("custom.html", encoding="utf-8").read()
+block = f"{START}\n{DEFS}\n{popups}\n{END}"
+if START in custom:
+    custom = custom[:custom.index(START)] + block + custom[custom.index(END) + len(END):]
+else:
+    custom = custom.replace("<footer", block + "\n\n<footer", 1)
+open("custom.html", "w", encoding="utf-8").write(custom)
+print("wrote the guide pop-ups in custom.html")
