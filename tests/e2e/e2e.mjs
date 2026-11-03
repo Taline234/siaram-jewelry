@@ -184,6 +184,11 @@ assert.equal(await page.locator('.product-actions a[href^="mailto:"]').count(), 
 assert.match(await page.locator('.made-to-order-note').textContent(), /made to order: allow 3 to 4 weeks\. Made-to-order pieces are final sale\./);
 await page.waitForSelector('.stock-status .availability');
 assert.match(await page.locator('.stock-status').textContent(), /In stock · ships in 1–2 business days/, 'yellow gold is in stock');
+await page.selectOption('.product-buy .qty-select', '2');
+assert.match(await page.locator('.stock-status').textContent(), /Made to order · 3–4 weeks, paid by Whish, final sale Only 1 in stock: choose 1 to receive it in 1–2 business days\./,
+  'asking for more than is in stock says made to order before the order, as the database will decide');
+await page.selectOption('.product-buy .qty-select', '1');
+assert.match(await page.locator('.stock-status').textContent(), /In stock/, 'back to one: in stock again');
 await page.click('.metal-choice:has([value=rose])');
 assert.match(await page.locator('.stock-status').textContent(), /Made to order · 3–4 weeks, paid by Whish, final sale/, 'rose gold is made to order');
 await page.selectOption('.product-buy .qty-select', '2');

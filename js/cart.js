@@ -65,7 +65,7 @@ function render(products, stock) {
 
 if (storeEnabled) {
   // Stock labels are a bonus: the cart still works if they cannot be loaded.
-  Promise.all([loadProducts(), loadStock().catch(() => new Set())]).then(([products, stock]) => render(products, stock)).catch(() => {
+  Promise.all([loadProducts(), loadStock().catch(() => new Map())]).then(([products, stock]) => render(products, stock)).catch(() => {
     root.innerHTML = '<p class="form-error">Sorry, the cart could not be loaded. Please refresh the page.</p>';
   });
 }

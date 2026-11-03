@@ -423,10 +423,12 @@ update public.stock s set length = v.length
   ) as v(slug, length)
  where s.product_slug = v.slug and s.length is distinct from v.length;
 
--- What the website may show: which piece, metal and size combinations are ready to ship (not how many).
-create or replace function public.available_stock() returns table (product_slug text, metal text, size text)
+-- What the website may show: which piece, metal and size combinations are ready to ship, and how many, so the
+-- cart and checkout can say "made to order" before an order asks for more than there is in stock.
+drop function if exists public.available_stock();
+create function public.available_stock() returns table (product_slug text, metal text, size text, quantity int)
 language sql stable security definer set search_path = public as $$
-  select s.product_slug, s.metal, s.size from public.stock s where s.quantity > 0;
+  select s.product_slug, s.metal, s.size, s.quantity from public.stock s where s.quantity > 0;
 $$;
 
 -- Cancelling an order puts its in-stock pieces back.
