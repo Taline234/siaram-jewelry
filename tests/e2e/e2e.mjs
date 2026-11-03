@@ -80,9 +80,17 @@ assert.match(await page.locator('.custom-form .form-msg').textContent(), /type o
 await page.check('.custom-form [name=piece][value=Ring]', { force: true });
 await page.check('.custom-form [name=gold][value="Rose gold"]', { force: true });
 await page.check('.custom-form [name=stones][value=Diamond]', { force: true });
+await page.check('.custom-form [name=stones][value=Other]', { force: true });
+assert.ok(await page.locator('.custom-form [name=stones_other]').isVisible(), '"Other" gemstones asks which ones');
+await page.click('.custom-form button[type=submit]');
+assert.match(await page.locator('.custom-form .form-msg').textContent(), /which other gemstones/);
+await page.fill('.custom-form [name=stones_other]', 'Amethyst');
 await page.selectOption('.custom-form [name=cut]', 'Oval');
 await page.selectOption('.custom-form [name=setting]', 'Halo');
-await page.fill('.custom-form [name=size]', 'EU 54');
+assert.ok(await page.locator('.size-panel[data-for=Ring]').isVisible(), 'a ring shows ring sizes');
+assert.ok(await page.locator('.neck-picker').isHidden(), 'a ring hides the necklace lengths');
+await page.click('.ring-choices [data-size^="EU 54"]');
+assert.equal(await page.inputValue('.custom-form [name=size]'), 'EU 54 · US 7', 'choosing a size fills the size box');
 await page.fill('.custom-form [name=description]', 'An oval diamond ring with my initials inside');
 await page.setInputFiles('.custom-form [name=files]', { name: 'sketch.png', mimeType: 'image/png', buffer: Buffer.from([137, 80, 78, 71]) });
 await page.fill('.custom-form [name=name]', 'Nour Aoun');
@@ -98,7 +106,7 @@ await page.waitForSelector('.custom-done');
 assert.match(await page.locator('.custom-done').textContent(), /CR\d{3}/);
 const [customRow] = await q("select piece, gold, stones, cut, setting, files from custom_requests where email = 'nour@example.com'");
 assert.deepEqual([customRow.piece, customRow.gold, customRow.stones, customRow.cut, customRow.setting, customRow.files],
-  ['Ring', 'Rose gold', ['Diamond'], 'Oval', 'Halo', ['sketch.png']]);
+  ['Ring', 'Rose gold', ['Diamond', 'Other: Amethyst'], 'Oval', 'Halo', ['sketch.png']]);
 const customMails = (await setState({})).emails.filter((e) => /Custom request|custom piece request/.test(e.subject));
 assert.equal(customMails.length, 2);
 assert.deepEqual(customMails.find((e) => e.to[0] === 'customerservice@siaramjewelry.com').attachments.map((a) => a.filename), ['sketch.png']);

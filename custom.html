@@ -208,6 +208,8 @@
           <label class="choice-pill"><input type="checkbox" name="stones" value="Other" /><span>Other</span></label>
           <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure, I need guidance" /><span>Not sure, I need guidance</span></label>
         </div>
+        <label class="field stones-other" hidden><span>Which gemstones?</span>
+          <input name="stones_other" maxlength="200" placeholder="e.g. Amethyst, tanzanite, pink sapphire" /></label>
       </fieldset>
       <div class="form-grid">
         <label class="field"><span>Stone cut <a class="guide-link size-guide-open" data-guide="cuts" href="materials.html#cuts">See the cuts</a></span>
@@ -238,9 +240,80 @@
               <option>Cluster</option>
               <option>Not sure yet</option>
           </select></label>
-        <label class="field"><span>Size or length <a class="guide-link size-guide-open" data-guide="size" href="size-guide.html">Size guide</a></span>
-          <input name="size" maxlength="80" placeholder="e.g. EU 54, 16 cm, 45 cm (optional)" /></label>
       </div>
+      <fieldset class="size-studio">
+        <legend>Size or length <span class="legend-note">(optional)</span> <a class="guide-link size-guide-open" data-guide="size" href="size-guide.html">Size guide</a></legend>
+        <p class="size-studio-hint">Choose the type of piece above, then pick a size here.</p>
+        <div class="size-panel" data-for="Necklace|Pendant or charm" hidden>
+          <p class="size-panel-note">Where should it fall? Choose a length.</p>
+          <div class="neck-picker">
+            <svg class="neck-art" viewBox="0 0 300 250" aria-hidden="true" focusable="false">
+              <path class="neck-body" d="M128 0 C129 30 128 55 126 72 C110 92 70 98 34 112 C18 120 12 140 10 250 M172 0 C171 30 172 55 174 72 C190 92 230 98 266 112 C282 120 288 140 290 250" />
+              <path class="neck-body faint" d="M95 104 Q122 112 140 102 M205 104 Q178 112 160 102" />
+              <g class="neck-line" data-size="Collar · 30–33 cm"><path d="M127 56 Q150 80 173 56" /><circle cx="150" cy="68" r="4.5" /></g>
+              <g class="neck-line" data-size="Choker · 35–40 cm"><path d="M125 76 Q150 120 175 76" /><circle cx="150" cy="98" r="4.5" /></g>
+              <g class="neck-line" data-size="Princess · 43–48 cm"><path d="M121 84 Q150 172 179 84" /><circle cx="150" cy="128" r="4.5" /></g>
+              <g class="neck-line" data-size="Matinee · 50–60 cm"><path d="M116 88 Q150 248 184 88" /><circle cx="150" cy="168" r="4.5" /></g>
+              <g class="neck-line" data-size="Opera · 70–86 cm"><path d="M111 90 Q150 370 189 90" /><circle cx="150" cy="230" r="4.5" /></g>
+            </svg>
+            <div class="size-choices neck-choices">
+            <button type="button" class="size-choice" data-size="Collar · 30–33 cm"><strong>Collar</strong><span>30–33 cm</span><em>Hugs the neck</em></button>
+            <button type="button" class="size-choice" data-size="Choker · 35–40 cm"><strong>Choker</strong><span>35–40 cm</span><em>Sits at the base of the neck</em></button>
+            <button type="button" class="size-choice" data-size="Princess · 43–48 cm"><strong>Princess</strong><span>43–48 cm</span><em>Just below the collarbone</em></button>
+            <button type="button" class="size-choice" data-size="Matinee · 50–60 cm"><strong>Matinee</strong><span>50–60 cm</span><em>Above the neckline</em></button>
+            <button type="button" class="size-choice" data-size="Opera · 70–86 cm"><strong>Opera</strong><span>70–86 cm</span><em>Long, at the bust or lower</em></button>
+            <button type="button" class="size-choice" data-size="Rope · over 115 cm"><strong>Rope</strong><span>over 115 cm</span><em>Wrap it twice or knot it</em></button>
+            </div>
+          </div>
+        </div>
+        <div class="size-panel" data-for="Ring" hidden>
+          <p class="size-panel-note">Your ring size. Not sure? Choose "Help me find my size" or see the size guide.</p>
+          <div class="size-choices ring-choices">
+            <button type="button" class="size-choice" data-size="EU 47 · US 4"><strong>EU 47</strong><span>US 4</span></button>
+            <button type="button" class="size-choice" data-size="EU 49 · US 5"><strong>EU 49</strong><span>US 5</span></button>
+            <button type="button" class="size-choice" data-size="EU 51 · US 6"><strong>EU 51</strong><span>US 6</span></button>
+            <button type="button" class="size-choice" data-size="EU 52 · US 6.5"><strong>EU 52</strong><span>US 6.5</span></button>
+            <button type="button" class="size-choice" data-size="EU 54 · US 7"><strong>EU 54</strong><span>US 7</span></button>
+            <button type="button" class="size-choice" data-size="EU 55 · US 7.5"><strong>EU 55</strong><span>US 7.5</span></button>
+            <button type="button" class="size-choice" data-size="EU 56 · US 8"><strong>EU 56</strong><span>US 8</span></button>
+            <button type="button" class="size-choice" data-size="EU 58 · US 8.5"><strong>EU 58</strong><span>US 8.5</span></button>
+            <button type="button" class="size-choice" data-size="EU 59 · US 9"><strong>EU 59</strong><span>US 9</span></button>
+            <button type="button" class="size-choice" data-size="EU 61 · US 9.5"><strong>EU 61</strong><span>US 9.5</span></button>
+            <button type="button" class="size-choice" data-size="EU 62 · US 10"><strong>EU 62</strong><span>US 10</span></button>
+            <button type="button" class="size-choice" data-size="Ring: help me find my size"><strong>Help me</strong><span>find my size</span></button>
+          </div>
+        </div>
+        <div class="size-panel" data-for="Bracelet" hidden>
+          <p class="size-panel-note">How should it sit on the wrist?</p>
+          <div class="size-choices">
+            <button type="button" class="size-choice" data-size="Bracelet 15–16 cm"><strong>Petite</strong><span>15–16 cm</span></button>
+            <button type="button" class="size-choice" data-size="Bracelet 16–17 cm"><strong>Classic</strong><span>16–17 cm</span></button>
+            <button type="button" class="size-choice" data-size="Bracelet 18–19 cm"><strong>Relaxed</strong><span>18–19 cm</span></button>
+            <button type="button" class="size-choice" data-size="Bracelet 19–20 cm"><strong>Loose</strong><span>19–20 cm</span></button>
+          </div>
+        </div>
+        <div class="size-panel" data-for="Anklet" hidden>
+          <p class="size-panel-note">How should it sit on the ankle?</p>
+          <div class="size-choices">
+            <button type="button" class="size-choice" data-size="Anklet 20–21 cm"><strong>Fine</strong><span>20–21 cm</span></button>
+            <button type="button" class="size-choice" data-size="Anklet 21–22 cm"><strong>Classic</strong><span>21–22 cm</span></button>
+            <button type="button" class="size-choice" data-size="Anklet 23–24 cm"><strong>Relaxed</strong><span>23–24 cm</span></button>
+            <button type="button" class="size-choice" data-size="Anklet 25–26 cm"><strong>Loose</strong><span>25–26 cm</span></button>
+          </div>
+        </div>
+        <div class="size-panel" data-for="Earrings" hidden>
+          <p class="size-panel-note">What size of earring?</p>
+          <div class="size-choices">
+            <button type="button" class="size-choice" data-size="Earrings: stud"><strong>Stud</strong><span>on the lobe</span></button>
+            <button type="button" class="size-choice" data-size="Earrings: huggie"><strong>Huggie</strong><span>hugs the lobe</span></button>
+            <button type="button" class="size-choice" data-size="Earrings: small hoop"><strong>Small hoop</strong><span>about 1–1.5 cm</span></button>
+            <button type="button" class="size-choice" data-size="Earrings: drop"><strong>Drop</strong><span>about 2–3 cm</span></button>
+            <button type="button" class="size-choice" data-size="Earrings: statement"><strong>Statement</strong><span>4 cm or longer</span></button>
+          </div>
+        </div>
+        <label class="field size-own"><span>Your choice, or type your own</span>
+          <input name="size" maxlength="80" placeholder="e.g. EU 54, 16 cm, 45 cm" /></label>
+      </fieldset>
       <label class="field"><span>Describe your piece</span>
         <textarea name="description" rows="5" required maxlength="4000"
           placeholder="A name or initial, the feeling you want, a piece you have seen, a stone you own…"></textarea></label>
