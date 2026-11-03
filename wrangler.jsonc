@@ -6,6 +6,8 @@
   "name": "siaram-jewelry",
   "main": "worker/gate.js",
   "compatibility_date": "2026-10-01",
+  // Keep variables added in the Cloudflare dashboard (such as SITE_PASSWORD saved as text) when the site is published.
+  "keep_vars": true,
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS",
