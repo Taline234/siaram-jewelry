@@ -42,3 +42,7 @@ import_map = "./functions/import_map.json"
 [functions.voucher-send]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.record-sale]
+verify_jwt = false
+import_map = "./functions/import_map.json"

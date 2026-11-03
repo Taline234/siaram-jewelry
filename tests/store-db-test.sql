@@ -410,5 +410,30 @@ select pg_temp.check(claim_voucher_email(:'vr2_id') is null and not exists (sele
 select pg_temp.check(not has_function_privilege('anon', 'public.claim_voucher_email(uuid, boolean)', 'execute'),
   'only the server can send vouchers');
 
+-- Sales recorded by the owner: next S number, sales channel, agreed price, stock taken off.
+insert into stock (product_slug, metal, size, quantity) values ('horseshoe-necklace', 'rose', '', 1)
+  on conflict (product_slug, metal, size) do update set quantity = 1;
+select record_sale('{"channel":"Instagram","customer_name":"Nour","payment_method":"card","sale_date":"2026-10-30",
+    "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"unit_price":450,"from_stock":true}]}'::jsonb)->>'reference' as rs_ref \gset
+select pg_temp.check((select channel = 'Instagram' and payment_method = 'card' and status = 'delivered' and total = 450
+                             and (created_at at time zone 'Asia/Beirut')::date = '2026-10-30'
+                        from orders where reference = :'rs_ref')
+                     and (select quantity = 0 from stock where product_slug = 'horseshoe-necklace' and metal = 'rose' and size = ''),
+  'a recorded sale gets an order number, its channel and agreed price, and comes off stock');
+select pg_temp.expect_error($$select record_sale('{"channel":"In person","customer_name":"Lea","payment_method":"cash",
+    "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"from_stock":true}]}')$$, 'not in stock');
+select record_sale('{"channel":"In person","customer_name":"Lea","payment_method":"whish",
+    "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"from_stock":false}]}'::jsonb)->>'status' as rs_status \gset
+select pg_temp.check(:'rs_status' = 'preparing', 'a piece sold to be made is marked as being prepared, at the listed price');
+select pg_temp.expect_error($$select record_sale('{"channel":"Website","customer_name":"Lea","payment_method":"cash","items":[{"slug":"horseshoe-necklace"}]}')$$,
+  'where the sale was made');
+select pg_temp.expect_error($$select record_sale('{"channel":"In person","customer_name":"Lea","payment_method":"cash","sale_date":"2999-01-01","items":[{"slug":"horseshoe-necklace"}]}')$$,
+  'future');
+select pg_temp.check((select (sales_export(null, null)::jsonb @> jsonb_build_array(jsonb_build_object('reference', :'rs_ref', 'channel', 'Instagram')))),
+  'recorded sales appear in the workbook download with their channel');
+select pg_temp.check(not has_function_privilege('anon', 'public.record_sale(jsonb)', 'execute')
+                     and not has_function_privilege('authenticated', 'public.record_sale(jsonb)', 'execute'),
+  'only the server can record sales');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'
