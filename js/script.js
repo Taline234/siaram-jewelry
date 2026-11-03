@@ -48,11 +48,23 @@ document.addEventListener('DOMContentLoaded', () => {
       applyFilter();
     });
   });
+  // The Shop menu links here with #all, a type (#rings) or a collection (#equestrian).
+  const categories = [...filterBtns].filter((b) => (b.dataset.group || 'category') === 'category').map((b) => b.dataset.filter);
   const filterFromHash = () => {
     const key = location.hash.slice(1);
-    if (!filterBtns.length || !intros[key]) return;
-    active.category = 'all';
-    active.collection = key;
+    if (!filterBtns.length) return;
+    if (key === 'all') {
+      active.category = 'all';
+      active.collection = 'all';
+    } else if (categories.includes(key)) {
+      active.category = key;
+      active.collection = 'all';
+    } else if (intros[key]) {
+      active.category = 'all';
+      active.collection = key;
+    } else {
+      return;
+    }
     applyFilter();
   };
   filterFromHash();
@@ -142,9 +154,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Set active nav link
+  // Addresses can be short (/shop) or long (/shop.html); only the top-level menu items are underlined.
   let path = window.location.pathname.split('/').pop() || 'index.html';
+  if (!path.endsWith('.html')) path += '.html';
   if (path.startsWith('product-')) path = 'shop.html';
-  document.querySelectorAll('.nav-links a, .mobile-menu a').forEach((a) => {
+  document.querySelectorAll('.nav-links > li > a, .mobile-menu > a').forEach((a) => {
     if (a.getAttribute('href') === path) a.classList.add('active');
   });
 });
