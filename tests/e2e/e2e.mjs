@@ -368,12 +368,15 @@ await setState({ ownerEmails: 'rana@example.com' });
 await page.goto(`${ORIGIN}/account.html#workbook`);
 await page.reload();
 await page.waitForSelector('.workbook-form');
-const [download] = await Promise.all([page.waitForEvent('download'), page.click('.workbook-form [data-kind=sales]')]);
-assert.match(download.suggestedFilename(), /^Siaram-website-sales\.csv$/);
-const salesFile = fs.readFileSync(await download.path(), 'utf8');
-assert.match(salesFile, new RegExp(`\\r\\n${ref2},\\d{4}-\\d{2}-\\d{2},Rana Haddad,Website,`));
+const [download] = await Promise.all([page.waitForEvent('download'), page.click('.workbook-form [data-kind=workbook]')]);
+assert.match(download.suggestedFilename(), /^Siaram-workbook\.xlsx$/);
+const workbookFile = fs.readFileSync(await download.path());
+assert.equal(workbookFile.subarray(0, 2).toString(), 'PK', 'an Excel file');
+const workbookText = workbookFile.toString('utf8');
+assert.match(workbookText, /<sheet name="Sales"[^>]*\/><sheet name="Customers"/, 'with a Sales tab and a Customers tab');
+assert.ok(workbookText.includes(`<t xml:space="preserve">${ref2}</t>`), 'listing the website order');
 await shot('account-workbook');
-step('the owner gets a Workbook tab and downloads website sales laid out like the Sales tab');
+step('the owner gets a Workbook tab and downloads one Excel file with Sales and Customers tabs');
 
 assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Workbook'],
   'the owner gets an admin page, not the customer tabs');

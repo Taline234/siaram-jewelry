@@ -449,29 +449,29 @@ async function isOwner(session) {
 function renderWorkbook(panel, session) {
   panel.innerHTML = `<form class="auth-card workbook-form" novalidate>
       <h3>Download for Your Workbook</h3>
-      <p class="field-note">Website orders laid out like your workbook, as a file Excel opens. Cancelled orders are left out.
-        Leave the dates empty to get every website order.</p>
+      <p class="field-note">One Excel file with two tabs laid out like your workbook: <strong>Sales</strong> (website orders
+        and the sales you record here, one row per piece) and <strong>Customers</strong>. Cancelled orders are left out.
+        Leave the dates empty to get everything.</p>
       <div class="form-grid">
         ${field('from', 'From (order date)', 'type="date"')}
         ${field('to', 'To (order date)', 'type="date"')}
       </div>
       <p class="form-msg form-error" role="alert"></p>
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary" data-kind="sales">Download Sales</button>
-        <button type="button" class="btn btn-outline" data-kind="customers">Download Customers</button>
+        <button type="button" class="btn btn-primary" data-kind="workbook">Download for Workbook</button>
       </div>
       <ol class="field-note workbook-steps">
-        <li>Open the file and copy the rows under the heading row.</li>
+        <li>Open the file. On its <strong>Sales</strong> tab, copy the rows under the heading row.</li>
         <li>In your workbook, on the Sales tab, click column A of the first empty row.</li>
         <li>Choose Paste Special, then Values, and tick <strong>Skip blanks</strong> so your formulas stay as they are.</li>
-        <li>For the customers file, paste only the names that are not on your Customers tab yet.</li>
+        <li>On the file's <strong>Customers</strong> tab, copy only the people who are not on your Customers tab yet, and paste them the same way.</li>
       </ol>
-      <p class="field-note">Cash Received Now is filled in once an order is marked delivered; before that it shows 0.</p>
+      <p class="field-note">For website orders, Cash Received Now is filled in once the order is marked delivered; before that it shows 0.</p>
     </form>`;
   const form = panel.querySelector('form');
   form.querySelectorAll('[data-kind]').forEach((btn) => btn.addEventListener('click', async () => {
     formMessage(form, '');
-    const params = new URLSearchParams({ kind: btn.dataset.kind });
+    const params = new URLSearchParams(btn.dataset.kind === 'workbook' ? {} : { kind: btn.dataset.kind });
     if (form.elements.from.value) params.set('from', form.elements.from.value);
     if (form.elements.to.value) params.set('to', form.elements.to.value);
     btn.disabled = true;
@@ -481,7 +481,7 @@ function renderWorkbook(panel, session) {
         headers: { authorization: `Bearer ${(current || session).access_token}` },
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not prepare the download.');
-      const name = (res.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Siaram-website.csv';
+      const name = (res.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Siaram-workbook.xlsx';
       const link = document.createElement('a');
       link.href = URL.createObjectURL(await res.blob());
       link.download = name;
