@@ -1572,3 +1572,4 @@ legend {
 .custom-form .check input { width: auto; margin-top: 4px; accent-color: var(--green-deep); }
 .voucher-form .voucher-other, .voucher-form .voucher-date { margin-top: 16px; max-width: 380px; }
 .voucher-form .voucher-other[hidden] { display: none; }
+.cut-card .cut-photo { width: 96px; height: 96px; display: block; margin: 0 auto; border-radius: 50%; mix-blend-mode: multiply; }

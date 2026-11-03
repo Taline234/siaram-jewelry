@@ -10,7 +10,7 @@ The page shell (header, footer) is copied from about.html, like the policy pages
 import glob
 import re
 
-from gem_art import CUT_ART, DEFS, SETTING_ART, art
+from gem_art import DEFS, SETTING_ART, art
 
 BASE = "https://siaramjewelry.com/"
 TEMPLATE = open("about.html", encoding="utf-8").read()
@@ -286,8 +286,10 @@ def stone_card(name, colours, meaning, hard, note, best):
 
 stone_cards = "\n".join(stone_card(*s) for s in STONES)
 
+# Cut photos (images/cuts, made in Canva); file names follow the cut names.
+cut_photo = lambda name: name.lower().replace(" ", "-")
 cut_cards = "\n".join(f"""      <div class="cut-card reveal">
-        {art(CUT_ART[name], name + " cut")}
+        <img class="cut-photo" src="images/cuts/{cut_photo(name)}.jpg" alt="{name} cut" width="96" height="96" loading="lazy">
         <h3>{name}</h3>
         <p>{desc}</p>
       </div>""" for name, desc in CUTS)

@@ -1,8 +1,8 @@
-"""Realistic drawings of stone cuts and settings for the Gold & Gemstones page (materials.html).
+"""Realistic drawings of stone settings for the Gold & Gemstones page (materials.html).
 
-Everything is plain inline SVG worked out here, so the page needs no image files: each stone is split into its real
-facets (table, star, bezel and girdle facets for brilliant cuts; stepped rows for emerald and baguette cuts) and each
-facet is shaded by the way it faces the light. Settings are drawn in polished 18k gold around those stones.
+Everything is plain inline SVG worked out here: each diamond is split into its real brilliant-cut facets (table, star,
+bezel and girdle facets), each facet is shaded by the way it faces the light, and the settings are drawn in polished
+18k gold around those stones. (The gemstones and cuts use photos in images/gems and images/cuts.)
 """
 import math
 
@@ -18,26 +18,11 @@ DIAMOND = ("#9eabb8", "#ffffff", "#6b7682", "url(#gem-table)")  # dark facet, li
 _colours = DIAMOND
 
 
-def tint(dark, light, edge):
-    """Colours for a coloured stone (ruby, emerald...): facets shade from dark to light, the table glows in between."""
-    return (dark, light, edge, _mix(dark, light, 0.72))
-
-
 def _tone(angle, bias=0.0):
     """Facet colour: bright where the facet faces the light, darker where it faces away."""
     t = 0.5 + 0.5 * math.cos(angle - LIGHT) + bias
     t = max(0.0, min(1.0, t))
     return _mix(_colours[0], _colours[1], t)
-
-
-def coloured(colours, draw, *args, **kwargs):
-    """Draw a stone (brilliant() or step_cut()) in the given tint() colours instead of diamond white."""
-    global _colours
-    _colours = colours
-    try:
-        return draw(*args, **kwargs)
-    finally:
-        _colours = DIAMOND
 
 
 def _pts(points):
@@ -90,83 +75,11 @@ def brilliant(inside, cx, cy, size, n=16, table=0.45, star=0.7, center=(0.0, 0.0
     return "".join(out)
 
 
-def step_cut(outline, rings=4):
-    """An emerald or baguette cut: rows of long facets stepping down to a flat table, like a staircase."""
-    cx = sum(x for x, _ in outline) / len(outline)
-    cy = sum(y for _, y in outline) / len(outline)
-    levels = [[(cx + (x - cx) * s, cy + (y - cy) * s) for x, y in outline]
-              for s in [1 - i * (0.62 / rings) for i in range(rings + 1)]]
-    out = []
-    for ring in range(rings):
-        a, b = levels[ring], levels[ring + 1]
-        for i in range(len(outline)):
-            j = (i + 1) % len(outline)
-            mx, my = (a[i][0] + a[j][0]) / 2 - cx, (a[i][1] + a[j][1]) / 2 - cy
-            face = math.atan2(my, mx)
-            out.append(_poly([a[i], a[j], b[j], b[i]], _tone(face + math.pi if ring % 2 else face, -0.1 + 0.05 * ring)))
-    out.append(_poly(levels[-1], _colours[3]))
-    out.append(f'<polygon points="{_pts(outline)}" fill="none" stroke="{_colours[2]}" stroke-width="0.8" stroke-linejoin="round"/>')
-    return "".join(out)
-
-
 # ---------------------------------------------------------------- outlines (unit size, centred on 0,0)
 def round_(x, y): return x * x + y * y <= 1
-def oval(x, y): return (x / 0.72) ** 2 + y * y <= 1
 def princess(x, y): return max(abs(x), abs(y)) <= 0.82
-def cushion(x, y): return (abs(x) / 0.86) ** 4 + (abs(y) / 0.86) ** 4 <= 1
-
-
-def marquise(x, y):
-    t = abs(y)
-    return t <= 1 and abs(x) <= 0.5 * (1 - t * t)
-
-
-def pear(x, y):
-    if (x * x + (y - 0.35) ** 2) <= 0.62 ** 2:
-        return True
-    if -1 <= y <= 0.35:
-        t = (0.35 - y) / 1.35
-        return abs(x) <= 0.62 * (1 - t ** 1.7)
-    return False
-
-
-def heart(x, y):
-    X, Y = x * 1.18, -(y * 1.18) + 0.2
-    return (X * X + Y * Y - 1) ** 3 - X * X * Y ** 3 <= 0
-
-
-def octagon(cx, cy, w, h, c):
-    return [(cx - w + c, cy - h), (cx + w - c, cy - h), (cx + w, cy - h + c), (cx + w, cy + h - c),
-            (cx + w - c, cy + h), (cx - w + c, cy + h), (cx - w, cy + h - c), (cx - w, cy - h + c)]
-
-
-def rect(cx, cy, w, h):
-    return [(cx - w, cy - h), (cx + w, cy - h), (cx + w, cy + h), (cx - w, cy + h)]
-
-
-def cabochon(cx, cy, rx, ry):
-    return (f'<ellipse cx="{cx}" cy="{cy + 2}" rx="{rx}" ry="{ry}" fill="#1f5d57" opacity="0.25"/>'
-            f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="url(#gem-cab)" stroke="#2f7f78" stroke-width="0.6"/>'
-            f'<ellipse cx="{cx - rx * 0.35}" cy="{cy - ry * 0.45}" rx="{rx * 0.32}" ry="{ry * 0.2}" fill="#fff" opacity="0.7"'
-            f' transform="rotate(-25 {cx - rx * 0.35} {cy - ry * 0.45})"/>')
-
-
 def shadow(cx, cy, rx, ry):
     return f'<ellipse cx="{cx + 1.5}" cy="{cy + 2.5}" rx="{rx}" ry="{ry}" fill="#000" opacity="0.08"/>'
-
-
-CUT_ART = {
-    "Round brilliant": shadow(50, 50, 38, 38) + brilliant(round_, 50, 50, 38),
-    "Oval": shadow(50, 50, 28, 40) + brilliant(oval, 50, 50, 40),
-    "Princess": shadow(50, 50, 33, 33) + brilliant(princess, 50, 50, 40),
-    "Cushion": shadow(50, 50, 34, 34) + brilliant(cushion, 50, 50, 40),
-    "Emerald cut": shadow(50, 50, 28, 40) + step_cut(octagon(50, 50, 27, 39, 8)),
-    "Pear": shadow(50, 50, 26, 40) + brilliant(pear, 50, 48, 40, center=(0, 0.1)),
-    "Marquise": shadow(50, 50, 20, 40) + brilliant(marquise, 50, 50, 41),
-    "Heart": shadow(50, 50, 33, 30) + brilliant(heart, 50, 50, 36, center=(0, 0.05)),
-    "Baguette": shadow(50, 50, 16, 40) + step_cut(rect(50, 50, 15, 39), rings=3),
-    "Cabochon": cabochon(50, 50, 34, 27),
-}
 
 
 # ---------------------------------------------------------------- settings, drawn in polished gold
@@ -259,9 +172,6 @@ SETTING_ART = {
 DEFS = """<svg class="gem-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
   <radialGradient id="gem-table" cx="35%" cy="30%" r="80%">
     <stop offset="0" stop-color="#ffffff"/><stop offset="0.6" stop-color="#e8eef3"/><stop offset="1" stop-color="#c3ced8"/>
-  </radialGradient>
-  <radialGradient id="gem-cab" cx="38%" cy="32%" r="75%">
-    <stop offset="0" stop-color="#9fe0d6"/><stop offset="0.55" stop-color="#3fa89c"/><stop offset="1" stop-color="#1d6b63"/>
   </radialGradient>
   <linearGradient id="gold-band" x1="0" y1="0" x2="0" y2="1">
     <stop offset="0" stop-color="#f6e2a4"/><stop offset="0.35" stop-color="#d8b45f"/>
