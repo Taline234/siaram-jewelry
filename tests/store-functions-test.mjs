@@ -19,7 +19,7 @@ const { default: serviceRequest } = await import('../supabase/functions/_shared/
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
 const { default: voucherSend } = await import('../supabase/functions/_shared/handlers/voucher-send.mjs');
 const { default: recordSale } = await import('../supabase/functions/_shared/handlers/record-sale.mjs');
-const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
+const { salesCsv, customersCsv, workbookXlsx } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
 let handlers;
@@ -549,4 +549,15 @@ test('only the owner can record a sale, and the sale is passed on to the databas
   assert.equal(sent.channel, 'Instagram');
   assert.match((await (await post({ ...sale, email: 'not-an-email' })).json()).error, /email/);
   assert.equal(emails().length, 0, 'recording a sale sends no email');
+});
+
+test('the workbook download is one Excel file with a Sales tab and a Customers tab', async () => {
+  const bytes = workbookXlsx(exportOrders);
+  const text = Buffer.from(bytes).toString('utf8');
+  assert.equal(Buffer.from(bytes.subarray(0, 4)).toString('hex'), '504b0304', 'a zip file, as .xlsx files are');
+  assert.match(text, /<sheet name="Sales" sheetId="1" r:id="rId1"\/><sheet name="Customers" sheetId="2" r:id="rId2"\/>/);
+  assert.match(text, /<c r="B2" s="1"><v>46328<\/v><\/c>/, 'sale dates are real dates (2 November 2026)');
+  assert.match(text, /<c r="H2"><v>450<\/v><\/c>/, 'prices are numbers');
+  assert.match(text, /Lea &quot;Lou&quot; Khoury/, 'names are escaped');
+  assert.ok(!/<c r="F2"/.test(text), 'empty formula columns stay empty');
 });

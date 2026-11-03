@@ -1,6 +1,6 @@
 // Account page: sign in, create account (18+), password reset, and the signed-in area
-// with orders, wishlist, saved addresses and personal details. The shop owner also gets a Record a Sale tab
-// (in-person, Instagram, WhatsApp and event sales) and a Workbook tab with the backup download for the finance workbook.
+// with orders, wishlist, saved addresses and personal details. The shop owner gets an admin page instead, with a
+// Record a Sale tab (in-person, Instagram, WhatsApp and event sales) and a Workbook tab (backup download for the workbook).
 import { apiUrl, escapeHtml, getClient, loadProducts, money, productPage, storeEnabled } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -12,6 +12,46 @@ const STATUS = {
 };
 
 const field = (name, label, attrs = '') => `<label class="field"><span>${label}</span><input name="${name}" ${attrs} /></label>`;
+// Birthday as day, month, year (not the browser's month/day/year date box). The three choices fill a hidden
+// date_of_birth field (YYYY-MM-DD), or leave it empty until all three are chosen.
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+  'November', 'December'];
+const birthdayField = () => {
+  const thisYear = new Date().getFullYear();
+  const opts = (list) => list.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+  return `<div class="field birthday-field"><span>Birthday (optional)</span>
+      <div class="birthday-parts">
+        <select name="bday_day" aria-label="Day"><option value="">Day</option>
+          ${opts(Array.from({ length: 31 }, (_, i) => [String(i + 1).padStart(2, '0'), i + 1]))}</select>
+        <select name="bday_month" aria-label="Month"><option value="">Month</option>
+          ${opts(MONTHS.map((m, i) => [String(i + 1).padStart(2, '0'), m]))}</select>
+        <select name="bday_year" aria-label="Year"><option value="">Year</option>
+          ${opts(Array.from({ length: 90 }, (_, i) => [thisYear - 18 - i, thisYear - 18 - i]))}</select>
+      </div>
+      <input type="hidden" name="date_of_birth" />
+    </div>`;
+};
+const syncBirthday = (form) => {
+  const f = form.elements;
+  const [d, m, y] = [f.bday_day.value, f.bday_month.value, f.bday_year.value];
+  const date = d && m && y ? `${y}-${m}-${d}` : '';
+  const valid = date && new Date(`${date}T00:00:00`).getDate() === Number(d);
+  f.date_of_birth.value = valid ? date : '';
+  return { partial: Boolean(d || m || y) && !date, invalid: Boolean(date) && !valid };
+};
+const setBirthday = (form, iso) => {
+  const [y, m, d] = (iso || '').split('-');
+  form.elements.bday_day.value = d || '';
+  form.elements.bday_month.value = m || '';
+  form.elements.bday_year.value = y || '';
+  syncBirthday(form);
+};
+const birthdayProblem = (form) => {
+  const { partial, invalid } = syncBirthday(form);
+  if (partial) return 'Please choose the day, month and year of your birthday, or leave all three empty.';
+  if (invalid) return 'Please check your birthday: that date does not exist.';
+  return '';
+};
 const isAdult = (dob) => {
   const d = new Date(dob);
   if (Number.isNaN(d.getTime())) return false;
@@ -52,7 +92,7 @@ function renderSignedOut(notice = '') {
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
       ${field('phone', 'Phone (with country code if outside Lebanon)', 'type="tel" required autocomplete="tel" placeholder="+961 70 123 456"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
-      ${field('date_of_birth', 'Birthday (optional)', 'type="date" autocomplete="bday"')}
+      ${birthdayField()}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
         <a href="terms.html" target="_blank">Terms &amp; Conditions</a> and <a href="privacy.html" target="_blank">Privacy Policy</a>.</span></label>
       <p class="field-note marketing-note">Would you like to hear about new collections, styling and care advice and stories from Siaram? (Optional; leave unticked if not.)</p>
@@ -101,6 +141,7 @@ function renderSignedOut(notice = '') {
         : bad.name === 'accept' ? 'Please confirm you are 18 or older and accept our terms.'
         : 'Please fill in all fields.');
     }
+    if (birthdayProblem(signup)) return formMessage(signup, birthdayProblem(signup));
     if (f.date_of_birth.value && !isAdult(f.date_of_birth.value)) {
       return formMessage(signup, 'Sorry, you must be 18 or older to create an account.');
     }
@@ -162,11 +203,12 @@ async function renderAccount() {
     client.from('profiles').select('*').maybeSingle(),
     isOwner(session),
   ]);
-  const tabs = ['orders', 'wishlist', 'addresses', 'details', ...(owner ? ['sale', 'workbook'] : [])];
+  // The shop owner gets an admin page (sales and workbook) instead of the customer tabs.
+  const tabs = owner ? ['sale', 'workbook'] : ['orders', 'wishlist', 'addresses', 'details'];
   const TAB_LABELS = { sale: 'Record a Sale' };
-  const tab = location.hash.replace('#', '') || 'orders';
+  const tab = tabs.includes(location.hash.replace('#', '')) ? location.hash.replace('#', '') : tabs[0];
   root.innerHTML = `<div class="account-head">
-      <h2>Hello, ${escapeHtml(profile ? profile.first_name : '')}</h2>
+      <h2>${owner ? 'Siaram Admin' : `Hello, ${escapeHtml(profile ? profile.first_name : '')}`}</h2>
       <button type="button" class="link-btn sign-out">Sign out</button>
     </div>
     <nav class="account-tabs" role="tablist">
@@ -181,9 +223,9 @@ async function renderAccount() {
     renderSignedOut();
   });
   const panel = root.querySelector('.account-panel');
-  const views = { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails,
-    ...(owner ? { sale: renderSale, workbook: renderWorkbook } : {}) };
-  await (views[tab] || renderOrders)(panel, session, profile);
+  const views = owner ? { sale: renderSale, workbook: renderWorkbook }
+    : { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails };
+  await views[tab](panel, session, profile);
 }
 
 async function renderOrders(panel) {
@@ -299,7 +341,7 @@ async function renderDetails(panel, session, profile) {
         ${field('last_name', 'Last name', 'required')}
         ${field('phone', 'Phone', 'type="tel" required')}
         ${field('email', 'Email', 'readonly')}
-        ${field('date_of_birth', 'Birthday (optional)', 'type="date" autocomplete="bday"')}
+        ${birthdayField()}
       </div>
       <p class="field-note marketing-note">News about new collections, styling and care advice (you can change this at any time):</p>
       <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
@@ -325,13 +367,14 @@ async function renderDetails(panel, session, profile) {
   details.elements.last_name.value = profile?.last_name || '';
   details.elements.phone.value = profile?.phone || '';
   details.elements.email.value = session.user.email;
-  details.elements.date_of_birth.value = profile?.date_of_birth || '';
+  setBirthday(details, profile?.date_of_birth || '');
   details.elements.marketing_email.checked = Boolean(profile?.marketing_email);
   details.elements.marketing_whatsapp.checked = Boolean(profile?.marketing_whatsapp);
   details.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = details.elements;
     if (!details.checkValidity()) return formMessage(details, 'Please fill in your name and phone.');
+    if (birthdayProblem(details)) return formMessage(details, birthdayProblem(details));
     if (f.date_of_birth.value && !isAdult(f.date_of_birth.value)) {
       return formMessage(details, 'Account holders must be 18 or older. Please check your birthday.');
     }
@@ -378,8 +421,9 @@ async function init() {
       renderAccount();
     }
   });
+  // Clicking a tab changes the address (#sale, #orders...); redraw the page for it.
   window.addEventListener('hashchange', () => {
-    if (['#orders', '#wishlist', '#addresses', '#details'].includes(location.hash)) renderAccount();
+    if (['#orders', '#wishlist', '#addresses', '#details', '#sale', '#workbook'].includes(location.hash)) renderAccount();
   });
   if (recovering) renderPasswordReset();
   else await renderAccount();
@@ -405,29 +449,29 @@ async function isOwner(session) {
 function renderWorkbook(panel, session) {
   panel.innerHTML = `<form class="auth-card workbook-form" novalidate>
       <h3>Download for Your Workbook</h3>
-      <p class="field-note">Website orders laid out like your workbook, as a file Excel opens. Cancelled orders are left out.
-        Leave the dates empty to get every website order.</p>
+      <p class="field-note">One Excel file with two tabs laid out like your workbook: <strong>Sales</strong> (website orders
+        and the sales you record here, one row per piece) and <strong>Customers</strong>. Cancelled orders are left out.
+        Leave the dates empty to get everything.</p>
       <div class="form-grid">
         ${field('from', 'From (order date)', 'type="date"')}
         ${field('to', 'To (order date)', 'type="date"')}
       </div>
       <p class="form-msg form-error" role="alert"></p>
       <div class="hero-actions">
-        <button type="button" class="btn btn-primary" data-kind="sales">Download Sales</button>
-        <button type="button" class="btn btn-outline" data-kind="customers">Download Customers</button>
+        <button type="button" class="btn btn-primary" data-kind="workbook">Download for Workbook</button>
       </div>
       <ol class="field-note workbook-steps">
-        <li>Open the file and copy the rows under the heading row.</li>
+        <li>Open the file. On its <strong>Sales</strong> tab, copy the rows under the heading row.</li>
         <li>In your workbook, on the Sales tab, click column A of the first empty row.</li>
         <li>Choose Paste Special, then Values, and tick <strong>Skip blanks</strong> so your formulas stay as they are.</li>
-        <li>For the customers file, paste only the names that are not on your Customers tab yet.</li>
+        <li>On the file's <strong>Customers</strong> tab, copy only the people who are not on your Customers tab yet, and paste them the same way.</li>
       </ol>
-      <p class="field-note">Cash Received Now is filled in once an order is marked delivered; before that it shows 0.</p>
+      <p class="field-note">For website orders, Cash Received Now is filled in once the order is marked delivered; before that it shows 0.</p>
     </form>`;
   const form = panel.querySelector('form');
   form.querySelectorAll('[data-kind]').forEach((btn) => btn.addEventListener('click', async () => {
     formMessage(form, '');
-    const params = new URLSearchParams({ kind: btn.dataset.kind });
+    const params = new URLSearchParams(btn.dataset.kind === 'workbook' ? {} : { kind: btn.dataset.kind });
     if (form.elements.from.value) params.set('from', form.elements.from.value);
     if (form.elements.to.value) params.set('to', form.elements.to.value);
     btn.disabled = true;
@@ -437,7 +481,7 @@ function renderWorkbook(panel, session) {
         headers: { authorization: `Bearer ${(current || session).access_token}` },
       });
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not prepare the download.');
-      const name = (res.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Siaram-website.csv';
+      const name = (res.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Siaram-workbook.xlsx';
       const link = document.createElement('a');
       link.href = URL.createObjectURL(await res.blob());
       link.download = name;

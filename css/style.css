@@ -1627,3 +1627,5 @@ legend {
 .mobile-shop-links a { font-family: var(--font-serif); font-size: 1rem; letter-spacing: 0; text-transform: none; color: var(--green-mid); }
 .mobile-sub-title { font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--gold); margin: 8px 0 0; }
+/* Birthday as day, month, year */
+.birthday-parts { display: grid; grid-template-columns: 0.8fr 1.4fr 1fr; gap: 8px; }
