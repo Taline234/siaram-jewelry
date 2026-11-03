@@ -460,7 +460,7 @@ const METALS = [['yellow', 'Yellow gold'], ['rose', 'Rose gold'], ['white', 'Whi
 
 async function renderSale(panel, session) {
   const [{ data: products }, { data: stock }] = await Promise.all([
-    client.from('products').select('slug, name, price, sizes').order('name'),
+    client.from('products').select('slug, name, price, sizes, sku').order('name'),
     client.rpc('available_stock'),
   ]);
   const bySlug = Object.fromEntries((products || []).map((p) => [p.slug, p]));
@@ -470,7 +470,7 @@ async function renderSale(panel, session) {
 
   const line = () => `<div class="sale-line">
       <label class="field"><span>Piece</span><select name="slug"><option value="">Choose a piece</option>
-        ${options((products || []).map((p) => [p.slug, p.name]))}</select></label>
+        ${options((products || []).map((p) => [p.slug, p.sku ? `${p.name} (${p.sku})` : p.name]))}</select></label>
       <label class="field"><span>Gold</span><select name="metal">${options(METALS, 'yellow')}</select></label>
       <label class="field sale-size"><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
       <label class="field"><span>Qty</span><input name="quantity" type="number" min="1" max="10" value="1" /></label>
