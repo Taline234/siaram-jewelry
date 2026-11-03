@@ -278,7 +278,7 @@ Tell us promptly if a reference may have been misused. We will check the remaini
 
 # Privacy policy
 
-*Last updated 2 November 2026*
+*Last updated 3 November 2026*
 
 ## Who handles your information
 
@@ -296,7 +296,7 @@ We use Microsoft Outlook to manage customer email correspondence. These communic
 
 Payment providers process payments and any payment credentials you choose to save through their supported features. We receive transaction information such as status, amount and reference needed for order and accounting records. We do not ask you to send full card details or card security codes to us. \[SAVED-PAYMENT FEATURE AND STORAGE ARRANGEMENT\]
 
-Website services may process technical information such as IP address, browser information, security events and the storage described in our Cookie policy. We use necessary technical information to operate and protect the website. Optional analytics or advertising technologies, if introduced, are described and controlled separately.
+Website services may process technical information such as IP address, browser information, security events and the storage described in our Cookie policy. We use necessary technical information to operate and protect the website. We also use Cloudflare Web Analytics to count visits and see which pages are viewed: it sets no cookies, stores nothing on your device, does not follow you across other websites and gives us only combined figures, not a profile of individual visitors. Any other optional analytics or advertising technologies, if introduced, will be described and controlled separately.
 
 ## Sharing needed to complete an order
 
@@ -338,7 +338,7 @@ Accounts and purchases are intended for adults aged 18 and over. A parent or gua
 
 # Cookie policy
 
-*Last updated 30 October 2026*
+*Last updated 3 November 2026*
 
 ## What website storage does
 
@@ -348,7 +348,7 @@ Cookies are small files placed on your device by a website. Similar storage, inc
 
 Necessary storage supports functions such as security, sign-in, a requested shopping cart and remembering your privacy choice. Optional storage may remember extra preferences, measure visits or support advertising, where those features are enabled. A service's actual purpose determines its category; calling it "necessary" does not make every use necessary.
 
-We use the necessary storage listed below. We do not currently enable optional analytics or advertising cookies. If that changes, we will update this policy and the available choices before enabling the new use.
+We use the necessary storage listed below. We count visits with Cloudflare Web Analytics, which uses no cookies and stores nothing on your device. We do not use analytics or advertising cookies. If that changes, we will update this policy and the available choices before enabling the new use.
 
 ## Storage used on this website
 

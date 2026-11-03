@@ -94,7 +94,8 @@ def fill(text):
 
 PROVIDERS = """<p>Other main providers and processing locations are:</p>
       <ul>
-        <li><strong>Cloudflare</strong> (global network) hosts the website.
+        <li><strong>Cloudflare</strong> (global network) hosts the website and provides our visitor statistics
+          (Cloudflare Web Analytics, which uses no cookies and keeps no profile of individual visitors).
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists,
           orders and our mailing list, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
@@ -131,8 +132,8 @@ COOKIE_TABLE = """<div class="table-wrap"><table class="legal-table">
       <p>We do not set any cookies. If you never add to the cart or sign in, nothing is stored.</p>"""
 
 EMBEDDED = ("<p>No payment or embedded services on our website store anything on your device. Orders are paid in cash or "
-            "by Whish payment request, outside our website. Our pages load fonts from Google Fonts and our sign-in library from jsDelivr; "
-            "these set no cookies.</p>")
+            "by Whish payment request, outside our website. Our pages load fonts from Google Fonts, our sign-in library from jsDelivr "
+            "and Cloudflare's visitor statistics script from static.cloudflareinsights.com; these set no cookies.</p>")
 
 # Link mentions of other policies. Longest phrases first.
 LINKS = [
