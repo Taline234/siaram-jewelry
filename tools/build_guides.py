@@ -5,6 +5,7 @@ Builds the guide pages (linked from product pages and the custom-order form) and
   size-guide.html   rings, bracelets, necklaces and anklets, all on one page
   materials.html    gold colours, gemstones (meaning and durability), cuts, settings and birthstones
   return-repair.html  the return and repair request form
+  gift-voucher.html   the gift voucher order form
 The page shell (header, footer) is copied from about.html, like the policy pages."""
 import glob
 import re
@@ -397,8 +398,8 @@ service_body = f"""
       <label class="field"><span>How did the issue happen?</span>
         <textarea name="cause" rows="4" required maxlength="3000"
           placeholder="When you first noticed it and what happened, e.g. it arrived like this, it caught on a sweater, after swimming…"></textarea></label>
-      <label class="field"><span>Photos (up to 4, 8 MB each; for a problem, a close-up and the whole piece)</span>
-        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
+      <label class="field"><span>Photos of the piece (1 to 4, 8 MB each; for a problem, a close-up and the whole piece)</span>
+        <input type="file" name="files" accept="image/*,application/pdf" multiple required /></label>
       <div class="form-grid">
         <label class="field"><span>Full name</span>
           <input name="name" required maxlength="200" autocomplete="name" /></label>
@@ -417,6 +418,77 @@ service_body = f"""
 <script type="module" src="js/service-request.js"></script>
 """
 
+# ------------------------------------------------------------------ gift voucher order page
+# The form sends to the voucher-request function (js/voucher-request.js); payment is arranged by WhatsApp for now.
+AMOUNTS = [100, 150, 200, 250, 300, 500]
+amount_pills = "\n".join(
+    f'          <label class="choice-pill"><input type="radio" name="amount_choice" value="{a}"{" required" if i == 0 else ""} /><span>${a}</span></label>'
+    for i, a in enumerate(AMOUNTS))
+
+voucher_body = f"""
+<section class="custom-request voucher-request">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">A Gift They Choose</span>
+      <h2>Order a Gift Voucher</h2>
+      <p>A digital Siaram gift voucher from $100, issued to the person you name and valid for six months. We contact you
+        on WhatsApp to arrange payment, then send the voucher. See our <a href="gift-vouchers.html">Gift Voucher policy</a>.</p>
+    </div>
+    <form class="custom-form voucher-form reveal" novalidate>
+      <fieldset>
+        <legend>Amount</legend>
+        <div class="choice-pills">
+{amount_pills}
+          <label class="choice-pill"><input type="radio" name="amount_choice" value="other" /><span>Other amount</span></label>
+        </div>
+        <label class="field voucher-other" hidden><span>Other amount in US$ (from 100)</span>
+          <input name="amount_other" type="number" min="100" step="1" inputmode="numeric" placeholder="e.g. 400" /></label>
+      </fieldset>
+      <fieldset>
+        <legend>Who is it for?</legend>
+        <div class="form-grid">
+          <label class="field"><span>Recipient's full name</span>
+            <input name="recipient_name" required maxlength="200" autocomplete="off" /></label>
+          <span></span>
+          <label class="field"><span>Recipient's email</span>
+            <input name="recipient_email" type="email" maxlength="200" autocomplete="off" /></label>
+          <label class="field"><span>Recipient's WhatsApp (with country code)</span>
+            <input name="recipient_phone" type="tel" maxlength="40" autocomplete="off" placeholder="+961 70 123 456" /></label>
+        </div>
+        <p class="field-note">Give at least one: only the named recipient can use the voucher, and we check it at checkout.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Send the voucher to</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="send_to" value="recipient" required /><span>The recipient directly</span></label>
+          <label class="choice-pill"><input type="radio" name="send_to" value="purchaser" /><span>Me, so I can give it myself</span></label>
+        </div>
+        <label class="field voucher-date"><span>Send it on (optional, e.g. their birthday)</span>
+          <input name="send_on" type="date" /></label>
+      </fieldset>
+      <fieldset>
+        <legend>Your details</legend>
+        <div class="form-grid">
+          <label class="field"><span>Full name</span>
+            <input name="name" required maxlength="200" autocomplete="name" /></label>
+          <label class="field"><span>WhatsApp number (with country code)</span>
+            <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
+          <label class="field"><span>Email</span>
+            <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+        </div>
+      </fieldset>
+      <label class="check"><input type="checkbox" name="final_sale" required />
+        <span>I understand that gift vouchers are final sale: once issued, they cannot be cancelled, refunded or exchanged for cash.</span></label>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="field-note">We use these details only for this voucher; see our <a href="privacy.html">Privacy Policy</a>.</p>
+      <p class="form-msg" role="alert"></p>
+      <button class="btn btn-primary" type="submit">Order My Gift Voucher</button>
+    </form>
+  </div>
+</section>
+<script type="module" src="js/voucher-request.js"></script>
+"""
+
 PAGES = [
     ("size-guide.html", "Size Guide", "How to find your ring size, bracelet, necklace and anklet length for Siaram Jewelry pieces.",
      hero("Find Your Fit", "Size Guide", "Rings, bracelets, necklaces and anklets: how to measure, and the sizes we make."), size_body),
@@ -428,6 +500,10 @@ PAGES = [
      "send your order number, what is wrong, how it happened and photos.",
      hero("Customer Care", "Return or Repair Request", "Tell us about the piece and what happened, and we will guide you from there."),
      service_body),
+    ("gift-voucher.html", "Buy a Gift Voucher", "Order a Siaram Jewelry digital gift voucher from US$100, issued to the person "
+     "you name and valid for six months.",
+     hero("Gift Vouchers", "Buy a Gift Voucher", "Let them choose their own piece: a digital voucher from $100, valid for six months."),
+     voucher_body),
 ]
 
 sitemap = open("sitemap.xml", encoding="utf-8").read()

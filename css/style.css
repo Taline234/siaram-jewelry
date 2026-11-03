@@ -1569,3 +1569,5 @@ legend {
 .custom-form input[type=file] { font-family: var(--font-sans); font-size: 0.9rem; color: var(--green-mid); }
 .custom-form .btn { justify-self: start; }
 .custom-done { margin: 0 auto; }
+.custom-form .check input { width: auto; margin-top: 4px; accent-color: var(--green-deep); }
+.voucher-form .voucher-other, .voucher-form .voucher-date { margin-top: 16px; max-width: 380px; }
