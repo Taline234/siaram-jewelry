@@ -10,7 +10,6 @@ The page shell (header, footer) is copied from about.html, like the policy pages
 import glob
 import re
 
-from gem_art import DEFS, SETTING_ART, art
 
 BASE = "https://siaramjewelry.com/"
 TEMPLATE = open("about.html", encoding="utf-8").read()
@@ -294,8 +293,10 @@ cut_cards = "\n".join(f"""      <div class="cut-card reveal">
         <p>{desc}</p>
       </div>""" for name, desc in CUTS)
 
+# Setting photos (images/settings, made in Canva).
+setting_photo = lambda name: {"Prong (claw)": "prong", "Pavé": "pave"}.get(name, name.lower())
 setting_cards = "\n".join(f"""      <div class="cut-card setting-card reveal">
-        {art(SETTING_ART[name], name + " setting")}
+        <img class="cut-photo" src="images/settings/{setting_photo(name)}.jpg" alt="{name} setting" width="96" height="96" loading="lazy">
         <h3>{name}</h3>
         <p>{desc}</p>
       </div>""" for name, desc in SETTINGS)
@@ -327,7 +328,6 @@ materials_body = f"""
       <p class="size-guide-note">You can also bring a stone you already own; we will check it can be set safely.</p>
     </div>
 
-    {DEFS}
     <div class="guide-section reveal" id="cuts">
       <h2>Cuts</h2>
       <p>The cut is the shape a stone is given. It changes how the stone catches the light and how the piece looks on you.</p>
@@ -543,7 +543,7 @@ popups = "\n".join(f"""<dialog class="size-guide guide-popup" id="size-guide-{ke
 
 START, END = "<!-- guide pop-ups: made by tools/build_guides.py -->", "<!-- end of guide pop-ups -->"
 custom = open("custom.html", encoding="utf-8").read()
-block = f"{START}\n{DEFS}\n{popups}\n{END}"
+block = f"{START}\n{popups}\n{END}"
 if START in custom:
     custom = custom[:custom.index(START)] + block + custom[custom.index(END) + len(END):]
 else:

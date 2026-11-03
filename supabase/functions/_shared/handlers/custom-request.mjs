@@ -37,7 +37,8 @@ export default async (req) => {
       phone: text(form, 'phone', 40),
       piece: oneOf(text(form, 'piece'), PIECES),
       gold: oneOf(text(form, 'gold'), GOLDS),
-      stones: form.getAll('stones').map(String).filter((s) => STONES.includes(s)),
+      stones: form.getAll('stones').map(String).filter((s) => STONES.includes(s))
+        .map((s) => (s === 'Other' && text(form, 'stones_other') ? `Other: ${text(form, 'stones_other')}` : s)),
       cut: oneOf(text(form, 'cut'), CUTS),
       setting: oneOf(text(form, 'setting'), SETTINGS),
       size: text(form, 'size', 80),
@@ -47,6 +48,7 @@ export default async (req) => {
     };
     if (!request.piece) throw new CustomerError('Please choose the type of piece.');
     if (!request.gold) throw new CustomerError('Please choose a gold colour.');
+    if (request.stones.includes('Other')) throw new CustomerError('Please tell us which other gemstones you would like.');
 
     const files = form.getAll('files').filter((f) => f && typeof f === 'object' && f.size > 0);
     if (files.length > MAX_FILES) throw new CustomerError(`Please attach up to ${MAX_FILES} files.`);
