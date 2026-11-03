@@ -14,11 +14,30 @@ def _mix(a, b, t):
     return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(a, b))
 
 
+DIAMOND = ("#9eabb8", "#ffffff", "#6b7682", "url(#gem-table)")  # dark facet, light facet, outline, table
+_colours = DIAMOND
+
+
+def tint(dark, light, edge):
+    """Colours for a coloured stone (ruby, emerald...): facets shade from dark to light, the table glows in between."""
+    return (dark, light, edge, _mix(dark, light, 0.72))
+
+
 def _tone(angle, bias=0.0):
-    """Facet colour: bright where the facet faces the light, cool grey where it faces away."""
+    """Facet colour: bright where the facet faces the light, darker where it faces away."""
     t = 0.5 + 0.5 * math.cos(angle - LIGHT) + bias
     t = max(0.0, min(1.0, t))
-    return _mix("#9eabb8", "#ffffff", t)
+    return _mix(_colours[0], _colours[1], t)
+
+
+def coloured(colours, draw, *args, **kwargs):
+    """Draw a stone (brilliant() or step_cut()) in the given tint() colours instead of diamond white."""
+    global _colours
+    _colours = colours
+    try:
+        return draw(*args, **kwargs)
+    finally:
+        _colours = DIAMOND
 
 
 def _pts(points):
@@ -65,9 +84,9 @@ def brilliant(inside, cx, cy, size, n=16, table=0.45, star=0.7, center=(0.0, 0.0
         out.append(_poly([stars[k], at(2 * k - 1, 1), at(2 * k, 1)], _tone(a_mid - 0.2, -0.15)))
         out.append(_poly([stars[k], tab[k], stars[(k + 1) % half], at(2 * k + 1, 1)], _tone(a_next + math.pi, 0.0)))
         out.append(_poly([tab[k - 1], stars[k], tab[k]], _tone(a_mid, 0.15)))
-    out.append(_poly(tab, "url(#gem-table)"))
+    out.append(_poly(tab, _colours[3]))
     outline = [at(i, 1) for i in range(n)]
-    out.append(f'<polygon points="{_pts(outline)}" fill="none" stroke="#6b7682" stroke-width="0.8" stroke-linejoin="round"/>')
+    out.append(f'<polygon points="{_pts(outline)}" fill="none" stroke="{_colours[2]}" stroke-width="0.8" stroke-linejoin="round"/>')
     return "".join(out)
 
 
@@ -85,8 +104,8 @@ def step_cut(outline, rings=4):
             mx, my = (a[i][0] + a[j][0]) / 2 - cx, (a[i][1] + a[j][1]) / 2 - cy
             face = math.atan2(my, mx)
             out.append(_poly([a[i], a[j], b[j], b[i]], _tone(face + math.pi if ring % 2 else face, -0.1 + 0.05 * ring)))
-    out.append(_poly(levels[-1], "url(#gem-table)"))
-    out.append(f'<polygon points="{_pts(outline)}" fill="none" stroke="#6b7682" stroke-width="0.8" stroke-linejoin="round"/>')
+    out.append(_poly(levels[-1], _colours[3]))
+    out.append(f'<polygon points="{_pts(outline)}" fill="none" stroke="{_colours[2]}" stroke-width="0.8" stroke-linejoin="round"/>')
     return "".join(out)
 
 

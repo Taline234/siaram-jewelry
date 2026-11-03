@@ -110,6 +110,31 @@ assert.match(await page.locator('#gemstones').textContent(), /Diamond/);
 assert.equal(await page.locator('#birthstones tbody tr').count(), 12);
 step('custom request form: choices, sketch upload, saved with a CR number, emailed to the shop with the sketch; guide pages');
 
+await page.goto(`${ORIGIN}/return-repair.html`);
+await page.waitForSelector('.service-form');
+await page.click('.service-form button[type=submit]');
+assert.match(await page.locator('.service-form .form-msg').textContent(), /return, exchange or repair/);
+await page.check('.service-form [name=kind][value=Repair]', { force: true });
+await page.fill('.service-form [name=order_ref]', 's017');
+await page.fill('.service-form [name=piece]', 'Horse Shoe Ring');
+await page.fill('.service-form [name=problem]', 'One of the small stones is loose');
+await page.fill('.service-form [name=cause]', 'Noticed it after it caught on my sweater');
+await page.setInputFiles('.service-form [name=files]', { name: 'ring.jpg', mimeType: 'image/jpeg', buffer: Buffer.from([255, 216, 255]) });
+await page.fill('.service-form [name=name]', 'Nour Aoun');
+await page.fill('.service-form [name=phone]', '+961 70 123 456');
+await page.fill('.service-form [name=email]', 'nour@example.com');
+await page.click('.service-form button[type=submit]');
+await page.waitForSelector('.service-done');
+assert.match(await page.locator('.service-done').textContent(), /RR\d{3}/);
+const [serviceRow] = await q("select kind, order_ref, piece, cause, files from service_requests where email = 'nour@example.com'");
+assert.deepEqual([serviceRow.kind, serviceRow.order_ref, serviceRow.piece, serviceRow.cause, serviceRow.files],
+  ['Repair', 'S017', 'Horse Shoe Ring', 'Noticed it after it caught on my sweater', ['ring.jpg']]);
+const serviceMails = (await setState({})).emails.filter((e) => /Repair request|repair request/.test(e.subject));
+assert.equal(serviceMails.length, 2);
+assert.deepEqual(serviceMails.find((e) => e.to[0] === 'customerservice@siaramjewelry.com').attachments.map((a) => a.filename), ['ring.jpg']);
+await setState({ emails: [] });
+step('return and repair form: saved with an RR number, emailed to the shop with the photos and a copy to the customer');
+
 await page.goto(`${ORIGIN}/product-horseshoe-ring.html`);
 await page.waitForSelector('.product-buy:not([hidden])');
 assert.equal(await page.locator('.add-to-cart').count(), 0);

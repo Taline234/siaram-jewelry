@@ -357,5 +357,21 @@ select pg_temp.check(not has_function_privilege('anon', 'public.save_custom_requ
                      and not has_table_privilege('anon', 'public.custom_requests', 'select'),
   'only the server can save or read custom requests');
 
+-- Return and repair requests get RR numbers.
+select save_service_request('{"kind":"Repair","order_ref":" s017 ","piece":"Horse Shoe Ring","problem":"A stone fell out",
+    "cause":"Noticed it after washing my hands","name":"Rana","email":"Rana@Example.com","phone":"70",
+    "files":["ring.jpg"]}'::jsonb)->>'reference' as rr_ref \gset
+select pg_temp.check(:'rr_ref' = 'RR001'
+                     and (select order_ref = 'S017' and kind = 'Repair' and files = array['ring.jpg'] and email = 'rana@example.com'
+                            from service_requests where reference = 'RR001'),
+  'a return or repair request is saved with an RR number');
+select pg_temp.expect_error($$select save_service_request('{"kind":"Repair","order_ref":"S017","piece":"Ring","problem":"x","name":"Rana","email":"rana@example.com","phone":"70"}')$$,
+  'cause field');
+select pg_temp.expect_error($$select save_service_request('{"kind":"Melt it","order_ref":"S017","piece":"Ring","problem":"x","cause":"y","name":"Rana","email":"rana@example.com","phone":"70"}')$$,
+  'service_requests_kind_check');
+select pg_temp.check(not has_function_privilege('anon', 'public.save_service_request(jsonb)', 'execute')
+                     and not has_table_privilege('anon', 'public.service_requests', 'select'),
+  'only the server can save or read return and repair requests');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

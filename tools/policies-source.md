@@ -176,7 +176,7 @@ We arrange prepaid return delivery for confirmed defects, damage on arrival or i
 
 ## How to request a return
 
-Step 1. Contact us within 14 days of receiving your order, at customerservice@siaramjewelry.com or through the channel you used to order. Give your order reference, the piece you want to return and whether you would like a refund or an exchange. For a defective or incorrect piece, describe the problem and send photographs.
+Step 1. Contact us within 14 days of receiving your order, at customerservice@siaramjewelry.com or through the channel you used to order. Give your order reference, the piece you want to return and whether you would like a refund or an exchange. For a defective or incorrect piece, describe the problem and send photographs. You can also send all of this through our return and repair request form.
 
 Step 2. We reply with the return address and how to send the piece. Please do not send anything before you receive our instructions.
 
@@ -226,7 +226,7 @@ The one-year warranty is additional to mandatory legal rights. Expiry of this wa
 
 ## How assessment works
 
-Email customerservice@siaramjewelry.com with the order reference, when you first noticed the problem, a short account of what happened and clear photographs. We may ask for close-up images and images of the whole piece. We will review these with our manufacturer and explain whether physical inspection is necessary.
+Email customerservice@siaramjewelry.com, or use our return and repair request form, with the order reference, when you first noticed the problem, a short account of what happened and clear photographs. We may ask for close-up images and images of the whole piece. We will review these with our manufacturer and explain whether physical inspection is necessary.
 
 Where a claim appears to involve a manufacturing defect and inspection is needed, we arrange prepaid return delivery. We aim to give an initial assessment within three business days after receiving the piece. If a specialist review needs more time, we explain why and give an expected response date.
 

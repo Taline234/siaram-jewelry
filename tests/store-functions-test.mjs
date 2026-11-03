@@ -15,6 +15,7 @@ const { default: inactiveAccounts } = await import('../supabase/functions/_share
 const { default: exportSales } = await import('../supabase/functions/_shared/handlers/export-sales.mjs');
 const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
 const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
+const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -378,5 +379,50 @@ test('custom requests refuse a missing choice, wrong files and spam', async () =
   exe.append('files', new File(['x'], 'virus.exe', { type: 'application/octet-stream' }));
   assert.match((await (await post(exe)).json()).error, /not a photo or PDF/);
   assert.equal((await post(customForm({ website: 'spam' }))).status, 400);
+  assert.equal(emails().length, 0);
+});
+
+// ---------------------------------------------------------------- return and repair requests
+function serviceForm(extra = {}) {
+  const f = new FormData();
+  const fields = { kind: 'Repair', order_ref: 's017', piece: 'Horse Shoe Ring', problem: 'A stone is loose',
+    cause: 'I noticed it after it caught on a sweater', name: 'Rana Haddad', email: 'rana@example.com',
+    phone: '+961 70 000 000', ...extra };
+  for (const [k, v] of Object.entries(fields)) f.append(k, v);
+  return f;
+}
+const postService = (form) => serviceRequest(new Request('https://siaram.test/functions/v1/service-request', { method: 'POST', body: form }));
+
+test('a repair request is saved and emailed to the shop with the photos, and the customer is told to wait for instructions', async () => {
+  handlers['/rest/v1/rpc/save_service_request'] = () => [200, { reference: 'RR001' }];
+  const form = serviceForm();
+  form.append('files', new File([new Uint8Array([255, 216, 255])], 'loose stone.jpg', { type: 'image/jpeg' }));
+  const res = await postService(form);
+  assert.deepEqual(await res.json(), { reference: 'RR001' });
+  const saved = calls.find((c) => c.url.endsWith('/save_service_request')).body.p;
+  assert.equal(saved.kind, 'Repair');
+  assert.equal(saved.cause, 'I noticed it after it caught on a sweater');
+  assert.deepEqual(saved.files, ['loose stone.jpg']);
+  const [shop, customer] = emails();
+  assert.equal(shop.subject, 'Repair request RR001 — S017 (Rana Haddad)');
+  assert.equal(shop.reply_to, 'rana@example.com');
+  assert.deepEqual(shop.attachments.map((a) => a.filename), ['loose stone.jpg']);
+  assert.match(shop.html, /caught on a sweater/);
+  assert.equal(customer.subject, 'Your repair request RR001');
+  assert.match(customer.html, /do not send the piece until you receive our instructions/);
+  assert.equal(customer.attachments, undefined);
+});
+
+test('return and repair requests refuse missing details, wrong files and spam', async () => {
+  assert.match((await (await postService(serviceForm({ kind: 'Melt it' }))).json()).error, /return, exchange or repair/);
+  assert.match((await (await postService(serviceForm({ cause: '' }))).json()).error, /how the issue happened/);
+  assert.match((await (await postService(serviceForm({ order_ref: ' ' }))).json()).error, /order or invoice number/);
+  const many = serviceForm();
+  for (let i = 0; i < 5; i++) many.append('files', new File(['x'], `p${i}.jpg`, { type: 'image/jpeg' }));
+  assert.match((await (await postService(many)).json()).error, /up to 4 photos/);
+  const exe = serviceForm();
+  exe.append('files', new File(['x'], 'virus.exe', { type: 'application/octet-stream' }));
+  assert.match((await (await postService(exe)).json()).error, /not a photo or PDF/);
+  assert.equal((await postService(serviceForm({ website: 'spam' }))).status, 400);
   assert.equal(emails().length, 0);
 });

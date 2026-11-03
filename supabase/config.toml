@@ -30,3 +30,7 @@ import_map = "./functions/import_map.json"
 [functions.custom-request]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.service-request]
+verify_jwt = false
+import_map = "./functions/import_map.json"

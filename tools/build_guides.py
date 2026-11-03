@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Run from the repository root:  python3 tools/build_guides.py
 
-Builds the two guide pages, linked from product pages and the custom-order form:
+Builds the guide pages (linked from product pages and the custom-order form) and the return and repair request page:
   size-guide.html   rings, bracelets, necklaces and anklets, all on one page
   materials.html    gold colours, gemstones (meaning and durability), cuts, settings and birthstones
+  return-repair.html  the return and repair request form
 The page shell (header, footer) is copied from about.html, like the policy pages."""
+import glob
 import re
 
 from gem_art import CUT_ART, DEFS, SETTING_ART, art
@@ -235,8 +237,53 @@ gold_cards = "\n".join(f"""      <article class="guide-card reveal">
         <p><strong>Care:</strong> {care}</p>
       </article>""" for key, name, what, look, care in GOLD)
 
-stone_rows = "\n".join(f"""          <tr><th scope="row">{name}</th><td>{colours}</td><td>{meaning[0].upper() + meaning[1:]}</td>
-            <td>{hard}</td><td>{note}</td><td>{best}</td></tr>""" for name, colours, meaning, hard, note, best in STONES)
+# Gemstone cards: a photo of each stone (images/gems, made in Canva), its glow colour and birth month.
+STONE_LOOK = {  # name: (photo, glow colour behind it)
+    "Diamond": ("diamond", "#dfe6ee"), "Zircon": ("zircon", "#e3e8ef"), "Emerald": ("emerald", "#cfeee0"),
+    "Ruby": ("ruby", "#f8d6db"), "Sapphire": ("sapphire", "#d8e1f8"), "Pearl": ("pearl", "#f3ece4"),
+    "Turquoise": ("turquoise", "#cdeeea"), "Amethyst": ("amethyst", "#eadcf6"), "Aquamarine": ("aquamarine", "#dcf1f8"),
+    "Topaz": ("topaz", "#d6edf9"), "Garnet": ("garnet", "#f0d3d6"), "Peridot": ("peridot", "#eaf4cc"),
+    "Opal": ("opal", "#eef0f8"), "Black Onyx": ("onyx", "#e3e1dc"),
+}
+MONTH_OF = {stone.split(" or ")[0]: month for month, stone in BIRTHSTONES}
+MONTH_OF.update({"Opal": "October", "Topaz": "November", "Turquoise": "December", "Zircon": "December"})
+
+
+def hardness(h):
+    vals = [float(x) for x in h.replace("&ndash;", "-").split("-")]
+    return min(vals), max(vals)
+
+
+def meter(h):
+    lo, hi = hardness(h)
+    cells = "".join(f'<i class="{"on" if i <= lo else "half" if i <= hi + 0.01 else ""}"></i>' for i in range(1, 11))
+    return f'<span class="meter" aria-hidden="true">{cells}</span>'
+
+
+def wear(h):
+    lo, hi = hardness(h)
+    if hi >= 7.5 or lo >= 7:
+        return '<span class="wear-chip ok">Everyday rings</span>'
+    if lo >= 6.5:
+        return '<span class="wear-chip mid">Rings with care</span>'
+    return '<span class="wear-chip soft">Best in earrings &amp; pendants</span>'
+
+
+def stone_card(name, colours, meaning, hard, note, best):
+    photo, glow = STONE_LOOK[name]
+    month = f'<span class="gem-month">{MONTH_OF[name]}</span>' if name in MONTH_OF else ""
+    return f"""        <article class="gem-card" title="{note}">
+          <div class="gem-stage" style="--glow:{glow}"><img src="images/gems/{photo}.jpg" alt="{name}" width="112" height="112" loading="lazy">{month}</div>
+          <h3>{name}</h3>
+          <p class="gem-meaning">{meaning[0].upper() + meaning[1:]}</p>
+          <p class="gem-colours">{colours}</p>
+          <p class="gem-hard"><span>Hardness</span>{meter(hard)}<b>{hard}</b></p>
+          {wear(hard)}
+          <p class="gem-best"><strong>Best settings</strong>{best}</p>
+        </article>"""
+
+
+stone_cards = "\n".join(stone_card(*s) for s in STONES)
 
 cut_cards = "\n".join(f"""      <div class="cut-card reveal">
         {art(CUT_ART[name], name + " cut")}
@@ -271,12 +318,9 @@ materials_body = f"""
       <p>The most popular stones for fine jewelry, with the meaning traditionally given to each and how well it wears.
         Hardness is on the Mohs scale, from 1 (softest) to 10 (diamond): stones of 7 or more are the most comfortable
         for rings worn every day, while softer stones are lovely in earrings and pendants.</p>
-      <div class="table-wrap"><table class="size-table stone-table">
-        <thead><tr><th>Stone</th><th>Colours</th><th>Traditionally symbolises</th><th>Hardness</th><th>Everyday wear</th><th>Best settings</th></tr></thead>
-        <tbody>
-{stone_rows}
-        </tbody>
-      </table></div>
+      <div class="gem-grid">
+{stone_cards}
+      </div>
       <p class="size-guide-note">You can also bring a stone you already own; we will check it can be set safely.</p>
     </div>
 
@@ -314,6 +358,65 @@ materials_body = f"""
 
 """
 
+# ------------------------------------------------------------------ return and repair request page
+# The form sends to the service-request function (js/service-request.js). Piece names are suggested from the shop.
+PIECE_NAMES = sorted({re.search(r"<title>(.*?) — Siaram Jewelry", open(f, encoding="utf-8").read()).group(1)
+                      for f in glob.glob("product-*.html")})
+piece_options = "\n".join(f'            <option value="{n}"></option>' for n in PIECE_NAMES)
+
+service_body = f"""
+<section class="custom-request service-request">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Returns &amp; Repairs</span>
+      <h2>Tell Us What Happened</h2>
+      <p>We reply within 3 to 5 business days with the next steps. Please do not send the piece until you receive our
+        instructions. See our <a href="returns.html">Returns</a> and <a href="warranty.html">Warranty</a> policies.</p>
+    </div>
+    <form class="custom-form service-form reveal" novalidate enctype="multipart/form-data">
+      <fieldset>
+        <legend>What would you like?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="kind" value="Return" required /><span>Return</span></label>
+          <label class="choice-pill"><input type="radio" name="kind" value="Exchange" /><span>Exchange</span></label>
+          <label class="choice-pill"><input type="radio" name="kind" value="Repair" /><span>Repair</span></label>
+        </div>
+      </fieldset>
+      <div class="form-grid">
+        <label class="field"><span>Order or invoice number</span>
+          <input name="order_ref" required maxlength="40" placeholder="e.g. S017" autocomplete="off" /></label>
+        <label class="field"><span>Name of the piece</span>
+          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Horse Shoe Ring" />
+          <datalist id="piece-names">
+{piece_options}
+          </datalist></label>
+      </div>
+      <label class="field"><span>What's wrong?</span>
+        <textarea name="problem" rows="4" required maxlength="3000"
+          placeholder="e.g. a stone is loose, the clasp does not close, wrong size, it is not what I expected…"></textarea></label>
+      <label class="field"><span>How did the issue happen?</span>
+        <textarea name="cause" rows="4" required maxlength="3000"
+          placeholder="When you first noticed it and what happened, e.g. it arrived like this, it caught on a sweater, after swimming…"></textarea></label>
+      <label class="field"><span>Photos (up to 4, 8 MB each; for a problem, a close-up and the whole piece)</span>
+        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
+      <div class="form-grid">
+        <label class="field"><span>Full name</span>
+          <input name="name" required maxlength="200" autocomplete="name" /></label>
+        <label class="field"><span>WhatsApp number (with country code)</span>
+          <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
+        <label class="field"><span>Email</span>
+          <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+      </div>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="field-note">We use these details only to handle your request; see our <a href="privacy.html">Privacy Policy</a>.</p>
+      <p class="form-msg" role="alert"></p>
+      <button class="btn btn-primary" type="submit">Send My Request</button>
+    </form>
+  </div>
+</section>
+<script type="module" src="js/service-request.js"></script>
+"""
+
 PAGES = [
     ("size-guide.html", "Size Guide", "How to find your ring size, bracelet, necklace and anklet length for Siaram Jewelry pieces.",
      hero("Find Your Fit", "Size Guide", "Rings, bracelets, necklaces and anklets: how to measure, and the sizes we make."), size_body),
@@ -321,6 +424,10 @@ PAGES = [
      "durability, stone cuts, settings and birthstones.",
      hero("Choose Your Materials", "Gold &amp; Gemstones",
           "Gold colours, gemstones and their meaning, cuts, settings and birthstones, to help you choose."), materials_body),
+    ("return-repair.html", "Return or Repair Request", "Request a return, exchange or repair for a Siaram Jewelry piece: "
+     "send your order number, what is wrong, how it happened and photos.",
+     hero("Customer Care", "Return or Repair Request", "Tell us about the piece and what happened, and we will guide you from there."),
+     service_body),
 ]
 
 sitemap = open("sitemap.xml", encoding="utf-8").read()

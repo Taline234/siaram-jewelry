@@ -148,6 +148,7 @@ LINKS = [
     ("Custom orders policy", '<a href="custom-orders.html">Custom orders policy</a>'),
     ("Returns policy", '<a href="returns.html">Returns policy</a>'),
     ("Cookie policy", '<a href="cookies.html">Cookie policy</a>'),
+    ("return and repair request form", '<a href="return-repair.html">return and repair request form</a>'),
     ("Privacy policy", '<a href="privacy.html">Privacy policy</a>'),
 ]
 
@@ -188,6 +189,7 @@ FOOTER_POLICIES = """<h4>Policies</h4>
           <li><a href="shipping.html">Shipping &amp; Delivery</a></li>
           <li><a href="returns.html">Returns &amp; Exchanges</a></li>
           <li><a href="warranty.html">Warranty &amp; Repairs</a></li>
+          <li><a href="return-repair.html">Return or Repair Request</a></li>
           <li><a href="custom-orders.html">Custom Orders</a></li>
           <li><a href="gift-vouchers.html">Gift Vouchers</a></li>
           <li><a href="privacy.html">Privacy Policy</a></li>
