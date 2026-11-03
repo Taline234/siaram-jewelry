@@ -842,6 +842,57 @@ begin
   return jsonb_build_object('reference', v_ref);
 end $$;
 
+-- Paying for a voucher order: in the Table Editor, set its status to 'paid'. The voucher is then created
+-- (issue_gift_voucher) and the voucher-send function emails it, straight away or on the chosen send date
+-- (a daily job sends those). Status becomes 'issued' once the email has gone.
+alter table public.voucher_requests add column if not exists emailed_at timestamptz;
+
+create or replace function private.voucher_request_paid() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.voucher_code is null then
+    new.voucher_code := public.issue_gift_voucher(new.recipient_name, new.name, new.amount,
+                                                  new.recipient_email, new.recipient_phone);
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists voucher_request_paid on public.voucher_requests;
+create trigger voucher_request_paid before update of status on public.voucher_requests
+  for each row when (new.status = 'paid' and old.status = 'new')
+  execute function private.voucher_request_paid();
+
+-- Claims the right to email a paid voucher that is due (true once); release lets a failed send be retried.
+create or replace function public.claim_voucher_email(p_id uuid, p_release boolean default false) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  r jsonb;
+begin
+  if p_release then
+    update public.voucher_requests set emailed_at = null, status = 'paid' where id = p_id;
+    return null;
+  end if;
+  update public.voucher_requests set emailed_at = now(), status = 'issued'
+   where id = p_id and status = 'paid' and emailed_at is null and voucher_code is not null
+     and (send_on is null or send_on <= (now() at time zone 'Asia/Beirut')::date);
+  if not found then
+    return null;
+  end if;
+  select to_jsonb(q) || jsonb_build_object('expires_at', v.expires_at) into r
+    from public.voucher_requests q join public.gift_vouchers v on v.code = q.voucher_code where q.id = p_id;
+  return r;
+end;
+$$;
+
+-- Paid vouchers whose send date has come (for the daily job).
+create or replace function public.vouchers_due() returns setof uuid
+language sql stable security definer set search_path = public as $$
+  select id from public.voucher_requests
+   where status = 'paid' and emailed_at is null and voucher_code is not null
+     and (send_on is null or send_on <= (now() at time zone 'Asia/Beirut')::date);
+$$;
+
 -- ---------------------------------------------------------------- newsletter
 -- Sign-ups from the footer form, with the consent wording shown, when and where. Nobody is added by buying,
 -- creating an account or using a voucher. To unsubscribe someone, set status to 'unsubscribed' (they stay
@@ -1002,6 +1053,9 @@ grant execute on function public.save_service_request(jsonb) to service_role;
 revoke all on public.voucher_requests from anon, authenticated;
 revoke execute on function public.save_voucher_request(jsonb) from public, anon, authenticated;
 grant execute on function public.save_voucher_request(jsonb) to service_role;
+revoke execute on function public.claim_voucher_email(uuid, boolean) from public, anon, authenticated;
+revoke execute on function public.vouchers_due() from public, anon, authenticated;
+grant execute on function public.claim_voucher_email(uuid, boolean), public.vouchers_due() to service_role;
 grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 
@@ -1083,6 +1137,30 @@ create trigger order_dispatched after update of status on public.orders
   for each row when (new.status = 'dispatched' and old.status is distinct from 'dispatched'
                      and new.dispatched_email_at is null)
   execute function private.order_dispatched();
+
+-- Gift vouchers: once a voucher order is marked paid, ask voucher-send to email it (it waits for the send date).
+create or replace function private.voucher_paid_email() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  v_url    text;
+  v_secret text;
+begin
+  select functions_url, secret into v_url, v_secret from private.cron where id = 1;
+  if v_url is not null and exists (select 1 from pg_extension where extname = 'pg_net') then
+    perform net.http_post(
+      url := v_url || '/voucher-send',
+      headers := jsonb_build_object('content-type', 'application/json', 'x-cron-secret', v_secret),
+      body := jsonb_build_object('request_id', new.id)
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists voucher_paid_email on public.voucher_requests;
+create trigger voucher_paid_email after update of status on public.voucher_requests
+  for each row when (new.status = 'paid' and old.status = 'new')
+  execute function private.voucher_paid_email();
 
 -- Server-only functions.
 revoke execute on function public.place_order(jsonb, uuid)            from public, anon, authenticated;
