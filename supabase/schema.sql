@@ -294,7 +294,8 @@ alter table public.orders add column if not exists fulfilment text not null defa
 alter table public.orders add column if not exists terms_accepted_at timestamptz;
 -- How the customer pays: 'whish' before production, or 'cash' to the courier on delivery. Older orders may be collections.
 alter table public.orders drop constraint if exists orders_payment_method_check;
-alter table public.orders add constraint orders_payment_method_check check (payment_method in ('whish', 'cash'));
+alter table public.orders add constraint orders_payment_method_check
+  check (payment_method in ('whish', 'cash', 'card', 'bank', 'voucher'));  -- card, bank, voucher: sales recorded by the owner
 -- Website orders are cash only (Whish stays allowed for older orders). A new order starts as 'received':
 -- submitted by the customer and waiting for us to confirm it.
 alter table public.orders alter column payment_method set default 'cash';
@@ -690,6 +691,114 @@ begin
   return public.order_summary(v_order_id);
 end $$;
 
+-- ---------------------------------------------------------------- sales recorded by the owner
+-- In-person, Instagram, WhatsApp and event sales, recorded on the account page (Record a Sale tab). They are
+-- orders like website ones (same S numbers, so the workbook invoice numbers stay in one sequence), with the
+-- sales channel, the agreed price per piece and how it was paid. Pieces taken from stock come off it.
+alter table public.orders add column if not exists channel text not null default 'Website';
+alter table public.orders drop constraint if exists orders_channel_check;
+alter table public.orders add constraint orders_channel_check
+  check (channel in ('Website', 'In person', 'Instagram', 'WhatsApp', 'Event', 'Other'));
+create or replace function public.record_sale(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_item      jsonb;
+  v_product   public.products;
+  v_voucher   public.gift_vouchers;
+  v_qty       int;
+  v_metal     text;
+  v_size      text;
+  v_price     numeric(10,2);
+  v_subtotal  numeric(10,2) := 0;
+  v_discount  numeric(10,2) := 0;
+  v_ref       text;
+  v_order_id  uuid;
+  v_made      boolean := false;
+  v_date      date := coalesce(nullif(p->>'sale_date', '')::date, (now() at time zone 'Asia/Beirut')::date);
+begin
+  if coalesce(trim(p->>'customer_name'), '') = '' then
+    raise exception 'Please enter the customer''s name.' using errcode = 'P0001';
+  end if;
+  if coalesce(p->>'channel', '') not in ('In person', 'Instagram', 'WhatsApp', 'Event', 'Other') then
+    raise exception 'Please choose where the sale was made.' using errcode = 'P0001';
+  end if;
+  if coalesce(p->>'payment_method', '') not in ('cash', 'whish', 'card', 'bank', 'voucher') then
+    raise exception 'Please choose how it was paid.' using errcode = 'P0001';
+  end if;
+  if v_date > (now() at time zone 'Asia/Beirut')::date then
+    raise exception 'The sale date cannot be in the future.' using errcode = 'P0001';
+  end if;
+  if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then
+    raise exception 'Please add at least one piece.' using errcode = 'P0001';
+  end if;
+
+  update public.store_settings set next_order_number = next_order_number + 1 where id = 1
+  returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
+  insert into public.orders (reference, customer_name, email, phone, fulfilment, notes, subtotal, total, age_confirmed,
+                             payment_method, status, channel, created_at)
+  values (v_ref, trim(p->>'customer_name'), lower(trim(coalesce(p->>'email', ''))), trim(coalesce(p->>'phone', '')),
+          'collection', nullif(trim(p->>'notes'), ''), 0, 0, true, p->>'payment_method', 'delivered', p->>'channel',
+          (v_date + time '12:00') at time zone 'Asia/Beirut')
+  returning id into v_order_id;
+
+  for v_item in select * from jsonb_array_elements(p->'items') loop
+    select * into v_product from public.products where slug = v_item->>'slug';
+    if not found then
+      raise exception 'Please choose the piece for every line.' using errcode = 'P0001';
+    end if;
+    v_qty := coalesce((v_item->>'quantity')::int, 0);
+    if v_qty < 1 or v_qty > 10 then
+      raise exception 'Please enter a quantity between 1 and 10.' using errcode = 'P0001';
+    end if;
+    v_metal := coalesce(nullif(v_item->>'metal', ''), 'yellow');
+    if v_metal not in ('yellow', 'rose', 'white') then
+      raise exception 'Please choose yellow, rose or white gold.' using errcode = 'P0001';
+    end if;
+    v_size := coalesce(trim(v_item->>'size'), '');
+    if v_product.sizes is null then
+      v_size := '';
+    elsif not (v_size = any(v_product.sizes)) then
+      raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
+    end if;
+    v_price := coalesce(nullif(v_item->>'unit_price', '')::numeric, v_product.price);
+    if v_price is null or v_price < 0 then
+      raise exception 'Please enter the price of the %.', v_product.name using errcode = 'P0001';
+    end if;
+    if coalesce((v_item->>'from_stock')::boolean, true) then
+      update public.stock set quantity = quantity - v_qty, updated_at = now()
+       where product_slug = v_product.slug and metal = v_metal and size = v_size and quantity >= v_qty;
+      if not found then
+        raise exception 'The % (% gold%) is not in stock. Untick "Taken from stock" if it is being made to order.',
+          v_product.name, v_metal, case when v_size <> '' then ', size ' || v_size else '' end using errcode = 'P0001';
+      end if;
+    else
+      v_made := true;
+    end if;
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_price, v_qty, v_metal, v_size,
+            not coalesce((v_item->>'from_stock')::boolean, true))
+    on conflict (order_id, product_slug, metal, size)
+      do update set quantity = least(order_items.quantity + excluded.quantity, 10);
+    v_subtotal := v_subtotal + v_price * v_qty;
+  end loop;
+
+  -- A gift voucher used in person: its balance pays as much of the sale as it can.
+  if coalesce(trim(p->>'voucher_code'), '') <> '' then
+    v_voucher := public.usable_voucher(p->>'voucher_code', true);
+    v_discount := least(v_voucher.balance, v_subtotal);
+    update public.gift_vouchers set balance = balance - v_discount where code = v_voucher.code;
+    insert into public.voucher_redemptions (voucher_code, order_id, amount) values (v_voucher.code, v_order_id, v_discount);
+  elsif p->>'payment_method' = 'voucher' then
+    raise exception 'Please enter the gift voucher code.' using errcode = 'P0001';
+  end if;
+
+  update public.orders
+     set subtotal = v_subtotal, voucher_code = v_voucher.code, voucher_amount = v_discount, total = v_subtotal - v_discount,
+         status = case when v_made then 'preparing' else 'delivered' end
+   where id = v_order_id;
+  return public.order_summary(v_order_id);
+end $$;
+
 -- ---------------------------------------------------------------- custom-piece requests
 -- From the form on the Custom page. Sketches and photos are attached to the email the shop receives;
 -- only their file names are kept here. Status is for the owner: new, quoted, approved, in production, done, declined.
@@ -1053,13 +1162,16 @@ grant execute on function public.save_service_request(jsonb) to service_role;
 revoke all on public.voucher_requests from anon, authenticated;
 revoke execute on function public.save_voucher_request(jsonb) from public, anon, authenticated;
 grant execute on function public.save_voucher_request(jsonb) to service_role;
+revoke execute on function public.record_sale(jsonb) from public, anon, authenticated;
+grant execute on function public.record_sale(jsonb) to service_role;
 revoke execute on function public.claim_voucher_email(uuid, boolean) from public, anon, authenticated;
 revoke execute on function public.vouchers_due() from public, anon, authenticated;
 grant execute on function public.claim_voucher_email(uuid, boolean), public.vouchers_due() to service_role;
 grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 
--- Website sales for the finance workbook backup download, one entry per order (cancelled orders left out).
+-- Sales for the finance workbook backup download (website orders and sales recorded by the owner), one entry
+-- per order (cancelled orders left out).
 -- Dates are Beirut dates; either bound may be null.
 create or replace function public.sales_export(p_from date, p_to date) returns json
 language sql stable security definer set search_path = public as $$
@@ -1068,7 +1180,7 @@ language sql stable security definer set search_path = public as $$
            o.customer_name, o.email, o.phone,
            concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
                      nullif(o.city, ''), nullif(o.governorate, '')) as address,
-           o.status, o.payment_method, o.voucher_code, o.voucher_amount,
+           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount,
            (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity,
                                               'made_to_order', i.made_to_order)
                             order by i.product_slug, i.metal, i.size)

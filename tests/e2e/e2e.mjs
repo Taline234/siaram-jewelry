@@ -366,8 +366,36 @@ assert.match(download.suggestedFilename(), /^Siaram-website-sales\.csv$/);
 const salesFile = fs.readFileSync(await download.path(), 'utf8');
 assert.match(salesFile, new RegExp(`\\r\\n${ref2},\\d{4}-\\d{2}-\\d{2},Rana Haddad,Website,`));
 await shot('account-workbook');
-await setState({ ownerEmails: 'owner@siaram.test' });
 step('the owner gets a Workbook tab and downloads website sales laid out like the Sales tab');
+
+await page.goto(`${ORIGIN}/account.html#sale`);
+await page.reload();
+await page.waitForSelector('.sale-form');
+await page.selectOption('.sale-form [name=channel]', 'Instagram');
+await page.fill('.sale-form [name=customer_name]', 'Maya Khoury');
+await page.selectOption('.sale-line [name=slug]', 'horseshoe-necklace');
+assert.ok(Number(await page.inputValue('.sale-line [name=unit_price]')) > 0, 'choosing a piece fills in its price');
+await page.fill('.sale-line [name=unit_price]', '400');
+await page.uncheck('.sale-line [name=from_stock]');
+await page.click('.sale-add');
+await page.selectOption('.sale-line:nth-child(2) [name=slug]', 'horseshoe-ring');
+assert.ok(await page.locator('.sale-line:nth-child(2) [name=size]').isEnabled(), 'rings show a size choice');
+assert.ok(await page.locator('.sale-line:nth-child(1) [name=size]').isDisabled(), 'necklaces have no size');
+await page.uncheck('.sale-line:nth-child(2) [name=from_stock]');
+await page.fill('.sale-line:nth-child(2) [name=unit_price]', '300');
+await page.selectOption('.sale-form [name=payment_method]', 'card');
+await shot('account-record-sale');
+await page.click('.sale-form button[type=submit]');
+await page.waitForFunction(() => document.querySelector('.order-done') || document.querySelector('.sale-form .form-msg')?.textContent);
+assert.equal(await page.locator('.sale-form .form-msg').count() ? await page.locator('.sale-form .form-msg').textContent() : '', '', 'no error');
+assert.match(await page.locator('.order-done').textContent(), /Total \$700\.00/);
+const saleRef = (await page.locator('.order-done h2').textContent()).trim();
+assert.match(saleRef, /^S\d{3}$/);
+const [saleRow] = await q(`select channel, payment_method, status, (select count(*)::int from order_items i where i.order_id = o.id) as lines
+                            from orders o where reference = '${saleRef}'`);
+assert.deepEqual([saleRow.channel, saleRow.payment_method, saleRow.status, saleRow.lines], ['Instagram', 'card', 'preparing', 2]);
+await setState({ ownerEmails: 'owner@siaram.test' });
+step('the owner records an Instagram sale with two pieces; it gets the next order number');
 
 await page.goto(`${ORIGIN}/account.html#details`);
 await page.waitForSelector('.details-form');

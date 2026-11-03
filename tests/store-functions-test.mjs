@@ -18,6 +18,7 @@ const { default: customRequest } = await import('../supabase/functions/_shared/h
 const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
 const { default: voucherSend } = await import('../supabase/functions/_shared/handlers/voucher-send.mjs');
+const { default: recordSale } = await import('../supabase/functions/_shared/handlers/record-sale.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -521,4 +522,31 @@ test('the daily run sends every voucher that is due, and a failed email can be s
   handlers['/emails'] = () => [500, {}];
   assert.equal((await voucherSend(sendRequest('right'))).status, 502);
   assert.ok(calls.some((c) => c.url.endsWith('/claim_voucher_email') && c.body.p_release === true));
+});
+
+// ---------------------------------------------------------------- sales recorded by the owner
+test('owner-recorded sales show their channel and payment method, and count as paid', () => {
+  const lines = salesCsv([{ reference: 'S019', sale_date: '2026-11-03', customer_name: 'Nour', email: '', phone: '', status: 'preparing',
+    payment_method: 'card', channel: 'Instagram', voucher_code: null, voucher_amount: 0,
+    items: [{ sku: 'NK-01', unit_price: 450, quantity: 1, made_to_order: true }] }]).replace(/^\uFEFF/, '').trim().split('\r\n').map((l) => l.split(','));
+  assert.deepEqual(lines[1].slice(0, 13), ['S019', '2026-11-03', 'Nour', 'Instagram', 'NK-01', '', '1', '450.00', 'Percentage', '0', '', 'Card', '450.00']);
+});
+
+test('only the owner can record a sale, and the sale is passed on to the database', async () => {
+  let who = { email: 'rana@example.com', email_confirmed_at: '2026-01-01' };
+  handlers['/auth/v1/user'] = () => [200, who];
+  handlers['/rest/v1/rpc/record_sale'] = () => [200, { reference: 'S019', total: 450, status: 'delivered' }];
+  const post = (body) => recordSale(new Request('https://siaram.test/functions/v1/record-sale',
+    { method: 'POST', headers: { authorization: 'Bearer t' }, body: JSON.stringify(body) }));
+  const sale = { channel: 'Instagram', customer_name: 'Nour', payment_method: 'card', sale_date: '2026-11-03',
+    items: [{ slug: 'horseshoe-necklace', metal: 'rose', quantity: 1, unit_price: '450', from_stock: true }] };
+  assert.equal((await post(sale)).status, 403);
+  assert.ok(!calls.some((c) => c.url.endsWith('/record_sale')));
+  who = { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: '2026-01-01' };
+  assert.deepEqual(await (await post(sale)).json(), { reference: 'S019', total: 450, status: 'delivered' });
+  const sent = calls.find((c) => c.url.endsWith('/record_sale')).body.p;
+  assert.deepEqual(sent.items[0], { slug: 'horseshoe-necklace', metal: 'rose', size: '', quantity: 1, unit_price: 450, from_stock: true });
+  assert.equal(sent.channel, 'Instagram');
+  assert.match((await (await post({ ...sale, email: 'not-an-email' })).json()).error, /email/);
+  assert.equal(emails().length, 0, 'recording a sale sends no email');
 });

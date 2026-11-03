@@ -2,16 +2,10 @@
 //   ?check=1                     tells the account page whether to show the Workbook tab
 //   ?kind=sales|customers&from=YYYY-MM-DD&to=YYYY-MM-DD   returns a CSV file
 // Only signed-in, confirmed accounts listed in OWNER_EMAILS (comma separated) may use it.
-import { configured, env, json, rpc, userFromRequest } from '../store.mjs';
+import { configured, isOwner, json, rpc, userFromRequest } from '../store.mjs';
 import { customersCsv, salesCsv } from '../workbook.mjs';
 
-const DEFAULT_OWNERS = 'siaramjewelry@hotmail.com,finance@siaramjewelry.com,customerservice@siaramjewelry.com';
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-
-function isOwner(user) {
-  const owners = (env('OWNER_EMAILS') || DEFAULT_OWNERS).split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
-  return Boolean(user && user.email_confirmed_at && owners.includes(String(user.email).toLowerCase()));
-}
 
 export default async (req) => {
   if (req.method !== 'GET') return json({ error: 'Method not allowed.' }, 405);

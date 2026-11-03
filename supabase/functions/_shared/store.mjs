@@ -204,3 +204,11 @@ delivery fee. We will email you when your order ships.`) : '')
 request, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together
 when the whole order is ready.`) : '');
 }
+
+// The shop owner's accounts (signed in and confirmed), who get the Workbook and Record a Sale tabs.
+const DEFAULT_OWNERS = 'siaramjewelry@hotmail.com,finance@siaramjewelry.com,customerservice@siaramjewelry.com';
+
+export function isOwner(user) {
+  const owners = (env('OWNER_EMAILS') || DEFAULT_OWNERS).split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
+  return Boolean(user && user.email_confirmed_at && owners.includes(String(user.email).toLowerCase()));
+}

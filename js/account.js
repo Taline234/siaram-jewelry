@@ -1,6 +1,6 @@
 // Account page: sign in, create account (18+), password reset, and the signed-in area
-// with orders, wishlist, saved addresses and personal details. The shop owner also gets a Workbook tab
-// with the backup download of website sales for the finance workbook.
+// with orders, wishlist, saved addresses and personal details. The shop owner also gets a Record a Sale tab
+// (in-person, Instagram, WhatsApp and event sales) and a Workbook tab with the backup download for the finance workbook.
 import { apiUrl, escapeHtml, getClient, loadProducts, money, productPage, storeEnabled } from './store.js';
 
 const root = document.getElementById('store-root');
@@ -162,7 +162,8 @@ async function renderAccount() {
     client.from('profiles').select('*').maybeSingle(),
     isOwner(session),
   ]);
-  const tabs = ['orders', 'wishlist', 'addresses', 'details', ...(owner ? ['workbook'] : [])];
+  const tabs = ['orders', 'wishlist', 'addresses', 'details', ...(owner ? ['sale', 'workbook'] : [])];
+  const TAB_LABELS = { sale: 'Record a Sale' };
   const tab = location.hash.replace('#', '') || 'orders';
   root.innerHTML = `<div class="account-head">
       <h2>Hello, ${escapeHtml(profile ? profile.first_name : '')}</h2>
@@ -170,7 +171,7 @@ async function renderAccount() {
     </div>
     <nav class="account-tabs" role="tablist">
       ${tabs.map((t) =>
-        `<a href="#${t}" role="tab" class="${t === tab ? 'active' : ''}" aria-selected="${t === tab}">${t[0].toUpperCase() + t.slice(1)}</a>`).join('')}
+        `<a href="#${t}" role="tab" class="${t === tab ? 'active' : ''}" aria-selected="${t === tab}">${TAB_LABELS[t] || t[0].toUpperCase() + t.slice(1)}</a>`).join('')}
     </nav>
     <div class="account-panel"></div>`;
 
@@ -181,7 +182,7 @@ async function renderAccount() {
   });
   const panel = root.querySelector('.account-panel');
   const views = { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails,
-    ...(owner ? { workbook: renderWorkbook } : {}) };
+    ...(owner ? { sale: renderSale, workbook: renderWorkbook } : {}) };
   await (views[tab] || renderOrders)(panel, session, profile);
 }
 
@@ -450,4 +451,135 @@ function renderWorkbook(panel, session) {
       btn.disabled = false;
     }
   }));
+}
+
+// ---------------------------------------------------------------- owner: record a sale
+// In-person, Instagram, WhatsApp and event sales. Each becomes an order with the next S number; pieces taken
+// from stock come off it, and the sale appears in the workbook download with its channel.
+const METALS = [['yellow', 'Yellow gold'], ['rose', 'Rose gold'], ['white', 'White gold']];
+
+async function renderSale(panel, session) {
+  const [{ data: products }, { data: stock }] = await Promise.all([
+    client.from('products').select('slug, name, price, sizes').order('name'),
+    client.rpc('available_stock'),
+  ]);
+  const bySlug = Object.fromEntries((products || []).map((p) => [p.slug, p]));
+  const inStock = new Set((stock || []).map((r) => `${r.product_slug}|${r.metal}|${r.size}`));
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Beirut' });
+  const options = (list, chosen) => list.map(([v, l]) => `<option value="${escapeHtml(v)}"${v === chosen ? ' selected' : ''}>${escapeHtml(l)}</option>`).join('');
+
+  const line = () => `<div class="sale-line">
+      <label class="field"><span>Piece</span><select name="slug"><option value="">Choose a piece</option>
+        ${options((products || []).map((p) => [p.slug, p.name]))}</select></label>
+      <label class="field"><span>Gold</span><select name="metal">${options(METALS, 'yellow')}</select></label>
+      <label class="field sale-size"><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
+      <label class="field"><span>Qty</span><input name="quantity" type="number" min="1" max="10" value="1" /></label>
+      <label class="field"><span>Price each ($)</span><input name="unit_price" type="number" min="0" step="0.01" /></label>
+      <label class="check sale-stock"><input type="checkbox" name="from_stock" checked /> <span>Taken from stock</span></label>
+      <button type="button" class="link-btn sale-remove" aria-label="Remove this piece">Remove</button>
+    </div>`;
+
+  panel.innerHTML = `<form class="auth-card sale-form" novalidate>
+      <h3>Record a Sale</h3>
+      <p class="field-note">For sales made in person, on Instagram, on WhatsApp or at an event. The sale gets the next order
+        number, pieces taken from stock come off your stock, and it appears in your Workbook download. No email is sent.</p>
+      <div class="form-grid">
+        ${field('sale_date', 'Date of the sale', `type="date" value="${today}" max="${today}"`)}
+        <label class="field"><span>Where was it sold?</span><select name="channel">
+          ${options([['In person', 'In person'], ['Instagram', 'Instagram'], ['WhatsApp', 'WhatsApp'], ['Event', 'Event or pop-up'], ['Other', 'Other']], 'In person')}</select></label>
+        ${field('customer_name', "Customer's name", 'required maxlength="200"')}
+        ${field('phone', 'Phone or WhatsApp (optional)', 'type="tel" maxlength="40"')}
+        ${field('email', 'Email (optional)', 'type="email" maxlength="200"')}
+      </div>
+      <h4 class="sale-sub">Pieces</h4>
+      <div class="sale-lines">${line()}</div>
+      <button type="button" class="link-btn sale-add">+ Add another piece</button>
+      <div class="form-grid">
+        <label class="field"><span>How was it paid?</span><select name="payment_method">
+          ${options([['cash', 'Cash'], ['whish', 'Whish'], ['card', 'Card'], ['bank', 'Bank transfer'], ['voucher', 'Gift voucher']], 'cash')}</select></label>
+        ${field('voucher_code', 'Gift voucher code (if one was used)', 'maxlength="40" autocomplete="off"')}
+      </div>
+      <label class="field"><span>Notes (optional)</span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+      <p class="sale-total">Total: <strong>$0.00</strong></p>
+      <p class="form-msg form-error" role="alert"></p>
+      <button type="submit" class="btn btn-primary">Record Sale</button>
+    </form>`;
+
+  const form = panel.querySelector('form');
+  const lines = form.querySelector('.sale-lines');
+  const total = () => {
+    let sum = 0;
+    lines.querySelectorAll('.sale-line').forEach((l) => {
+      sum += (Number(l.querySelector('[name=unit_price]').value) || 0) * (Number(l.querySelector('[name=quantity]').value) || 0);
+    });
+    form.querySelector('.sale-total strong').textContent = money(sum);
+  };
+  // Choosing a piece fills in its price and sizes, and ticks "Taken from stock" when that version is in stock.
+  const refresh = (l, priceToo) => {
+    const p = bySlug[l.querySelector('[name=slug]').value];
+    const sizeSelect = l.querySelector('[name=size]');
+    if (priceToo) {
+      l.querySelector('[name=unit_price]').value = p && p.price != null ? Number(p.price) : '';
+      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value="">—</option>';
+    }
+    sizeSelect.disabled = !(p && p.sizes);
+    if (p) {
+      const key = `${p.slug}|${l.querySelector('[name=metal]').value}|${p.sizes ? sizeSelect.value : ''}`;
+      l.querySelector('[name=from_stock]').checked = inStock.has(key);
+    }
+    total();
+  };
+  lines.addEventListener('change', (e) => {
+    const l = e.target.closest('.sale-line');
+    if (['slug', 'metal', 'size'].includes(e.target.name)) refresh(l, e.target.name === 'slug');
+    else total();
+  });
+  lines.addEventListener('input', total);
+  lines.addEventListener('click', (e) => {
+    if (!e.target.classList.contains('sale-remove')) return;
+    if (lines.children.length > 1) e.target.closest('.sale-line').remove();
+    total();
+  });
+  form.querySelector('.sale-add').addEventListener('click', () => {
+    lines.insertAdjacentHTML('beforeend', line());
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formMessage(form, '');
+    const f = form.elements;
+    if (!f.customer_name.value.trim()) return formMessage(form, "Please enter the customer's name.");
+    const items = [...lines.querySelectorAll('.sale-line')].map((l) => ({
+      slug: l.querySelector('[name=slug]').value, metal: l.querySelector('[name=metal]').value,
+      size: l.querySelector('[name=size]').value, quantity: Number(l.querySelector('[name=quantity]').value),
+      unit_price: l.querySelector('[name=unit_price]').value, from_stock: l.querySelector('[name=from_stock]').checked,
+    }));
+    if (items.some((i) => !i.slug)) return formMessage(form, 'Please choose the piece for every line.');
+    const button = form.querySelector('[type=submit]');
+    button.disabled = true;
+    try {
+      const { data: { session: current } } = await client.auth.getSession();
+      const res = await fetch(apiUrl('record-sale'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${(current || session).access_token}` },
+        body: JSON.stringify({
+          sale_date: f.sale_date.value, channel: f.channel.value, customer_name: f.customer_name.value, phone: f.phone.value,
+          email: f.email.value, payment_method: f.payment_method.value, voucher_code: f.voucher_code.value, notes: f.notes.value, items,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || 'Could not record the sale.');
+      panel.innerHTML = `<div class="order-done">
+          <span class="eyebrow">Sale recorded</span>
+          <h2>${escapeHtml(body.reference)}</h2>
+          <p>Total ${money(body.total)}. ${body.status === 'preparing' ? 'Pieces not taken from stock are marked as being made.' : 'Stock has been updated.'}
+            It will be in your next Workbook download.</p>
+          <button type="button" class="btn btn-outline sale-again">Record Another Sale</button>
+        </div>`;
+      panel.querySelector('.sale-again').addEventListener('click', () => renderSale(panel, session));
+    } catch (err) {
+      formMessage(form, err.message);
+      button.disabled = false;
+    }
+  });
 }

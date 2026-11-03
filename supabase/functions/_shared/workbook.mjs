@@ -1,4 +1,4 @@
-// Backup download for the finance workbook: website sales laid out like the Sales tab (columns A to Z),
+// Backup download for the finance workbook: website sales and sales recorded by the owner, laid out like the Sales tab (columns A to Z),
 // and new customers laid out like the Customers tab (columns A to G). Formula columns are left empty so
 // the rows can be pasted with "Skip blanks" without overwriting the workbook's formulas.
 
@@ -11,7 +11,7 @@ const CUSTOMER_HEAD = ['Name', 'Phone', 'Instagram', 'Email', 'Address', 'Birthd
 
 const cents = (n) => Math.round(Number(n || 0) * 100);
 const amount = (c) => (c / 100).toFixed(2);
-const PAY = { cash: 'Cash', whish: 'Whish' };
+const PAY = { cash: 'Cash', whish: 'Whish', card: 'Card', bank: 'Bank Transfer', voucher: 'Gift Voucher' };
 
 function csv(rows) {
   const cell = (v) => {
@@ -27,16 +27,19 @@ function csv(rows) {
 export function salesCsv(orders) {
   const rows = [SALES_HEAD];
   for (const o of orders) {
-    const delivered = o.status === 'delivered';
+    // Sales recorded by the owner are paid when recorded, even if the piece is still being made.
+    const delivered = o.status === 'delivered' || (o.channel || 'Website') !== 'Website';
     let voucherLeft = cents(o.voucher_amount);
     for (const i of o.items || []) {
       const line = cents(i.unit_price) * i.quantity;
       const byVoucher = Math.min(voucherLeft, line);
       voucherLeft -= byVoucher;
       const cash = line - byVoucher;
-      const method = cash === 0 && byVoucher > 0 ? 'Gift Voucher' : i.made_to_order ? 'Whish' : PAY[o.payment_method] || 'Cash';
+      const website = (o.channel || 'Website') === 'Website';
+      const method = cash === 0 && byVoucher > 0 ? 'Gift Voucher'
+        : website && i.made_to_order ? 'Whish' : PAY[o.payment_method] || 'Cash';
       rows.push([
-        o.reference, o.sale_date, o.customer_name, 'Website', i.sku || '', '', i.quantity,
+        o.reference, o.sale_date, o.customer_name, o.channel || 'Website', i.sku || '', '', i.quantity,
         amount(cents(i.unit_price)), 'Percentage', 0, '', method, delivered ? amount(cash) : '0.00',
         '', '', '', '', '', '', '', '', '', '', '',
         byVoucher > 0 ? o.voucher_code : '', byVoucher > 0 ? amount(byVoucher) : '',
@@ -51,6 +54,6 @@ export function customersCsv(orders) {
   const latest = new Map();
   for (const o of orders) latest.set(o.customer_name.trim().toLowerCase(), o);
   const rows = [CUSTOMER_HEAD];
-  for (const o of latest.values()) rows.push([o.customer_name, o.phone, '', o.email, o.address || '', '', 'Website']);
+  for (const o of latest.values()) rows.push([o.customer_name, o.phone, '', o.email, o.address || '', '', o.channel || 'Website']);
   return csv(rows);
 }
