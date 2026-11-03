@@ -17,6 +17,7 @@ const { default: orderStatus } = await import('../supabase/functions/_shared/han
 const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
 const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
+const { default: voucherSend } = await import('../supabase/functions/_shared/handlers/voucher-send.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -446,7 +447,8 @@ test('a gift voucher order is saved, the shop gets the line to issue it and the 
   assert.equal(saved.send_on, '2026-12-24');
   const [shop, buyer] = emails();
   assert.equal(shop.subject, 'Gift voucher order VR001 — $150 (Rana Haddad)');
-  assert.match(shop.html, /select issue_gift_voucher\(&#39;Maya O&#39;&#39;Neil&#39;, &#39;Rana Haddad&#39;, 150, &#39;maya@example.com&#39;, null\);/);
+  assert.match(shop.html, /change VR001's\s+status from <strong>new<\/strong> to <strong>paid<\/strong>/);
+  assert.match(shop.html, /emailed automatically on 2026-12-24/);
   assert.equal(buyer.subject, 'Your gift voucher order VR001');
   assert.match(buyer.html, /final sale/);
 });
@@ -459,4 +461,64 @@ test('gift voucher orders refuse small amounts, no recipient contact, no final-s
   assert.match((await (await postVoucher(voucherOrder({ final_sale: false }))).json()).error, /final sale/);
   assert.equal((await postVoucher(voucherOrder({ website: 'spam' }))).status, 400);
   assert.equal(emails().length, 0);
+});
+
+// ---------------------------------------------------------------- sending paid gift vouchers
+const sendRequest = (secret, body = { request_id: 'v1' }) => new Request('https://siaram.test/functions/v1/voucher-send',
+  { method: 'POST', body: JSON.stringify(body), headers: secret ? { 'x-cron-secret': secret } : {} });
+const paidVoucher = { id: 'v1', reference: 'VR001', amount: 150, recipient_name: 'Maya Aoun', recipient_email: 'maya@example.com',
+  recipient_phone: null, send_to: 'recipient', name: 'Rana Haddad', email: 'rana@example.com', voucher_code: 'GV0001-K7QM4X',
+  expires_at: '2027-05-03T10:00:00Z' };
+
+test('only the database can ask for a voucher to be sent', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = (c) => [200, c.body.p_secret === 'right'];
+  assert.equal((await voucherSend(sendRequest())).status, 403);
+  assert.equal((await voucherSend(sendRequest('wrong'))).status, 403);
+  assert.ok(!calls.some((c) => c.url.endsWith('/claim_voucher_email')));
+});
+
+test('a paid voucher is emailed to the recipient with its code, and the buyer and the shop are told', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, paidVoucher];
+  const res = await (await voucherSend(sendRequest('right'))).json();
+  assert.deepEqual(res.results, [{ id: 'v1', sent: true, code: 'GV0001-K7QM4X' }]);
+  const [gift, shop, buyer] = emails();
+  assert.equal(gift.to[0], 'maya@example.com');
+  assert.equal(gift.subject, 'Rana Haddad sent you a Siaram gift voucher');
+  assert.match(gift.html, /GV0001-K7QM4X/);
+  assert.match(gift.html, /Valid until 3 May 2027/);
+  assert.equal(shop.to[0], 'shop@siaram.test');
+  assert.equal(buyer.to[0], 'rana@example.com');
+  assert.match(buyer.html, /emailed your \$150\.00 Siaram gift voucher to\s+Maya Aoun/);
+
+  calls.length = 0;
+  handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, null];
+  assert.equal((await (await voucherSend(sendRequest('right'))).json()).results[0].sent, false);
+  assert.equal(emails().length, 0, 'a second request, or one before the send date, sends nothing');
+});
+
+test('a voucher for the buyer to give, or for a recipient with only WhatsApp, goes to the buyer', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  for (const v of [{ ...paidVoucher, send_to: 'purchaser' }, { ...paidVoucher, recipient_email: null, recipient_phone: '+961 71 000 000' }]) {
+    calls.length = 0;
+    handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, v];
+    await voucherSend(sendRequest('right'));
+    const [gift, shop, ...rest] = emails();
+    assert.equal(gift.to[0], 'rana@example.com');
+    assert.match(gift.html, /GV0001-K7QM4X/);
+    assert.equal(shop.to[0], 'shop@siaram.test');
+    assert.equal(rest.length, 0);
+  }
+});
+
+test('the daily run sends every voucher that is due, and a failed email can be sent again later', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/vouchers_due'] = () => [200, ['v1', 'v2']];
+  handlers['/rest/v1/rpc/claim_voucher_email'] = (c) => [200, c.body.p_release ? null : { ...paidVoucher, id: c.body.p_id }];
+  const res = await (await voucherSend(sendRequest('right', { due: true }))).json();
+  assert.deepEqual(res.results.map((r) => r.id), ['v1', 'v2']);
+  calls.length = 0;
+  handlers['/emails'] = () => [500, {}];
+  assert.equal((await voucherSend(sendRequest('right'))).status, 502);
+  assert.ok(calls.some((c) => c.url.endsWith('/claim_voucher_email') && c.body.p_release === true));
 });

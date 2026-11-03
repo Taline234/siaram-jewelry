@@ -388,5 +388,27 @@ select pg_temp.check(not has_function_privilege('anon', 'public.save_voucher_req
                      and not has_table_privilege('anon', 'public.voucher_requests', 'select'),
   'only the server can save or read gift voucher orders');
 
+-- Marking a voucher order paid creates the voucher; it is emailed once, and not before its send date.
+update voucher_requests set status = 'paid' where reference = 'VR001';
+select pg_temp.check((select q.voucher_code like 'GV%' and v.amount = 150 and v.recipient_name = 'Maya' and v.purchaser_name = 'Rana'
+                             and v.recipient_phone = '+961 71 000 000'
+                        from voucher_requests q join gift_vouchers v on v.code = q.voucher_code where q.reference = 'VR001'),
+  'marking a voucher order paid creates the voucher');
+select id as vr_id from voucher_requests where reference = 'VR001' \gset
+select pg_temp.check(array(select vouchers_due()) = array[:'vr_id'::uuid], 'the paid voucher is due to be sent');
+select claim_voucher_email(:'vr_id')->>'voucher_code' as claimed_code \gset
+select claim_voucher_email(:'vr_id') is null as second_claim_empty \gset
+select pg_temp.check(:'claimed_code' like 'GV%' and :'second_claim_empty'::boolean
+                     and (select status from voucher_requests where id = :'vr_id') = 'issued',
+  'a paid voucher is claimed for emailing once, then marked issued');
+select save_voucher_request('{"amount":200,"recipient_name":"Lea","recipient_email":"lea@example.com","send_to":"recipient",
+    "send_on":"2099-01-01","name":"Rana","email":"rana@example.com","phone":"70"}'::jsonb)->>'reference' as vr2 \gset
+update voucher_requests set status = 'paid' where reference = :'vr2';
+select id as vr2_id from voucher_requests where reference = :'vr2' \gset
+select pg_temp.check(claim_voucher_email(:'vr2_id') is null and not exists (select 1 from vouchers_due() d where d = :'vr2_id'::uuid),
+  'a voucher with a later send date waits until that day');
+select pg_temp.check(not has_function_privilege('anon', 'public.claim_voucher_email(uuid, boolean)', 'execute'),
+  'only the server can send vouchers');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

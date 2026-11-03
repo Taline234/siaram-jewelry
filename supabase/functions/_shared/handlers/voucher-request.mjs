@@ -1,10 +1,9 @@
 // POST /functions/v1/voucher-request — the gift voucher order form (gift-voucher.html). Saves the order with a VR number
-// and emails the shop (with the exact line to run in Supabase once payment is received) and the buyer. Payment is
-// arranged by WhatsApp for now; the voucher itself is issued by the owner after payment.
+// and emails the shop and the buyer. Payment is arranged by WhatsApp for now; when the owner marks the order paid, the
+// database creates the voucher and voucher-send emails it.
 import { CustomerError, configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
 
 const text = (body, name, max = 200) => String(body?.[name] ?? '').trim().slice(0, max);
-const sqlText = (v) => `'${String(v).replace(/'/g, "''")}'`;
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -52,8 +51,6 @@ export default async (req) => {
       ['Send on', order.send_on || 'As soon as it is paid'],
     ].map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b665a">${k}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
     const details = `<table role="presentation" style="font-size:15px;margin:8px 0 14px">${rows}</table>`;
-    const issueLine = `select issue_gift_voucher(${sqlText(order.recipient_name)}, ${sqlText(order.name)}, ${amount}, `
-      + `${order.recipient_email ? sqlText(order.recipient_email) : 'null'}, ${order.recipient_phone ? sqlText(order.recipient_phone) : 'null'});`;
     await Promise.all([
       sendEmail({
         to: env('ORDER_NOTIFY_EMAIL'),
@@ -63,9 +60,9 @@ export default async (req) => {
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(order.name)}</strong> &middot; ${escapeHtml(order.email)}
            &middot; WhatsApp ${escapeHtml(order.phone)}</p>${details}
            <p style="font-size:14px;line-height:1.6">1. Contact the buyer on WhatsApp to arrange payment.<br>
-           2. Once paid, issue the voucher in Supabase (SQL Editor, New query) with this line:</p>
-           <pre style="font-size:13px;background:#f3ede2;padding:10px;white-space:pre-wrap;word-break:break-all">${escapeHtml(issueLine)}</pre>
-           <p style="font-size:14px;line-height:1.6">3. Send the voucher code to ${escapeHtml(sendTo)}. The order is saved in Supabase (voucher_requests).</p>`),
+           2. Once paid, open Supabase, then Table Editor, then <strong>voucher_requests</strong>, and change ${escapeHtml(reference)}'s
+           status from <strong>new</strong> to <strong>paid</strong>.<br>
+           3. That's all: the voucher code is created and emailed automatically${order.send_on ? ` on ${escapeHtml(order.send_on)}` : ''}, and you get a copy.</p>`),
       }),
       sendEmail({
         to: order.email,

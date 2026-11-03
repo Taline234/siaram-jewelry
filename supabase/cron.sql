@@ -19,3 +19,17 @@ select cron.schedule(
   );
   $$
 );
+
+-- Every day at 05:05 UTC (07:05 in Beirut in winter), send paid gift vouchers whose chosen send date has come.
+select cron.schedule(
+  'siaram-gift-vouchers',
+  '5 5 * * *',
+  $$
+  select net.http_post(
+    url := 'https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/voucher-send',
+    headers := jsonb_build_object('content-type', 'application/json',
+                                  'x-cron-secret', (select secret from private.cron where id = 1)),
+    body := '{"due": true}'::jsonb
+  );
+  $$
+);
