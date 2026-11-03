@@ -743,6 +743,51 @@ begin
   return jsonb_build_object('reference', v_ref);
 end $$;
 
+-- ---------------------------------------------------------------- return and repair requests
+-- From the form on return-repair.html. Photos are attached to the email the shop receives; only their file names are
+-- kept here. Status is for the owner: new, instructions sent, received, in repair, done, declined.
+create table if not exists public.service_requests (
+  id           uuid primary key default gen_random_uuid(),
+  reference    text not null unique,
+  kind         text not null check (kind in ('Return', 'Exchange', 'Repair')),
+  order_ref    text not null,
+  piece        text not null,
+  problem      text not null,
+  cause        text not null,
+  name         text not null,
+  email        text not null,
+  phone        text not null,
+  files        text[] not null default '{}',
+  status       text not null default 'new'
+               check (status in ('new', 'instructions sent', 'received', 'in repair', 'done', 'declined')),
+  created_at   timestamptz not null default now()
+);
+alter table public.service_requests enable row level security;
+alter table public.store_settings add column if not exists next_service_number int not null default 1;
+
+create or replace function public.save_service_request(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_ref text;
+  v_field text;
+begin
+  foreach v_field in array array['kind', 'order_ref', 'piece', 'problem', 'cause', 'name', 'email', 'phone'] loop
+    if coalesce(trim(p->>v_field), '') = '' then
+      raise exception 'Please fill in the % field.', v_field using errcode = 'P0001';
+    end if;
+  end loop;
+  if (p->>'email') !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Please enter a valid email address.' using errcode = 'P0001';
+  end if;
+  update public.store_settings set next_service_number = next_service_number + 1 where id = 1
+  returning 'RR' || lpad((next_service_number - 1)::text, 3, '0') into v_ref;
+  insert into public.service_requests (reference, kind, order_ref, piece, problem, cause, name, email, phone, files)
+  values (v_ref, p->>'kind', upper(trim(p->>'order_ref')), trim(p->>'piece'), trim(p->>'problem'), trim(p->>'cause'),
+          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'),
+          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'));
+  return jsonb_build_object('reference', v_ref);
+end $$;
+
 -- ---------------------------------------------------------------- newsletter
 -- Sign-ups from the footer form, with the consent wording shown, when and where. Nobody is added by buying,
 -- creating an account or using a voucher. To unsubscribe someone, set status to 'unsubscribed' (they stay
@@ -897,6 +942,9 @@ revoke all on public.newsletter_subscribers, public.newsletter_events from anon,
 revoke all on public.custom_requests from anon, authenticated;
 revoke execute on function public.save_custom_request(jsonb) from public, anon, authenticated;
 grant execute on function public.save_custom_request(jsonb) to service_role;
+revoke all on public.service_requests from anon, authenticated;
+revoke execute on function public.save_service_request(jsonb) from public, anon, authenticated;
+grant execute on function public.save_service_request(jsonb) to service_role;
 grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 

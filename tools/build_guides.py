@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Run from the repository root:  python3 tools/build_guides.py
 
-Builds the two guide pages, linked from product pages and the custom-order form:
+Builds the guide pages (linked from product pages and the custom-order form) and the return and repair request page:
   size-guide.html   rings, bracelets, necklaces and anklets, all on one page
   materials.html    gold colours, gemstones (meaning and durability), cuts, settings and birthstones
+  return-repair.html  the return and repair request form
 The page shell (header, footer) is copied from about.html, like the policy pages."""
+import glob
 import re
 
 from gem_art import CUT_ART, DEFS, SETTING_ART, art
@@ -356,6 +358,65 @@ materials_body = f"""
 
 """
 
+# ------------------------------------------------------------------ return and repair request page
+# The form sends to the service-request function (js/service-request.js). Piece names are suggested from the shop.
+PIECE_NAMES = sorted({re.search(r"<title>(.*?) — Siaram Jewelry", open(f, encoding="utf-8").read()).group(1)
+                      for f in glob.glob("product-*.html")})
+piece_options = "\n".join(f'            <option value="{n}"></option>' for n in PIECE_NAMES)
+
+service_body = f"""
+<section class="custom-request service-request">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Returns &amp; Repairs</span>
+      <h2>Tell Us What Happened</h2>
+      <p>We reply within 3 to 5 business days with the next steps. Please do not send the piece until you receive our
+        instructions. See our <a href="returns.html">Returns</a> and <a href="warranty.html">Warranty</a> policies.</p>
+    </div>
+    <form class="custom-form service-form reveal" novalidate enctype="multipart/form-data">
+      <fieldset>
+        <legend>What would you like?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="kind" value="Return" required /><span>Return</span></label>
+          <label class="choice-pill"><input type="radio" name="kind" value="Exchange" /><span>Exchange</span></label>
+          <label class="choice-pill"><input type="radio" name="kind" value="Repair" /><span>Repair</span></label>
+        </div>
+      </fieldset>
+      <div class="form-grid">
+        <label class="field"><span>Order or invoice number</span>
+          <input name="order_ref" required maxlength="40" placeholder="e.g. S017" autocomplete="off" /></label>
+        <label class="field"><span>Name of the piece</span>
+          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Horse Shoe Ring" />
+          <datalist id="piece-names">
+{piece_options}
+          </datalist></label>
+      </div>
+      <label class="field"><span>What's wrong?</span>
+        <textarea name="problem" rows="4" required maxlength="3000"
+          placeholder="e.g. a stone is loose, the clasp does not close, wrong size, it is not what I expected…"></textarea></label>
+      <label class="field"><span>How did the issue happen?</span>
+        <textarea name="cause" rows="4" required maxlength="3000"
+          placeholder="When you first noticed it and what happened, e.g. it arrived like this, it caught on a sweater, after swimming…"></textarea></label>
+      <label class="field"><span>Photos (up to 4, 8 MB each; for a problem, a close-up and the whole piece)</span>
+        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
+      <div class="form-grid">
+        <label class="field"><span>Full name</span>
+          <input name="name" required maxlength="200" autocomplete="name" /></label>
+        <label class="field"><span>WhatsApp number (with country code)</span>
+          <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
+        <label class="field"><span>Email</span>
+          <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+      </div>
+      <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="field-note">We use these details only to handle your request; see our <a href="privacy.html">Privacy Policy</a>.</p>
+      <p class="form-msg" role="alert"></p>
+      <button class="btn btn-primary" type="submit">Send My Request</button>
+    </form>
+  </div>
+</section>
+<script type="module" src="js/service-request.js"></script>
+"""
+
 PAGES = [
     ("size-guide.html", "Size Guide", "How to find your ring size, bracelet, necklace and anklet length for Siaram Jewelry pieces.",
      hero("Find Your Fit", "Size Guide", "Rings, bracelets, necklaces and anklets: how to measure, and the sizes we make."), size_body),
@@ -363,6 +424,10 @@ PAGES = [
      "durability, stone cuts, settings and birthstones.",
      hero("Choose Your Materials", "Gold &amp; Gemstones",
           "Gold colours, gemstones and their meaning, cuts, settings and birthstones, to help you choose."), materials_body),
+    ("return-repair.html", "Return or Repair Request", "Request a return, exchange or repair for a Siaram Jewelry piece: "
+     "send your order number, what is wrong, how it happened and photos.",
+     hero("Customer Care", "Return or Repair Request", "Tell us about the piece and what happened, and we will guide you from there."),
+     service_body),
 ]
 
 sitemap = open("sitemap.xml", encoding="utf-8").read()
