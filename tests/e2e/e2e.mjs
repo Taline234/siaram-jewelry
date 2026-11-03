@@ -263,12 +263,19 @@ step(`guest order ${ref} saved, voucher used, emails to shop + customer, cart em
 // ------------------------------------------------ accounts
 await page.goto(`${ORIGIN}/account.html`);
 await page.waitForSelector('[data-form=signup]');
+// Birthdays are chosen as day, month and year; '' leaves all three empty.
+const pickBirthday = async (form, iso) => {
+  const [y, m, d] = iso ? iso.split('-') : ['', '', ''];
+  await page.selectOption(`${form} [name=bday_day]`, d);
+  await page.selectOption(`${form} [name=bday_month]`, m);
+  await page.selectOption(`${form} [name=bday_year]`, y);
+};
 const signup = async (dob, { accept = true, whatsapp = false } = {}) => {
   await page.fill('[data-form=signup] [name=first_name]', 'Rana');
   await page.fill('[data-form=signup] [name=last_name]', 'Haddad');
   await page.fill('[data-form=signup] [name=email]', 'rana@example.com');
   await page.fill('[data-form=signup] [name=phone]', '+961 70 000 000');
-  await page.fill('[data-form=signup] [name=date_of_birth]', dob);
+  await pickBirthday('[data-form=signup]', dob);
   await page.fill('[data-form=signup] [name=password]', 'correct-horse');
   await page.setChecked('[data-form=signup] [name=accept]', accept);
   await page.setChecked('[data-form=signup] [name=marketing_whatsapp]', whatsapp);
@@ -278,7 +285,7 @@ await signup('', { accept: false });
 await page.waitForFunction(() => /confirm you are 18 or older/.test(document.querySelector('[data-form=signup] .form-msg').textContent));
 step('sign-up needs the "I am 18 or older" box');
 
-const teen = new Date(); teen.setFullYear(teen.getFullYear() - 16);
+const teen = new Date(Date.UTC(new Date().getFullYear() - 18, 11, 31)); // turns 18 on 31 December
 await signup(teen.toISOString().slice(0, 10));
 await page.waitForFunction(() => /18 or older/.test(document.querySelector('[data-form=signup] .form-msg').textContent));
 assert.equal((await q("select count(*)::int as n from auth.users where email = 'rana@example.com'"))[0].n, 0);
@@ -368,8 +375,9 @@ assert.match(salesFile, new RegExp(`\\r\\n${ref2},\\d{4}-\\d{2}-\\d{2},Rana Hadd
 await shot('account-workbook');
 step('the owner gets a Workbook tab and downloads website sales laid out like the Sales tab');
 
-await page.goto(`${ORIGIN}/account.html#sale`);
-await page.reload();
+assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Workbook'],
+  'the owner gets an admin page, not the customer tabs');
+await page.click('.account-tabs a[href="#sale"]');
 await page.waitForSelector('.sale-form');
 await page.selectOption('.sale-form [name=channel]', 'Instagram');
 await page.fill('.sale-form [name=customer_name]', 'Maya Khoury');
@@ -400,11 +408,11 @@ step('the owner records an Instagram sale with two pieces; it gets the next orde
 await page.goto(`${ORIGIN}/account.html#details`);
 await page.waitForSelector('.details-form');
 assert.equal(await page.isChecked('.details-form [name=marketing_whatsapp]'), true);
-await page.fill('.details-form [name=date_of_birth]', teen.toISOString().slice(0, 10));
+await pickBirthday('.details-form', teen.toISOString().slice(0, 10));
 await page.click('.details-form button');
 await page.waitForFunction(() => /18 or older/.test(document.querySelector('.details-form .form-msg').textContent));
 await page.fill('.details-form [name=phone]', '+961 70 999 999');
-await page.fill('.details-form [name=date_of_birth]', '1995-04-02');
+await pickBirthday('.details-form', '1995-04-02');
 await page.uncheck('.details-form [name=marketing_whatsapp]');
 await page.check('.details-form [name=marketing_email]');
 await page.click('.details-form button');
