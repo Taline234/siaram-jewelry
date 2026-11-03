@@ -383,6 +383,46 @@ insert into public.stock (product_slug, metal, size, quantity) values
   ('sun-ring', 'yellow', 'EU 54', 1)
 on conflict (product_slug, metal, size) do nothing;
 
+-- Stock missing from the 2 November list (added once): the V Pendant and the Crescent Moon Ring were in stock;
+-- the Midnight Horseshoe Bracelet (sold as S016) and the Triangle Necklace are listed at 0 so every piece shows.
+insert into public.stock (product_slug, metal, size, quantity) values
+  ('v-pendant-necklace', 'yellow', '', 1),
+  ('crescent-moon-ring', 'yellow', 'EU 54', 1),
+  ('horseshoe-bracelet', 'yellow', '15–17 cm', 0),
+  ('triangle-necklace', 'yellow', '', 0)
+on conflict (product_slug, metal, size) do nothing;
+
+-- For reading the table: each row's piece name and SKU, and the chain length of pieces that have no size to
+-- choose (necklaces, earrings, the anklet). Information only; the website uses product_slug, metal and size.
+alter table public.stock add column if not exists piece text;
+alter table public.stock add column if not exists length text;
+update public.stock s set piece = p.name || coalesce(' (' || p.sku || ')', '')
+  from public.products p where p.slug = s.product_slug and s.piece is distinct from p.name || coalesce(' (' || p.sku || ')', '');
+update public.stock s set length = v.length
+  from (values
+  ('arrow-earrings', 'Drop chain: 4 cm'),
+  ('arrow-necklace', '41 cm chain + 5.5 cm drop chain'),
+  ('curved-marquise-earrings', 'Drop chain: 2 cm'),
+  ('curved-marquise-necklace', '50–52 cm chain (adjustable)'),
+  ('eye-necklace', '40–52.5 cm chain (adjustable)'),
+  ('fatima-anklet', 'Chain: 21–22 cm (adjustable)'),
+  ('fatima-necklace', '38–40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white pearl)'),
+  ('fatima-pearl-earrings', 'Drop chain: 3 cm'),
+  ('horse-eye-necklace', '37–40 cm chain (adjustable)'),
+  ('horse-eye-stud', 'Stud earrings'),
+  ('horseshoe-necklace', '40 cm chain + 6 cm drop chain'),
+  ('horseshoe-necklace-black-stone', '39.5–41.5 cm chain (adjustable) + 5 cm drop chain'),
+  ('moon-star-handchain', 'Moon to star: 2.5 cm; Finger chain: 7 cm'),
+  ('moon-star-pendant-earring', 'Star chain: 2.5 cm; Moon chain: 3.5 cm'),
+  ('star-moon-necklace', '43 cm chain + 3 cm drop chain'),
+  ('sun-necklace', '35–38 cm chain (adjustable)'),
+  ('sun-stud-earrings', 'Stud earrings'),
+  ('triangle-necklace', '50–52 cm chain (adjustable)'),
+  ('v-bird-necklace', '39–41.5 cm chain (adjustable)'),
+  ('v-pendant-necklace', '50–52 cm chain (adjustable)')
+  ) as v(slug, length)
+ where s.product_slug = v.slug and s.length is distinct from v.length;
+
 -- What the website may show: which piece, metal and size combinations are ready to ship (not how many).
 create or replace function public.available_stock() returns table (product_slug text, metal text, size text)
 language sql stable security definer set search_path = public as $$
