@@ -235,8 +235,53 @@ gold_cards = "\n".join(f"""      <article class="guide-card reveal">
         <p><strong>Care:</strong> {care}</p>
       </article>""" for key, name, what, look, care in GOLD)
 
-stone_rows = "\n".join(f"""          <tr><th scope="row">{name}</th><td>{colours}</td><td>{meaning[0].upper() + meaning[1:]}</td>
-            <td>{hard}</td><td>{note}</td><td>{best}</td></tr>""" for name, colours, meaning, hard, note, best in STONES)
+# Gemstone cards: a photo of each stone (images/gems, made in Canva), its glow colour and birth month.
+STONE_LOOK = {  # name: (photo, glow colour behind it)
+    "Diamond": ("diamond", "#dfe6ee"), "Zircon": ("zircon", "#e3e8ef"), "Emerald": ("emerald", "#cfeee0"),
+    "Ruby": ("ruby", "#f8d6db"), "Sapphire": ("sapphire", "#d8e1f8"), "Pearl": ("pearl", "#f3ece4"),
+    "Turquoise": ("turquoise", "#cdeeea"), "Amethyst": ("amethyst", "#eadcf6"), "Aquamarine": ("aquamarine", "#dcf1f8"),
+    "Topaz": ("topaz", "#d6edf9"), "Garnet": ("garnet", "#f0d3d6"), "Peridot": ("peridot", "#eaf4cc"),
+    "Opal": ("opal", "#eef0f8"), "Black Onyx": ("onyx", "#e3e1dc"),
+}
+MONTH_OF = {stone.split(" or ")[0]: month for month, stone in BIRTHSTONES}
+MONTH_OF.update({"Opal": "October", "Topaz": "November", "Turquoise": "December", "Zircon": "December"})
+
+
+def hardness(h):
+    vals = [float(x) for x in h.replace("&ndash;", "-").split("-")]
+    return min(vals), max(vals)
+
+
+def meter(h):
+    lo, hi = hardness(h)
+    cells = "".join(f'<i class="{"on" if i <= lo else "half" if i <= hi + 0.01 else ""}"></i>' for i in range(1, 11))
+    return f'<span class="meter" aria-hidden="true">{cells}</span>'
+
+
+def wear(h):
+    lo, hi = hardness(h)
+    if hi >= 7.5 or lo >= 7:
+        return '<span class="wear-chip ok">Everyday rings</span>'
+    if lo >= 6.5:
+        return '<span class="wear-chip mid">Rings with care</span>'
+    return '<span class="wear-chip soft">Best in earrings &amp; pendants</span>'
+
+
+def stone_card(name, colours, meaning, hard, note, best):
+    photo, glow = STONE_LOOK[name]
+    month = f'<span class="gem-month">{MONTH_OF[name]}</span>' if name in MONTH_OF else ""
+    return f"""        <article class="gem-card" title="{note}">
+          <div class="gem-stage" style="--glow:{glow}"><img src="images/gems/{photo}.jpg" alt="{name}" width="112" height="112" loading="lazy">{month}</div>
+          <h3>{name}</h3>
+          <p class="gem-meaning">{meaning[0].upper() + meaning[1:]}</p>
+          <p class="gem-colours">{colours}</p>
+          <p class="gem-hard"><span>Hardness</span>{meter(hard)}<b>{hard}</b></p>
+          {wear(hard)}
+          <p class="gem-best"><strong>Best settings</strong>{best}</p>
+        </article>"""
+
+
+stone_cards = "\n".join(stone_card(*s) for s in STONES)
 
 cut_cards = "\n".join(f"""      <div class="cut-card reveal">
         {art(CUT_ART[name], name + " cut")}
@@ -271,12 +316,9 @@ materials_body = f"""
       <p>The most popular stones for fine jewelry, with the meaning traditionally given to each and how well it wears.
         Hardness is on the Mohs scale, from 1 (softest) to 10 (diamond): stones of 7 or more are the most comfortable
         for rings worn every day, while softer stones are lovely in earrings and pendants.</p>
-      <div class="table-wrap"><table class="size-table stone-table">
-        <thead><tr><th>Stone</th><th>Colours</th><th>Traditionally symbolises</th><th>Hardness</th><th>Everyday wear</th><th>Best settings</th></tr></thead>
-        <tbody>
-{stone_rows}
-        </tbody>
-      </table></div>
+      <div class="gem-grid">
+{stone_cards}
+      </div>
       <p class="size-guide-note">You can also bring a stone you already own; we will check it can be set safely.</p>
     </div>
 
