@@ -149,6 +149,7 @@ LINKS = [
     ("Returns policy", '<a href="returns.html">Returns policy</a>'),
     ("Cookie policy", '<a href="cookies.html">Cookie policy</a>'),
     ("return and repair request form", '<a href="return-repair.html">return and repair request form</a>'),
+    ("gift voucher order form", '<a href="gift-voucher.html">gift voucher order form</a>'),
     ("Privacy policy", '<a href="privacy.html">Privacy policy</a>'),
 ]
 

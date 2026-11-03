@@ -16,6 +16,7 @@ const { default: exportSales } = await import('../supabase/functions/_shared/han
 const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
 const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
 const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
+const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
 const { salesCsv, customersCsv } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -391,6 +392,7 @@ function serviceForm(extra = {}) {
   for (const [k, v] of Object.entries(fields)) f.append(k, v);
   return f;
 }
+const withPhoto = (form) => { form.append('files', new File([new Uint8Array([255, 216, 255])], 'ring.jpg', { type: 'image/jpeg' })); return form; };
 const postService = (form) => serviceRequest(new Request('https://siaram.test/functions/v1/service-request', { method: 'POST', body: form }));
 
 test('a repair request is saved and emailed to the shop with the photos, and the customer is told to wait for instructions', async () => {
@@ -415,14 +417,46 @@ test('a repair request is saved and emailed to the shop with the photos, and the
 
 test('return and repair requests refuse missing details, wrong files and spam', async () => {
   assert.match((await (await postService(serviceForm({ kind: 'Melt it' }))).json()).error, /return, exchange or repair/);
-  assert.match((await (await postService(serviceForm({ cause: '' }))).json()).error, /how the issue happened/);
-  assert.match((await (await postService(serviceForm({ order_ref: ' ' }))).json()).error, /order or invoice number/);
+  assert.match((await (await postService(serviceForm())).json()).error, /at least one photo/);
+  assert.match((await (await postService(withPhoto(serviceForm({ cause: '' })))).json()).error, /how the issue happened/);
+  assert.match((await (await postService(withPhoto(serviceForm({ order_ref: ' ' })))).json()).error, /order or invoice number/);
   const many = serviceForm();
   for (let i = 0; i < 5; i++) many.append('files', new File(['x'], `p${i}.jpg`, { type: 'image/jpeg' }));
   assert.match((await (await postService(many)).json()).error, /up to 4 photos/);
   const exe = serviceForm();
   exe.append('files', new File(['x'], 'virus.exe', { type: 'application/octet-stream' }));
   assert.match((await (await postService(exe)).json()).error, /not a photo or PDF/);
-  assert.equal((await postService(serviceForm({ website: 'spam' }))).status, 400);
+  assert.equal((await postService(withPhoto(serviceForm({ website: 'spam' })))).status, 400);
+  assert.equal(emails().length, 0);
+});
+
+// ---------------------------------------------------------------- gift voucher orders
+const voucherOrder = (extra = {}) => ({ amount: 150, recipient_name: "Maya O'Neil", recipient_email: 'maya@example.com',
+  recipient_phone: '', send_to: 'recipient', send_on: '2026-12-24', name: 'Rana Haddad', email: 'rana@example.com',
+  phone: '+961 70 000 000', final_sale: true, ...extra });
+const postVoucher = (body) => voucherRequest(new Request('https://siaram.test/functions/v1/voucher-request', {
+  method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }));
+
+test('a gift voucher order is saved, the shop gets the line to issue it and the buyer is told it is final sale', async () => {
+  handlers['/rest/v1/rpc/save_voucher_request'] = () => [200, { reference: 'VR001' }];
+  const res = await postVoucher(voucherOrder());
+  assert.deepEqual(await res.json(), { reference: 'VR001' });
+  const saved = calls.find((c) => c.url.endsWith('/save_voucher_request')).body.p;
+  assert.equal(saved.amount, 150);
+  assert.equal(saved.send_on, '2026-12-24');
+  const [shop, buyer] = emails();
+  assert.equal(shop.subject, 'Gift voucher order VR001 — $150 (Rana Haddad)');
+  assert.match(shop.html, /select issue_gift_voucher\(&#39;Maya O&#39;&#39;Neil&#39;, &#39;Rana Haddad&#39;, 150, &#39;maya@example.com&#39;, null\);/);
+  assert.equal(buyer.subject, 'Your gift voucher order VR001');
+  assert.match(buyer.html, /final sale/);
+});
+
+test('gift voucher orders refuse small amounts, no recipient contact, no final-sale tick and spam', async () => {
+  assert.match((await (await postVoucher(voucherOrder({ amount: 50 }))).json()).error, /\$100 or more/);
+  assert.match((await (await postVoucher(voucherOrder({ amount: 120.5 }))).json()).error, /whole dollars/);
+  assert.match((await (await postVoucher(voucherOrder({ recipient_email: '' }))).json()).error, /email or WhatsApp/);
+  assert.match((await (await postVoucher(voucherOrder({ send_to: 'neighbour' }))).json()).error, /who we should send/);
+  assert.match((await (await postVoucher(voucherOrder({ final_sale: false }))).json()).error, /final sale/);
+  assert.equal((await postVoucher(voucherOrder({ website: 'spam' }))).status, 400);
   assert.equal(emails().length, 0);
 });

@@ -40,6 +40,7 @@ export default async (req) => {
     }
 
     const files = form.getAll('files').filter((f) => f && typeof f === 'object' && f.size > 0);
+    if (!files.length) throw new CustomerError('Please attach at least one photo of the piece.');
     if (files.length > MAX_FILES) throw new CustomerError(`Please attach up to ${MAX_FILES} photos.`);
     const attachments = [];
     for (const f of files) {
@@ -66,7 +67,7 @@ export default async (req) => {
         html: emailLayout(`${request.kind} request ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(request.name)}</strong> &middot; ${escapeHtml(request.email)}
            &middot; WhatsApp ${escapeHtml(request.phone)}</p>${details}
-           <p style="font-size:14px;line-height:1.6">${attachments.length ? `${attachments.length} photo(s) attached.` : 'No photos attached.'}
+           <p style="font-size:14px;line-height:1.6">${attachments.length} photo(s) attached.
            Reply to this email to answer the customer. The request is saved in Supabase (service_requests).</p>`),
         attachments,
       }),

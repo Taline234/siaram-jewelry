@@ -135,6 +135,33 @@ assert.deepEqual(serviceMails.find((e) => e.to[0] === 'customerservice@siaramjew
 await setState({ emails: [] });
 step('return and repair form: saved with an RR number, emailed to the shop with the photos and a copy to the customer');
 
+await page.goto(`${ORIGIN}/gift-voucher.html`);
+await page.waitForSelector('.voucher-form');
+await page.check('.voucher-form [name=amount_choice][value=other]', { force: true });
+assert.ok(await page.locator('.voucher-other').isVisible(), 'choosing Other shows the amount box');
+await page.fill('.voucher-form [name=amount_other]', '80');
+await page.click('.voucher-form button[type=submit]');
+assert.match(await page.locator('.voucher-form .form-msg').textContent(), /start at \$100/);
+await page.fill('.voucher-form [name=amount_other]', '400');
+await page.fill('.voucher-form [name=recipient_name]', 'Maya Aoun');
+await page.fill('.voucher-form [name=recipient_phone]', '+961 71 222 333');
+await page.check('.voucher-form [name=send_to][value=purchaser]', { force: true });
+await page.fill('.voucher-form [name=name]', 'Nour Aoun');
+await page.fill('.voucher-form [name=phone]', '+961 70 123 456');
+await page.fill('.voucher-form [name=email]', 'nour@example.com');
+await page.click('.voucher-form button[type=submit]');
+assert.match(await page.locator('.voucher-form .form-msg').textContent(), /final sale/);
+await page.check('.voucher-form [name=final_sale]');
+await page.click('.voucher-form button[type=submit]');
+await page.waitForSelector('.voucher-done');
+assert.match(await page.locator('.voucher-done').textContent(), /VR\d{3}/);
+const [voucherRow] = await q("select amount, recipient_phone, send_to from voucher_requests where email = 'nour@example.com'");
+assert.deepEqual([Number(voucherRow.amount), voucherRow.recipient_phone, voucherRow.send_to], [400, '+961 71 222 333', 'purchaser']);
+const voucherMails = (await setState({})).emails.filter((e) => /gift voucher order/i.test(e.subject));
+assert.equal(voucherMails.length, 2);
+await setState({ emails: [] });
+step('gift voucher order form: amount check, final-sale tick, saved with a VR number, emailed to the shop and the buyer');
+
 await page.goto(`${ORIGIN}/product-horseshoe-ring.html`);
 await page.waitForSelector('.product-buy:not([hidden])');
 assert.equal(await page.locator('.add-to-cart').count(), 0);

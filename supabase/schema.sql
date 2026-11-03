@@ -788,6 +788,60 @@ begin
   return jsonb_build_object('reference', v_ref);
 end $$;
 
+-- ---------------------------------------------------------------- gift voucher orders
+-- From the form on gift-voucher.html. Payment is arranged by WhatsApp; once paid, the owner issues the voucher with
+-- issue_gift_voucher (the shop email contains the exact line to run). Status: new, paid, issued, cancelled.
+create table if not exists public.voucher_requests (
+  id               uuid primary key default gen_random_uuid(),
+  reference        text not null unique,
+  amount           numeric(10,2) not null check (amount >= 100),
+  recipient_name   text not null,
+  recipient_email  text,
+  recipient_phone  text,
+  send_to          text not null check (send_to in ('recipient', 'purchaser')),
+  send_on          date,
+  name             text not null,
+  email            text not null,
+  phone            text not null,
+  voucher_code     text references public.gift_vouchers (code),
+  status           text not null default 'new' check (status in ('new', 'paid', 'issued', 'cancelled')),
+  created_at       timestamptz not null default now(),
+  check (recipient_email is not null or recipient_phone is not null)
+);
+alter table public.voucher_requests enable row level security;
+alter table public.store_settings add column if not exists next_voucher_request_number int not null default 1;
+
+create or replace function public.save_voucher_request(p jsonb) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_ref text;
+  v_field text;
+begin
+  foreach v_field in array array['recipient_name', 'send_to', 'name', 'email', 'phone'] loop
+    if coalesce(trim(p->>v_field), '') = '' then
+      raise exception 'Please fill in the % field.', v_field using errcode = 'P0001';
+    end if;
+  end loop;
+  if coalesce((p->>'amount')::numeric, 0) < 100 then
+    raise exception 'Gift vouchers start at $100.' using errcode = 'P0001';
+  end if;
+  if coalesce(trim(p->>'recipient_email'), '') = '' and coalesce(trim(p->>'recipient_phone'), '') = '' then
+    raise exception 'Please add the recipient''s email or WhatsApp number.' using errcode = 'P0001';
+  end if;
+  if (p->>'email') !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'
+     or (coalesce(trim(p->>'recipient_email'), '') <> '' and trim(p->>'recipient_email') !~* '^[^@\s]+@[^@\s]+\.[^@\s]+$') then
+    raise exception 'Please enter a valid email address.' using errcode = 'P0001';
+  end if;
+  update public.store_settings set next_voucher_request_number = next_voucher_request_number + 1 where id = 1
+  returning 'VR' || lpad((next_voucher_request_number - 1)::text, 3, '0') into v_ref;
+  insert into public.voucher_requests (reference, amount, recipient_name, recipient_email, recipient_phone, send_to, send_on,
+                                       name, email, phone)
+  values (v_ref, (p->>'amount')::numeric, trim(p->>'recipient_name'), nullif(lower(trim(p->>'recipient_email')), ''),
+          nullif(trim(p->>'recipient_phone'), ''), p->>'send_to', nullif(p->>'send_on', '')::date,
+          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'));
+  return jsonb_build_object('reference', v_ref);
+end $$;
+
 -- ---------------------------------------------------------------- newsletter
 -- Sign-ups from the footer form, with the consent wording shown, when and where. Nobody is added by buying,
 -- creating an account or using a voucher. To unsubscribe someone, set status to 'unsubscribed' (they stay
@@ -945,6 +999,9 @@ grant execute on function public.save_custom_request(jsonb) to service_role;
 revoke all on public.service_requests from anon, authenticated;
 revoke execute on function public.save_service_request(jsonb) from public, anon, authenticated;
 grant execute on function public.save_service_request(jsonb) to service_role;
+revoke all on public.voucher_requests from anon, authenticated;
+revoke execute on function public.save_voucher_request(jsonb) from public, anon, authenticated;
+grant execute on function public.save_voucher_request(jsonb) to service_role;
 grant execute on function public.subscribe_newsletter(text, text) to anon, authenticated;
 grant execute on function public.available_stock() to anon, authenticated;
 

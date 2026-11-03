@@ -144,7 +144,7 @@ If an incorrect address, absence at an arranged delivery or refusal causes a fai
 
 # Returns and exchanges
 
-*Last updated 30 October 2026*
+*Last updated 3 November 2026*
 
 ## Our 14 day offer
 
@@ -154,7 +154,7 @@ Under this voluntary offer, the piece must be unworn, unused, unaltered and unda
 
 ## Items outside the voluntary offer
 
-Our 14-day returns and exchanges policy excludes final-sale pieces: made-to-order pieces (rose or white gold, or a design that was out of stock when you ordered it), custom, personalised and engraved pieces, and sale items or limited editions identified as final sale before purchase. We tell you a piece is final sale before you order it.
+Our 14-day returns and exchanges policy excludes final-sale pieces: made-to-order pieces (rose or white gold, or a design that was out of stock when you ordered it), custom, personalised and engraved pieces, sale items or limited editions identified as final sale before purchase, and gift vouchers. We tell you a piece is final sale before you order it.
 
 These exclusions do not remove an applicable legal withdrawal right or remedies for a defective, incorrect or misdescribed piece. In particular, a sale or limited-edition label alone does not remove a legal withdrawal right.
 
@@ -240,11 +240,11 @@ For a covered warranty repair or replacement, Siaram pays the necessary delivery
 
 # Digital gift vouchers
 
-*Last updated 17 October 2026*
+*Last updated 3 November 2026*
 
 ## Purchase and delivery
 
-Siaram digital gift vouchers start at US\$100, with no stated maximum. They are issued to a named recipient and sent to the phone number or email address provided by the purchaser. The purchaser should check those details before confirming the order.
+Siaram digital gift vouchers start at US\$100, with no stated maximum. They are issued to a named recipient and sent to the phone number or email address provided by the purchaser. The purchaser should check those details before confirming the order. You can order a voucher through our gift voucher order form.
 
 Each voucher states its value, unique reference, issue date and expiry date. It is valid for six months from purchase. Please redeem it by the stated expiry date; after that date it cannot ordinarily be used.
 
@@ -262,7 +262,7 @@ A voucher must be applied to an accepted order before expiry. The piece may be p
 
 If a purchase uses only part of the voucher, the remaining value stays on the same voucher and can be used for further eligible purchases until its original expiry date. Partial use does not start a new six-month period. A voucher balance is different from separately issued store credit.
 
-The purchaser may request cancellation and a refund of an entirely unused voucher within 14 calendar days of purchase. Once a voucher has been partly or fully used, this voluntary cancellation offer no longer applies. Apart from this offer, the approved-return arrangements below and any applicable legal refund right, vouchers are not exchanged for cash.
+Gift vouchers are final sale. Once a voucher has been issued, it cannot be cancelled, returned, refunded or exchanged for cash. This does not affect the approved-return arrangements below or any refund the law requires.
 
 Jewellery purchased using a gift voucher follows our Returns and exchanges policy. Request an eligible return or exchange within 14 calendar days after receiving the piece and meet the applicable return conditions. For an approved return, the voucher-funded amount is restored as voucher value with its original expiry date; any refundable top-up is returned to the original payment method. Returning an item does not extend the voucher's validity.
 

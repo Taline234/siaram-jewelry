@@ -373,5 +373,20 @@ select pg_temp.check(not has_function_privilege('anon', 'public.save_service_req
                      and not has_table_privilege('anon', 'public.service_requests', 'select'),
   'only the server can save or read return and repair requests');
 
+-- Gift voucher orders get VR numbers.
+select save_voucher_request('{"amount":150,"recipient_name":"Maya","recipient_phone":"+961 71 000 000","send_to":"recipient",
+    "name":"Rana","email":"Rana@Example.com","phone":"70"}'::jsonb)->>'reference' as vr_ref \gset
+select pg_temp.check(:'vr_ref' = 'VR001'
+                     and (select amount = 150 and recipient_email is null and email = 'rana@example.com' and status = 'new'
+                            from voucher_requests where reference = 'VR001'),
+  'a gift voucher order is saved with a VR number');
+select pg_temp.expect_error($$select save_voucher_request('{"amount":50,"recipient_name":"Maya","recipient_phone":"1","send_to":"recipient","name":"Rana","email":"r@example.com","phone":"70"}')$$,
+  'start at');
+select pg_temp.expect_error($$select save_voucher_request('{"amount":150,"recipient_name":"Maya","send_to":"recipient","name":"Rana","email":"r@example.com","phone":"70"}')$$,
+  'recipient''s email or WhatsApp');
+select pg_temp.check(not has_function_privilege('anon', 'public.save_voucher_request(jsonb)', 'execute')
+                     and not has_table_privilege('anon', 'public.voucher_requests', 'select'),
+  'only the server can save or read gift voucher orders');
+
 \o
 \echo 'ALL STORE DATABASE TESTS PASSED'

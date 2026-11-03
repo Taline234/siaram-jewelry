@@ -15,6 +15,7 @@ function problem(f) {
     }
   }
   const files = [...f.elements.files.files];
+  if (!files.length) return ['Please attach at least one photo of the piece.', f.elements.files];
   if (files.length > MAX_FILES) return [`Please attach up to ${MAX_FILES} photos.`, f.elements.files];
   const big = files.find((file) => file.size > MAX_BYTES);
   if (big) return [`"${big.name}" is larger than 8 MB. Please attach a smaller file.`, f.elements.files];
