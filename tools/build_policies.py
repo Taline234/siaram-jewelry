@@ -71,7 +71,7 @@ REPLACE = [
     ("Siaram Jewelry is operated by [LEGAL OPERATOR NAME], trading as Siaram Jewelry, at [BUSINESS ADDRESS], Lebanon. "
      "Registration details: [REGISTRATION NUMBER AND PLACE, AS APPLICABLE]. Contact us at customerservice@siaramjewelry.com or +961 76052068",
      "This website and our shop are operated by Siaram Jewelry, a jewellery business based in Lebanon. Our address is care of "
-     "Safieddine, Khoury &amp; Jezzini law firm, 55 Taleb, Hbeish Street, Beirut, Lebanon. Contact us at customerservice@siaramjewelry.com "
+     "Safieddine, Khoury & Jezzini law firm, 55 Taleb, Hbeish Street, Beirut, Lebanon. Contact us at customerservice@siaramjewelry.com "
      "or on WhatsApp at +961 76 052 068."),
     ("Payment providers process payments and any payment credentials you choose to save through their supported features. ",
      ""),
