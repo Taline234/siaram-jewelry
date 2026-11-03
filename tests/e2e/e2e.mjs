@@ -99,7 +99,7 @@ await page.fill('.custom-form [name=email]', 'nour@example.com');
 assert.equal(await page.locator('.custom-form a[href="size-guide.html"]').count(), 1, 'the form links to the size guide');
 await page.click('.custom-form [data-guide=settings]');
 assert.ok(await page.locator('#size-guide-settings').isVisible(), 'the settings guide opens as a pop-up on the same page');
-assert.equal(await page.locator('#size-guide-settings .gem-art').count(), 8);
+assert.equal(await page.locator('#size-guide-settings img.cut-photo').count(), 8, 'the settings guide shows 8 setting photos');
 await page.click('#size-guide-settings .size-guide-close');
 await page.click('.custom-form button[type=submit]');
 await page.waitForSelector('.custom-done');
