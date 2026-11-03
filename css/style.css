@@ -1587,3 +1587,11 @@ legend {
   .sale-line { grid-template-columns: 1fr 1fr; }
   .sale-line .field:first-child { grid-column: 1 / -1; }
 }
+/* Seven menu items: keep each on one line and tighten the spacing on smaller laptop screens */
+.nav-links a { white-space: nowrap; }
+@media (max-width: 1240px) { .nav-links { gap: 26px; } }
+@media (max-width: 1080px) { .nav-links { gap: 16px; } .nav-links a { letter-spacing: 0.1em; } }
+@media (max-width: 1000px) {
+  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+}
