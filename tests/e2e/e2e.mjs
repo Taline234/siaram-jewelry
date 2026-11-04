@@ -56,8 +56,9 @@ step('shop cards show prices and Add to Cart; unpriced pieces keep the email enq
 
 await page.goto(`${ORIGIN}/index.html`);
 await page.waitForSelector('.nav-store');
-assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 5, 'the five horseshoe bestsellers on the home page');
-assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 5);
+assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 4, 'the four horseshoe bestsellers on the home page');
+assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 4);
+assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horseshoe-necklace"]').count(), 0, 'the Horse Shoe Necklace is not a bestseller');
 assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horse-eye-necklace"]').count(), 0);
 await page.fill('.newsletter-form [name=email]', 'not an email');
 await page.click('.newsletter-form button');
