@@ -32,7 +32,7 @@
 <link rel="icon" href="images/logo.jpeg" />
 <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
+<body class="home">
 
 <header class="site-header">
   <nav class="nav">
@@ -122,16 +122,15 @@
   </div>
 </header>
 
-<section class="hero">
+<section class="hero hero-template">
   <div class="hero-content">
-    <div class="hero-brand">
-      <img src="images/logo-hero.png" alt="Siaram Jewelry" class="hero-logo" />
-      <p class="tagline">Simply Elegant. Endlessly Yours.</p>
-    </div>
+    <img src="images/logo-hero-left.png" alt="Siaram Jewelry" class="hero-logo" />
+    <span class="hero-eyebrow">Fine Jewelry &middot; 18k Gold</span>
     <h1 class="hero-title">Jewelry that<br />tells your story</h1>
+    <p class="tagline">Simply Elegant. Endlessly Yours.</p>
     <div class="hero-actions">
-      <a href="shop.html" class="btn btn-primary">Shop the Collection</a>
-      <a href="about.html" class="btn btn-outline">Our Story</a>
+      <a href="shop.html" class="btn hero-btn">Discover the Collection <span aria-hidden="true">&rarr;</span></a>
+      <a href="about.html" class="hero-link">Our Story <span aria-hidden="true">&rarr;</span></a>
     </div>
   </div>
   <div class="hero-media">
@@ -309,7 +308,7 @@
     </div>
     <div class="craft-steps">
       <figure class="craft-step reveal">
-        <div class="craft-photo"><img src="images/craft/sketch.jpg" alt="Design sketches on the jeweller's bench" loading="lazy" /></div>
+        <div class="craft-photo"><img src="images/craft/sketch.jpg" alt="A pencil sketch of an Arabic name bracelet, with notes for the diamonds and chain" loading="lazy" /></div>
         <figcaption><span class="craft-num">I</span><h3>The Sketch</h3>
           <p>Each design begins on paper, redrawn until every line feels right.</p></figcaption>
       </figure>
@@ -321,20 +320,25 @@
       <figure class="craft-step reveal">
         <div class="craft-photo"><img src="images/craft/cleaning.jpg" alt="Finished gold pieces lifted out of an ultrasonic cleaner" loading="lazy" /></div>
         <figcaption><span class="craft-num">III</span><h3>Cleaned &amp; Finished</h3>
-          <p>It is cleaned, polished and checked, clasp by clasp, before it reaches you.</p></figcaption>
+          <p>It is cleaned, polished and checked, clasp by clasp.</p></figcaption>
+      </figure>
+      <figure class="craft-step reveal">
+        <div class="craft-photo"><img src="images/craft/finished.jpg" alt="The finished Arabic name bracelet in gold with diamonds, worn on the wrist" loading="lazy" /></div>
+        <figcaption><span class="craft-num">IV</span><h3>Yours to Wear</h3>
+          <p>The sketch, now in gold: made to be worn every day.</p></figcaption>
       </figure>
     </div>
   </div>
 </section>
 
 <section class="remember">
-  <div class="container split split-reverse">
+  <div class="container split">
     <div class="split-text reveal">
       <span class="eyebrow">The Siaram Box</span>
       <h2>Made to be remembered</h2>
       <p>Every piece arrives in our signature box, tied with ribbon, with a soft pouch in cream or deep green to keep it safe wherever you go.</p>
       <p>Inside, a card tells the story of your piece: the meaning behind its design and the collection it comes from.</p>
-      <a href="shop.html" class="btn btn-outline">Find Your Piece <span aria-hidden="true">&rarr;</span></a>
+      <a href="shop.html" class="btn btn-primary btn-arrow">Find Your Piece <span aria-hidden="true">&rarr;</span></a>
     </div>
     <div class="split-media remember-media reveal">
       <img class="remember-box" src="images/packaging/siaram-box.webp" alt="An open Siaram box with the Triangle Necklace, and the Siaram card" width="287" height="501" loading="lazy" />
