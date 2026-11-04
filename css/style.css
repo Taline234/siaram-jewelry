@@ -1853,3 +1853,24 @@ legend {
   .remember-media > img.remember-box { width: 56%; margin-right: 26%; }
   .remember-media img.remember-card { right: 0; bottom: 4%; width: 42%; }
 }
+
+/* Home: How it's made */
+.craft { background: var(--cream); }
+.craft-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.craft-step { margin: 0; text-align: center; }
+.craft-photo { aspect-ratio: 4 / 5; overflow: hidden; background: var(--ivory); }
+.craft-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
+.craft-step:hover .craft-photo img { transform: scale(1.03); }
+.craft-step figcaption { padding: 22px 12px 0; }
+.craft-num { display: block; font-family: var(--font-serif); font-style: italic; color: var(--gold); font-size: 1.1rem; margin-bottom: 6px; }
+.craft-step h3 { font-family: var(--font-serif); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; font-size: 1.15rem; color: var(--green-deep); margin: 0 0 8px; }
+.craft-step p { font-family: var(--font-serif); font-size: 1.05rem; color: var(--ink); margin: 0 auto; max-width: 300px; }
+@media (max-width: 760px) {
+  .craft-steps { grid-template-columns: 1fr; gap: 36px; max-width: 420px; margin: 0 auto; }
+}
+@media (max-width: 760px) {
+  .craft-steps { display: flex; grid-template-columns: none; max-width: none; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory;
+    margin: 0 -20px; padding: 0 20px 8px; scrollbar-width: none; }
+  .craft-steps::-webkit-scrollbar { display: none; }
+  .craft-step { flex: 0 0 76%; scroll-snap-align: center; }
+}
