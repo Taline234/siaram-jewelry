@@ -2120,3 +2120,6 @@ legend {
 .home .remember-media > img.remember-box { width: 100%; max-width: 460px; margin: 0 auto; }
 @media (max-width: 900px) { .home .remember-media > img.remember-box { width: 86%; } }
 .home .remember-media > img.remember-box { max-width: 380px; }
+.home .remember .split-media.remember-media { justify-content: flex-start; }
+.home .remember-media > img.remember-box { margin: 0; }
+@media (max-width: 900px) { .home .remember .split-media.remember-media { justify-content: center; } .home .remember-media > img.remember-box { margin: 0 auto; } }
