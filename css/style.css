@@ -1661,3 +1661,37 @@ legend {
   .neck-picker { grid-template-columns: 1fr; }
   .neck-art { max-width: 280px; margin: 0 auto; }
 }
+
+/* Custom form: ring, bracelet and anklet pickers */
+.dial-picker { display: grid; grid-template-columns: minmax(180px, 240px) 1fr; gap: 24px; align-items: center; }
+.dial-art { width: 100%; height: auto; background: var(--cream); border: 1px solid var(--line); }
+.ring-band { fill: none; stroke: url(#ring-gold); stroke-width: 10; transition: r 0.25s; }
+.ring-stone { fill: #fff; stroke: #9c7a2f; stroke-width: 1.2; transition: cy 0.25s; }
+.ring-measure { stroke: var(--green-deep); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.6; transition: x1 0.25s, x2 0.25s; }
+.dial-label { font-family: var(--font-sans); font-size: 12px; fill: var(--green-deep); }
+.limb { fill: #f6e8da; stroke: var(--green-deep); stroke-width: 1.2; opacity: 0.8; }
+.limb-bone { fill: none; stroke: var(--green-deep); stroke-width: 0.8; opacity: 0.25; }
+.fit-chain { fill: none; stroke: var(--gold); stroke-width: 2.4; stroke-dasharray: 2 3; transition: r 0.25s, cy 0.25s; }
+.fit-charm { fill: var(--gold); transition: cy 0.25s; }
+.dial-controls { display: grid; gap: 12px; }
+.dial-readout { margin: 0; display: grid; gap: 2px; }
+.dial-readout strong { font-family: var(--font-serif); font-weight: 500; font-size: 1.7rem; color: var(--green-deep); }
+.dial-readout span { font-family: var(--font-sans); font-size: 0.85rem; color: var(--green-mid); }
+.dial-range { display: grid; gap: 6px; font-family: var(--font-sans); font-size: 0.8rem; color: var(--green-mid); }
+.dial-range input[type=range] { width: 100%; accent-color: var(--green-deep); height: 28px; }
+.dial-ends { display: flex; justify-content: space-between; font-family: var(--font-sans); font-size: 0.75rem; color: var(--green-mid); margin-top: -8px; }
+.dial-tip { margin: 0; font-family: var(--font-sans); font-size: 0.8rem; color: var(--green-mid); }
+.fit-choices { display: flex; flex-wrap: wrap; gap: 8px; }
+.fit-choice {
+  display: grid; gap: 2px; text-align: left; padding: 10px 14px; cursor: pointer; border: 1px solid var(--line);
+  background: var(--ivory); color: var(--ink); font-family: var(--font-sans);
+}
+.fit-choice strong { font-family: var(--font-serif); font-weight: 500; font-size: 1rem; color: var(--green-deep); }
+.fit-choice span { font-size: 0.75rem; color: var(--green-mid); }
+.fit-choice[aria-pressed=true] { border-color: var(--green-deep); background: var(--cream); box-shadow: inset 0 0 0 1px var(--green-deep); }
+.fit-choice:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.dial-help { justify-self: start; }
+@media (max-width: 640px) {
+  .dial-picker { grid-template-columns: 1fr; }
+  .dial-art { max-width: 240px; margin: 0 auto; }
+}
