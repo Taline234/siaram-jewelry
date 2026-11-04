@@ -1937,10 +1937,10 @@ legend {
 }
 
 /* Template headings: small gold eyebrow between thin rules, uppercase serif titles */
-.home .section-head .eyebrow, .home .split-text .eyebrow { display: inline-flex; align-items: center; gap: 12px; }
-.home .section-head .eyebrow::before, .home .section-head .eyebrow::after, .home .split-text .eyebrow::after {
+.section-head .eyebrow, .split-text .eyebrow, .story-block .eyebrow, .page-hero .eyebrow { display: inline-flex; align-items: center; gap: 12px; }
+.section-head .eyebrow::before, .section-head .eyebrow::after, .split-text .eyebrow::after, .story-block .eyebrow::before, .story-block .eyebrow::after, .page-hero .eyebrow::before, .page-hero .eyebrow::after {
   content: ""; width: 28px; height: 1px; background: currentColor; opacity: 0.6; }
-.home .section-head h2, .home .split-text h2 { text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.section-head h2, .split-text h2, .story-block h2, .page-hero h1, .help-band h2 { text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
 .btn-arrow { display: inline-flex; gap: 10px; align-items: center; }
 
 /* Made to be remembered: photo left, text right, like the template */
@@ -2123,3 +2123,31 @@ legend {
 .home .remember .split-media.remember-media { justify-content: flex-start; }
 .home .remember-media > img.remember-box { margin: 0; }
 @media (max-width: 900px) { .home .remember .split-media.remember-media { justify-content: center; } .home .remember-media > img.remember-box { margin: 0 auto; } }
+
+/* ---- Site-wide, matching the home page ---- */
+.page-hero .eyebrow { justify-content: center; }
+.story-block .eyebrow { justify-content: center; }
+.page-hero h1 { letter-spacing: 0.08em; }
+
+/* Feature trios as soft cards with the icon in a gold ring */
+.features .feature { background: var(--ivory); border: 1px solid var(--line); padding: 36px 26px 30px; }
+.features .feature-icon { width: 58px; height: 58px; padding: 14px; border: 1px solid rgba(185, 154, 91, 0.55); border-radius: 50%; color: var(--gold); margin: 0 auto 18px; box-sizing: border-box; }
+.features .feature h3 { font-family: var(--font-serif); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; font-size: 1.15rem; color: var(--green-deep); }
+.collections-band { background: var(--cream); }
+.collections-band .feature { background: var(--cream-soft); }
+
+/* Help band in place of the dark "script" banners */
+.help-band { background: var(--cream); border-top: 1px solid var(--line); }
+.help-band-inner { text-align: center; max-width: 680px; margin: 0 auto; }
+.help-medallion { width: 64px; height: 64px; border-radius: 50%; background: var(--gold); color: #f6f1e7; display: inline-grid; place-items: center;
+  box-shadow: 0 0 0 6px rgba(201, 162, 79, 0.2); margin-bottom: 22px; }
+.help-medallion svg { width: 30px; height: 30px; }
+.help-band .eyebrow { display: inline-flex; align-items: center; gap: 12px; }
+.help-band .eyebrow::before, .help-band .eyebrow::after { content: ""; width: 28px; height: 1px; background: currentColor; opacity: 0.6; }
+.help-band h2 { font-size: clamp(1.8rem, 3.2vw, 2.6rem); margin: 12px 0 14px; color: var(--green-deep); }
+.help-band p { font-family: var(--font-serif); font-size: 1.12rem; color: var(--green-mid); margin: 0 auto 28px; max-width: 540px; }
+.help-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.help-band-inner { display: flex; flex-direction: column; align-items: center; }
+.features .feature-icon { width: 72px; height: 72px; padding: 15px; }
+.collections-band .feature-icon { width: 84px; height: 84px; padding: 16px; stroke-width: 1.1; }
+.collections-band .feature-icon { padding: 13px; }

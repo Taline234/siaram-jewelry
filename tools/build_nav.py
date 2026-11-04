@@ -15,8 +15,8 @@ COLLECTIONS = [("Equestrian", "shop.html#equestrian"), ("Core", "shop.html#core"
 GIFTS = [("Bestsellers", "index.html#bestsellers"), ("Gift Vouchers", "gift-voucher.html"), ("Custom Pieces", "custom.html"),
          ("Size Guide", "size-guide.html"), ("Gold &amp; Gemstones", "materials.html")]
 FEATURE = ("shop.html#equestrian", "images/products/horseshoe-necklace-1.jpg", "Bestsellers", "Our Horseshoe Pieces")
-TOP = [("Home", "index.html"), ("Shop", "shop.html"), ("Custom", "custom.html"), ("Gift Vouchers", "gift-voucher.html"),
-       ("About", "about.html"), ("Journal", "journal.html"), ("Contact", "contact.html")]
+TOP = [("Home", "index.html"), ("About", "about.html"), ("Shop", "shop.html"), ("Custom", "custom.html"),
+       ("Gift Vouchers", "gift-voucher.html"), ("Journal", "journal.html"), ("Contact", "contact.html")]
 
 
 def menus(root=""):
