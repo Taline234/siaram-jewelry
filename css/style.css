@@ -2152,3 +2152,12 @@ legend {
 .collections-band .feature-icon { width: 84px; height: 84px; padding: 16px; stroke-width: 1.1; }
 .collections-band .feature-icon { padding: 13px; }
 .collection-symbol { display: block; width: 110px; height: 110px; object-fit: contain; margin: 0 auto 20px; }
+
+/* Home: the footer in the same light beige as the Thoughtfully Designed section above it */
+.home .site-footer { background: var(--cream-soft); color: var(--green-deep); border-top: 1px solid var(--line); }
+.home .footer-grid { border-bottom-color: var(--line); }
+.home .footer-grid p, .home .footer-col a { color: var(--green-mid); }
+.home .footer-col a:hover { color: var(--gold); }
+.home .footer-col h4, .home .footer-contact-list .icon { color: var(--gold); }
+.home .footer-bottom { color: var(--green-mid); }
+.home .footer-bottom a { color: var(--green-deep); }
