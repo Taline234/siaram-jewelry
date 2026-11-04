@@ -62,22 +62,30 @@ export async function loadProducts() {
 
 export const purchasable = (product) => Boolean(product && product.available && product.price !== null);
 
-// Which piece, metal and size combinations are ready to ship; everything else is made to order.
+// How many of each piece, metal and size are ready to ship (a Map of line key to quantity). A line is in
+// stock only if there are enough for its quantity; otherwise the whole line is made to order, as the
+// database decides when the order is placed.
 let stockPromise = null;
 export async function loadStock() {
   const client = await getClient();
-  if (!client) return new Set();
+  if (!client) return new Map();
   stockPromise ||= client.rpc('available_stock').then(({ data, error }) => {
     if (error) throw error;
-    return new Set((data || []).map((s) => `${s.product_slug}|${s.metal}|${s.size}`));
+    // Before the database update that adds quantity, treat a listed piece as having enough.
+    return new Map((data || []).map((s) => [`${s.product_slug}|${s.metal}|${s.size}`, s.quantity ?? Infinity]));
   });
   return stockPromise;
 }
 
+export const inStock = (stock, item) => (stock.get(lineKey(item)) || 0) >= (item.quantity || 1);
+
 export function availabilityHtml(stock, item) {
-  return stock.has(lineKey(item))
-    ? '<span class="availability in-stock">In stock &middot; ships in 1&ndash;2 business days</span>'
-    : '<span class="availability made-to-order">Made to order &middot; 3&ndash;4 weeks, paid by Whish, final sale</span>';
+  if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; ships in 1&ndash;2 business days</span>';
+  const have = stock.get(lineKey(item)) || 0;
+  const few = have > 0
+    ? ` <span class="availability-note">Only ${have} in stock: choose ${have} to receive ${have === 1 ? 'it' : 'them'} in 1&ndash;2 business days.</span>`
+    : '';
+  return `<span class="availability made-to-order">Made to order &middot; 3&ndash;4 weeks, paid by Whish, final sale</span>${few}`;
 }
 
 // ---------------------------------------------------------------- cart
@@ -270,10 +278,12 @@ async function showAvailability(slug) {
   const update = () => {
     const metal = options.querySelector('[name=metal]:checked')?.value || 'yellow';
     const size = options.querySelector('.size-select');
+    const quantity = Number(document.querySelector('.product-buy .qty-select')?.value) || 1;
     status.hidden = Boolean(size && !size.value);
-    if (!status.hidden) status.innerHTML = availabilityHtml(stock, { slug, metal, size: size ? size.value : '' });
+    if (!status.hidden) status.innerHTML = availabilityHtml(stock, { slug, metal, size: size ? size.value : '', quantity });
   };
   options.addEventListener('change', update);
+  document.querySelector('.product-buy .qty-select')?.addEventListener('change', update);
   update();
 }
 

@@ -263,7 +263,7 @@ select pg_temp.check((select action = 'reminder' from inactivity_due() where fir
 -- Backup download for the finance workbook.
 select pg_temp.check((select json_array_length(sales_export(null, null)) = (select count(*) from orders where status <> 'cancelled')),
   'the workbook download lists every order that is not cancelled');
-select pg_temp.check((select json_array_length(sales_export(current_date + 1, null)) = 0
+select pg_temp.check((select json_array_length(sales_export((now() at time zone 'Asia/Beirut')::date + 1, null)) = 0
                          and json_array_length((sales_export(null, null))->0->'items') >= 1),
   'the workbook download respects the date range and includes the pieces');
 select pg_temp.check(not has_function_privilege('anon', 'public.sales_export(date, date)', 'execute')
@@ -317,6 +317,8 @@ select pg_temp.check((select quantity = 1 from stock where product_slug = 'sun-n
 select pg_temp.check((select count(*) = 0 from available_stock() where metal <> 'yellow')
                      and exists (select 1 from available_stock() where product_slug = 'qamar-ring' and size = 'EU 55'),
   'the starting stock is yellow gold, with rings in the sizes made');
+select pg_temp.check((select quantity = 1 from available_stock() where product_slug = 'qamar-ring' and size = 'EU 55'),
+  'the website is told how many are in stock, so it can say made to order before an order asks for more');
 select pg_temp.check(has_function_privilege('anon', 'public.available_stock()', 'execute')
                      and not has_table_privilege('anon', 'public.stock', 'select'),
   'visitors can see what is in stock, but not the stock table itself');

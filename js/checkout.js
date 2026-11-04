@@ -1,6 +1,6 @@
 // Checkout page: guest, sign-in or new-account checkout, Lebanon-only delivery, gift vouchers, cash payment.
 import {
-  apiUrl, availabilityHtml, escapeHtml, getCart, getClient, getSession, lineKey, loadProducts, loadStock, money,
+  apiUrl, availabilityHtml, escapeHtml, getCart, getClient, getSession, inStock, lineKey, loadProducts, loadStock, money,
   optionsLabel, purchasable, setCart, storeEnabled,
 } from './store.js';
 
@@ -18,7 +18,7 @@ function totals() {
   const fee = area ? area.delivery_fee : null;
   // Delivery is paid to the courier in cash, so neither the jewellery total nor a voucher covers it.
   const discount = state.voucher ? Math.min(state.voucher.balance, subtotal) : 0;
-  const made = cart.filter((i) => !state.stock.has(lineKey(i)))
+  const made = cart.filter((i) => !inStock(state.stock, i))
     .reduce((sum, i) => sum + (state.products[i.slug]?.price || 0) * i.quantity, 0);
   return { cart, subtotal, fee, discount, total: subtotal - discount, areaChosen: Boolean(area), ...split(subtotal - discount, made) };
 }
@@ -287,7 +287,7 @@ async function init() {
     loadProducts(),
     client.from('delivery_areas').select('*').order('sort'),
     getSession(),
-    loadStock().catch(() => new Set()),
+    loadStock().catch(() => new Map()),
   ]);
   if (areas.error) throw areas.error;
   state.stock = stock;
