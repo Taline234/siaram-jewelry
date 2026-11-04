@@ -2115,3 +2115,8 @@ legend {
   .home .remember-media > img.remember-box { width: 66%; }
   .home .remember-media img.remember-card { position: static; width: 34%; transform: rotate(4deg); }
 }
+/* Made to be remembered: the box with the necklace as the single focal image */
+.home .remember .split-media.remember-media { display: flex; justify-content: center; max-width: none; padding: 0; }
+.home .remember-media > img.remember-box { width: 100%; max-width: 460px; margin: 0 auto; }
+@media (max-width: 900px) { .home .remember-media > img.remember-box { width: 86%; } }
+.home .remember-media > img.remember-box { max-width: 380px; }
