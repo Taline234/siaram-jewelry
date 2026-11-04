@@ -269,13 +269,12 @@
         <div class="size-panel" data-for="Ring" hidden>
           <p class="size-panel-note">Which finger is it for? Tap a finger, then slide to your size.</p>
           <div class="dial-picker ring-picker">
-            <svg class="dial-art hand-art" viewBox="0 0 240 280" role="img" aria-label="A hand: choose the finger for your ring">
-              <defs><linearGradient id="ring-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#f3dc9c" /><stop offset="0.5" stop-color="#c9a24f" /><stop offset="1" stop-color="#9c7a2f" /></linearGradient></defs>
-              <g class="finger" data-finger="thumb"><rect class="hand-part" x="55" y="104" width="28" height="94" rx="14" transform="rotate(-36 69 196)" /></g><g class="finger" data-finger="index"><rect class="hand-part" x="72" y="50" width="24" height="100" rx="12.0" /></g><g class="finger" data-finger="middle"><rect class="hand-part" x="99" y="34" width="25" height="116" rx="12.5" /></g><g class="finger" data-finger="ring"><rect class="hand-part" x="127" y="44" width="24" height="106" rx="12.0" /></g><g class="finger" data-finger="little"><rect class="hand-part" x="154" y="72" width="22" height="78" rx="11.0" /></g>
-              <path class="palm-fill" d="M72 138 L176 138 L180 150 L180 188 Q180 212 160 222 L158 280 L94 280 L92 222 Q72 214 70 190 L70 150 Z" /><path class="hand-line" d="M72 138 L70 150 L70 190 Q72 214 92 222 L94 280 M176 140 L180 150 L180 188 Q180 212 160 222 L158 280" />
-              <path class="hand-crease" d="M96 150 Q125 158 160 150" />
-              <g class="finger-ring" data-finger="thumb" transform="rotate(-36 69 196)"><rect class="ring-on" x="52" y="140" width="34" height="9" rx="3" /><circle class="ring-gem" cx="69" cy="139" r="4" /></g><g class="finger-ring" data-finger="index"><rect class="ring-on" x="69" y="112" width="30" height="9" rx="3" /><circle class="ring-gem" cx="84.0" cy="111" r="4" /></g><g class="finger-ring" data-finger="middle"><rect class="ring-on" x="96" y="112" width="31" height="9" rx="3" /><circle class="ring-gem" cx="111.5" cy="111" r="4" /></g><g class="finger-ring" data-finger="ring"><rect class="ring-on" x="124" y="112" width="30" height="9" rx="3" /><circle class="ring-gem" cx="139.0" cy="111" r="4" /></g><g class="finger-ring" data-finger="little"><rect class="ring-on" x="151" y="116" width="28" height="9" rx="3" /><circle class="ring-gem" cx="165.0" cy="115" r="4" /></g>
+            <svg class="dial-art sketch-art" viewBox="70 0 230 400" role="img" aria-label="A hand: choose the finger for your ring">
+              <defs><linearGradient id="ring-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#f6e2a4" /><stop offset="0.45" stop-color="#d4ae58" /><stop offset="1" stop-color="#9c7a2f" /></linearGradient></defs>
+              <image href="images/sketches/hand.jpg" width="360" height="450" />
+              <g class="finger-ring" data-finger="little"><g><path class="ring-on" d="M104.0 133 Q116 137.5 128.0 133 L128.0 139 Q116 143.5 104.0 139 Z" /><circle class="ring-gem" cx="116" cy="135.5" r="3.2" /></g></g><g class="finger-ring" data-finger="ring"><g><path class="ring-on" d="M136.5 125 Q150 129.5 163.5 125 L163.5 131 Q150 135.5 136.5 131 Z" /><circle class="ring-gem" cx="150" cy="127.5" r="3.2" /></g></g><g class="finger-ring" data-finger="middle"><g><path class="ring-on" d="M167.0 122 Q182 126.5 197.0 122 L197.0 128 Q182 132.5 167.0 128 Z" /><circle class="ring-gem" cx="182" cy="124.5" r="3.2" /></g></g><g class="finger-ring" data-finger="index"><g><path class="ring-on" d="M202.0 123 Q217 127.5 232.0 123 L232.0 129 Q217 133.5 202.0 129 Z" /><circle class="ring-gem" cx="217" cy="125.5" r="3.2" /></g></g><g class="finger-ring" data-finger="thumb"><g transform="rotate(24 250 165)"><path class="ring-on" d="M238.0 162 Q250 166.5 262.0 162 L262.0 168 Q250 172.5 238.0 168 Z" /><circle class="ring-gem" cx="250" cy="164.5" r="3.2" /></g></g>
+              <rect class="finger" data-finger="little" x="100" y="70" width="32" height="82" rx="14" /><rect class="finger" data-finger="ring" x="134" y="30" width="33" height="115" rx="14" /><rect class="finger" data-finger="middle" x="167" y="8" width="33" height="132" rx="14" /><rect class="finger" data-finger="index" x="202" y="32" width="33" height="108" rx="14" /><rect class="finger" data-finger="thumb" x="236" y="125" width="30" height="85" rx="14" transform="rotate(24 250 165)" />
             </svg>
             <div class="dial-controls">
               <div class="fit-choices finger-choices" role="group" aria-label="Finger"><button type="button" class="fit-choice finger-choice" data-finger="thumb" aria-pressed="false"><strong>Thumb</strong></button><button type="button" class="fit-choice finger-choice" data-finger="index" aria-pressed="false"><strong>Index</strong></button><button type="button" class="fit-choice finger-choice" data-finger="middle" aria-pressed="false"><strong>Middle</strong></button><button type="button" class="fit-choice finger-choice" data-finger="ring" aria-pressed="false"><strong>Ring</strong></button><button type="button" class="fit-choice finger-choice" data-finger="little" aria-pressed="false"><strong>Little</strong></button></div>
@@ -291,12 +290,10 @@
         <div class="size-panel" data-for="Bracelet" hidden>
           <p class="size-panel-note">Measure your wrist and choose how you like it to sit; we work out the length.</p>
           <div class="dial-picker fit-picker" data-piece="Bracelet" data-limb="Wrist">
-            <svg class="dial-art limb-art" viewBox="0 0 260 200" role="img" aria-label="A hand and wrist from the side, with the bracelet">
-              <path class="hand-part" d="M0 82 L96 80 Q112 76 124 80 Q160 72 196 76 Q226 78 246 92 Q256 100 246 108 Q232 116 204 114 L198 122 Q180 132 150 130 Q132 128 120 124 L0 130 Z" />
-              <path class="hand-crease" d="M150 98 Q170 104 188 100" /><path class="hand-crease" d="M204 96 L240 98 M204 104 L242 104" />
-              <circle class="limb-bone" cx="110" cy="84" r="5" />
-              <g class="fit-chain-group" data-fit="close"><ellipse class="fit-chain" cx="96" cy="105" rx="8" ry="27" /><circle class="fit-charm" cx="96" cy="132" r="5" /></g>
-              <g class="fit-chain-group" data-fit="loose"><ellipse class="fit-chain" cx="128" cy="110" rx="11" ry="33" transform="rotate(-8 128 110)" /><circle class="fit-charm" cx="133" cy="143" r="5" /></g>
+            <svg class="dial-art sketch-art" viewBox="0 70 360 380" role="img" aria-label="A hand and wrist, with the bracelet">
+              <image href="images/sketches/hand.jpg" width="360" height="450" />
+              <g class="fit-chain-group" data-fit="close"><path class="fit-chain" d="M121 297 Q165 313 209 297" /><circle class="fit-charm" cx="165" cy="309" r="4.5" /></g>
+              <g class="fit-chain-group" data-fit="loose"><path class="fit-chain" d="M117 334 Q160 366 205 332" /><circle class="fit-charm" cx="161" cy="354" r="4.5" /></g>
             </svg>
             <div class="dial-controls">
               <p class="dial-readout"><strong></strong><span></span></p>
@@ -313,14 +310,7 @@
         </div>
         <div class="size-panel" data-for="Anklet" hidden>
           <p class="size-panel-note">Measure your ankle and choose how you like it to sit; we work out the length.</p>
-          <div class="dial-picker fit-picker" data-piece="Anklet" data-limb="Ankle">
-            <svg class="dial-art limb-art" viewBox="0 0 260 240" role="img" aria-label="A foot and ankle from the side, with the anklet">
-              <path class="hand-part" d="M86 0 L84 118 Q80 150 74 176 Q68 200 80 212 Q90 222 120 222 L236 222 Q252 220 250 206 Q246 194 226 190 Q188 182 160 164 Q132 146 124 120 L122 0 Z" />
-              <circle class="limb-bone" cx="113" cy="145" r="5" />
-              <path class="hand-crease" d="M214 192 L214 220 M228 194 L230 220" />
-              <g class="fit-chain-group" data-fit="close"><ellipse class="fit-chain" cx="103" cy="124" rx="22" ry="6" transform="rotate(5 103 124)" /><circle class="fit-charm" cx="105" cy="130" r="5" /></g>
-              <g class="fit-chain-group" data-fit="loose"><ellipse class="fit-chain" cx="108" cy="166" rx="30" ry="8" transform="rotate(16 108 166)" /><circle class="fit-charm" cx="111" cy="175" r="5" /></g>
-            </svg>
+          <div class="dial-picker fit-picker no-art" data-piece="Anklet" data-limb="Ankle">
             <div class="dial-controls">
               <p class="dial-readout"><strong></strong><span></span></p>
               <label class="dial-range"><span>Your ankle, measured just above the ankle bone</span>
