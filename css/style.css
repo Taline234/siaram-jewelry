@@ -2195,3 +2195,5 @@ legend {
 /* Made to be remembered: the owner's packaging photo, framed */
 .home .remember-media > img.remember-box { width: 100%; max-width: 460px; aspect-ratio: 4 / 5; object-fit: cover; filter: none; box-shadow: 0 18px 40px rgba(27, 58, 43, 0.14); }
 .home .remember-media > img.remember-box { aspect-ratio: 900 / 1275; max-width: 440px; }
+.gift-panel-img { filter: none; box-shadow: 0 16px 34px rgba(27, 58, 43, 0.18); }
+.gift-panel-imglink { display: block; }
