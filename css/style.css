@@ -1874,3 +1874,13 @@ legend {
   .craft-steps::-webkit-scrollbar { display: none; }
   .craft-step { flex: 0 0 76%; scroll-snap-align: center; }
 }
+/* Hero: logo, tagline, headline and buttons as one block, centred in the space */
+.hero-content { justify-content: center; padding: 56px 32px; }
+.hero-brand { margin-bottom: 0; }
+.hero-content .hero-logo { width: clamp(200px, 19vw, 280px); }
+.hero-title { margin: 44px 0 36px; }
+.hero-content .hero-actions { margin-bottom: 0; }
+@media (max-width: 900px) {
+  .hero-content { padding: 32px 20px 44px; }
+  .hero-title { margin: 26px 0 26px; }
+}
