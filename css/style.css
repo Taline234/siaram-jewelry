@@ -231,7 +231,7 @@ h1, h2, h3 {
 .hero-logo {
   width: clamp(260px, 34vw, 440px);
   height: auto;
-  margin: 0 auto 22px;
+  margin: 0 auto 4px;
   transform: translateX(-9.02%);
 }
 
