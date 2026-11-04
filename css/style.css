@@ -2232,3 +2232,9 @@ legend {
 .product-detail-info p.sold-as { font-family: var(--font-sans); font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green-mid); margin: -8px 0 16px; line-height: 1.4; }
 .gift-fields[hidden] { display: none; }
 .gift-fields { margin-top: 14px; }
+
+/* Small gold text in a darker gold so it is easy to read on cream (big headings and icons keep the brand gold). */
+:root { --gold-text: #7c6026; }
+.eyebrow, .product-cat, .card-price, .breadcrumb span, .guide-link, .size-choice em, .collection-cta, .section-link,
+.hero-eyebrow, .help-band .eyebrow, .gift-panel-text .eyebrow, .product-price, .mega-col h4, .footer-col h4 { color: var(--gold-text); }
+.trust-bar .eyebrow, .community-panel .eyebrow, .custom-banner-text .eyebrow, .home .craft .eyebrow { color: var(--gold); }

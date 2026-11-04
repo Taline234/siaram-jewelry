@@ -128,7 +128,7 @@ We will share dispatch and delivery information, including a tracking reference 
 
 ## International orders
 
-When we deliver outside Lebanon, the international shipping fee is shown or confirmed before you place your order, and you pay it. You are also responsible for customs clearance and for any import duties, taxes, brokerage, handling or other fees charged in the destination country. These are not included in our prices and are usually collected by the courier or the customs authority before the parcel is released.
+We currently deliver within Lebanon only. When we deliver outside Lebanon, the international shipping fee is shown or confirmed before you place your order, and you pay it. You are also responsible for customs clearance and for any import duties, taxes, brokerage, handling or other fees charged in the destination country. These are not included in our prices and are usually collected by the courier or the customs authority before the parcel is released.
 
 If a parcel is refused, or not collected because these charges were not paid, and it is returned to us, we refund the price of the jewellery minus the original shipping fee, the cost of returning the parcel to us and any charges we incurred.
 

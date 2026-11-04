@@ -21,7 +21,7 @@ function render(products, stock) {
     const ok = purchasable(p);
     if (ok) subtotal += p.price * line.quantity;
     else blocked = true;
-    const options = Array.from({ length: 10 }, (_, i) =>
+    const options = Array.from({ length: 3 }, (_, i) =>
       `<option value="${i + 1}"${i + 1 === line.quantity ? ' selected' : ''}>${i + 1}</option>`).join('');
     return `<div class="cart-line" data-key="${escapeHtml(lineKey(line))}">
       <a href="${productPage(line.slug)}" class="cart-thumb">${p && p.image ? `<img src="${escapeHtml(p.image)}" alt="" />` : ''}</a>

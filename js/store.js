@@ -96,7 +96,7 @@ export function getCart() {
   memoryCart ||= storageGet(CART_KEY, []);
   return memoryCart
     .filter((i) => i && typeof i.slug === 'string' && i.quantity > 0)
-    .map((i) => ({ metal: 'yellow', size: '', ...i }));
+    .map((i) => ({ metal: 'yellow', size: '', ...i, quantity: Math.min(i.quantity, 3) }));
 }
 
 // One cart line per piece, metal and size.
@@ -129,8 +129,8 @@ export function addToCart(slug, quantity = 1, options = {}) {
   const cart = getCart();
   const item = { slug, metal: options.metal || 'yellow', size: options.size || '' };
   const line = cart.find((i) => lineKey(i) === lineKey(item));
-  if (line) line.quantity = Math.min(line.quantity + quantity, 10);
-  else cart.push({ ...item, quantity: Math.min(quantity, 10) });
+  if (line) line.quantity = Math.min(line.quantity + quantity, 3);
+  else cart.push({ ...item, quantity: Math.min(quantity, 3) });
   setCart(cart);
 }
 
@@ -233,7 +233,7 @@ async function setupBuyBox(products) {
   const product = products[slug];
 
   if (purchasable(product)) {
-    const options = Array.from({ length: 10 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+    const options = Array.from({ length: 3 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
     box.innerHTML = `<label class="qty-label">Quantity <select class="qty-select" aria-label="Quantity">${options}</select></label>
       <button type="button" class="btn btn-primary add-to-cart">Add to Cart</button>`;
     box.querySelector('.add-to-cart').addEventListener('click', () => {

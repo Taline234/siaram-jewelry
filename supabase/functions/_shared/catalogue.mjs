@@ -14,7 +14,7 @@ export const CATALOGUE = {
     ]
   },
   "NK-05": {
-    "name": "Midnight Horseshoe Necklace",
+    "name": "Midnight Horse Shoe Necklace",
     "category": "Necklaces",
     "collection": "Equestrian",
     "stone": "Black zircon, white zircon",
@@ -27,7 +27,7 @@ export const CATALOGUE = {
     ]
   },
   "BR-02": {
-    "name": "Midnight Horseshoe Bracelet",
+    "name": "Midnight Horse Shoe Bracelet",
     "category": "Bracelets",
     "collection": "Equestrian",
     "stone": "Black zircon, white zircon",
@@ -64,7 +64,7 @@ export const CATALOGUE = {
     "details": []
   },
   "EA-06": {
-    "name": "Horse Eye Stud",
+    "name": "Horse Eye Studs",
     "category": "Earrings",
     "collection": "Equestrian",
     "stone": "Red stone (marquise cut), white zircon",
@@ -257,7 +257,7 @@ export const CATALOGUE = {
     ]
   },
   "EA-03": {
-    "name": "Moon & Star Pendant Earring",
+    "name": "Moon/Star Pendant Earrings",
     "category": "Earrings",
     "collection": "Celestial",
     "stone": "White zircon, black zircon",
@@ -282,7 +282,7 @@ export const CATALOGUE = {
     "details": []
   },
   "NK-03": {
-    "name": "Star/Moon Necklace",
+    "name": "Moon/Star Necklace",
     "category": "Necklaces",
     "collection": "Celestial",
     "stone": "White zircon",
@@ -332,7 +332,7 @@ export const CATALOGUE = {
     "details": []
   },
   "EA-07": {
-    "name": "Sun Stud Earring",
+    "name": "Sun Stud Earrings",
     "category": "Earrings",
     "collection": "Celestial",
     "stone": "White zircon",
@@ -392,7 +392,7 @@ export const CATALOGUE = {
     ]
   },
   "EA-04": {
-    "name": "Arrow Earring",
+    "name": "Arrow Earrings",
     "category": "Earrings",
     "collection": "Arrow",
     "stone": "Red stone (centre), white zircon",

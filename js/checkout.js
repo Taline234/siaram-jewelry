@@ -247,6 +247,7 @@ async function submit(e) {
   if (!form.checkValidity()) {
     const bad = form.querySelector('input:invalid, select:invalid, textarea:invalid');
     error.textContent = bad.type === 'checkbox' ? 'Please tick the confirmation boxes to continue.'
+      : bad.type === 'email' && bad.value.trim() ? 'Please check your email address: it should look like name@example.com.'
       : 'Please fill in all required fields.';
     bad.focus();
     return;

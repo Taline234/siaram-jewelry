@@ -440,7 +440,7 @@ select pg_temp.check(not has_function_privilege('anon', 'public.record_sale(json
 -- The stock table shows each piece's name and code, and the length of pieces without a size.
 select pg_temp.check((select piece = 'Horse Shoe Necklace (NK-01)' and length = '40 cm chain + 6 cm drop chain'
                         from stock where product_slug = 'horseshoe-necklace' and metal = 'yellow' and size = '')
-                     and (select piece like 'Midnight Horseshoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
+                     and (select piece like 'Midnight Horse Shoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
                      and exists (select 1 from stock where product_slug = 'v-pendant-necklace')
                      and exists (select 1 from stock where product_slug = 'crescent-moon-ring' and size = 'EU 54'),
   'every piece is listed in the stock table with its name, code and length');
