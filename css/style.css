@@ -1758,3 +1758,18 @@ legend {
 .sketch-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 .neck-art.sketch-art .neck-line circle.neck-bead { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.3; }
 .neck-art.sketch-art .neck-line:not(.is-on) circle.neck-bead { fill: #c9a24f; stroke: none; opacity: 0.5; }
+/* Realistic metal for earrings and pendants */
+.ear-style .ear-gold { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.25; }
+.ear-style .ear-stone { fill: url(#stone-shine); stroke: #9aa5ae; stroke-width: 0.2; }
+.ear-style .ear-glint { fill: #fff; }
+.ear-style .ear-shadow { fill: rgba(60, 45, 20, 0.3); filter: url(#ring-soft); }
+.ear-style .ear-hoop { fill: none; stroke: url(#hoop-gold); stroke-linecap: round; }
+.ear-style .ear-shoe { fill: none; stroke: url(#hoop-gold); stroke-width: 2.6; stroke-linecap: round; }
+.ear-style .ear-shoe-shadow { fill: none; stroke: rgba(60, 45, 20, 0.3); stroke-width: 2.6; filter: url(#ring-soft); }
+.ear-style .ear-chain { stroke: #a8812f; stroke-width: 0.7; stroke-dasharray: 0.9 0.4; }
+.ear-style.is-on { filter: none; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant path:not(.chain-hi), .neck-art.sketch-art .neck-line.is-on .neck-pendant circle { stroke-dasharray: none; opacity: 1; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-shoe { stroke: url(#hoop-gold); stroke-width: 3.6; stroke-linecap: round; filter: drop-shadow(0 1px 0.8px rgba(60, 45, 20, 0.45)); }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-bail { fill: none; stroke: url(#hoop-gold); stroke-width: 1.5; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-drop { stroke: #a8812f; stroke-width: 0.8; stroke-dasharray: 1 0.5; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-stone { fill: url(#stone-shine); stroke: url(#hoop-gold); stroke-width: 0.9; }
