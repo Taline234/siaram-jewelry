@@ -161,14 +161,16 @@ await page.check('.voucher-form [name=send_to][value=purchaser]', { force: true 
 await page.fill('.voucher-form [name=name]', 'Nour Aoun');
 await page.fill('.voucher-form [name=phone]', '+961 70 123 456');
 await page.fill('.voucher-form [name=email]', 'nour@example.com');
+await page.fill('.voucher-form [name=message]', 'Happy birthday, Maya!');
 await page.click('.voucher-form button[type=submit]');
 assert.match(await page.locator('.voucher-form .form-msg').textContent(), /final sale/);
 await page.check('.voucher-form [name=final_sale]');
 await page.click('.voucher-form button[type=submit]');
 await page.waitForSelector('.voucher-done');
 assert.match(await page.locator('.voucher-done').textContent(), /VR\d{3}/);
-const [voucherRow] = await q("select amount, recipient_phone, send_to from voucher_requests where email = 'nour@example.com'");
-assert.deepEqual([Number(voucherRow.amount), voucherRow.recipient_phone, voucherRow.send_to], [400, '+961 71 222 333', 'purchaser']);
+const [voucherRow] = await q("select amount, recipient_phone, send_to, message from voucher_requests where email = 'nour@example.com'");
+assert.deepEqual([Number(voucherRow.amount), voucherRow.recipient_phone, voucherRow.send_to, voucherRow.message],
+  [400, '+961 71 222 333', 'purchaser', 'Happy birthday, Maya!'], 'the personal message is saved with the order');
 const voucherMails = (await setState({})).emails.filter((e) => /gift voucher order/i.test(e.subject));
 assert.equal(voucherMails.length, 2);
 await setState({ emails: [] });

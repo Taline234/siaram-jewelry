@@ -2210,3 +2210,5 @@ legend {
 .category-tile:hover .category-name { border-color: var(--gold); }
 @media (max-width: 1000px) { .category-tiles { grid-template-columns: repeat(3, 1fr); row-gap: 28px; } }
 @media (max-width: 560px) { .category-tiles { grid-template-columns: repeat(2, 1fr); gap: 12px; row-gap: 22px; } .category-name { font-size: 1rem; } }
+.voucher-form .voucher-message { margin-top: 16px; }
+.voucher-form .voucher-message textarea { width: 100%; resize: vertical; }

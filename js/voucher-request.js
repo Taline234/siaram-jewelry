@@ -51,7 +51,7 @@ if (form) {
       const f = form.elements;
       const body = {
         amount: amountOf(form), recipient_name: f.recipient_name.value, recipient_email: f.recipient_email.value,
-        recipient_phone: f.recipient_phone.value, send_to: f.send_to.value, send_on: f.send_on.value,
+        recipient_phone: f.recipient_phone.value, send_to: f.send_to.value, send_on: f.send_on.value, message: f.message.value,
         name: f.name.value, email: f.email.value, phone: f.phone.value, final_sale: f.final_sale.checked, website: f.website.value,
       };
       const button = form.querySelector('[type=submit]');

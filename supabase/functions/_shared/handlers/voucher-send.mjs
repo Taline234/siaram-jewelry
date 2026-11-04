@@ -3,6 +3,7 @@
 // date has come. Emails the voucher (code, value, expiry, how to use it) once per order. Only the database knows the
 // secret it must send.
 import { configured, emailLayout, env, escapeHtml, json, money, readJson, rpc, sendEmail } from '../store.mjs';
+import { voucherPdf } from '../documents.mjs';
 
 const longDate = (iso) => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Beirut' });
 
@@ -45,6 +46,17 @@ async function sendOne(id) {
          ${escapeHtml(v.recipient_name)}, ready for you to give${v.send_to === 'recipient' ? ' (we only had their WhatsApp number, so please pass it on)' : ''}.
          Only ${escapeHtml(v.recipient_name)} can use it.</p>${voucherCard(v)}${howTo(site)}`),
     };
+  // The voucher on the owner's Canva card (and their personal message card), as a PDF to print or forward.
+  try {
+    voucherEmail.attachments = [{ filename: `Siaram-gift-voucher-${v.voucher_code}.pdf`, content: await voucherPdf(v) }];
+  } catch (err) {
+    console.error('voucher pdf', err);
+  }
+  const message = String(v.message || '').trim();
+  if (message) {
+    voucherEmail.html = voucherEmail.html.replace(voucherCard(v), `${voucherCard(v)}<p style="font-size:15px;line-height:1.6;font-style:italic;text-align:center;color:#1b3a2b">&ldquo;${escapeHtml(message)}&rdquo;<br>&mdash; ${escapeHtml(v.name)}</p>`);
+  }
+  voucherEmail.html = voucherEmail.html.replace(howTo(site), `${howTo(site)}<p style="font-size:14px;line-height:1.6;color:#6b665a">Your voucher card is attached as a PDF, ready to print or forward.</p>`);
   const sent = await sendEmail(voucherEmail);
   if (!sent) {
     await rpc('claim_voucher_email', { p_id: id, p_release: true });

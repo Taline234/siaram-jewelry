@@ -960,6 +960,7 @@ create table if not exists public.voucher_requests (
   check (recipient_email is not null or recipient_phone is not null)
 );
 alter table public.voucher_requests enable row level security;
+alter table public.voucher_requests add column if not exists message text check (char_length(message) <= 400);
 alter table public.store_settings add column if not exists next_voucher_request_number int not null default 1;
 
 create or replace function public.save_voucher_request(p jsonb) returns jsonb
@@ -986,10 +987,10 @@ begin
   update public.store_settings set next_voucher_request_number = next_voucher_request_number + 1 where id = 1
   returning 'VR' || lpad((next_voucher_request_number - 1)::text, 3, '0') into v_ref;
   insert into public.voucher_requests (reference, amount, recipient_name, recipient_email, recipient_phone, send_to, send_on,
-                                       name, email, phone)
+                                       name, email, phone, message)
   values (v_ref, (p->>'amount')::numeric, trim(p->>'recipient_name'), nullif(lower(trim(p->>'recipient_email')), ''),
           nullif(trim(p->>'recipient_phone'), ''), p->>'send_to', nullif(p->>'send_on', '')::date,
-          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'));
+          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), nullif(left(trim(p->>'message'), 400), ''));
   return jsonb_build_object('reference', v_ref);
 end $$;
 
