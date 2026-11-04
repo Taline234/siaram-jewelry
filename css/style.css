@@ -1740,3 +1740,21 @@ legend {
 .neck-art.sketch-art .neck-line .neck-pendant .pendant-bail { fill: none; stroke: #c9a24f; stroke-width: 1.6; }
 .neck-art.sketch-art .neck-line .neck-pendant .pendant-stone { fill: #fff; stroke: #9c7a2f; }
 .neck-line:not(.is-on) .neck-pendant { display: none !important; }
+/* Realistic ring bands and gold chains on the sketches */
+.sketch-art .ring-shadow { fill: rgba(60, 45, 20, 0.28); filter: url(#ring-soft); }
+.sketch-art .ring-band { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.35; }
+.sketch-art .ring-shine { fill: none; stroke: #fff4cf; stroke-width: 0.8; stroke-linecap: round; opacity: 0.85; }
+.sketch-art .ring-bezel { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.35; }
+.sketch-art .ring-stone { fill: url(#stone-shine); stroke: #9aa5ae; stroke-width: 0.25; }
+.sketch-art .ring-glint { fill: #fff; }
+.sketch-art .fit-chain { stroke: #8f6d26; stroke-width: 2.2; stroke-dasharray: 2.2 0.7; stroke-linecap: butt; }
+.sketch-art .fit-chain.chain-hi { stroke: #f2d68c; stroke-width: 0.9; stroke-dasharray: 1.1 1.8; filter: none; }
+.sketch-art[viewBox^="10 10"] .fit-chain { stroke-width: 1.3; stroke-dasharray: 1.3 0.45; }
+.sketch-art[viewBox^="10 10"] .fit-chain.chain-hi { stroke-width: 0.55; stroke-dasharray: 0.65 1.1; }
+.neck-art.sketch-art .neck-line.is-on path:not(.chain-hi) { stroke: #8f6d26; stroke-width: 2.6; stroke-dasharray: 2.6 0.8; stroke-linecap: butt; opacity: 1; }
+.neck-art.sketch-art .neck-line.is-on path.chain-hi { stroke: #f2d68c; stroke-width: 1.1; stroke-dasharray: 1.3 2.1; stroke-linecap: butt; opacity: 1; filter: none; }
+.neck-art.sketch-art .neck-line:not(.is-on) path.chain-hi { display: none; }
+.sketch-art .fit-charm { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.3; }
+.sketch-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.neck-art.sketch-art .neck-line circle.neck-bead { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.3; }
+.neck-art.sketch-art .neck-line:not(.is-on) circle.neck-bead { fill: #c9a24f; stroke: none; opacity: 0.5; }
