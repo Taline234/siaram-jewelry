@@ -374,9 +374,19 @@ def options_html(p):
         </div>
 """
 
+# Earrings are sold as a pair, except the Horse Shoe Earring, which is a single earring (owner, 4 November 2026).
+SINGLE_EARRINGS = {"horseshoe-chain-earrings"}
+
+def sold_as(p):
+    if p["cat"] != "Earrings":
+        return ""
+    return "Sold as a single earring" if p["slug"] in SINGLE_EARRINGS else "Sold as a pair"
+
 def specs_html(p):
     rows = [("SKU", p["sku"]), ("Collection", COLL[p["coll"]][0]), ("Category", p["cat"]),
             ("Metal", "18k yellow, rose or white gold")]
+    if sold_as(p):
+        rows.insert(3, ("Sold as", "A single earring" if p["slug"] in SINGLE_EARRINGS else "A pair"))
     if p["stone"]:
         rows.append(("Stone", p["stone"]))
     if p["other"]:
@@ -468,7 +478,7 @@ for p in P:
         <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["slug"] in BESTSELLERS else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
-{paras}
+{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{paras}
 {options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>
@@ -552,7 +562,7 @@ if BEST_GRID not in home:
 """ + featured, 1)
     open("index.html", "w", encoding="utf-8").write(home)
 replace_grid("index.html", [by[slug] for slug in BESTSELLERS], BEST_GRID)
-replace_grid("index.html", [by["eye-necklace"], by["fatima-necklace"], by["sun-ring"]])
+# (The home page's second product row became Shop by Category, so only the bestsellers grid is filled here.)
 
 # ---- shop filters: type and collection
 s = open("shop.html", encoding="utf-8").read()

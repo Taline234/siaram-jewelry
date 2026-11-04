@@ -84,9 +84,9 @@ select pg_temp.check((select count(*) = 0 from orders), 'rejected orders leave n
 select pg_temp.check((
   select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325
          and r->>'email' = 'rana@example.com'
-    from (select place_order(pg_temp.order_json('Nabatieh',
+    from (select place_order(pg_temp.order_json('Bekaa',
       '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
-  'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
+  'order total uses database prices (2 x 120 + 85 = 325); Bekaa accepted');
 select pg_temp.check((select reference = 'S017' from orders),
   'order numbers carry on from the workbook (S017), and rejected orders do not use up a number');
 select pg_temp.check((select array_agg(sku order by sku) = array['NK-07', 'RG-01'] from order_items),

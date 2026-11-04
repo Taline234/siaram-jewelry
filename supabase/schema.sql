@@ -122,8 +122,10 @@ create table if not exists public.delivery_areas (
 
 insert into public.delivery_areas (governorate, accepts_orders, sort) values
   ('Beirut', true, 1), ('Mount Lebanon', true, 2), ('North', true, 3), ('Akkar', true, 4),
-  ('Bekaa', true, 5), ('Baalbek-Hermel', true, 6), ('Nabatieh', true, 7), ('South', false, 8)
+  ('Bekaa', true, 5), ('Baalbek-Hermel', true, 6), ('Nabatieh', false, 7), ('South', false, 8)
 on conflict (governorate) do nothing;
+-- No delivery to Nabatieh or the South (owner, 4 November 2026).
+update public.delivery_areas set accepts_orders = false where governorate in ('Nabatieh', 'South');
 
 create table if not exists public.store_settings (
   id                    int primary key default 1 check (id = 1),
@@ -292,6 +294,11 @@ create table if not exists public.orders (
 alter table public.orders add column if not exists fulfilment text not null default 'delivery';
 -- When the customer ticked "I agree to the delivery and returns terms" at checkout.
 alter table public.orders add column if not exists terms_accepted_at timestamptz;
+-- Gift orders: delivered to someone else, with a message card and no prices in the parcel.
+alter table public.orders add column if not exists is_gift boolean not null default false;
+alter table public.orders add column if not exists gift_recipient_name text;
+alter table public.orders add column if not exists gift_recipient_phone text;
+alter table public.orders add column if not exists gift_message text;
 -- How the customer pays: 'whish' before production, or 'cash' to the courier on delivery. Older orders may be collections.
 alter table public.orders drop constraint if exists orders_payment_method_check;
 alter table public.orders add constraint orders_payment_method_check
@@ -580,7 +587,8 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
-      'tracking_number', o.tracking_number,
+      'tracking_number', o.tracking_number, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
+      'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
                                                     'made_to_order', i.made_to_order)
@@ -659,19 +667,27 @@ begin
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then
     raise exception 'Your cart is empty.' using errcode = 'P0001';
   end if;
+  if coalesce((p->>'is_gift')::boolean, false) and coalesce(trim(p->>'gift_recipient_name'), '') = '' then
+    raise exception 'Please enter the name of the person receiving the gift.' using errcode = 'P0001';
+  end if;
 
   update public.store_settings set next_order_number = next_order_number + 1 where id = 1
   returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
-                             payment_method, status, terms_accepted_at, submission_id)
+                             payment_method, status, terms_accepted_at, submission_id,
+                             is_gift, gift_recipient_name, gift_recipient_phone, gift_message)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
           nullif(trim(p->>'building'), ''), nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''),
           0, v_area.delivery_fee, 0, true,
           -- Cash orders are paid on delivery or collection, so they go straight to preparation.
-          'cash', 'received', now(), nullif(p->>'submission_id', ''))
+          'cash', 'received', now(), nullif(p->>'submission_id', ''),
+          coalesce((p->>'is_gift')::boolean, false),
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_name'), 200), '') end,
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_phone'), 40), '') end,
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_message'), 300), '') end)
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop
