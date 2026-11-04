@@ -187,7 +187,8 @@ ${voucher}
 ${payRows(order)}
 <tr><td style="padding:6px 0;color:#6b6b5f">Delivery</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
-<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.customer_name)}, ${address}</p>
+<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.is_gift && order.gift_recipient_name ? order.gift_recipient_name : order.customer_name)}, ${address}${order.is_gift && order.gift_recipient_phone ? ` (${escapeHtml(order.gift_recipient_phone)})` : ''}</p>
+${order.is_gift ? `<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Gift:</strong> no prices in the parcel${order.gift_message ? `; message card: &ldquo;${escapeHtml(order.gift_message)}&rdquo;` : ''}</p>` : ''}
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Phone:</strong> ${escapeHtml(order.phone)} &nbsp; <strong>Email:</strong> ${escapeHtml(order.email)}</p>
 ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Notes:</strong> ${escapeHtml(order.notes)}</p>` : ''}`;
 }

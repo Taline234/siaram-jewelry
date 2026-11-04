@@ -5,7 +5,8 @@ import {
 } from '../store.mjs';
 import { careWarrantyPdf, receiptPdf } from '../documents.mjs';
 
-const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code', 'submission_id'];
+const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code', 'submission_id',
+  'gift_recipient_name', 'gift_recipient_phone', 'gift_message'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
@@ -17,6 +18,7 @@ export default async (req) => {
 
     const order = { items: [], age_confirmed: body.age_confirmed === true, terms_accepted: body.terms_accepted === true };
     for (const field of FIELDS) order[field] = String(body[field] ?? '').slice(0, 300);
+    order.is_gift = body.is_gift === true || body.is_gift === '1' || body.is_gift === 'on';
     order.fulfilment = 'delivery'; // website orders are delivered by courier; collection is not offered
     order.payment_method = 'cash'; // website orders are cash only
     order.items = (Array.isArray(body.items) ? body.items : []).slice(0, 20).map((i) => ({
@@ -64,7 +66,9 @@ export default async (req) => {
         replyTo: saved.email,
         subject: `New order ${saved.reference} — ${howPaid} (${saved.customer_name})`,
         html: emailLayout(`New order ${saved.reference}`,
-          `${pay.whish ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Made to order:</strong> send the customer a Whish
+          `${saved.is_gift ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Gift order:</strong> deliver to
+            ${escapeHtml(saved.gift_recipient_name || '')}${saved.gift_recipient_phone ? ` (${escapeHtml(saved.gift_recipient_phone)})` : ''},
+            leave every price out of the parcel${saved.gift_message ? ' and add the message card' : ''}.</p>` : ''}${pay.whish ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Made to order:</strong> send the customer a Whish
             payment request for $${pay.whish.toFixed(2)}, and order production once it is paid.</p>` : ''}
            <p style="font-size:15px;line-height:1.6">Payment: ${howPaid}${pay.cash ? ' (cash on delivery)' : ''}.
             Status: received — new order to prepare${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>

@@ -108,6 +108,18 @@ function renderForm(profile) {
         </div>
       </fieldset>
 
+      <fieldset class="gift-fieldset"><legend>Sending a gift?</legend>
+        <label class="check"><input type="checkbox" name="is_gift" value="1" /> <span>This is a gift: deliver it to someone else and leave the prices out of the parcel</span></label>
+        <div class="gift-fields" hidden>
+          <p class="field-note">Enter their address above. Your receipt is emailed to you, not put in the parcel.</p>
+          <div class="form-grid">
+            ${field('gift_recipient_name', "Recipient's name", 'maxlength="200" autocomplete="off"')}
+            ${field('gift_recipient_phone', "Recipient's phone, for the courier (optional)", 'type="tel" maxlength="40" autocomplete="off"')}
+          </div>
+          <label class="field"><span>Gift message (optional, written on a Siaram card)</span><textarea name="gift_message" rows="3" maxlength="300"></textarea></label>
+        </div>
+      </fieldset>
+
       <fieldset><legend>Gift voucher</legend>
         <div class="voucher-row">
           <input name="voucher_code" placeholder="GV0000-XXXXXX" aria-label="Gift voucher code" autocomplete="off" />
@@ -166,6 +178,12 @@ function renderForm(profile) {
   form.elements.saved_address?.addEventListener('change', (e) =>
     fillAddress(state.addresses.find((a) => a.id === e.target.value)));
   form.elements.governorate.addEventListener('change', renderSummary);
+  form.elements.is_gift.addEventListener('change', (e) => {
+    const box = form.querySelector('.gift-fields');
+    box.hidden = !e.target.checked;
+    form.elements.gift_recipient_name.required = e.target.checked;
+    if (e.target.checked) form.elements.gift_recipient_name.focus();
+  });
   form.querySelector('.voucher-apply').addEventListener('click', applyVoucher);
   form.addEventListener('submit', submit);
   renderSummary();
@@ -229,6 +247,7 @@ async function submit(e) {
   if (!form.checkValidity()) {
     const bad = form.querySelector('input:invalid, select:invalid, textarea:invalid');
     error.textContent = bad.type === 'checkbox' ? 'Please tick the confirmation boxes to continue.'
+      : bad.type === 'email' && bad.value.trim() ? 'Please check your email address: it should look like name@example.com.'
       : 'Please fill in all required fields.';
     bad.focus();
     return;
@@ -247,6 +266,7 @@ async function submit(e) {
   const payload = {
     ...data,
     submission_id: state.submissionId,
+    is_gift: form.elements.is_gift.checked,
     age_confirmed: Boolean(state.session) || form.elements.age_confirmed.checked,
     terms_accepted: form.elements.accept_terms.checked,
     items: getCart().map(({ slug, quantity, metal, size }) => ({ slug, quantity, metal, size })),

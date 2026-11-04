@@ -21,7 +21,7 @@ PAGES = [
     ("Terms and conditions", "terms.html", "Terms &amp; Conditions",
      "Terms for buying Siaram Jewelry pieces in Lebanon: product information, prices, orders, cash payment, accounts and your rights."),
     ("Shipping and delivery", "shipping.html", "Shipping &amp; Delivery",
-     "Siaram Jewelry delivers within Lebanon by courier (not currently to South Lebanon). Delivery times, fees and claims."),
+     "Siaram Jewelry delivers within Lebanon by courier (not currently to South Lebanon or Nabatieh). Delivery times, fees and claims."),
     ("Returns and exchanges", "returns.html", "Returns &amp; Exchanges",
      "Our 14-day returns and exchanges offer, legal withdrawal rights, and what to do if a piece arrives damaged, defective or incorrect."),
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",

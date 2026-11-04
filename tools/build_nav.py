@@ -47,6 +47,9 @@ def menus(root=""):
                          + sub("Gifts &amp; Services", GIFTS) + "      </div>\n    </details>")
         else:
             phone.append(f'    <a href="{u(h)}">{t}</a>')
+    phone.append('    <div class="mobile-enquire"><span>Enquire</span>'
+                 '<a href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp</a>'
+                 '<a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry">Email</a></div>')
     mobile = '<div class="mobile-menu">\n' + "\n".join(phone) + "\n  </div>"
     return desktop, mobile
 

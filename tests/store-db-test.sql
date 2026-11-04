@@ -84,9 +84,9 @@ select pg_temp.check((select count(*) = 0 from orders), 'rejected orders leave n
 select pg_temp.check((
   select (r->>'total')::numeric = 325 and (r->>'subtotal')::numeric = 325
          and r->>'email' = 'rana@example.com'
-    from (select place_order(pg_temp.order_json('Nabatieh',
+    from (select place_order(pg_temp.order_json('Bekaa',
       '[{"slug":"v-bird-necklace","quantity":2,"price":1},{"slug":"crescent-moon-ring","quantity":1,"size":"EU 54"}]'))) t(r)),
-  'order total uses database prices (2 x 120 + 85 = 325); Nabatieh accepted');
+  'order total uses database prices (2 x 120 + 85 = 325); Bekaa accepted');
 select pg_temp.check((select reference = 'S017' from orders),
   'order numbers carry on from the workbook (S017), and rejected orders do not use up a number');
 select pg_temp.check((select array_agg(sku order by sku) = array['NK-07', 'RG-01'] from order_items),
@@ -440,7 +440,7 @@ select pg_temp.check(not has_function_privilege('anon', 'public.record_sale(json
 -- The stock table shows each piece's name and code, and the length of pieces without a size.
 select pg_temp.check((select piece = 'Horse Shoe Necklace (NK-01)' and length = '40 cm chain + 6 cm drop chain'
                         from stock where product_slug = 'horseshoe-necklace' and metal = 'yellow' and size = '')
-                     and (select piece like 'Midnight Horseshoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
+                     and (select piece like 'Midnight Horse Shoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
                      and exists (select 1 from stock where product_slug = 'v-pendant-necklace')
                      and exists (select 1 from stock where product_slug = 'crescent-moon-ring' and size = 'EU 54'),
   'every piece is listed in the stock table with its name, code and length');

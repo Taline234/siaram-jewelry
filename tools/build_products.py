@@ -67,11 +67,11 @@ P = [
          "Our signature horseshoe pendant on a fine 18k yellow gold chain, with a long drop ending in a white zircon.",
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-necklace-black-stone", "Midnight Horseshoe Necklace", "Necklaces", "equestrian", 525,
+    item("horseshoe-necklace-black-stone", "Midnight Horse Shoe Necklace", "Necklaces", "equestrian", 525,
          "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black stones, finished with a fine drop chain ending in a white stone.",
          "Black and white zircon", "Y-shaped gold necklace with a black stone horseshoe, worn with a white top",
          "A timeless symbol of good luck, protection and prosperity, designed as a subtle luxury charm for everyday wear.", imgs=3),
-    item("horseshoe-bracelet", "Midnight Horseshoe Bracelet", "Bracelets", "equestrian", 450,
+    item("horseshoe-bracelet", "Midnight Horse Shoe Bracelet", "Bracelets", "equestrian", 450,
          "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black stones, paired with a brilliant white stone.",
          "Black and white zircon", "Gold chain bracelet with a black stone horseshoe and a white stone, on the wrist", imgs=3),
     item("horseshoe-ring", "Horse Shoe Ring", "Rings", "equestrian", 350,
@@ -88,7 +88,7 @@ P = [
     item("horse-eye-ring", "Horse Eye Ring", "Rings", "equestrian", 555,
          "An open 18k yellow gold ring in the shape of a horse eye, with a striking marquise-cut red stone and white stones along its curved silhouette.",
          "Marquise-cut red stone and white zircon", "Gold horse eye ring with a red stone, worn on a hand resting on a horse", imgs=3),
-    item("horse-eye-stud", "Horse Eye Stud", "Earrings", "equestrian", 410,
+    item("horse-eye-stud", "Horse Eye Studs", "Earrings", "equestrian", 410,
          "A bold 18k yellow gold horse eye stud with a marquise-shaped coloured centre stone, framed by subtle sparkling stones.",
          "Marquise-shaped coloured centre stone and zircon", "Gold horse eye stud earring, worn on the ear", imgs=3),
     item("horse-eye-bracelet", "Horse Eye Bracelet", "Bracelets", "equestrian", 450,
@@ -144,13 +144,13 @@ P = [
     item("moon-star-handchain", "Moon/Star Handchain", "Bracelets", "celestial", 622,
          "A delicate 18k yellow gold hand chain featuring an intricate crescent moon with a white stone, connecting to an open star charm and a fine chain ring.",
          "White zircon", "Gold moon and star hand chain, worn with a white shirt", imgs=3),
-    item("moon-star-pendant-earring", "Moon &amp; Star Pendant Earring", "Earrings", "celestial", 450,
+    item("moon-star-pendant-earring", "Moon/Star Pendant Earrings", "Earrings", "celestial", 450,
          "A white stone stud drop earring in 18k yellow gold, with a star suspended from a gold chain and a moon set with a black stone.",
          "White and black zircon", "Gold moon and star drop earring, worn by the sea", imgs=3),
-    item("crescent-moon-earrings", "Crescent Moon Earrings", "Earrings", "celestial", 499.99,
+    item("crescent-moon-earrings", "Crescent Moon Earrings", "Earrings", "celestial", 499,
          "Crescent moon studs in 18k yellow gold set with white stones, finished with a fine chain and a dangling white pearl.",
          "White zircon and white pearls", "Gold crescent moon earrings with pearl drops", imgs=2),
-    item("star-moon-necklace", "Star/Moon Necklace", "Necklaces", "celestial", 470,
+    item("star-moon-necklace", "Moon/Star Necklace", "Necklaces", "celestial", 470,
          "A delicate Y-shaped 18k yellow gold necklace with a hollow star connector and a small crescent moon drop.",
          "Zircon", "Y-shaped gold star and moon necklace displayed on a candle", imgs=3),
     item("qamar-ring", "Qamar Ring", "Rings", "celestial", 430,
@@ -159,13 +159,13 @@ P = [
     item("crescent-moon-ring", "Crescent Moon Ring", "Rings", "celestial", 340,
          "A bold 18k yellow gold open crescent moon ring with a central stone detail.",
          "Zircon", "Gold open crescent moon ring with a zircon, on a wooden block", imgs=3),
-    item("sun-necklace", "Sun Necklace", "Necklaces", "celestial", 579.99,
+    item("sun-necklace", "Sun Necklace", "Necklaces", "celestial", 579,
          "An open sun pendant in 18k yellow gold framed with shimmering stones and finished with a single suspended white pearl.",
          "White zircon and a white pearl", "Gold open sun necklace with a pearl, worn with a white shirt", imgs=3),
     item("sun-ring", "Sun Ring", "Rings", "celestial", 540,
          "A radiant open ring in 18k yellow gold with a white stone-set sun motif and a sweeping curved band of shining stones.",
          "White zircon", "Gold sun ring set with white zircon, worn on the hand", imgs=3),
-    item("sun-stud-earrings", "Sun Stud Earring", "Earrings", "celestial", 569,
+    item("sun-stud-earrings", "Sun Stud Earrings", "Earrings", "celestial", 569,
          "A statement sun-shaped stud in 18k yellow gold with an open centre, surrounded by sparkling white stones and polished golden rays.",
          "White zircon", "Gold sun stud earring with white zircon, worn", imgs=3),
     # Ocean
@@ -182,7 +182,7 @@ P = [
     item("arrow-bracelet", "Arrow Bracelet", "Bracelets", "arrow", 689,
          "A delicate 18k yellow gold bracelet featuring a geometric arrow, accented with sparkling stones and a vibrant red centre stone.",
          "White zircon and a red centre stone", "Gold arrow bracelet with a red stone, in warm light", imgs=3),
-    item("arrow-earrings", "Arrow Earring", "Earrings", "arrow", 499,
+    item("arrow-earrings", "Arrow Earrings", "Earrings", "arrow", 499,
          "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white stones and a vibrant red centre stone.",
          "White zircon and a red centre stone", "Gold arrow threader earring, worn", imgs=3),
     item("arrow-open-ring", "Diverge Arrow Ring", "Rings", "arrow", 589,
@@ -374,9 +374,19 @@ def options_html(p):
         </div>
 """
 
+# Earrings are sold as a pair, except the Horse Shoe Earring, which is a single earring (owner, 4 November 2026).
+SINGLE_EARRINGS = {"horseshoe-chain-earrings"}
+
+def sold_as(p):
+    if p["cat"] != "Earrings":
+        return ""
+    return "Sold as a single earring" if p["slug"] in SINGLE_EARRINGS else "Sold as a pair"
+
 def specs_html(p):
     rows = [("SKU", p["sku"]), ("Collection", COLL[p["coll"]][0]), ("Category", p["cat"]),
             ("Metal", "18k yellow, rose or white gold")]
+    if sold_as(p):
+        rows.insert(3, ("Sold as", "A single earring" if p["slug"] in SINGLE_EARRINGS else "A pair"))
     if p["stone"]:
         rows.append(("Stone", p["stone"]))
     if p["other"]:
@@ -468,7 +478,7 @@ for p in P:
         <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["slug"] in BESTSELLERS else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
-{paras}
+{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{paras}
 {options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>
@@ -552,7 +562,7 @@ if BEST_GRID not in home:
 """ + featured, 1)
     open("index.html", "w", encoding="utf-8").write(home)
 replace_grid("index.html", [by[slug] for slug in BESTSELLERS], BEST_GRID)
-replace_grid("index.html", [by["eye-necklace"], by["fatima-necklace"], by["sun-ring"]])
+# (The home page's second product row became Shop by Category, so only the bestsellers grid is filled here.)
 
 # ---- shop filters: type and collection
 s = open("shop.html", encoding="utf-8").read()

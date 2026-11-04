@@ -162,3 +162,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (a.getAttribute('href') === path) a.classList.add('active');
   });
 });
+
+// Header "Enquire": a small menu with WhatsApp and Email. Opens on hover (desktop) or tap, closes on a tap elsewhere.
+document.querySelectorAll('.enquire-menu').forEach((menu) => {
+  const toggle = menu.querySelector('.enquire-toggle');
+  const set = (open) => { menu.classList.toggle('open', open); toggle.setAttribute('aria-expanded', open); };
+  toggle.addEventListener('click', (e) => { e.stopPropagation(); set(!menu.classList.contains('open')); });
+  document.addEventListener('click', (e) => { if (!menu.contains(e.target)) set(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+});

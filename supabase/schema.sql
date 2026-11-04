@@ -30,12 +30,12 @@ alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image, price) values
   ('horseshoe-necklace', 'Horse Shoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 490),
-  ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
-  ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
+  ('horseshoe-necklace-black-stone', 'Midnight Horse Shoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
+  ('horseshoe-bracelet', 'Midnight Horse Shoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
   ('horseshoe-ring', 'Horse Shoe Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 350),
   ('horseshoe-chain-earrings', 'Horse Shoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 420),
   ('horse-eye-ring', 'Horse Eye Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 555),
-  ('horse-eye-stud', 'Horse Eye Stud', 'Earrings', 'images/products/horse-eye-stud-1.jpg', 410),
+  ('horse-eye-stud', 'Horse Eye Studs', 'Earrings', 'images/products/horse-eye-stud-1.jpg', 410),
   ('horse-eye-bracelet', 'Horse Eye Bracelet', 'Bracelets', 'images/products/horse-eye-bracelet-1.jpg', 450),
   ('horse-eye-necklace', 'Horse Eye Necklace', 'Necklaces', 'images/products/horse-eye-necklace-1.jpg', 620),
   ('curved-marquise-necklace', 'Curved Marquise Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg', 610),
@@ -50,22 +50,25 @@ insert into public.products (slug, name, category, image, price) values
   ('triangle-necklace', 'Triangle Necklace', 'Necklaces', 'images/products/triangle-necklace-1.jpg', 519),
   ('v-bird-necklace', 'V Bird Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg', 559),
   ('moon-star-handchain', 'Moon/Star Handchain', 'Bracelets', 'images/products/moon-star-handchain-1.jpg', 622),
-  ('moon-star-pendant-earring', 'Moon & Star Pendant Earring', 'Earrings', 'images/products/moon-star-pendant-earring-1.jpg', 450),
-  ('crescent-moon-earrings', 'Crescent Moon Earrings', 'Earrings', 'images/products/crescent-moon-earrings-1.jpg', 499.99),
-  ('star-moon-necklace', 'Star/Moon Necklace', 'Necklaces', 'images/products/star-moon-necklace-1.jpg', 470),
+  ('moon-star-pendant-earring', 'Moon/Star Pendant Earrings', 'Earrings', 'images/products/moon-star-pendant-earring-1.jpg', 450),
+  ('crescent-moon-earrings', 'Crescent Moon Earrings', 'Earrings', 'images/products/crescent-moon-earrings-1.jpg', 499),
+  ('star-moon-necklace', 'Moon/Star Necklace', 'Necklaces', 'images/products/star-moon-necklace-1.jpg', 470),
   ('qamar-ring', 'Qamar Ring', 'Rings', 'images/products/qamar-ring-1.jpg', 430),
   ('crescent-moon-ring', 'Crescent Moon Ring', 'Rings', 'images/products/crescent-moon-ring-1.jpg', 340),
-  ('sun-necklace', 'Sun Necklace', 'Necklaces', 'images/products/sun-necklace-1.jpg', 579.99),
+  ('sun-necklace', 'Sun Necklace', 'Necklaces', 'images/products/sun-necklace-1.jpg', 579),
   ('sun-ring', 'Sun Ring', 'Rings', 'images/products/sun-ring-1.jpg', 540),
-  ('sun-stud-earrings', 'Sun Stud Earring', 'Earrings', 'images/products/sun-stud-earrings-1.jpg', 569),
+  ('sun-stud-earrings', 'Sun Stud Earrings', 'Earrings', 'images/products/sun-stud-earrings-1.jpg', 569),
   ('seahorse-pearl-bracelet', 'Seahorse Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg', 420),
   ('wave-bracelet', 'Wave Bracelet', 'Bracelets', 'images/products/wave-bracelet-1.jpg', 410),
   ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 489),
   ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 689),
-  ('arrow-earrings', 'Arrow Earring', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
+  ('arrow-earrings', 'Arrow Earrings', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
   ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
   ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
 on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
+-- Round prices for the two pieces that were $499.99 and $579.99 (owner, 4 November 2026).
+update public.products set price = 499 where slug = 'crescent-moon-earrings' and price = 499.99;
+update public.products set price = 579 where slug = 'sun-necklace' and price = 579.99;
 
 -- The product code from the finance workbook (Products tab). Shown on orders so they match the spreadsheet.
 -- Earring pairs have one code each since the workbook's 22 October 2026 renumbering.
@@ -122,8 +125,10 @@ create table if not exists public.delivery_areas (
 
 insert into public.delivery_areas (governorate, accepts_orders, sort) values
   ('Beirut', true, 1), ('Mount Lebanon', true, 2), ('North', true, 3), ('Akkar', true, 4),
-  ('Bekaa', true, 5), ('Baalbek-Hermel', true, 6), ('Nabatieh', true, 7), ('South', false, 8)
+  ('Bekaa', true, 5), ('Baalbek-Hermel', true, 6), ('Nabatieh', false, 7), ('South', false, 8)
 on conflict (governorate) do nothing;
+-- No delivery to Nabatieh or the South (owner, 4 November 2026).
+update public.delivery_areas set accepts_orders = false where governorate in ('Nabatieh', 'South');
 
 create table if not exists public.store_settings (
   id                    int primary key default 1 check (id = 1),
@@ -292,6 +297,11 @@ create table if not exists public.orders (
 alter table public.orders add column if not exists fulfilment text not null default 'delivery';
 -- When the customer ticked "I agree to the delivery and returns terms" at checkout.
 alter table public.orders add column if not exists terms_accepted_at timestamptz;
+-- Gift orders: delivered to someone else, with a message card and no prices in the parcel.
+alter table public.orders add column if not exists is_gift boolean not null default false;
+alter table public.orders add column if not exists gift_recipient_name text;
+alter table public.orders add column if not exists gift_recipient_phone text;
+alter table public.orders add column if not exists gift_message text;
 -- How the customer pays: 'whish' before production, or 'cash' to the courier on delivery. Older orders may be collections.
 alter table public.orders drop constraint if exists orders_payment_method_check;
 alter table public.orders add constraint orders_payment_method_check
@@ -384,7 +394,7 @@ insert into public.stock (product_slug, metal, size, quantity) values
 on conflict (product_slug, metal, size) do nothing;
 
 -- Stock missing from the 2 November list (added once): the V Pendant and the Crescent Moon Ring were in stock;
--- the Midnight Horseshoe Bracelet (sold as S016) and the Triangle Necklace are listed at 0 so every piece shows.
+-- the Midnight Horse Shoe Bracelet (sold as S016) and the Triangle Necklace are listed at 0 so every piece shows.
 insert into public.stock (product_slug, metal, size, quantity) values
   ('v-pendant-necklace', 'yellow', '', 1),
   ('crescent-moon-ring', 'yellow', 'EU 54', 1),
@@ -580,7 +590,8 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
-      'tracking_number', o.tracking_number,
+      'tracking_number', o.tracking_number, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
+      'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
                                                     'made_to_order', i.made_to_order)
@@ -659,19 +670,27 @@ begin
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then
     raise exception 'Your cart is empty.' using errcode = 'P0001';
   end if;
+  if coalesce((p->>'is_gift')::boolean, false) and coalesce(trim(p->>'gift_recipient_name'), '') = '' then
+    raise exception 'Please enter the name of the person receiving the gift.' using errcode = 'P0001';
+  end if;
 
   update public.store_settings set next_order_number = next_order_number + 1 where id = 1
   returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
-                             payment_method, status, terms_accepted_at, submission_id)
+                             payment_method, status, terms_accepted_at, submission_id,
+                             is_gift, gift_recipient_name, gift_recipient_phone, gift_message)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
           nullif(trim(p->>'building'), ''), nullif(trim(p->>'floor'), ''), nullif(trim(p->>'notes'), ''),
           0, v_area.delivery_fee, 0, true,
           -- Cash orders are paid on delivery or collection, so they go straight to preparation.
-          'cash', 'received', now(), nullif(p->>'submission_id', ''))
+          'cash', 'received', now(), nullif(p->>'submission_id', ''),
+          coalesce((p->>'is_gift')::boolean, false),
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_name'), 200), '') end,
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_phone'), 40), '') end,
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_message'), 300), '') end)
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop

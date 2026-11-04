@@ -217,9 +217,9 @@ step('cart totals update when quantity changes');
 await page.click('a.btn[href="checkout.html"]');
 await page.waitForSelector('form.checkout-layout');
 const govs = await page.locator('[name=governorate] option').allTextContents();
-assert.ok(!govs.includes('South'), 'South is not offered');
-assert.ok(govs.includes('Nabatieh') && govs.includes('Beirut'));
-assert.match(await page.locator('.checkout-main').textContent(), /within Lebanon, except South, by Wakilni/);
+assert.ok(!govs.includes('South') && !govs.includes('Nabatieh'), 'South and Nabatieh are not offered');
+assert.ok(govs.includes('Bekaa') && govs.includes('Beirut'));
+assert.match(await page.locator('.checkout-main').textContent(), /within Lebanon, except Nabatieh, South, by Wakilni/);
 assert.equal(await page.locator('[name=fulfilment][value=collection]').count(), 0, 'collection is not offered');
 assert.equal(await page.locator('.checkout-mode a[href="account.html?next=checkout.html#create"]').count(), 1, 'guests can create an account');
 step('checkout lists Lebanese governorates without South');
@@ -252,6 +252,13 @@ await page.waitForFunction(() => /tick the confirmation/.test(document.querySele
 step('guest must confirm 18+');
 
 await page.check('[name=age_confirmed]');
+await page.check('[name=is_gift]');
+assert.ok(await page.locator('.gift-fields').isVisible(), 'ticking "This is a gift" asks for the recipient');
+await page.click('button[type=submit]');
+assert.ok(await page.locator('.order-done').count() === 0, 'a gift needs the recipient name');
+await page.fill('[name=gift_recipient_name]', 'Maya Aoun');
+await page.fill('[name=gift_recipient_phone]', '+961 71 222 333');
+await page.fill('[name=gift_message]', 'Happy birthday!');
 await shot('checkout');
 await page.click('button[type=submit]');
 await page.waitForSelector('.order-done');
@@ -270,6 +277,8 @@ assert.equal(Number(guestOrder.delivery_fee), 5);
 assert.equal(guestOrder.fulfilment, 'delivery');
 assert.equal(guestOrder.payment_method, 'cash');
 assert.equal(guestOrder.status, 'received');
+assert.deepEqual([guestOrder.is_gift, guestOrder.gift_recipient_name, guestOrder.gift_recipient_phone, guestOrder.gift_message],
+  [true, 'Maya Aoun', '+961 71 222 333', 'Happy birthday!'], 'the gift details are saved with the order');
 assert.equal((await q('select made_to_order from order_items where order_id = $1', [guestOrder.id]))[0].made_to_order, true,
   'the rose gold piece is recorded as made to order');
 assert.equal(Number((await q("select balance from gift_vouchers where code = 'SIARAM-GOOD-0001'"))[0].balance), 0);
