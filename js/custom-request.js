@@ -62,6 +62,8 @@ function setupSizeStudio(f) {
       panel.hidden = !panel.dataset.for.split('|').includes(piece);
       any ||= !panel.hidden;
     });
+    // Pendants and charms hang a gold pendant from the chain instead of a plain chain.
+    studio.querySelector('.neck-picker')?.classList.toggle('is-pendant', piece === 'Pendant or charm');
     hint.hidden = Boolean(piece);
     if (piece && !any) hint.hidden = true;
   };

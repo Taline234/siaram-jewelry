@@ -231,7 +231,7 @@ h1, h2, h3 {
 .hero-logo {
   width: clamp(260px, 34vw, 440px);
   height: auto;
-  margin: 0 auto 22px;
+  margin: 0 auto 4px;
   transform: translateX(-9.02%);
 }
 
@@ -248,6 +248,14 @@ h1, h2, h3 {
   font-style: italic;
   font-size: 1.3rem;
   color: var(--green-deep);
+  margin: 0 0 10px;
+}
+.hero-content p.hero-story {
+  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--green-mid);
   margin: 0 0 32px;
 }
 
@@ -1704,7 +1712,7 @@ legend {
 .palm-fill { fill: var(--cream); stroke: none; }
 .hand-line { fill: none; stroke: var(--green-deep); stroke-width: 1.4; stroke-opacity: 0.55; stroke-linejoin: round; }
 .sketch-art { background: #f6f2ea; }
-.sketch-art image { mix-blend-mode: multiply; }
+.sketch-art > image { mix-blend-mode: multiply; }
 .sketch-art .finger { fill: transparent; stroke: none; }
 .sketch-art .finger { cursor: pointer; }
 .sketch-art .ring-on { stroke: #8a6a26; stroke-width: 0.5; filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25)); }
@@ -1717,3 +1725,63 @@ legend {
 .neck-art.sketch-art .neck-line:hover path, .neck-art.sketch-art .neck-line.is-hover path { opacity: 0.9; }
 .neck-art.sketch-art .neck-line.is-on path { stroke-dasharray: 0.1 3; stroke-width: 2.8; opacity: 1; filter: drop-shadow(0 1px 0.6px rgba(0, 0, 0, 0.3)); }
 .neck-art.sketch-art .neck-line circle { fill: #c9a24f; }
+.neck-pendant { display: none; }
+.neck-picker.is-pendant .neck-pendant { display: inline; }
+.neck-picker.is-pendant .neck-line > circle { display: none; }
+.neck-pendant .pendant-bail { fill: none; stroke: #c9a24f; stroke-width: 1.6; }
+.neck-pendant .pendant-shoe { fill: none; stroke: #c9a24f; stroke-width: 3.4; stroke-linecap: round; }
+.neck-pendant .pendant-stone { fill: #fff; stroke: #9c7a2f; stroke-width: 0.8; }
+.neck-line:not(.is-on) .neck-pendant { opacity: 0.45; }
+.neck-line.is-on .neck-pendant { filter: drop-shadow(0 1px 0.8px rgba(0, 0, 0, 0.3)); }
+.neck-pendant .pendant-drop { stroke: #c9a24f; stroke-width: 0.9; stroke-dasharray: 0.1 1.6; stroke-linecap: round; }
+.ear-picker .ear-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-self: center; }
+.ear-style { display: none; }
+.ear-style.is-on { display: inline; filter: drop-shadow(0 0.6px 0.5px rgba(0, 0, 0, 0.35)); }
+.ear-gold { fill: #c9a24f; }
+.ear-stone { fill: #fff; }
+.ear-stone.ring { stroke: #9c7a2f; stroke-width: 0.6; }
+.ear-hoop { fill: none; stroke: #c9a24f; stroke-width: 1.4; stroke-linecap: round; }
+.ear-hoop.thick { stroke-width: 2.2; }
+.ear-chain { stroke: #c9a24f; stroke-width: 0.8; stroke-dasharray: 0.1 1.3; stroke-linecap: round; }
+.neck-art.sketch-art .neck-line .neck-pendant path, .neck-art.sketch-art .neck-line .neck-pendant circle { stroke-dasharray: none; opacity: 1; filter: none; }
+.neck-art.sketch-art .neck-line .neck-pendant .pendant-shoe { stroke: #c9a24f; stroke-width: 3.6; }
+.neck-art.sketch-art .neck-line .neck-pendant .pendant-bail { fill: none; stroke: #c9a24f; stroke-width: 1.6; }
+.neck-art.sketch-art .neck-line .neck-pendant .pendant-stone { fill: #fff; stroke: #9c7a2f; }
+.neck-line:not(.is-on) .neck-pendant { display: none !important; }
+/* Realistic ring bands and gold chains on the sketches */
+.sketch-art .ring-shadow { fill: rgba(60, 45, 20, 0.28); filter: url(#ring-soft); }
+.sketch-art .ring-band { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.35; }
+.sketch-art .ring-shine { fill: none; stroke: #fff4cf; stroke-width: 0.8; stroke-linecap: round; opacity: 0.85; }
+.sketch-art .ring-bezel { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.35; }
+.sketch-art .ring-stone { fill: url(#stone-shine); stroke: #9aa5ae; stroke-width: 0.25; }
+.sketch-art .ring-glint { fill: #fff; }
+.sketch-art .fit-chain { stroke: #8f6d26; stroke-width: 2.2; stroke-dasharray: 2.2 0.7; stroke-linecap: butt; }
+.sketch-art .fit-chain.chain-hi { stroke: #f2d68c; stroke-width: 0.9; stroke-dasharray: 1.1 1.8; filter: none; }
+.sketch-art[viewBox^="10 10"] .fit-chain { stroke-width: 1.3; stroke-dasharray: 1.3 0.45; }
+.sketch-art[viewBox^="10 10"] .fit-chain.chain-hi { stroke-width: 0.55; stroke-dasharray: 0.65 1.1; }
+.neck-art.sketch-art .neck-line.is-on path:not(.chain-hi) { stroke: #8f6d26; stroke-width: 2.6; stroke-dasharray: 2.6 0.8; stroke-linecap: butt; opacity: 1; }
+.neck-art.sketch-art .neck-line.is-on path.chain-hi { stroke: #f2d68c; stroke-width: 1.1; stroke-dasharray: 1.3 2.1; stroke-linecap: butt; opacity: 1; filter: none; }
+.neck-art.sketch-art .neck-line:not(.is-on) path.chain-hi { display: none; }
+.sketch-art .fit-charm { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.3; }
+.sketch-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.neck-art.sketch-art .neck-line circle.neck-bead { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.3; }
+.neck-art.sketch-art .neck-line:not(.is-on) circle.neck-bead { fill: #c9a24f; stroke: none; opacity: 0.5; }
+/* Realistic metal for earrings and pendants */
+.ear-style .ear-gold { fill: url(#ring-gold); stroke: #7d5f22; stroke-width: 0.25; }
+.ear-style .ear-stone { fill: url(#stone-shine); stroke: #9aa5ae; stroke-width: 0.2; }
+.ear-style .ear-glint { fill: #fff; }
+.ear-style .ear-shadow { fill: rgba(60, 45, 20, 0.3); filter: url(#ring-soft); }
+.ear-style .ear-hoop { fill: none; stroke: url(#hoop-gold); stroke-linecap: round; }
+.ear-style .ear-shoe { fill: none; stroke: url(#hoop-gold); stroke-width: 2.6; stroke-linecap: round; }
+.ear-style .ear-shoe-shadow { fill: none; stroke: rgba(60, 45, 20, 0.3); stroke-width: 2.6; filter: url(#ring-soft); }
+.ear-style .ear-chain { stroke: #a8812f; stroke-width: 0.7; stroke-dasharray: 0.9 0.4; }
+.ear-style.is-on { filter: none; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant path:not(.chain-hi), .neck-art.sketch-art .neck-line.is-on .neck-pendant circle { stroke-dasharray: none; opacity: 1; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-shoe { stroke: url(#hoop-gold); stroke-width: 3.6; stroke-linecap: round; filter: drop-shadow(0 1px 0.8px rgba(60, 45, 20, 0.45)); }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-bail { fill: none; stroke: url(#hoop-gold); stroke-width: 1.5; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-drop { stroke: #a8812f; stroke-width: 0.8; stroke-dasharray: 1 0.5; }
+.neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-stone { fill: url(#stone-shine); stroke: url(#hoop-gold); stroke-width: 0.9; }
+.sketch-art .ring-shade { fill: rgba(60, 45, 20, 0.22); filter: url(#ring-soft); }
+@media (max-width: 480px) {
+  .hero-content p.hero-story { font-size: 0.9rem; letter-spacing: 0.13em; white-space: nowrap; }
+}
