@@ -2238,3 +2238,7 @@ legend {
 .eyebrow, .product-cat, .card-price, .breadcrumb span, .guide-link, .size-choice em, .collection-cta, .section-link,
 .hero-eyebrow, .help-band .eyebrow, .gift-panel-text .eyebrow, .product-price, .mega-col h4, .footer-col h4 { color: var(--gold-text); }
 .trust-bar .eyebrow, .community-panel .eyebrow, .custom-banner-text .eyebrow, .home .craft .eyebrow { color: var(--gold); }
+.contact-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.home .product-grid[data-grid="bestsellers"] { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1000px) { .home .product-grid[data-grid="bestsellers"] { grid-template-columns: repeat(2, 1fr); } }
+.trust-item strong { font-size: 0.8rem; }

@@ -283,8 +283,7 @@ def links(p):
 # The horseshoe pieces (Equestrian Collection) are the bestsellers: a badge on their cards and pages,
 # and their own home section.
 BESTSELLER = "equestrian"
-BESTSELLERS = ["horseshoe-necklace", "horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring",
-               "horseshoe-chain-earrings"]
+BESTSELLERS = ["horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring", "horseshoe-chain-earrings"]
 BADGE = '<span class="card-badge">Bestseller</span>'
 
 def card(p):
