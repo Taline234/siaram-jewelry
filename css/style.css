@@ -1838,3 +1838,18 @@ legend {
 }
 .hero-title { font-size: clamp(2.2rem, 3.9vw, 3.9rem); white-space: nowrap; }
 @media (max-width: 900px) { .hero-title { font-size: clamp(1.6rem, 7.4vw, 2.6rem); letter-spacing: 0.04em; } }
+.remember .split-media.remember-media { padding: 40px 0 90px; }
+.remember-media img.remember-card { right: 0; bottom: 0; width: 34%; transform: rotate(4deg); border: 0; box-shadow: none; filter: drop-shadow(0 12px 16px rgba(27, 58, 43, 0.18)); }
+.remember-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 56px; }
+.remember-gallery figure { margin: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--cream); }
+.remember-gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 640px) {
+  .remember-gallery { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 36px; }
+}
+.remember .split-media.remember-media { padding: 10px 0 20px; display: flex; justify-content: center; }
+.remember-media > img.remember-box { width: 52%; max-width: 330px; margin-right: 22%; }
+.remember-media img.remember-card { right: 2%; bottom: 6%; width: 38%; max-width: 250px; }
+@media (max-width: 900px) {
+  .remember-media > img.remember-box { width: 56%; margin-right: 26%; }
+  .remember-media img.remember-card { right: 0; bottom: 4%; width: 42%; }
+}
