@@ -98,41 +98,45 @@ const RINGS = [[44, '3', 14.0], [45, '3.5', 14.3], [47, '4', 15.0], [48, '4.5', 
   [61, '9.5', 19.4], [62, '10', 19.7], [63, '10.5', 20.1], [65, '11', 20.7], [66, '11.5', 21.0], [67, '12', 21.3],
   [69, '12.5', 22.0], [70, '13', 22.3]];
 
-// Ring: a slider over the sizes; the drawn ring's inside grows with the diameter. Moving it fills the size box.
+// Ring: tap a finger on the drawn hand (or its button) and the ring appears on it; slide to the size. Either
+// one fills the size box, e.g. "EU 54 · US 7, ring finger".
 function setupRingDial(studio, choose) {
   const picker = studio.querySelector('.ring-picker');
   if (!picker) return;
   const range = picker.querySelector('.ring-range');
-  const band = picker.querySelector('.ring-band');
-  const stone = picker.querySelector('.ring-stone');
-  const measure = picker.querySelector('.ring-measure');
-  const label = picker.querySelector('.dial-label');
   const readout = picker.querySelector('.dial-readout');
+  let finger = '';
+  let sized = false;
   const draw = (fill) => {
     const [eu, us, mm] = RINGS[Number(range.value)];
-    const r = 20 + (mm - 14) * 5.2;  // 14 mm → 20, 22.3 mm → 63: small sizes look small
-    band.setAttribute('r', r + 6);
-    stone.setAttribute('cy', 100 - r - 6);
-    measure.setAttribute('x1', 100 - r);
-    measure.setAttribute('x2', 100 + r);
-    label.textContent = `${mm.toFixed(1)} mm`;
+    picker.querySelectorAll('.finger-ring').forEach((g) => g.classList.toggle('is-on', g.dataset.finger === finger));
+    picker.querySelectorAll('.finger').forEach((g) => g.classList.toggle('is-on', g.dataset.finger === finger));
+    picker.querySelectorAll('.finger-choice').forEach((b) => b.setAttribute('aria-pressed', b.dataset.finger === finger));
     readout.querySelector('strong').textContent = `EU ${eu}`;
-    readout.querySelector('span').textContent = `US ${us} · ${mm.toFixed(1)} mm inside`;
+    readout.querySelector('span').textContent = `US ${us} · ${mm.toFixed(1)} mm inside${finger ? ` · ${finger} finger` : ''}`;
     range.setAttribute('aria-valuetext', `EU ${eu}, US ${us}, ${mm.toFixed(1)} millimetres inside`);
-    if (fill) choose(`EU ${eu} · US ${us}`);
+    if (!fill) return;
+    const size = sized ? `EU ${eu} · US ${us}` : '';
+    const where = finger ? `${finger} finger` : '';
+    choose([size, where].filter(Boolean).join(', '));
   };
-  range.addEventListener('input', () => draw(true));
+  const pick = (name) => {
+    finger = finger === name ? '' : name;
+    draw(true);
+  };
+  picker.querySelectorAll('.finger').forEach((g) => g.addEventListener('click', () => pick(g.dataset.finger)));
+  picker.querySelectorAll('.finger-choice').forEach((b) => b.addEventListener('click', () => pick(b.dataset.finger)));
+  range.addEventListener('input', () => {
+    sized = true;
+    draw(true);
+  });
   draw(false);
 }
 
 // Bracelet and anklet: measure the wrist or ankle, choose a close (+1 cm) or loose (+2 cm) fit, as in the size
-// guide. The drawing shows the chain hugging or hanging around the wrist; any change fills the size box.
+// guide. The drawing shows the chain snug at the wrist or ankle, or draping lower; any change fills the size box.
 function setupFitDial(picker, choose) {
   const range = picker.querySelector('.limb-range');
-  const chain = picker.querySelector('.fit-chain');
-  const charm = picker.querySelector('.fit-charm');
-  const limbShape = picker.querySelector('.limb');
-  const bones = picker.querySelectorAll('.limb-bone');
   const readout = picker.querySelector('.dial-readout');
   const fits = [...picker.querySelectorAll('.fit-choice')];
   const piece = picker.dataset.piece;
@@ -141,22 +145,7 @@ function setupFitDial(picker, choose) {
   const draw = (fill) => {
     const cm = Number(range.value);
     const length = cm + (fit === 'close' ? 1 : 2);
-    // The wrist or ankle grows with its measurement; a close chain hugs it, a loose one hangs lower.
-    const lo = Number(range.min), hi = Number(range.max);
-    const rx = 34 + ((cm - lo) / (hi - lo)) * 22;
-    const ry = rx * 0.78;
-    limbShape.setAttribute('rx', rx);
-    limbShape.setAttribute('ry', ry);
-    bones.forEach((bone, i) => {
-      bone.setAttribute('cx', 100 + (i ? 1 : -1) * rx * 0.45);
-      bone.setAttribute('rx', rx * 0.18);
-      bone.setAttribute('ry', rx * 0.15);
-    });
-    const r = rx + (fit === 'close' ? 7 : 22);
-    const cy = 96 + (fit === 'close' ? 3 : 16);
-    chain.setAttribute('r', r);
-    chain.setAttribute('cy', cy);
-    charm.setAttribute('cy', cy + r);
+    picker.querySelectorAll('.fit-chain-group').forEach((g) => g.classList.toggle('is-on', g.dataset.fit === fit));
     readout.querySelector('strong').textContent = `${piece} ${length} cm`;
     readout.querySelector('span').textContent = `${limb[0].toUpperCase() + limb.slice(1)} ${cm} cm · ${fit} fit`;
     range.setAttribute('aria-valuetext', `${cm} centimetres`);

@@ -91,6 +91,9 @@ assert.ok(await page.locator('.size-panel[data-for=Ring]').isVisible(), 'a ring 
 assert.ok(await page.locator('.neck-picker').isHidden(), 'a ring hides the necklace lengths');
 await page.locator('.ring-range').fill('8');
 assert.match(await page.locator('.ring-picker .dial-readout').textContent(), /EU 54US 7 · 17\.2 mm inside/, 'the ring slider shows EU, US and the inside size');
+await page.click('.finger-choice[data-finger=ring]');
+assert.equal(await page.inputValue('.custom-form [name=size]'), 'EU 54 · US 7, ring finger', 'choosing a finger adds it to the size');
+await page.click('.finger-choice[data-finger=ring]');
 assert.equal(await page.inputValue('.custom-form [name=size]'), 'EU 54 · US 7', 'choosing a size fills the size box');
 await page.fill('.custom-form [name=description]', 'An oval diamond ring with my initials inside');
 await page.setInputFiles('.custom-form [name=files]', { name: 'sketch.png', mimeType: 'image/png', buffer: Buffer.from([137, 80, 78, 71]) });
