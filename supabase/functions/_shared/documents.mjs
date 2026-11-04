@@ -2,11 +2,13 @@
 //   receiptPdf        the receipt: invoice number, customer, and each piece with SKU, materials,
 //                     size, price, quantity and totals (detailed enough for customs)
 //   careWarrantyPdf   the thank-you letter, the filled-in warranty card and the care guide
+//   voucherPdf        a gift voucher on the owner's Canva voucher card, and their personal message card
 import { Buffer } from 'node:buffer';
 import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { ASSETS } from './pdf-assets.mjs';
 import { CATALOGUE } from './catalogue.mjs';
+import { VOUCHER_ASSETS } from './voucher-assets.mjs';
 
 const W = 595.28;
 const H = 841.89;
@@ -361,5 +363,72 @@ export async function careWarrantyPdf(order, when = new Date()) {
   iconText(p, f, 'email', 'customerservice@siaramjewelry.com', fx, 60, 9);
   text(p, 'finance@siaramjewelry.com', fx + 15, 47, f.sans, 9, C.ink);
 
+  return doc.save();
+}
+
+
+// ---------------------------------------------------------------- gift voucher
+// The owner's two Canva cards (A5 landscape, 1748 x 1240 px): the voucher, filled in, and, when the buyer wrote one,
+// the personal message card. Positions below are the white boxes measured on the original cards, in its pixels.
+const VW = 595.28;
+const VH = 419.53;
+const PX = VW / 1748;
+const longDay = (d) => new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Beirut', day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+
+function fitText(p, value, font, box, size = 15, color = C.green) {
+  // box: [left, top, right, bottom] in card pixels; text is centred vertically and shrinks to fit.
+  const [x0, y0, x1, y1] = box;
+  const width = (x1 - x0) * PX - 16;
+  let s = size;
+  while (s > 8 && font.widthOfTextAtSize(value, s) > width) s -= 0.5;
+  const mid = VH - ((y0 + y1) / 2) * PX;
+  p.drawText(value, { x: x0 * PX + 9, y: mid - s * 0.32, size: s, font, color });
+}
+
+function termsLine(p, f, centreY) {
+  const t = 'Terms and conditions apply · please see our brand policies at siaramjewelry.com/terms.html';
+  const size = 8.6;
+  const w = f.sans.widthOfTextAtSize(t, size);
+  p.drawText(t, { x: (VW - w) / 2, y: VH - centreY * PX - size * 0.32, size, font: f.sans, color: C.green });
+}
+
+export async function voucherPdf(v) {
+  const { doc, f } = await newDoc();
+  doc.setTitle(`Siaram gift voucher ${v.voucher_code}`);
+  const card = await doc.embedJpg(b64(VOUCHER_ASSETS.voucher));
+  const p = doc.addPage([VW, VH]);
+  p.drawImage(card, { x: 0, y: 0, width: VW, height: VH });
+  fitText(p, v.recipient_name, f.serif, [257, 577, 859, 653]);
+  fitText(p, v.name, f.serif, [1020, 577, 1622, 653]);
+  fitText(p, `${money(v.amount)} (US dollars), to spend on Siaram jewellery`, f.serif, [257, 720, 1622, 796]);
+  fitText(p, longDay(new Date(v.expires_at)), f.serif, [257, 883, 824, 959]);
+  fitText(p, v.voucher_code, f.sansMed, [1072, 883, 1618, 959], 13);
+  termsLine(p, f, 1153);
+
+  const message = String(v.message || '').trim();
+  if (message) {
+    const back = await doc.embedJpg(b64(VOUCHER_ASSETS.message));
+    const q = doc.addPage([VW, VH]);
+    q.drawImage(back, { x: 0, y: 0, width: VW, height: VH });
+    // The writing area: under the "Personalised message" heading, above the contact line.
+    const left = 300 * PX;
+    const width = (1448 - 300) * PX;
+    const top = VH - 440 * PX;
+    const bottom = VH - 990 * PX;
+    let size = 17;
+    let lines = wrap(message, f.italic, size, width);
+    while (size > 10 && lines.length * size * 1.35 > top - bottom) {
+      size -= 0.5;
+      lines = wrap(message, f.italic, size, width);
+    }
+    const lead = size * 1.35;
+    let y = (top + bottom) / 2 + ((lines.length - 1) * lead) / 2 - size * 0.32;
+    for (const line of lines) {
+      const w = f.italic.widthOfTextAtSize(line, size);
+      q.drawText(line, { x: left + (width - w) / 2, y, size, font: f.italic, color: C.green });
+      y -= lead;
+    }
+    termsLine(q, f, 1135);
+  }
   return doc.save();
 }

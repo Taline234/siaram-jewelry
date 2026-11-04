@@ -28,6 +28,7 @@ export default async (req) => {
       name: text(body, 'name'),
       email: text(body, 'email'),
       phone: text(body, 'phone', 40),
+      message: text(body, 'message', 400),
     };
     if (!Number.isInteger(amount) || amount < 100 || amount > 100000) {
       throw new CustomerError('Please choose an amount of $100 or more, in whole dollars.');
@@ -48,7 +49,7 @@ export default async (req) => {
     const rows = [
       ['Amount', `$${amount}`], ['Recipient', order.recipient_name], ["Recipient's email", order.recipient_email || '—'],
       ["Recipient's WhatsApp", order.recipient_phone || '—'], ['Send the voucher to', sendTo],
-      ['Send on', order.send_on || 'As soon as it is paid'],
+      ['Send on', order.send_on || 'As soon as it is paid'], ['Personal message', order.message || '—'],
     ].map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b665a">${k}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
     const details = `<table role="presentation" style="font-size:15px;margin:8px 0 14px">${rows}</table>`;
     await Promise.all([

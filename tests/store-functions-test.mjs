@@ -488,6 +488,8 @@ test('a paid voucher is emailed to the recipient with its code, and the buyer an
   assert.equal(gift.subject, 'Rana Haddad sent you a Siaram gift voucher');
   assert.match(gift.html, /GV0001-K7QM4X/);
   assert.match(gift.html, /Valid until 3 May 2027/);
+  assert.deepEqual(gift.attachments.map((a) => a.filename), ['Siaram-gift-voucher-GV0001-K7QM4X.pdf'], 'the voucher card is attached');
+  assert.equal(Buffer.from(gift.attachments[0].content, 'base64').subarray(0, 4).toString(), '%PDF');
   assert.equal(shop.to[0], 'shop@siaram.test');
   assert.equal(buyer.to[0], 'rana@example.com');
   assert.match(buyer.html, /emailed your \$150\.00 Siaram gift voucher to\s+Maya Aoun/);
@@ -560,4 +562,15 @@ test('the workbook download is one Excel file with a Sales tab and a Customers t
   assert.match(text, /<c r="H2"><v>450<\/v><\/c>/, 'prices are numbers');
   assert.match(text, /Lea &quot;Lou&quot; Khoury/, 'names are escaped');
   assert.ok(!/<c r="F2"/.test(text), 'empty formula columns stay empty');
+});
+
+test('the personal message is printed on its card and shown in the voucher email', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, { ...paidVoucher, message: 'Happy birthday, Maya!' }];
+  await voucherSend(sendRequest('right'));
+  const [gift] = emails();
+  assert.match(gift.html, /Happy birthday, Maya!/);
+  const { PDFDocument } = await import('pdf-lib');
+  const pdf = await PDFDocument.load(Buffer.from(gift.attachments[0].content, 'base64'));
+  assert.equal(pdf.getPageCount(), 2, 'voucher card and message card');
 });
