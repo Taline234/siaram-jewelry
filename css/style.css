@@ -1911,3 +1911,42 @@ legend {
 }
 .hero-dark .hero-logo { transform: none; width: clamp(130px, 10.5vw, 170px); }
 @media (max-width: 900px) { .hero-dark .hero-logo { width: 130px; } }
+
+/* ---- Home, following the owner's template, in Siaram beige ---- */
+.hero.hero-template { background: var(--cream); grid-template-columns: 1fr 1.05fr; text-align: left; min-height: 82vh; }
+.hero-template .hero-content { align-items: flex-start; justify-content: center; justify-self: stretch; max-width: 640px;
+  padding: 64px 40px 64px clamp(32px, 7vw, 120px); }
+.hero-template .hero-logo { width: clamp(130px, 10.5vw, 170px); margin: 0 0 34px; transform: none; }
+.hero-eyebrow { font-family: var(--font-sans); font-size: 0.72rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
+.hero-template .hero-title { color: var(--green-deep); margin: 0 0 18px; text-align: left; font-size: clamp(2.3rem, 4vw, 4rem); }
+.hero-template .hero-content p.tagline { color: var(--green-mid); font-size: clamp(1.05rem, 1.3vw, 1.25rem); margin: 0 0 36px; }
+.hero-template .hero-actions { justify-content: flex-start; align-items: center; gap: 28px; margin: 0; }
+.hero-template .hero-btn { color: var(--green-deep); border-color: var(--green-deep); }
+.hero-template .hero-btn:hover { background: var(--green-deep); color: var(--cream); }
+.hero-template .hero-link { color: var(--green-deep); border-bottom-color: rgba(27, 58, 43, 0.4); }
+.hero-template .hero-link:hover { color: var(--gold); border-color: var(--gold); }
+.hero-template .hero-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--cream) 0%, rgba(243, 237, 226, 0.5) 12%, rgba(243, 237, 226, 0) 34%); }
+@media (max-width: 900px) {
+  .hero.hero-template { grid-template-columns: 1fr; min-height: 0; }
+  .hero-template .hero-media { height: 60vh; }
+  .hero-template .hero-media::after { background: linear-gradient(0deg, var(--cream) 0%, rgba(243, 237, 226, 0.5) 16%, rgba(243, 237, 226, 0) 40%); }
+  .hero-template .hero-content { padding: 8px 24px 52px; max-width: none; }
+  .hero-template .hero-logo { width: 130px; margin-bottom: 22px; }
+  .hero-template .hero-title { font-size: clamp(1.9rem, 8.6vw, 2.6rem); }
+}
+
+/* Template headings: small gold eyebrow between thin rules, uppercase serif titles */
+.home .section-head .eyebrow, .home .split-text .eyebrow { display: inline-flex; align-items: center; gap: 12px; }
+.home .section-head .eyebrow::before, .home .section-head .eyebrow::after, .home .split-text .eyebrow::after {
+  content: ""; width: 28px; height: 1px; background: currentColor; opacity: 0.6; }
+.home .section-head h2, .home .split-text h2 { text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500; }
+.btn-arrow { display: inline-flex; gap: 10px; align-items: center; }
+
+/* Made to be remembered: photo left, text right, like the template */
+.home .remember .remember-media { order: -1; }
+.home .remember { background: var(--cream); }
+
+/* From Sketch to Gold: four steps */
+.craft-steps { grid-template-columns: repeat(4, 1fr); gap: 22px; }
+@media (max-width: 1000px) and (min-width: 761px) { .craft-steps { grid-template-columns: repeat(2, 1fr); } }
