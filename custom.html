@@ -267,38 +267,68 @@
           </div>
         </div>
         <div class="size-panel" data-for="Ring" hidden>
-          <p class="size-panel-note">Your ring size. Not sure? Choose "Help me find my size" or see the size guide.</p>
-          <div class="size-choices ring-choices">
-            <button type="button" class="size-choice" data-size="EU 47 · US 4"><strong>EU 47</strong><span>US 4</span></button>
-            <button type="button" class="size-choice" data-size="EU 49 · US 5"><strong>EU 49</strong><span>US 5</span></button>
-            <button type="button" class="size-choice" data-size="EU 51 · US 6"><strong>EU 51</strong><span>US 6</span></button>
-            <button type="button" class="size-choice" data-size="EU 52 · US 6.5"><strong>EU 52</strong><span>US 6.5</span></button>
-            <button type="button" class="size-choice" data-size="EU 54 · US 7"><strong>EU 54</strong><span>US 7</span></button>
-            <button type="button" class="size-choice" data-size="EU 55 · US 7.5"><strong>EU 55</strong><span>US 7.5</span></button>
-            <button type="button" class="size-choice" data-size="EU 56 · US 8"><strong>EU 56</strong><span>US 8</span></button>
-            <button type="button" class="size-choice" data-size="EU 58 · US 8.5"><strong>EU 58</strong><span>US 8.5</span></button>
-            <button type="button" class="size-choice" data-size="EU 59 · US 9"><strong>EU 59</strong><span>US 9</span></button>
-            <button type="button" class="size-choice" data-size="EU 61 · US 9.5"><strong>EU 61</strong><span>US 9.5</span></button>
-            <button type="button" class="size-choice" data-size="EU 62 · US 10"><strong>EU 62</strong><span>US 10</span></button>
-            <button type="button" class="size-choice" data-size="Ring: help me find my size"><strong>Help me</strong><span>find my size</span></button>
+          <p class="size-panel-note">Slide to your size: the ring grows to its true inside size.</p>
+          <div class="dial-picker ring-picker">
+            <svg class="dial-art" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <defs><linearGradient id="ring-gold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#f3dc9c" /><stop offset="0.5" stop-color="#c9a24f" /><stop offset="1" stop-color="#9c7a2f" /></linearGradient></defs>
+              <circle class="ring-band" cx="100" cy="100" r="58" />
+              <circle class="ring-stone" cx="100" cy="42" r="9" />
+              <line class="ring-measure" x1="48" y1="100" x2="152" y2="100" />
+              <text class="dial-label" x="100" y="192" text-anchor="middle"></text>
+            </svg>
+            <div class="dial-controls">
+              <p class="dial-readout"><strong></strong><span></span></p>
+              <label class="dial-range"><span>Ring size</span>
+                <input type="range" class="ring-range" min="0" max="20" step="1" value="8" /></label>
+              <div class="dial-ends" aria-hidden="true"><span>EU 44 · smaller</span><span>EU 70 · larger</span></div>
+              <p class="dial-tip">Tip: measure straight across the inside of a ring that fits the same finger, then slide until the size matches.</p>
+              <button type="button" class="size-choice dial-help" data-size="Ring: help me find my size"><strong>Not sure?</strong><span>Help me find my size</span></button>
+            </div>
           </div>
         </div>
         <div class="size-panel" data-for="Bracelet" hidden>
-          <p class="size-panel-note">How should it sit on the wrist?</p>
-          <div class="size-choices">
-            <button type="button" class="size-choice" data-size="Bracelet 15–16 cm"><strong>Petite</strong><span>15–16 cm</span></button>
-            <button type="button" class="size-choice" data-size="Bracelet 16–17 cm"><strong>Classic</strong><span>16–17 cm</span></button>
-            <button type="button" class="size-choice" data-size="Bracelet 18–19 cm"><strong>Relaxed</strong><span>18–19 cm</span></button>
-            <button type="button" class="size-choice" data-size="Bracelet 19–20 cm"><strong>Loose</strong><span>19–20 cm</span></button>
+          <p class="size-panel-note">Measure your wrist and choose how you like it to sit; we work out the length.</p>
+          <div class="dial-picker fit-picker" data-piece="Bracelet" data-limb="Wrist">
+            <svg class="dial-art" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <ellipse class="limb" cx="100" cy="96" rx="52" ry="40" />
+              <ellipse class="limb-bone" cx="78" cy="98" rx="9" ry="8" /><ellipse class="limb-bone" cx="122" cy="98" rx="11" ry="9" />
+              <circle class="fit-chain" cx="100" cy="100" r="60" />
+              <circle class="fit-charm" cx="100" cy="160" r="5" />
+            </svg>
+            <div class="dial-controls">
+              <p class="dial-readout"><strong></strong><span></span></p>
+              <label class="dial-range"><span>Your wrist, measured just above the wrist bone</span>
+                <input type="range" class="limb-range" min="11" max="20" step="0.5" value="15" /></label>
+              <div class="dial-ends" aria-hidden="true"><span>11 cm</span><span>20 cm</span></div>
+              <div class="fit-choices" role="group" aria-label="How it sits">
+                <button type="button" class="fit-choice" data-fit="close" aria-pressed="true"><strong>Close fit</strong><span>sits neatly, adds 1 cm</span></button>
+                <button type="button" class="fit-choice" data-fit="loose" aria-pressed="false"><strong>Loose fit</strong><span>drapes and moves, adds 2 cm</span></button>
+              </div>
+              <button type="button" class="size-choice dial-help" data-size="Bracelet: help me measure"><strong>Not sure?</strong><span>Help me measure</span></button>
+            </div>
           </div>
         </div>
         <div class="size-panel" data-for="Anklet" hidden>
-          <p class="size-panel-note">How should it sit on the ankle?</p>
-          <div class="size-choices">
-            <button type="button" class="size-choice" data-size="Anklet 20–21 cm"><strong>Fine</strong><span>20–21 cm</span></button>
-            <button type="button" class="size-choice" data-size="Anklet 21–22 cm"><strong>Classic</strong><span>21–22 cm</span></button>
-            <button type="button" class="size-choice" data-size="Anklet 23–24 cm"><strong>Relaxed</strong><span>23–24 cm</span></button>
-            <button type="button" class="size-choice" data-size="Anklet 25–26 cm"><strong>Loose</strong><span>25–26 cm</span></button>
+          <p class="size-panel-note">Measure your ankle and choose how you like it to sit; we work out the length.</p>
+          <div class="dial-picker fit-picker" data-piece="Anklet" data-limb="Ankle">
+            <svg class="dial-art" viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <ellipse class="limb" cx="100" cy="96" rx="52" ry="40" />
+              <ellipse class="limb-bone" cx="78" cy="98" rx="9" ry="8" /><ellipse class="limb-bone" cx="122" cy="98" rx="11" ry="9" />
+              <circle class="fit-chain" cx="100" cy="100" r="60" />
+              <circle class="fit-charm" cx="100" cy="160" r="5" />
+            </svg>
+            <div class="dial-controls">
+              <p class="dial-readout"><strong></strong><span></span></p>
+              <label class="dial-range"><span>Your ankle, measured just above the ankle bone</span>
+                <input type="range" class="limb-range" min="18" max="25" step="0.5" value="21" /></label>
+              <div class="dial-ends" aria-hidden="true"><span>18 cm</span><span>25 cm</span></div>
+              <div class="fit-choices" role="group" aria-label="How it sits">
+                <button type="button" class="fit-choice" data-fit="close" aria-pressed="true"><strong>Close fit</strong><span>sits neatly, adds 1 cm</span></button>
+                <button type="button" class="fit-choice" data-fit="loose" aria-pressed="false"><strong>Loose fit</strong><span>drapes and moves, adds 2 cm</span></button>
+              </div>
+              <button type="button" class="size-choice dial-help" data-size="Anklet: help me measure"><strong>Not sure?</strong><span>Help me measure</span></button>
+            </div>
           </div>
         </div>
         <div class="size-panel" data-for="Earrings" hidden>
