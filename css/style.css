@@ -1785,3 +1785,16 @@ legend {
 @media (max-width: 480px) {
   .hero-content p.hero-story { font-size: 0.9rem; letter-spacing: 0.13em; white-space: nowrap; }
 }
+
+/* Home: "Made to be remembered" (packaging) */
+.remember .split-media.remember-media { position: relative; overflow: visible; }
+.remember-media > img:first-child { width: 100%; height: 100%; object-fit: cover; }
+.remember-media img.remember-card {
+  position: absolute; left: -36px; bottom: -36px; width: 38%; height: auto !important; aspect-ratio: auto;
+  border: 6px solid var(--ivory); box-shadow: 0 12px 30px rgba(27, 58, 43, 0.18);
+}
+@media (max-width: 900px) {
+  .remember .split-media { order: -1; }
+  .remember-media img.remember-card { left: 12px; bottom: -24px; width: 34%; }
+  .remember .split-text { margin-top: 24px; }
+}
