@@ -2151,3 +2151,4 @@ legend {
 .features .feature-icon { width: 72px; height: 72px; padding: 15px; }
 .collections-band .feature-icon { width: 84px; height: 84px; padding: 16px; stroke-width: 1.1; }
 .collections-band .feature-icon { padding: 13px; }
+.collection-symbol { display: block; width: 110px; height: 110px; object-fit: contain; margin: 0 auto 20px; }
