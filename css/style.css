@@ -1785,3 +1785,71 @@ legend {
 @media (max-width: 480px) {
   .hero-content p.hero-story { font-size: 0.9rem; letter-spacing: 0.13em; white-space: nowrap; }
 }
+
+/* Home: "Made to be remembered" (packaging) */
+.remember .split-media.remember-media { position: relative; overflow: visible; }
+.remember-media > img:first-child { width: 100%; height: 100%; object-fit: cover; }
+.remember-media img.remember-card {
+  position: absolute; left: -36px; bottom: -36px; width: 38%; height: auto !important; aspect-ratio: auto;
+  border: 6px solid var(--ivory); box-shadow: 0 12px 30px rgba(27, 58, 43, 0.18);
+}
+@media (max-width: 900px) {
+  .remember .split-media { order: -1; }
+  .remember-media img.remember-card { left: 12px; bottom: -24px; width: 34%; }
+  .remember .split-text { margin-top: 24px; }
+}
+
+/* Home hero: logo and tagline small at the top, a large serif headline in the open space below */
+.hero-content {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 720px;
+  width: 100%;
+  padding: 44px 32px 56px;
+}
+.hero-brand { margin-bottom: auto; }
+.hero-content .hero-logo { width: clamp(170px, 16vw, 240px); margin: 0 auto 2px; }
+.hero-content .hero-brand p.tagline { font-size: clamp(0.95rem, 1.1vw, 1.1rem); margin: 0; }
+.hero-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: clamp(2.4rem, 4.4vw, 4.3rem);
+  letter-spacing: 0.05em;
+  line-height: 1.08;
+  color: var(--green-deep);
+  margin: 40px 0 34px;
+}
+.hero-content .hero-actions { margin-bottom: auto; }
+@media (max-width: 900px) {
+  .hero-content { padding: 28px 20px 44px; }
+  .hero-brand { margin-bottom: 0; }
+  .hero-title { font-size: clamp(2rem, 8.4vw, 2.8rem); margin: 26px 0 26px; }
+}
+
+/* "Made to be remembered": the box cut out on the page, with the story card beside it */
+.remember .split-media.remember-media { aspect-ratio: auto; overflow: visible; position: relative; padding: 0 0 60px; }
+.remember-media > img.remember-box { width: 100%; height: auto; filter: drop-shadow(0 18px 22px rgba(27, 58, 43, 0.16)); }
+.remember-media img.remember-card { left: auto; right: 4%; bottom: 0; width: 30%; transform: rotate(3deg); }
+@media (max-width: 900px) {
+  .remember-media img.remember-card { right: 6px; left: auto; bottom: 8px; width: 32%; }
+}
+.hero-title { font-size: clamp(2.2rem, 3.9vw, 3.9rem); white-space: nowrap; }
+@media (max-width: 900px) { .hero-title { font-size: clamp(1.6rem, 7.4vw, 2.6rem); letter-spacing: 0.04em; } }
+.remember .split-media.remember-media { padding: 40px 0 90px; }
+.remember-media img.remember-card { right: 0; bottom: 0; width: 34%; transform: rotate(4deg); border: 0; box-shadow: none; filter: drop-shadow(0 12px 16px rgba(27, 58, 43, 0.18)); }
+.remember-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 56px; }
+.remember-gallery figure { margin: 0; aspect-ratio: 4 / 5; overflow: hidden; background: var(--cream); }
+.remember-gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 640px) {
+  .remember-gallery { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 36px; }
+}
+.remember .split-media.remember-media { padding: 10px 0 20px; display: flex; justify-content: center; }
+.remember-media > img.remember-box { width: 52%; max-width: 330px; margin-right: 22%; }
+.remember-media img.remember-card { right: 2%; bottom: 6%; width: 38%; max-width: 250px; }
+@media (max-width: 900px) {
+  .remember-media > img.remember-box { width: 56%; margin-right: 26%; }
+  .remember-media img.remember-card { right: 0; bottom: 4%; width: 42%; }
+}
