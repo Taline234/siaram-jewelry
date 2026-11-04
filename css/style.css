@@ -252,8 +252,8 @@ h1, h2, h3 {
 }
 .hero-content p.hero-story {
   font-family: var(--font-sans);
-  font-size: 0.78rem;
-  letter-spacing: 0.28em;
+  font-size: clamp(0.95rem, 1.4vw, 1.15rem);
+  letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--green-mid);
   margin: 0 0 32px;
@@ -1782,3 +1782,6 @@ legend {
 .neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-drop { stroke: #a8812f; stroke-width: 0.8; stroke-dasharray: 1 0.5; }
 .neck-art.sketch-art .neck-line.is-on .neck-pendant .pendant-stone { fill: url(#stone-shine); stroke: url(#hoop-gold); stroke-width: 0.9; }
 .sketch-art .ring-shade { fill: rgba(60, 45, 20, 0.22); filter: url(#ring-soft); }
+@media (max-width: 480px) {
+  .hero-content p.hero-story { font-size: 0.9rem; letter-spacing: 0.13em; white-space: nowrap; }
+}
