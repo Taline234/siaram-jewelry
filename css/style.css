@@ -2104,3 +2104,14 @@ legend {
 @media (max-width: 900px) { .gift-panel { grid-template-columns: 1fr; text-align: center; } .gift-panel-img { max-width: 340px; margin: 0 auto; } }
 .home .remember-media img.remember-card { width: 36%; right: -6%; bottom: 2%; }
 @media (max-width: 900px) { .home .remember-media img.remember-card { right: 0; } }
+/* Made to be remembered: the box cut out of its background, standing on the page */
+.home .remember .split-media.remember-media { max-width: 560px; padding: 0 0 20px; }
+.home .remember-media > img.remember-box { width: 78%; aspect-ratio: auto; object-fit: contain; box-shadow: none; filter: drop-shadow(0 20px 24px rgba(27, 58, 43, 0.16)); }
+.home .remember-media img.remember-card { width: 36%; right: 0; bottom: 4%; }
+.home .remember-media > img.remember-box { filter: drop-shadow(0 14px 16px rgba(27, 58, 43, 0.12)); }
+.home .remember-media img.remember-card { right: -4%; bottom: 0; width: 34%; }
+@media (max-width: 900px) {
+  .home .remember .split-media.remember-media { display: flex; gap: 12px; align-items: flex-end; padding-bottom: 0; }
+  .home .remember-media > img.remember-box { width: 66%; }
+  .home .remember-media img.remember-card { position: static; width: 34%; transform: rotate(4deg); }
+}
