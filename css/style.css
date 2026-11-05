@@ -2278,7 +2278,7 @@ legend {
 .article-standfirst { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.15rem, 2.2vw, 1.4rem); line-height: 1.55; color: var(--green-mid); max-width: 640px; margin: 0 auto; }
 .article-hero p.article-meta { margin: 18px 0 40px; }
 .article-cover-wrap { max-width: 1040px !important; position: relative; z-index: 1; margin-top: 36px !important; margin-bottom: -150px !important; }
-.article-hero .article-cover { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; margin: 0; box-shadow: 0 24px 50px rgba(27, 58, 43, 0.12); }
+.article-hero .article-cover { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 6px; margin: 0; box-shadow: 0 24px 50px rgba(27, 58, 43, 0.12); }
 .article-body { background: var(--ivory); padding-top: 210px; }
 .article-lead::first-letter { float: left; font-family: var(--font-serif); font-size: 4.6em; line-height: 0.82; padding: 6px 12px 0 0; color: var(--green-deep); }
 .article-lead { font-size: 1.24rem !important; }
@@ -2336,3 +2336,56 @@ legend {
   .article-gallery.cols-3 { grid-template-columns: 1fr 1fr; }
   .article-explore { padding: 24px 22px; }
 }
+.article-hero .article-cover.is-full { width: auto; max-width: 100%; max-height: 760px; aspect-ratio: auto; margin: 0 auto; }
+@media (max-width: 760px) { .article-hero .article-cover.is-full { max-height: 560px; } }
+
+/* ---------------- Guide pages: richer details ---------------- */
+.guide-intro { font-style: italic; }
+.guide-jump a { border: 1px solid var(--line); border-radius: 999px; padding: 8px 18px; text-decoration: none !important; transition: background 0.3s, color 0.3s; }
+.guide-jump a:hover { background: var(--green-deep); color: var(--cream) !important; border-color: var(--green-deep); }
+.guide .guide-section h2 { display: flex; align-items: center; gap: 14px; }
+.guide .guide-section h2::before { content: "\2726"; font-size: 0.85rem; color: var(--gold); flex: none; }
+.guide .guide-section h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-soft), transparent); }
+.guide .guide-section > p:first-of-type::first-letter { font-size: 1.6em; color: var(--green-deep); }
+.guide-help { border-radius: 8px; background: linear-gradient(135deg, var(--cream) 0%, var(--cream-soft) 100%); border: 1px solid var(--line); }
+
+/* ---------------- Care Guide ---------------- */
+.care-feature { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: center; margin: 0 0 56px; }
+.care-feature-photo { margin: 0; }
+.care-feature-photo img { width: 100%; max-height: 560px; object-fit: cover; border-radius: 8px; box-shadow: 0 24px 50px rgba(27, 58, 43, 0.12); }
+.care-feature-text h2 { font-family: var(--font-serif); font-weight: 500; font-size: clamp(2rem, 4vw, 2.8rem); color: var(--green-deep); margin: 10px 0 16px; }
+.care-lead { font-family: var(--font-serif); font-size: 1.18rem; line-height: 1.8; color: var(--ink); }
+.care-lead::first-letter { float: left; font-size: 3.6em; line-height: 0.85; padding: 6px 10px 0 0; color: var(--green-deep); }
+.care-steps { list-style: none; padding: 0; margin: 0 0 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 26px; counter-reset: none; }
+.care-step { position: relative; background: var(--ivory); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; scroll-margin-top: 110px; }
+.care-step img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; }
+.care-step h3 { font-family: var(--font-serif); font-weight: 500; font-size: 1.45rem; color: var(--green-deep); margin: 20px 24px 8px; }
+.care-step p { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.7; color: var(--ink); margin: 0 24px 24px; }
+.care-num { position: absolute; top: 14px; left: 14px; z-index: 1; font-family: var(--font-serif); font-size: 1.1rem; color: var(--cream); background: var(--green-deep); border-radius: 999px; width: 44px; height: 44px; display: grid; place-items: center; }
+.care-quote { text-align: center; margin: 54px auto; max-width: 640px; padding: 30px 10px; border-top: 1px solid var(--gold-soft); border-bottom: 1px solid var(--gold-soft); }
+.care-quote span { color: var(--gold); display: block; margin-bottom: 10px; }
+.care-quote p { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--green-deep); margin: 0; }
+.care-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0 0 48px; border-radius: 8px; overflow: hidden; scroll-margin-top: 110px; }
+.care-col { padding: 30px 32px; background: var(--cream); }
+.care-col + .care-col { background: var(--green-deep); color: var(--cream); }
+.care-col h3 { font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-text); margin: 0 0 14px; }
+.care-col + .care-col h3 { color: var(--gold-soft); }
+.care-col ul { margin: 0; padding: 0; list-style: none; }
+.care-col li { font-family: var(--font-serif); font-size: 1.08rem; line-height: 1.5; padding: 9px 0 9px 26px; position: relative; border-bottom: 1px solid var(--line); }
+.care-col + .care-col li { border-color: rgba(243, 237, 226, 0.15); }
+.care-col li::before { content: "\2713"; position: absolute; left: 0; color: var(--green-mid); }
+.care-col + .care-col li::before { content: "\2715"; color: var(--gold-soft); }
+@media (max-width: 760px) {
+  .care-feature, .care-steps, .care-dos { grid-template-columns: 1fr; gap: 22px; }
+}
+
+/* Article photos are shown whole, never zoomed in */
+.article-hero .article-cover { width: auto !important; max-width: 100%; height: auto; max-height: 720px; aspect-ratio: auto !important; object-fit: contain; margin: 0 auto !important; }
+@media (max-width: 760px) { .article-hero .article-cover { max-height: 520px; } }
+.article-gallery { align-items: start; }
+.article-gallery img, .article-gallery video { aspect-ratio: auto !important; height: auto; object-fit: contain; }
+.article-figure video { width: 100%; height: auto; display: block; border-radius: 6px; background: var(--cream); }
+.article-figure:not(.article-gallery .article-figure) img, .article-figure:not(.article-gallery .article-figure) video { max-height: 760px; width: auto; max-width: 100%; margin: 0 auto; }
+.care-step img { aspect-ratio: 4 / 3; object-fit: contain; background: var(--cream); }
+.care-pro img { float: right; width: 34%; max-width: 280px; margin: 0 0 16px 28px; border-radius: 8px; }
+@media (max-width: 760px) { .care-pro img { float: none; width: 100%; max-width: none; margin: 0 0 16px; } }

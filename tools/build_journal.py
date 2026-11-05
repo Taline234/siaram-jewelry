@@ -8,6 +8,7 @@ journal.html, and adds the articles to sitemap.xml. Each article file starts wit
     title: The Story Behind Siaram
     date: 2026-11-20
     image: images/journal/story-behind-siaram.jpg
+    cover-fit: full                                (optional: show a tall cover photo whole instead of cropped)
     excerpt: How a horse named Marais became the heart of a jewelry brand.
     category: Our Stories                          (optional: the label and the filter on the Journal page)
     pieces: horseshoe-ring, horseshoe-bracelet     (optional: piece cards under the article)
@@ -92,10 +93,19 @@ def pieces_html(names, heading="Shop the Story"):
       </div>"""
 
 
-def figure(alt, src):
-    m = re.fullmatch(r'(.+?)\s+"(.*)"', src)
-    src, caption = (m.group(1), m.group(2)) if m else (src, "")
+MEDIA = re.compile(r"!(video)?\[(.*?)\]\((.+?)\)")
+
+
+def figure(m):
+    """A photo, or a short silent looping video (its poster is the .jpg of the same name)."""
+    is_video, alt, src = m.group(1), m.group(2), m.group(3)
+    c = re.fullmatch(r'(.+?)\s+"(.*)"', src)
+    src, caption = (c.group(1), c.group(2)) if c else (src, "")
     cap = f"<figcaption>{inline(caption)}</figcaption>" if caption else ""
+    if is_video:
+        poster = re.sub(r"\.\w+$", ".jpg", src)
+        return (f'<figure class="article-figure article-video"><video src="{html.escape(src)}" poster="{html.escape(poster)}" '
+                f'autoplay muted loop playsinline preload="metadata" aria-label="{html.escape(alt)}"></video>{cap}</figure>')
     return f'<figure class="article-figure"><img src="{html.escape(src)}" alt="{html.escape(alt)}" loading="lazy" />{cap}</figure>'
 
 
@@ -103,6 +113,7 @@ def body_html(body):
     """The article text. Besides paragraphs, ## and ### headings, - and 1. lists, **bold**, *italic* and links:
       > A line worth remembering           a large pull quote
       ![description](images/journal/a.jpg "caption")   a photo (the caption is optional)
+      !video[description](videos/a.mp4)   a short silent looping video (with videos/a.jpg as its still)
       two or three photo lines together    photos side by side
       [[pieces: qamar-ring, sun-ring]]     cards of those pieces, linking to them
       ## Explore further                   everything below it becomes a green panel at the end"""
@@ -112,9 +123,9 @@ def body_html(body):
         if not block:
             continue
         lines = block.splitlines()
-        imgs = [re.fullmatch(r"!\[(.*?)\]\((.+?)\)", l.strip()) for l in lines]
+        imgs = [MEDIA.fullmatch(l.strip()) for l in lines]
         if all(imgs):
-            figs = "".join(figure(m.group(1), m.group(2)) for m in imgs)
+            figs = "".join(figure(m) for m in imgs)
             out.append(f'      <div class="article-gallery cols-{len(imgs)}">{figs}</div>' if len(imgs) > 1 else f"      {figs}")
         elif re.fullmatch(r"\[\[pieces:(.+)\]\]", block):
             out.append(pieces_html(slugs(re.fullmatch(r"\[\[pieces:(.+)\]\]", block).group(1))))
@@ -210,7 +221,7 @@ def build():
         <p class="article-meta">{long_date(a['when'])} &middot; {minutes(a)} min read</p>
       </div>
       <div class="container article-cover-wrap">
-        <img class="article-cover" src="{html.escape(a['image'])}" alt="{t}" />
+        <img class="article-cover{' is-full' if a.get('cover-fit') == 'full' else ''}" src="{html.escape(a['image'])}" alt="{t}" />
       </div>
     </section>
 
