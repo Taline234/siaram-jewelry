@@ -2426,3 +2426,9 @@ legend {
 @media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
 .review-card-wide { align-self: center; }
 .review-card-wide img { aspect-ratio: auto; object-fit: contain; }
+/* Reviews: every card the same size */
+.review-grid { align-items: stretch; }
+.review-card { display: flex; flex-direction: column; }
+.review-card img { aspect-ratio: 4 / 5 !important; object-fit: cover !important; }
+.review-card blockquote { margin-top: auto; }
+.review-card figcaption { margin-bottom: auto; }
