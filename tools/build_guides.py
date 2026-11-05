@@ -494,6 +494,80 @@ voucher_body = f"""
 <script type="module" src="js/voucher-request.js"></script>
 """
 
+# ------------------------------------------------------------------ care guide
+care_body = """
+<section class="guide care">
+  <div class="container guide-container">
+    <div class="care-feature reveal">
+      <figure class="care-feature-photo"><img src="images/journal/cleaning-ring-cloth.jpg" alt="Polishing a Siaram ring with a soft cloth" loading="lazy" /></figure>
+      <div class="care-feature-text">
+        <span class="eyebrow">The Everyday Ritual</span>
+        <h2>Last on, first off</h2>
+        <p class="care-lead">Apply perfume, lotions and cosmetics first, then put on your jewelry once they have dried. Remove your pieces before swimming, cleaning, vigorous exercise or anything that may snag or strike them. Gold can scratch, and delicate chains and settings can be damaged by force.</p>
+      </div>
+    </div>
+
+    <nav class="guide-jump" aria-label="On this page"><a href="#cleaning">Cleaning</a><a href="#pearls">Pearls</a><a href="#storage">Storage</a><a href="#travel">Travel</a><a href="#checks">Checks</a></nav>
+
+    <ol class="care-steps">
+      <li class="care-step reveal" id="cleaning">
+        <span class="care-num">01</span>
+        <img src="images/craft/cleaning.jpg" alt="Jewelry being cleaned in the workshop" loading="lazy" />
+        <h3>Cleaning at home</h3>
+        <p>For simple solid-gold pieces without delicate stones, use lukewarm water, a little mild soap and a soft brush, then rinse and dry thoroughly. Finish with a soft cloth for shine.</p>
+      </li>
+      <li class="care-step reveal" id="pearls">
+        <span class="care-num">02</span>
+        <img src="images/products/fatima-pearl-earrings-1.jpg" alt="Fatima pearl earrings worn" loading="lazy" />
+        <h3>Pearls and delicate stones</h3>
+        <p>Wipe freshwater pearls gently with a soft cloth after wear and never soak them. Pearls, opals, emeralds, treated stones and pieces with adhesives need gentler care than the method above.</p>
+      </li>
+      <li class="care-step reveal" id="storage">
+        <span class="care-num">03</span>
+        <img src="images/journal/unboxing-pouch.jpg" alt="A Siaram pouch in its box" loading="lazy" />
+        <h3>Storage</h3>
+        <p>Store each piece separately in its Siaram pouch or a lined compartment, so pieces do not scratch or tangle. Fasten necklace clasps before you put them away.</p>
+      </li>
+      <li class="care-step reveal" id="travel">
+        <span class="care-num">04</span>
+        <img src="images/journal/packaging-boxes.jpg" alt="Siaram boxes and earring card" loading="lazy" />
+        <h3>Travelling</h3>
+        <p>Pack delicate pieces individually and keep them with you when you travel. A small case with separate compartments makes daily care much easier.</p>
+      </li>
+    </ol>
+
+    <blockquote class="care-quote reveal"><span aria-hidden="true">&#10022;</span><p>Small habits keep fine jewelry beautiful for years.</p></blockquote>
+
+    <div class="care-dos reveal" id="checks">
+      <div class="care-col">
+        <h3>Always</h3>
+        <ul>
+          <li>Put jewelry on after perfume and lotion</li>
+          <li>Wipe pieces with a soft cloth after wear</li>
+          <li>Keep each piece in its own pouch</li>
+          <li>Fasten clasps before storing necklaces</li>
+        </ul>
+      </div>
+      <div class="care-col">
+        <h3>Avoid</h3>
+        <ul>
+          <li>Swimming, cleaning or sport while wearing it</li>
+          <li>Soaking pearls or delicate stones</li>
+          <li>Harsh chemicals and abrasive cloths</li>
+          <li>Wearing a piece if a stone moves or a clasp is loose</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="guide-section reveal">
+      <h2>When to ask us</h2>
+      <p>If a stone moves, a prong catches or a clasp no longer closes securely, stop wearing the piece and ask a professional jeweler to look at it. For a Siaram piece, see our <a href="warranty.html">warranty</a> or send a <a href="return-repair.html">repair request</a>.</p>
+    </div>
+""" + HELP + """  </div>
+</section>
+
+"""
+
 PAGES = [
     ("size-guide.html", "Size Guide", "How to find your ring size, bracelet, necklace and anklet length for Siaram Jewelry pieces.",
      hero("Find Your Fit", "Size Guide", "Rings, bracelets, necklaces and anklets: how to measure, and the sizes we make."), size_body),
@@ -501,6 +575,8 @@ PAGES = [
      "durability, stone cuts, settings and birthstones.",
      hero("Choose Your Materials", "Gold &amp; Gemstones",
           "Gold colours, gemstones and their meaning, cuts, settings and birthstones, to help you choose."), materials_body),
+    ("care-guide.html", "Care Guide", "How to clean, store and care for Siaram Jewelry pieces: 18k gold, pearls and gemstones.",
+     hero("Customer Care", "Care Guide", "Simple habits to keep your pieces beautiful."), care_body),
     ("return-repair.html", "Return or Repair Request", "Request a return, exchange or repair for a Siaram Jewelry piece: "
      "send your order number, what is wrong, how it happened and photos.",
      hero("Customer Care", "Return or Repair Request", "Tell us about the piece and what happened, and we will guide you from there."),

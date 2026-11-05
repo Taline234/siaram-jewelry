@@ -13,7 +13,8 @@ COLLECTIONS = [("Equestrian", "shop.html#equestrian"), ("Core", "shop.html#core"
                ("Geometric", "shop.html#geometric"), ("Celestial", "shop.html#celestial"), ("Ocean", "shop.html#ocean"),
                ("Arrow", "shop.html#arrow")]
 GIFTS = [("Bestsellers", "index.html#bestsellers"), ("Gift Vouchers", "gift-voucher.html"), ("Custom Pieces", "custom.html"),
-         ("Size Guide", "size-guide.html"), ("Gold &amp; Gemstones", "materials.html")]
+         ("Size Guide", "size-guide.html"), ("Gold &amp; Gemstones", "materials.html"),
+         ("Care Guide", "care-guide.html")]
 FEATURE = ("shop.html#equestrian", "images/products/horseshoe-necklace-1.jpg", "Bestsellers", "Our Horseshoe Pieces")
 TOP = [("Home", "index.html"), ("About", "about.html"), ("Shop", "shop.html"), ("Custom", "custom.html"),
        ("Gift Vouchers", "gift-voucher.html"), ("Journal", "journal.html"), ("Contact", "contact.html")]
