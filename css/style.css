@@ -2378,3 +2378,14 @@ legend {
 @media (max-width: 760px) {
   .care-feature, .care-steps, .care-dos { grid-template-columns: 1fr; gap: 22px; }
 }
+
+/* Article photos are shown whole, never zoomed in */
+.article-hero .article-cover { width: auto !important; max-width: 100%; height: auto; max-height: 720px; aspect-ratio: auto !important; object-fit: contain; margin: 0 auto !important; }
+@media (max-width: 760px) { .article-hero .article-cover { max-height: 520px; } }
+.article-gallery { align-items: start; }
+.article-gallery img, .article-gallery video { aspect-ratio: auto !important; height: auto; object-fit: contain; }
+.article-figure video { width: 100%; height: auto; display: block; border-radius: 6px; background: var(--cream); }
+.article-figure:not(.article-gallery .article-figure) img, .article-figure:not(.article-gallery .article-figure) video { max-height: 760px; width: auto; max-width: 100%; margin: 0 auto; }
+.care-step img { aspect-ratio: 4 / 3; object-fit: contain; background: var(--cream); }
+.care-pro img { float: right; width: 34%; max-width: 280px; margin: 0 0 16px 28px; border-radius: 8px; }
+@media (max-width: 760px) { .care-pro img { float: none; width: 100%; max-width: none; margin: 0 0 16px; } }

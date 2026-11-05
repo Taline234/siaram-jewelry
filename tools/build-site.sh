@@ -8,5 +8,5 @@ if ls journal/*.md >/dev/null 2>&1; then python3 tools/build_journal.py; fi
 rm -rf dist
 mkdir dist
 cp ./*.html robots.txt sitemap.xml dist/
-cp -r css js images dist/
+cp -r css js images videos dist/
 echo "Built dist/ with $(find dist -type f | wc -l) files"
