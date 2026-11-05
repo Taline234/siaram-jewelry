@@ -18,6 +18,35 @@ HEADER = shop[shop.index('<header class="site-header">'):shop.index("</header>")
 FOOTER = shop[shop.index('<footer class="site-footer">'):]
 
 # Cloudflare serves /shop.html at /shop, so canonical links and the sitemap use the short address.
+# Messages from clients, shown on the piece's page (and on the home page, see REVIEW section in index.html).
+REVIEWS = {
+    "horseshoe-bracelet": [
+        ("Obsessed &#128525;", "", "images/reviews/horseshoe-bracelet.jpg"),
+        ("Thank u girlie, I love it so much &#129293;&#129293;&#129293;", "", ""),
+    ],
+}
+
+
+def reviews_html(p):
+    items = REVIEWS.get(p["slug"])
+    if not items:
+        return ""
+    cards = "\n".join(f"""      <figure class="review-card reveal">{f'<img src="{img}" alt="A client wearing the {p["plain"]}" loading="lazy" />' if img else ''}
+        <blockquote>&ldquo;{quote}&rdquo;</blockquote>{f'<p class="review-translation">{tr}</p>' if tr else ''}
+        <figcaption>A Siaram client</figcaption>
+      </figure>""" for quote, tr, img in items)
+    return f"""<section class="reviews">
+  <div class="container">
+    <div class="section-head reveal"><span class="eyebrow">From Our Clients</span><h2>Loved and Worn</h2></div>
+    <div class="review-grid">
+{cards}
+    </div>
+  </div>
+</section>
+
+"""
+
+
 def url_for(page): return BASE if page == "index.html" else BASE + page.removesuffix(".html")
 
 def seo_tags(page, title, desc, image, og_type, jsonld):
@@ -491,7 +520,7 @@ for p in P:
   </div>
 </section>
 
-<section class="alt-bg">
+{reviews_html(p)}<section class="alt-bg">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Complete the Look</span>

@@ -2408,3 +2408,19 @@ legend {
 .gem-dialog img { width: 220px; max-width: 100%; height: auto; display: block; margin: 0 auto; mix-blend-mode: multiply; }
 .gem-dialog-name { font-family: var(--font-serif); font-size: 1.7rem; color: var(--green-deep); margin: 14px 0 0; }
 .gem-dialog-close { position: absolute; top: 10px; right: 14px; background: none; border: 0; font-size: 1.8rem; color: var(--green-mid); cursor: pointer; }
+
+/* Client reviews */
+.reviews { background: var(--cream-soft); }
+.review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; align-items: start; }
+.review-grid-single { grid-template-columns: minmax(0, 420px); justify-content: center; }
+.review-card { margin: 0; background: var(--ivory); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; text-align: center; padding-bottom: 22px; }
+.review-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; margin-bottom: 18px; }
+.review-card blockquote { font-family: var(--font-serif); font-style: italic; font-size: 1.4rem; line-height: 1.4; color: var(--green-deep); margin: 0 22px 8px; }
+.review-translation { font-family: var(--font-serif); font-size: 0.98rem; color: var(--green-mid); margin: 0 22px 8px; }
+.review-card figcaption { font-family: var(--font-sans); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-text); margin: 6px 22px 0; }
+.review-card figcaption a { color: inherit; }
+.review-card-text { padding: 46px 0 34px; align-self: stretch; display: flex; flex-direction: column; justify-content: center; background: var(--green-deep); border-color: var(--green-deep); }
+.review-card-text blockquote { color: var(--cream); font-size: 1.6rem; }
+.review-card-text figcaption { color: var(--gold-soft); }
+.review-mark { font-family: var(--font-serif); font-size: 4rem; line-height: 0.6; color: var(--gold); }
+@media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
