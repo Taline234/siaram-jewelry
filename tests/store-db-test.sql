@@ -446,4 +446,18 @@ select pg_temp.check((select piece = 'Horse Shoe Necklace (NK-01)' and length = 
   'every piece is listed in the stock table with its name, code and length');
 
 \o
+
+-- newsletter unsubscribe links
+reset role;
+select subscribe_newsletter('unsub@example.com', 'test');
+select newsletter_token('unsub@example.com') as unsub_token \gset
+select unsubscribe_newsletter(:'unsub_token'::uuid) as unsub_email \gset
+select pg_temp.check(:'unsub_email' = 'unsub@example.com'
+                     and (select status = 'unsubscribed' from newsletter_subscribers where email = 'unsub@example.com')
+                     and exists (select 1 from newsletter_events where email = 'unsub@example.com' and action = 'unsubscribed' and source = 'unsubscribe link'),
+  'the unsubscribe link removes the subscriber and records it');
+select pg_temp.check(unsubscribe_newsletter(gen_random_uuid()) is null, 'an unknown unsubscribe token does nothing');
+select pg_temp.check(not has_function_privilege('anon', 'public.unsubscribe_newsletter(uuid)', 'execute')
+                     and not has_function_privilege('anon', 'public.newsletter_token(text)', 'execute'),
+  'visitors cannot read or use unsubscribe tokens directly');
 \echo 'ALL STORE DATABASE TESTS PASSED'

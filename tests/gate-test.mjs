@@ -18,11 +18,13 @@ test('without a password set, the site is open as before', async () => {
   assert.equal(await res.text(), 'SHOP PAGE /shop.html');
 });
 
-test('with a password set, visitors see the private access page', async () => {
+test('with a password set, visitors see the Coming soon page with a sign-up and the password entry', async () => {
   const res = await get('/shop.html', { SITE_PASSWORD: 'marais' });
   assert.equal(res.status, 503);
   const html = await res.text();
-  assert.match(html, /Private access/);
+  assert.match(html, /Coming Soon/);
+  assert.match(html, /newsletter-subscribe/, 'visitors can join the mailing list');
+  assert.match(html, /Have an access password\?/);
   assert.match(html, /value="\/shop.html"/);
   assert.doesNotMatch(html, /SHOP PAGE/);
 });
@@ -31,6 +33,7 @@ test('the logo stays reachable and robots are told to stay away', async () => {
   assert.equal((await get('/images/logo-transparent.png', { SITE_PASSWORD: 'marais' })).status, 200);
   assert.match(await (await get('/robots.txt', { SITE_PASSWORD: 'marais' })).text(), /Disallow: \//);
   assert.equal((await get('/images/products/x.jpg', { SITE_PASSWORD: 'marais' })).status, 503);
+  assert.equal((await get('/unsubscribe.html', { SITE_PASSWORD: 'marais' })).status, 200, 'unsubscribe links work while the site is private');
 });
 
 test('a wrong password is refused', async () => {

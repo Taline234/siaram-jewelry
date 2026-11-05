@@ -391,6 +391,7 @@ def specs_html(p):
     if p["other"]:
         rows.append(("Other", p["other"]))
     rows += p["dims"]
+    rows.append(("In the box", "Your piece arrives in a Siaram pouch"))
     rows.append(("Care", "Store in its Siaram pouch; avoid perfume, lotion and harsh chemicals; clean with a soft, dry cloth"))
     body = "\n".join(f"          <dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
     return f"""        <h2 class="specs-title">Details</h2>

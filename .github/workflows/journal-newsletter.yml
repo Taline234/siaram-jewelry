@@ -1,0 +1,36 @@
+# Emails each NEW journal article (journal/*.md) to the mailing list through Resend, once the site is live.
+# Needs repository secrets RESEND_API_KEY and RESEND_AUDIENCE_ID, and the repository variable
+# SITE_LAUNCHED set to true (until then, articles go on the site but no email is sent).
+name: Email new journal articles
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'journal/*.md'
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Find new articles
+        id: new
+        run: |
+          files=$(git diff --diff-filter=A --name-only HEAD^ HEAD -- 'journal/*.md' | tr '\n' ' ')
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "New articles: ${files:-none}"
+      - name: Wait for the website to update
+        if: steps.new.outputs.files != '' && vars.SITE_LAUNCHED == 'true'
+        run: sleep 300
+      - name: Send the email
+        if: steps.new.outputs.files != '' && vars.SITE_LAUNCHED == 'true'
+        run: python3 tools/send_journal_email.py ${{ steps.new.outputs.files }}
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_AUDIENCE_ID: ${{ secrets.RESEND_AUDIENCE_ID }}
+      - name: Held until launch
+        if: steps.new.outputs.files != '' && vars.SITE_LAUNCHED != 'true'
+        run: echo "Site not launched yet (SITE_LAUNCHED is not true), so no email was sent."

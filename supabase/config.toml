@@ -46,3 +46,11 @@ import_map = "./functions/import_map.json"
 [functions.record-sale]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.newsletter-subscribe]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.newsletter-unsubscribe]
+verify_jwt = false
+import_map = "./functions/import_map.json"

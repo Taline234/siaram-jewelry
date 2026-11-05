@@ -37,6 +37,20 @@ PAGES = [
 ]
 FILE_FOR = {p[0]: p[1] for p in PAGES}
 
+# A short summary at the top of a policy page, in plain words (owner, 5 November 2026).
+SUMMARIES = {
+    "returns.html": """    <div class="policy-summary reveal">
+      <h2>In short</h2>
+      <ul>
+        <li><strong>Changed your mind?</strong> Return eligible in-stock pieces within 14 days of delivery, unworn and in their original packaging.</li>
+        <li><strong>Arrived damaged or wrong?</strong> Tell us within 48 hours and we will put it right at our cost.</li>
+        <li><strong>Final sale:</strong> made-to-order, custom and personalised pieces, and gift vouchers.</li>
+        <li><strong>How:</strong> use our <a href="return-repair.html">return and repair request form</a> or WhatsApp us; the full policy is below.</li>
+      </ul>
+    </div>
+""",
+}
+
 # ------------------------------------------------------------------ parse
 docs = {}
 current = None
@@ -99,7 +113,7 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Supabase</strong> (hosted in the European Union) stores accounts, saved addresses, wishlists,
           orders and our mailing list, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Resend</strong> (United States) sends order confirmations and account emails.
+        <li><strong>Resend</strong> (United States) sends order confirmations, account emails and, if you subscribe, our newsletter (every newsletter has an unsubscribe link).
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook) and our order and accounting
           workbook (Excel on OneDrive): order reference, date, pieces, amounts, payment method and customer name.
@@ -242,8 +256,7 @@ for doc_name, fname, title, desc in PAGES:
 
 <section>
   <div class="container legal-page">
-
-
+{SUMMARIES.get(fname, '')}
     <nav class="legal-toc reveal" aria-label="Table of contents">
       <h2>On This Page</h2>
       <ol>
