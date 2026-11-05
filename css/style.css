@@ -2278,7 +2278,7 @@ legend {
 .article-standfirst { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.15rem, 2.2vw, 1.4rem); line-height: 1.55; color: var(--green-mid); max-width: 640px; margin: 0 auto; }
 .article-hero p.article-meta { margin: 18px 0 40px; }
 .article-cover-wrap { max-width: 1040px !important; position: relative; z-index: 1; margin-top: 36px !important; margin-bottom: -150px !important; }
-.article-hero .article-cover { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; margin: 0; box-shadow: 0 24px 50px rgba(27, 58, 43, 0.12); }
+.article-hero .article-cover { position: relative; z-index: 1; display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 6px; margin: 0; box-shadow: 0 24px 50px rgba(27, 58, 43, 0.12); }
 .article-body { background: var(--ivory); padding-top: 210px; }
 .article-lead::first-letter { float: left; font-family: var(--font-serif); font-size: 4.6em; line-height: 0.82; padding: 6px 12px 0 0; color: var(--green-deep); }
 .article-lead { font-size: 1.24rem !important; }
@@ -2336,3 +2336,5 @@ legend {
   .article-gallery.cols-3 { grid-template-columns: 1fr 1fr; }
   .article-explore { padding: 24px 22px; }
 }
+.article-hero .article-cover.is-full { width: auto; max-width: 100%; max-height: 760px; aspect-ratio: auto; margin: 0 auto; }
+@media (max-width: 760px) { .article-hero .article-cover.is-full { max-height: 560px; } }

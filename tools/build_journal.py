@@ -8,6 +8,7 @@ journal.html, and adds the articles to sitemap.xml. Each article file starts wit
     title: The Story Behind Siaram
     date: 2026-11-20
     image: images/journal/story-behind-siaram.jpg
+    cover-fit: full                                (optional: show a tall cover photo whole instead of cropped)
     excerpt: How a horse named Marais became the heart of a jewelry brand.
     category: Our Stories                          (optional: the label and the filter on the Journal page)
     pieces: horseshoe-ring, horseshoe-bracelet     (optional: piece cards under the article)
@@ -210,7 +211,7 @@ def build():
         <p class="article-meta">{long_date(a['when'])} &middot; {minutes(a)} min read</p>
       </div>
       <div class="container article-cover-wrap">
-        <img class="article-cover" src="{html.escape(a['image'])}" alt="{t}" />
+        <img class="article-cover{' is-full' if a.get('cover-fit') == 'full' else ''}" src="{html.escape(a['image'])}" alt="{t}" />
       </div>
     </section>
 
