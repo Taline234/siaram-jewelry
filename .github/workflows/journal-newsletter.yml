@@ -1,4 +1,5 @@
-# Emails each NEW journal article (journal/*.md) to the mailing list through Resend, once the site is live.
+# Emails a NEW journal article (journal/*.md) to the mailing list through Resend, once the site is live, but only
+# when the article has an "email:" line (send now, or schedule for a date; see journal/HOW-TO-WRITE.txt).
 # Needs repository secrets RESEND_API_KEY and RESEND_AUDIENCE_ID, and the repository variable
 # SITE_LAUNCHED set to true (until then, articles go on the site but no email is sent).
 name: Email new journal articles
