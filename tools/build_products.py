@@ -22,7 +22,7 @@ FOOTER = shop[shop.index('<footer class="site-footer">'):]
 REVIEWS = {
     "horseshoe-bracelet": [
         ("Obsessed &#128525;", "", "images/reviews/horseshoe-bracelet.jpg"),
-        ("Thank u girlie, I love it so much &#129293;&#129293;&#129293;", "", ""),
+        ("Thank u girlie, I love it so much &#129293;&#129293;&#129293;", "", "images/reviews/horseshoe-bracelet-flat.jpg"),
     ],
 }
 
