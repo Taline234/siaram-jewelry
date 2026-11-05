@@ -95,7 +95,7 @@ ${bodyHtml}
 }
 
 // attachments: [{ filename, content }] with content as bytes.
-export async function sendEmail({ to, subject, html, replyTo, attachments }) {
+export async function sendEmail({ to, subject, html, replyTo, attachments, headers, from }) {
   if (!env('RESEND_API_KEY') || !to) {
     console.warn('Email not sent (RESEND_API_KEY or recipient missing):', subject);
     return false;
@@ -104,7 +104,7 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
     method: 'POST',
     headers: { authorization: `Bearer ${env('RESEND_API_KEY')}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      from: env('STORE_EMAIL_FROM') || 'Siaram Jewelry <orders@siaramjewelry.com>',
+      from: from || env('STORE_EMAIL_FROM') || 'Siaram Jewelry <orders@siaramjewelry.com>',
       to: [to],
       subject,
       html,
@@ -112,6 +112,7 @@ export async function sendEmail({ to, subject, html, replyTo, attachments }) {
       attachments: attachments?.length
         ? attachments.map((a) => ({ filename: a.filename, content: Buffer.from(a.content).toString('base64') }))
         : undefined,
+      headers: headers || undefined,
     }),
   });
   if (!res.ok) {

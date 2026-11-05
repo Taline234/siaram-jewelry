@@ -331,11 +331,15 @@ function setupNewsletter() {
       button.disabled = true;
       msg.textContent = '';
       try {
-        const client = await getClient();
         const page = location.pathname.split('/').pop() || 'index.html';
-        const { data, error } = await client.rpc('subscribe_newsletter', { p_email: email.value.trim(), p_source: page });
-        if (error) throw error;
-        msg.textContent = data === 'already' ? "You're already on our list. Thank you!" : "Thank you! You're on the list.";
+        // Saves the sign-up and sends the welcome email with an unsubscribe link.
+        const res = await fetch(apiUrl('newsletter-subscribe'), {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: email.value.trim(), source: page, website: form.elements.website.value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'failed');
+        msg.textContent = data.status === 'already' ? "You're already on our list. Thank you!" : "Thank you! You're on the list. We've sent you a welcome email.";
         form.reset();
       } catch (err) {
         msg.textContent = /valid email/.test(err?.message || '') ? 'Please enter a valid email address.'

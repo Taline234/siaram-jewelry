@@ -1086,6 +1086,9 @@ create table if not exists public.newsletter_events (
   at              timestamptz not null default now()
 );
 alter table public.newsletter_subscribers enable row level security;
+-- The secret in each subscriber's unsubscribe link (unsubscribe.html?t=...).
+alter table public.newsletter_subscribers add column if not exists unsubscribe_token uuid not null default gen_random_uuid();
+create unique index if not exists newsletter_subscribers_token on public.newsletter_subscribers (unsubscribe_token);
 alter table public.newsletter_events enable row level security;
 
 create or replace function public.subscribe_newsletter(p_email text, p_source text default null) returns text
@@ -1113,12 +1116,38 @@ begin
   return 'subscribed';
 end $$;
 
+-- For the welcome email: the subscriber's unsubscribe token (service role only).
+create or replace function public.newsletter_token(p_email text) returns uuid
+language sql stable security definer set search_path = public as $$
+  select unsubscribe_token from public.newsletter_subscribers where email = lower(trim(p_email));
+$$;
+
+-- The unsubscribe link: removes the subscriber the token belongs to and returns their email (null if unknown).
+create or replace function public.unsubscribe_newsletter(p_token uuid) returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_email text;
+begin
+  perform set_config('siaram.unsubscribe_source', 'unsubscribe link', true);
+  update public.newsletter_subscribers set status = 'unsubscribed'
+   where unsubscribe_token = p_token and status = 'subscribed'
+  returning email into v_email;
+  if v_email is null then
+    select email into v_email from public.newsletter_subscribers where unsubscribe_token = p_token;
+  end if;
+  return v_email;
+end $$;
+revoke execute on function public.newsletter_token(text), public.unsubscribe_newsletter(uuid) from public, anon, authenticated;
+grant execute on function public.newsletter_token(text), public.unsubscribe_newsletter(uuid) to service_role;
+grant execute on function public.subscribe_newsletter(text, text) to service_role;
+
 -- Setting status to 'unsubscribed' in the Table Editor records the date and the event.
 create or replace function private.newsletter_unsubscribed() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   new.unsubscribed_at := now();
-  insert into public.newsletter_events (email, action, source) values (new.email, 'unsubscribed', 'table editor');
+  insert into public.newsletter_events (email, action, source)
+  values (new.email, 'unsubscribed', coalesce(nullif(current_setting('siaram.unsubscribe_source', true), ''), 'table editor'));
   return new;
 end;
 $$;

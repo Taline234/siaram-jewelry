@@ -2247,3 +2247,7 @@ legend {
 .policy-summary ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 .policy-summary li { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.55; color: var(--ink); }
 .policy-summary a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+.unsubscribe-box { max-width: 560px; margin: 0 auto; text-align: center; }
+.unsubscribe-text { font-family: var(--font-serif); font-size: 1.15rem; color: var(--green-mid); margin: 0 0 24px; }
+.unsubscribe-msg { margin-top: 14px; color: #8a2c1c; }
+.unsubscribe-btn[hidden] { display: none; }

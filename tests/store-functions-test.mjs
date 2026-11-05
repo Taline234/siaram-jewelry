@@ -19,6 +19,8 @@ const { default: serviceRequest } = await import('../supabase/functions/_shared/
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
 const { default: voucherSend } = await import('../supabase/functions/_shared/handlers/voucher-send.mjs');
 const { default: recordSale } = await import('../supabase/functions/_shared/handlers/record-sale.mjs');
+const { default: newsletterSubscribe } = await import('../supabase/functions/_shared/handlers/newsletter-subscribe.mjs');
+const { default: newsletterUnsubscribe } = await import('../supabase/functions/_shared/handlers/newsletter-unsubscribe.mjs');
 const { salesCsv, customersCsv, workbookXlsx } = await import('../supabase/functions/_shared/workbook.mjs');
 
 let calls;
@@ -573,4 +575,51 @@ test('the personal message is printed on its card and shown in the voucher email
   const { PDFDocument } = await import('pdf-lib');
   const pdf = await PDFDocument.load(Buffer.from(gift.attachments[0].content, 'base64'));
   assert.equal(pdf.getPageCount(), 2, 'voucher card and message card');
+});
+
+test('a new subscriber gets a welcome email with an unsubscribe link; signing up again sends nothing', async () => {
+  const token = '3f2b8a1c-1111-4222-8333-444455556666';
+  handlers['/rest/v1/rpc/subscribe_newsletter'] = () => [200, 'subscribed'];
+  handlers['/rest/v1/rpc/newsletter_token'] = () => [200, token];
+  const res = await newsletterSubscribe(request('/functions/v1/newsletter-subscribe', { email: 'Maya@Example.com', source: 'index.html' }));
+  assert.deepEqual(await res.json(), { status: 'subscribed' });
+  assert.deepEqual(calls.find((c) => c.url.endsWith('/rpc/subscribe_newsletter')).body, { p_email: 'maya@example.com', p_source: 'index.html' });
+  const [welcome] = emails();
+  assert.equal(welcome.to[0], 'maya@example.com');
+  assert.equal(welcome.subject, 'Welcome to Siaram');
+  assert.match(welcome.html, new RegExp(`unsubscribe.html\\?t=${token}`));
+  assert.match(welcome.headers['List-Unsubscribe'], /unsubscribe/);
+  assert.ok(!calls.some((c) => c.url.includes('/audiences/')), 'no audience sync until RESEND_AUDIENCE_ID is set');
+
+  calls.length = 0;
+  handlers['/rest/v1/rpc/subscribe_newsletter'] = () => [200, 'already'];
+  assert.deepEqual(await (await newsletterSubscribe(request('/functions/v1/newsletter-subscribe', { email: 'maya@example.com' }))).json(), { status: 'already' });
+  assert.equal(emails().length, 0);
+});
+
+test('with a Resend audience set, subscribing and unsubscribing keep it in step', async () => {
+  process.env.RESEND_AUDIENCE_ID = 'aud_1';
+  try {
+    handlers['/rest/v1/rpc/subscribe_newsletter'] = () => [200, 'subscribed'];
+    handlers['/rest/v1/rpc/newsletter_token'] = () => [200, '3f2b8a1c-1111-4222-8333-444455556666'];
+    handlers['/audiences/aud_1/contacts'] = () => [200, { id: 'c1' }];
+    await newsletterSubscribe(request('/functions/v1/newsletter-subscribe', { email: 'lea@example.com' }));
+    assert.deepEqual(calls.find((c) => c.url.endsWith('/audiences/aud_1/contacts')).body, { email: 'lea@example.com', unsubscribed: false });
+
+    calls.length = 0;
+    handlers['/rest/v1/rpc/unsubscribe_newsletter'] = () => [200, 'lea@example.com'];
+    handlers['/audiences/aud_1/contacts'] = () => [409, {}];
+    handlers['/audiences/aud_1/contacts/lea%40example.com'] = () => [200, {}];
+    const res = await newsletterUnsubscribe(request('/functions/v1/newsletter-unsubscribe', { token: '3f2b8a1c-1111-4222-8333-444455556666' }));
+    assert.deepEqual(await res.json(), { unsubscribed: true });
+    assert.ok(calls.some((c) => c.method === 'PATCH' && c.body.unsubscribed === true), 'an existing contact is marked unsubscribed');
+  } finally {
+    delete process.env.RESEND_AUDIENCE_ID;
+  }
+});
+
+test('the unsubscribe link refuses a made-up or unknown token', async () => {
+  assert.equal((await newsletterUnsubscribe(request('/functions/v1/newsletter-unsubscribe', { token: 'nope' }))).status, 400);
+  handlers['/rest/v1/rpc/unsubscribe_newsletter'] = () => [200, null];
+  assert.equal((await newsletterUnsubscribe(request('/functions/v1/newsletter-unsubscribe', { token: '3f2b8a1c-1111-4222-8333-444455556666' }))).status, 404);
 });

@@ -72,7 +72,17 @@ assert.equal(sub.source, 'index.html');
 await page.fill('.newsletter-form [name=email]', 'maya@example.com');
 await page.click('.newsletter-form button');
 await page.waitForFunction(() => /already on our list/.test(document.querySelector('.newsletter-msg').textContent));
-step('home shows the horseshoe bestsellers; the footer sign-up saves the email once, with its consent wording');
+const welcome = (await setState({})).emails.filter((e) => e.subject === 'Welcome to Siaram');
+assert.equal(welcome.length, 1, 'one welcome email, not one per sign-up attempt');
+const unsubLink = welcome[0].html.match(/unsubscribe\.html\?t=([0-9a-f-]{36})/)[1];
+await setState({ emails: [] });
+step('home shows the horseshoe bestsellers; the sign-up saves the email once, with its consent wording, and sends a welcome email');
+
+await page.goto(`${ORIGIN}/unsubscribe.html?t=${unsubLink}`);
+await page.click('.unsubscribe-btn');
+await page.waitForFunction(() => /You're unsubscribed/.test(document.querySelector('.unsubscribe-text').textContent));
+assert.equal((await q("select status from newsletter_subscribers where email = 'maya@example.com'"))[0].status, 'unsubscribed');
+step('the unsubscribe link in the welcome email removes the subscriber');
 
 await page.goto(`${ORIGIN}/custom.html`);
 await page.waitForSelector('.custom-form');
