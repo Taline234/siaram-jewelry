@@ -403,21 +403,28 @@
       <div class="table-wrap"><table class="size-table birth-table">
         <thead><tr><th>Month</th><th>Birthstone</th></tr></thead>
         <tbody>
-          <tr><td>January</td><td>Garnet</td></tr>
-          <tr><td>February</td><td>Amethyst</td></tr>
-          <tr><td>March</td><td>Aquamarine</td></tr>
-          <tr><td>April</td><td>Diamond</td></tr>
-          <tr><td>May</td><td>Emerald</td></tr>
-          <tr><td>June</td><td>Pearl or moonstone</td></tr>
-          <tr><td>July</td><td>Ruby</td></tr>
-          <tr><td>August</td><td>Peridot</td></tr>
-          <tr><td>September</td><td>Sapphire</td></tr>
-          <tr><td>October</td><td>Opal or tourmaline</td></tr>
-          <tr><td>November</td><td>Topaz or citrine</td></tr>
-          <tr><td>December</td><td>Turquoise, tanzanite or zircon</td></tr>
+          <tr><td>January</td><td><button type="button" class="gem-pop" data-img="images/gems/garnet.jpg" data-glow="#f0d3d6">Garnet</button></td></tr>
+          <tr><td>February</td><td><button type="button" class="gem-pop" data-img="images/gems/amethyst.jpg" data-glow="#eadcf6">Amethyst</button></td></tr>
+          <tr><td>March</td><td><button type="button" class="gem-pop" data-img="images/gems/aquamarine.jpg" data-glow="#dcf1f8">Aquamarine</button></td></tr>
+          <tr><td>April</td><td><button type="button" class="gem-pop" data-img="images/gems/diamond.jpg" data-glow="#dfe6ee">Diamond</button></td></tr>
+          <tr><td>May</td><td><button type="button" class="gem-pop" data-img="images/gems/emerald.jpg" data-glow="#cfeee0">Emerald</button></td></tr>
+          <tr><td>June</td><td><button type="button" class="gem-pop" data-img="images/gems/pearl.jpg" data-glow="#f3ece4">Pearl</button> or Moonstone</td></tr>
+          <tr><td>July</td><td><button type="button" class="gem-pop" data-img="images/gems/ruby.jpg" data-glow="#f8d6db">Ruby</button></td></tr>
+          <tr><td>August</td><td><button type="button" class="gem-pop" data-img="images/gems/peridot.jpg" data-glow="#eaf4cc">Peridot</button></td></tr>
+          <tr><td>September</td><td><button type="button" class="gem-pop" data-img="images/gems/sapphire.jpg" data-glow="#d8e1f8">Sapphire</button></td></tr>
+          <tr><td>October</td><td><button type="button" class="gem-pop" data-img="images/gems/opal.jpg" data-glow="#eef0f8">Opal</button> or Tourmaline</td></tr>
+          <tr><td>November</td><td><button type="button" class="gem-pop" data-img="images/gems/topaz.jpg" data-glow="#d6edf9">Topaz</button> or Citrine</td></tr>
+          <tr><td>December</td><td><button type="button" class="gem-pop" data-img="images/gems/turquoise.jpg" data-glow="#cdeeea">Turquoise</button>, Tanzanite or <button type="button" class="gem-pop" data-img="images/gems/zircon.jpg" data-glow="#e3e8ef">Zircon</button></td></tr>
         </tbody>
       </table></div>
+      <p class="size-guide-note">Tap a stone to see it.</p>
     </div>
+    <dialog class="gem-dialog" aria-label="Birthstone">
+      <button type="button" class="gem-dialog-close" aria-label="Close">&times;</button>
+      <div class="gem-dialog-glow"><img src="images/gems/garnet.jpg" alt="Garnet" /></div>
+      <p class="gem-dialog-name"></p>
+    </dialog>
+<script src="js/gems.js"></script>
 
     <div class="guide-help reveal">
       <h2>Not sure?</h2>

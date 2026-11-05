@@ -59,6 +59,42 @@ HELP = """    <div class="guide-help reveal">
     </div>
 """
 
+
+# How-to-measure drawings for the size guide: the pencil sketches with a gold measuring tape drawn on top.
+GOLD = "#b08d4a"
+def measure_fig(svg, caption):
+    return f'<figure class="measure-fig">{svg}<figcaption>{caption}</figcaption></figure>'
+
+RING_FIG = measure_fig(f"""<svg viewBox="0 0 240 220" role="img" aria-label="Measuring the inside diameter of a ring with a ruler">
+  <circle cx="120" cy="96" r="62" fill="none" stroke="{GOLD}" stroke-width="12"/>
+  <circle cx="120" cy="96" r="68" fill="none" stroke="#8a6a2f" stroke-width="1" opacity=".5"/>
+  <rect x="20" y="168" width="200" height="30" rx="3" fill="#fbf7ef" stroke="#2a2a24" stroke-width="1"/>
+  {''.join(f'<line x1="{30+i*9}" y1="168" x2="{30+i*9}" y2="{180 if i % 5 == 0 else 175}" stroke="#2a2a24" stroke-width="1"/>' for i in range(21))}
+  <line x1="62" y1="96" x2="178" y2="96" stroke="#1b3a2b" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#1b3a2b"/></marker></defs>
+  <text x="120" y="88" text-anchor="middle" font-family="Jost, sans-serif" font-size="11" letter-spacing="1" fill="#1b3a2b">INSIDE DIAMETER</text>
+</svg>""", "Measure straight across the inside of a ring that fits, at the widest part.")
+
+BRACELET_FIG = measure_fig(f"""<svg viewBox="40 150 280 300" role="img" aria-label="A tape measure around the wrist, just above the wrist bone">
+  <image href="images/sketches/hand.jpg" x="0" y="0" width="360" height="450"/>
+  <ellipse cx="154" cy="312" rx="47" ry="9" fill="none" stroke="{GOLD}" stroke-width="5" stroke-dasharray="7 4"/>
+  <text x="214" y="316" font-family="Jost, sans-serif" font-size="13" letter-spacing="1" fill="#1b3a2b">WRIST</text>
+</svg>""", "Wrap the tape just above the wrist bone, then add 1&ndash;2 cm.")
+
+NECK_FIG = measure_fig(f"""<svg viewBox="0 120 362 330" role="img" aria-label="Necklace lengths drawn on a neck: 40, 45 and 50 cm">
+  <image href="images/sketches/neck.jpg" x="0" y="0" width="362" height="500"/>
+  <path d="M120 225 Q181 300 242 225" fill="none" stroke="{GOLD}" stroke-width="3"/>
+  <path d="M104 238 Q181 352 258 238" fill="none" stroke="{GOLD}" stroke-width="3" stroke-dasharray="6 4"/>
+  <path d="M90 250 Q181 408 272 250" fill="none" stroke="{GOLD}" stroke-width="3" stroke-dasharray="2 4"/>
+  <g font-family="Jost, sans-serif" font-size="12" fill="#1b3a2b"><text x="186" y="276">40 cm</text><text x="186" y="314">45 cm</text><text x="186" y="344">50 cm</text></g>
+</svg>""", "Where each chain length usually falls: 40, 45 and 50 cm.")
+
+ANKLE_FIG = measure_fig(f"""<svg viewBox="40 60 330 260" role="img" aria-label="A tape measure around the ankle, just above the ankle bone">
+  <image href="images/sketches/foot.jpg" x="0" y="0" width="400" height="400"/>
+  <ellipse cx="146" cy="204" rx="44" ry="9" fill="none" stroke="{GOLD}" stroke-width="5" stroke-dasharray="7 4"/>
+  <text x="196" y="180" font-family="Jost, sans-serif" font-size="13" letter-spacing="1" fill="#1b3a2b">ANKLE</text>
+</svg>""", "Wrap the tape just above the ankle bone, then add 1&ndash;2 cm.")
+
 # ------------------------------------------------------------------ size guide
 ring_rows = "\n".join(f"          <tr><td>{eu / 3.14159:.1f} mm</td><td>{eu} mm</td><td>{us}</td><td>{eu}</td></tr>"
                       for eu, us in RING_SIZES)
@@ -72,6 +108,7 @@ size_body = f"""
 
     <div class="guide-section reveal" id="rings">
       <h2>Rings</h2>
+      {RING_FIG}
       <p>Take a ring that fits the right finger well and measure its inside diameter: straight across the centre, at the
         widest part. Or wrap a strip of paper around the base of your finger, mark where it overlaps, and measure that
         length: this is the circumference.</p>
@@ -90,6 +127,7 @@ size_body = f"""
 
     <div class="guide-section reveal" id="bracelets">
       <h2>Bracelets</h2>
+      {BRACELET_FIG}
       <p>Wrap a soft tape measure, or a strip of paper you then lay against a ruler, around your wrist just above the
         wrist bone. Add 1 cm for a close fit or 2 cm for a looser drape.</p>
       <div class="table-wrap"><table class="size-table">
@@ -104,6 +142,7 @@ size_body = f"""
 
     <div class="guide-section reveal" id="necklaces">
       <h2>Necklaces</h2>
+      {NECK_FIG}
       <p>Each necklace lists its chain length in its details. This chart shows the usual names for each length.</p>
       <div class="table-wrap"><table class="size-table">
         <thead><tr><th>Style</th><th>Inches</th><th>Centimetres</th></tr></thead>
@@ -127,6 +166,7 @@ size_body = f"""
 
     <div class="guide-section reveal" id="anklets">
       <h2>Anklets</h2>
+      {ANKLE_FIG}
       <p>Wrap a soft tape measure around your ankle, just above the ankle bone, where an anklet sits. Add 1 to 2 cm so it
         moves freely without slipping over your foot.</p>
       <div class="table-wrap"><table class="size-table">
@@ -301,7 +341,26 @@ setting_cards = "\n".join(f"""      <div class="cut-card setting-card reveal">
         <p>{desc}</p>
       </div>""" for name, desc in SETTINGS)
 
-birth_rows = "\n".join(f"          <tr><td>{m}</td><td>{s}</td></tr>" for m, s in BIRTHSTONES)
+def birth_cell(stones):
+    """Each stone we have a photo of is a button that opens its photo (js/gems.js)."""
+    names = [n.strip() for n in re.split(r",| or ", stones) if n.strip()]
+    out = []
+    for n in names:
+        name = n[0].upper() + n[1:]
+        look = STONE_LOOK.get(name)
+        out.append(f'<button type="button" class="gem-pop" data-img="images/gems/{look[0]}.jpg" data-glow="{look[1]}">{name}</button>'
+                   if look else name)
+    return (", ".join(out[:-1]) + " or " + out[-1]) if len(out) > 1 else out[0]
+
+
+birth_rows = "\n".join(f"          <tr><td>{m}</td><td>{birth_cell(s)}</td></tr>" for m, s in BIRTHSTONES)
+GEM_DIALOG = """    <dialog class="gem-dialog" aria-label="Birthstone">
+      <button type="button" class="gem-dialog-close" aria-label="Close">&times;</button>
+      <div class="gem-dialog-glow"><img src="images/gems/garnet.jpg" alt="Garnet" /></div>
+      <p class="gem-dialog-name"></p>
+    </dialog>
+<script src="js/gems.js"></script>
+"""
 
 materials_body = f"""
 <section class="guide">
@@ -354,8 +413,9 @@ materials_body = f"""
 {birth_rows}
         </tbody>
       </table></div>
+      <p class="size-guide-note">Tap a stone to see it.</p>
     </div>
-
+{GEM_DIALOG}
 {HELP}  </div>
 </section>
 
@@ -499,7 +559,7 @@ care_body = """
 <section class="guide care">
   <div class="container guide-container">
     <div class="care-feature reveal">
-      <figure class="care-feature-photo"><img src="images/journal/putting-on-earring.jpg" alt="Putting on a Siaram earring" loading="lazy" /></figure>
+      <figure class="care-feature-photo"><img src="images/journal/earrings-hand-ear.jpg" alt="Siaram earrings and ring worn" loading="lazy" /></figure>
       <div class="care-feature-text">
         <span class="eyebrow">The Everyday Ritual</span>
         <h2>Last on, first off</h2>
