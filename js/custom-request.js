@@ -199,3 +199,13 @@ if (form) {
     });
   }
 }
+
+// "I have nothing to upload": clears and switches off the photo field.
+document.addEventListener('change', (event) => {
+  if (event.target.name !== 'no_upload') return;
+  const files = event.target.form && event.target.form.elements.files;
+  if (!files) return;
+  if (event.target.checked) files.value = '';
+  files.disabled = event.target.checked;
+  files.closest('.field').classList.toggle('is-off', event.target.checked);
+});

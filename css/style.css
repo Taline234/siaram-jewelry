@@ -2389,3 +2389,6 @@ legend {
 .care-step img { aspect-ratio: 4 / 3; object-fit: contain; background: var(--cream); }
 .care-pro img { float: right; width: 34%; max-width: 280px; margin: 0 0 16px 28px; border-radius: 8px; }
 @media (max-width: 760px) { .care-pro img { float: none; width: 100%; max-width: none; margin: 0 0 16px; } }
+.check-field.no-upload { display: flex; gap: 10px; align-items: flex-start; margin: -6px 0 18px; font-family: var(--font-serif); font-size: 1.02rem; color: var(--green-mid); cursor: pointer; }
+.check-field.no-upload input { margin-top: 5px; accent-color: var(--green-deep); width: 16px; height: 16px; flex: none; }
+.field.is-off { opacity: 0.45; }
