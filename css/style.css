@@ -2424,3 +2424,5 @@ legend {
 .review-card-text figcaption { color: var(--gold-soft); }
 .review-mark { font-family: var(--font-serif); font-size: 4rem; line-height: 0.6; color: var(--gold); }
 @media (max-width: 900px) { .review-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; } }
+.review-card-wide { align-self: center; }
+.review-card-wide img { aspect-ratio: auto; object-fit: contain; }
