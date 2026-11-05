@@ -7,50 +7,51 @@
 </head>
 <!--
   The Siaram journal email. tools/send_journal_email.py fills in the {{...}} parts for each new article and sends it
-  through Resend. {{{RESEND_UNSUBSCRIBE_URL}}} is Resend's own one-click unsubscribe link. To change the look,
-  edit this file (inline styles only: email apps ignore style sheets).
+  through Resend. {{PIECES}} is the 2 x 2 grid of pieces (the article's "pieces:" line, or the bestsellers).
+  {{{RESEND_UNSUBSCRIBE_URL}}} is Resend's own one-click unsubscribe link. Inline styles only: email apps ignore
+  style sheets.
 -->
-<body style="margin:0;padding:0;background:#f3ede2;">
+<body style="margin:0;padding:0;background:#efe6d8;">
 <div style="display:none;max-height:0;overflow:hidden;">{{EXCERPT}}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3ede2;">
-<tr><td align="center" style="padding:32px 14px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fffdf9;border:1px solid #e3dccd;">
-    <tr><td align="center" style="padding:34px 30px 22px;">
-      <a href="https://siaramjewelry.com/"><img src="https://siaramjewelry.com/images/logo-hero.png" width="190" alt="Siaram Jewelry" style="display:block;border:0;width:190px;max-width:60%;height:auto;" /></a>
-      <p style="margin:12px 0 0;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:15px;color:#2b4f3b;">Simply Elegant. Endlessly Yours.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#efe6d8;">
+<tr><td align="center" style="padding:28px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+
+    <!-- Green story block -->
+    <tr><td align="center" style="background:#173a2c;padding:34px 36px 40px;">
+      <a href="https://siaramjewelry.com/"><img src="https://siaramjewelry.com/images/logo-light.png" width="150" alt="Siaram Jewelry" style="display:block;border:0;width:150px;height:auto;" /></a>
+      <p style="margin:26px 0 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#c9a96a;">From the Journal</p>
+      <h1 style="margin:12px 0 12px;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:32px;line-height:1.25;color:#fbf6ee;">{{TITLE}}</h1>
+      <p style="margin:0 0 26px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:#dcd3c2;">{{EXCERPT}}</p>
+      <a href="{{URL}}"><img src="{{IMAGE}}" width="440" alt="{{TITLE}}" style="display:block;border:0;width:100%;max-width:440px;height:auto;border-radius:10px;" /></a>
+      <p style="margin:26px 0 20px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:#fbf6ee;">A new story from Siaram is waiting for you.</p>
+      <a href="{{URL}}" style="display:inline-block;background:#fbf6ee;color:#173a2c;text-decoration:none;padding:12px 26px;border-radius:24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;">Read the Story</a>
     </td></tr>
-    <tr><td style="padding:0;">
-      <a href="{{URL}}"><img src="{{IMAGE}}" width="600" alt="{{TITLE}}" style="display:block;border:0;width:100%;height:auto;" /></a>
+
+    <!-- Pieces -->
+    <tr><td align="center" style="background:#fbefe6;padding:40px 30px 40px;">
+      <h2 style="margin:0 0 8px;font-family:Georgia,'Times New Roman',serif;font-weight:bold;font-size:28px;color:#173a2c;">Jewelry That Tells Your Story</h2>
+      <p style="margin:0 0 26px;font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#3f3f38;">18k gold, made in Lebanon.</p>
+      {{PIECES}}
+      <a href="https://siaramjewelry.com/shop" style="display:inline-block;margin-top:14px;background:#173a2c;color:#fbf6ee;text-decoration:none;padding:13px 30px;border-radius:24px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;">Shop Now</a>
     </td></tr>
-    <tr><td align="center" style="padding:34px 40px 10px;">
-      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#7c6026;">&mdash;&nbsp; From the Journal &nbsp;&mdash;</p>
-      <h1 style="margin:14px 0 16px;font-family:Georgia,'Times New Roman',serif;font-weight:normal;font-size:30px;line-height:1.2;letter-spacing:2px;text-transform:uppercase;color:#1b3a2b;">{{TITLE}}</h1>
-      <p style="margin:0 0 26px;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.7;color:#4a4a3f;">{{EXCERPT}}</p>
-      <a href="{{URL}}" style="display:inline-block;background:#1b3a2b;color:#f3ede2;text-decoration:none;padding:14px 28px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;">Read the full story</a>
-    </td></tr>
-    <tr><td align="center" style="padding:34px 40px 8px;">
-      <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-        <td style="border-top:1px solid #e3dccd;width:60px;font-size:0;">&nbsp;</td>
-        <td style="padding:0 10px;font-family:Georgia,serif;font-size:16px;color:#b99a5b;">&#10022;</td>
-        <td style="border-top:1px solid #e3dccd;width:60px;font-size:0;">&nbsp;</td>
-      </tr></table>
-    </td></tr>
-    <tr><td align="center" style="padding:10px 40px 34px;">
-      <p style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:15px;color:#2b4f3b;">Discover our 18k gold pieces</p>
-      <a href="https://siaramjewelry.com/shop" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#1b3a2b;text-decoration:underline;">Shop the collection</a>
-    </td></tr>
-    <tr><td align="center" style="background:#1b3a2b;padding:24px 30px;">
-      <p style="margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;">
-        <a href="https://instagram.com/siaram.jewelry" style="color:#f3ede2;text-decoration:none;">Instagram</a>
-        <span style="color:#b99a5b;">&nbsp;&middot;&nbsp;</span>
-        <a href="https://wa.me/96176052068" style="color:#f3ede2;text-decoration:none;">WhatsApp</a>
-        <span style="color:#b99a5b;">&nbsp;&middot;&nbsp;</span>
-        <a href="https://siaramjewelry.com/" style="color:#f3ede2;text-decoration:none;">siaramjewelry.com</a>
+
+    <!-- Footer -->
+    <tr><td align="center" style="background:#fbf6ee;padding:34px 30px 30px;">
+      <p style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:22px;letter-spacing:3px;color:#173a2c;">SIARAM</p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-top:1px solid #e2d8c6;border-bottom:1px solid #e2d8c6;padding:14px 0;" align="center">
+        <a href="https://siaramjewelry.com/shop" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#173a2c;text-decoration:none;">Shop</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="https://siaramjewelry.com/journal" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#173a2c;text-decoration:none;">Journal</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="https://siaramjewelry.com/about" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#173a2c;text-decoration:none;">About</a>
+      </td></tr></table>
+      <p style="margin:18px 0 14px;font-family:Arial,Helvetica,sans-serif;font-size:12px;">
+        <a href="https://instagram.com/siaram.jewelry" style="display:inline-block;background:#173a2c;color:#fbf6ee;text-decoration:none;padding:7px 14px;border-radius:16px;">Instagram</a>&nbsp;
+        <a href="https://wa.me/96176052068" style="display:inline-block;background:#173a2c;color:#fbf6ee;text-decoration:none;padding:7px 14px;border-radius:16px;">WhatsApp</a>
       </p>
-      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#cfc4ae;">
-        You are receiving this because you joined the Siaram mailing list.
-        <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#cfc4ae;">Unsubscribe</a>
+      <p style="margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:bold;">
+        <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#173a2c;text-decoration:none;">Unsubscribe</a>
       </p>
+      <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#7a7568;">You are receiving this because you joined the Siaram mailing list. Siaram Jewelry, Lebanon.</p>
     </td></tr>
   </table>
 </td></tr>

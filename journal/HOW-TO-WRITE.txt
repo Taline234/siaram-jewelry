@@ -9,7 +9,11 @@ title: The Story Behind Siaram
 date: 2026-11-12
 image: images/journal/story-behind-siaram.jpg
 excerpt: One or two sentences that appear on the Journal page and in the email.
+pieces: horseshoe-bracelet, sun-ring, fatima-necklace, triangle-necklace
 ---
+
+("pieces" is optional: up to 4 pieces shown in the email, written as in their web address,
+for example siaramjewelry.com/product-sun-ring -> sun-ring. Without it, the email shows the bestsellers.)
 
 Then write the article. Leave an empty line between paragraphs.
 

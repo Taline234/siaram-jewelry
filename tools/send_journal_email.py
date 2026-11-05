@@ -9,6 +9,7 @@ Needs the RESEND_API_KEY and RESEND_AUDIENCE_ID secrets in GitHub. To see an ema
 import html
 import json
 import os
+import re
 import sys
 import urllib.request
 
@@ -20,11 +21,41 @@ BASE = "https://siaramjewelry.com/"
 TEMPLATE = open("tools/email/journal-template.html", encoding="utf-8").read()
 
 
+BESTSELLERS = ["horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring", "horseshoe-chain-earrings"]
+
+
+def piece(slug):
+    """Name, price and photo of a piece, read from its product page."""
+    page = open(f"product-{slug}.html", encoding="utf-8").read()
+    name = re.search(r'<meta property="og:title" content="([^"]*?)(?: — Siaram Jewelry)?"', page).group(1)
+    image = re.search(r'<meta property="og:image" content="([^"]*)"', page).group(1)
+    price = re.search(r'class="product-price"[^>]*>([^<]*)<', page)
+    return html.unescape(name), image, (price.group(1).replace(".00", "") if price else "")
+
+
+def pieces_html(a):
+    """The 2 x 2 grid of pieces: the article's "pieces:" line (product names from the links, comma separated)
+    or the bestsellers."""
+    slugs = [s.strip().removeprefix("product-").removesuffix(".html") for s in a.get("pieces", "").split(",") if s.strip()]
+    cells = []
+    for slug in (slugs or BESTSELLERS)[:4]:
+        name, image, price = piece(slug)
+        url = f"{BASE}product-{slug}"
+        cells.append(f"""<td width="50%" valign="top" style="padding:0 8px 22px;text-align:left;">
+          <a href="{url}"><img src="{html.escape(image)}" width="250" alt="{html.escape(name)}" style="display:block;border:0;width:100%;height:auto;border-radius:8px;" /></a>
+          <p style="margin:10px 0 3px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:bold;color:#173a2c;"><a href="{url}" style="color:#173a2c;text-decoration:none;">{html.escape(name)}</a></p>
+          <p style="margin:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#5b574d;">{html.escape(price)}</p>
+        </td>""")
+    rows = "".join("<tr>" + "".join(cells[i:i + 2]) + "</tr>" for i in range(0, len(cells), 2))
+    return f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{rows}</table>'
+
+
 def email_html(a):
     image = a["image"] if a["image"].startswith("http") else BASE + a["image"]
     return (TEMPLATE.replace("{{TITLE}}", html.escape(a["title"]))
             .replace("{{EXCERPT}}", html.escape(a["excerpt"]))
             .replace("{{IMAGE}}", html.escape(image))
+            .replace("{{PIECES}}", pieces_html(a))
             .replace("{{URL}}", f"{BASE}journal-{a['slug']}"))
 
 
