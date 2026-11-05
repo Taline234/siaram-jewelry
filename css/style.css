@@ -2242,3 +2242,8 @@ legend {
 .home .product-grid[data-grid="bestsellers"] { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 1000px) { .home .product-grid[data-grid="bestsellers"] { grid-template-columns: repeat(2, 1fr); } }
 .trust-item strong { font-size: 0.8rem; }
+.policy-summary { background: var(--cream); border: 1px solid var(--line); border-left: 3px solid var(--gold); padding: 22px 26px; margin: 0 0 36px; }
+.policy-summary h2 { font-family: var(--font-serif); font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; font-size: 1.1rem; color: var(--green-deep); margin: 0 0 10px; }
+.policy-summary ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.policy-summary li { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.55; color: var(--ink); }
+.policy-summary a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
