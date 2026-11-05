@@ -93,7 +93,7 @@ P = [
          "Marquise-shaped coloured centre stone and zircon", "Gold horse eye stud earring, worn on the ear", imgs=3),
     item("horse-eye-bracelet", "Horse Eye Bracelet", "Bracelets", "equestrian", 450,
          "An 18k yellow gold chain bracelet featuring an elegant horse eye motif, set with a rich marquise-shaped red stone and sparkling white stones.",
-         "Marquise-cut red stone and white zircon", "Gold horse eye bracelet laid out with other Siaram pieces", imgs=3),
+         "Marquise-cut red stone and white zircon", "Gold horse eye bracelet laid out with other Siaram pieces", imgs=1),
     item("horse-eye-necklace", "Horse Eye Necklace", "Necklaces", "equestrian", 620,
          "An eye-catching 18k yellow gold necklace with a horse eye motif, set with a striking marquise-cut red stone and finished with delicate stone detailing along the eye.",
          "Marquise-cut red stone and zircon", "Gold horse eye necklace worn in dappled light", imgs=3),
