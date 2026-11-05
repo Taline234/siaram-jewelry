@@ -2,7 +2,7 @@
 //
 // OFF by default: the website is served exactly as before. To close the site while you make big
 // changes, add a secret called SITE_PASSWORD in Cloudflare (Workers & Pages -> siaram-jewelry ->
-// Settings -> Variables and Secrets). Visitors then see a branded "Private access" page and need
+// Settings -> Variables and Secrets). Visitors then see a branded "Coming soon" page with a mailing-list sign-up, and need
 // that password to get in. Delete the secret to open the site again. Changing the password signs
 // everyone out. How-to with screenshots of the steps: STORE-SETUP.md, "Closing the site while you edit".
 
@@ -11,7 +11,10 @@ const GATE_PATH = '/__private-access';
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
 // Files the gate page itself needs, so they load before anyone has signed in.
-const ALWAYS_OPEN = new Set(['/images/logo-transparent.png', '/images/logo.jpeg', '/favicon.ico']);
+const ALWAYS_OPEN = new Set(['/images/logo-transparent.png', '/images/logo-hero.png', '/images/logo.jpeg', '/favicon.ico',
+  '/unsubscribe', '/unsubscribe.html', '/css/style.css', '/js/script.js', '/js/store.js', '/js/store-config.js', '/js/unsubscribe.js']);
+// The "Coming soon" sign-up saves the email here (the same function as the website's mailing-list form).
+const SUBSCRIBE_URL = 'https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/newsletter-subscribe';
 
 export default {
   async fetch(request, env) {
@@ -99,60 +102,106 @@ function gatePage(next, wrongPassword) {
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Private access | Siaram Jewelry</title>
+<title>Coming soon | Siaram Jewelry</title>
+<meta name="description" content="Siaram Jewelry: meaningful 18k gold jewelry. Our website is coming soon; leave your email to be the first to know." />
 <link rel="icon" href="/images/logo.jpeg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
 <style>
-  :root { --green: #1b3a2b; --green-mid: #2b4f3b; --cream: #faf7f1; --gold: #b99a5b; --ink: #2a2a24; --line: rgba(27,58,43,.22); }
+  :root { --green: #1b3a2b; --green-mid: #2b4f3b; --cream: #f3ede2; --paper: #faf7f1; --gold: #b99a5b; --gold-text: #7c6026;
+          --ink: #2a2a24; --line: rgba(27,58,43,.22); }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-         padding: 48px 16px; background: var(--cream); color: var(--ink); font-family: 'Jost', sans-serif;
-         -webkit-font-smoothing: antialiased; }
-  main { width: 100%; max-width: 380px; text-align: center; }
-  .logo { width: 240px; max-width: 80%; height: auto; margin: 0 auto 40px; display: block; }
-  .lock { width: 26px; height: 26px; color: var(--gold); margin-bottom: 14px; }
-  h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 2.1rem; color: var(--green);
-       margin: 0 0 10px; letter-spacing: .01em; }
-  p.lede { margin: 0 0 32px; font-weight: 300; font-size: .95rem; line-height: 1.6; color: #5a5a50; }
-  form { text-align: left; }
-  label { display: block; font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--green);
-          margin-bottom: 8px; font-weight: 500; }
-  input[type=password] { width: 100%; padding: 14px 16px; font: inherit; font-size: 1rem; color: var(--ink);
-          background: #fffdf9; border: 1px solid var(--line); border-radius: 0; outline: none; }
-  input[type=password]:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(27,58,43,.12); }
-  button { width: 100%; margin-top: 16px; padding: 15px; font: inherit; font-size: .78rem; letter-spacing: .24em;
-           text-transform: uppercase; font-weight: 500; color: #fff; background: var(--green); border: 0;
-           cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-  button:hover { background: var(--green-mid); }
-  .error { margin: 12px 0 0; font-size: .88rem; color: #8a2f2f; }
-  footer { margin-top: 48px; font-size: .78rem; font-weight: 300; color: #7a7a70; }
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+         padding: 48px 20px; background: var(--cream); color: var(--ink); font-family: 'Jost', sans-serif; -webkit-font-smoothing: antialiased; }
+  main { width: 100%; max-width: 520px; text-align: center; }
+  .logo { width: 220px; max-width: 70%; height: auto; margin: 0 auto 36px; display: block; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold-text); }
+  .eyebrow::before, .eyebrow::after { content: ""; width: 28px; height: 1px; background: currentColor; opacity: .6; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: clamp(2.2rem, 7vw, 3.2rem); line-height: 1.1;
+       text-transform: uppercase; letter-spacing: .06em; color: var(--green); margin: 16px 0 14px; }
+  .tagline { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 1.2rem; color: var(--green-mid); margin: 0 0 18px; }
+  p.lede { margin: 0 auto 30px; max-width: 440px; font-weight: 300; font-size: 1rem; line-height: 1.7; color: #4f4f46; }
+  .notify { display: flex; gap: 0; max-width: 440px; margin: 0 auto; }
+  .notify input { flex: 1; min-width: 0; padding: 15px 16px; font: inherit; font-size: 1rem; color: var(--ink); background: #fffdf9;
+                  border: 1px solid var(--line); border-right: 0; border-radius: 0; outline: none; }
+  .notify input:focus { border-color: var(--green); }
+  .notify button, .enter button { padding: 15px 22px; font: inherit; font-size: .76rem; letter-spacing: .22em; text-transform: uppercase;
+           font-weight: 500; color: #fff; background: var(--green); border: 0; cursor: pointer; white-space: nowrap; }
+  .notify button:hover, .enter button:hover { background: var(--green-mid); }
+  .notify button:disabled { opacity: .6; cursor: wait; }
+  .consent { max-width: 440px; margin: 10px auto 0; font-size: .74rem; line-height: 1.6; color: #6b6b5f; }
+  .msg { min-height: 1.4em; margin: 12px 0 0; font-size: .92rem; color: var(--green); }
+  .msg.err { color: #8a2f2f; }
+  .hp { position: absolute; left: -9999px; }
+  details { margin-top: 44px; font-size: .82rem; color: #6b6b5f; }
+  summary { cursor: pointer; list-style: none; letter-spacing: .12em; text-transform: uppercase; font-size: .7rem; color: var(--gold-text); }
+  summary::-webkit-details-marker { display: none; }
+  .enter { display: flex; max-width: 320px; margin: 14px auto 0; }
+  .enter input { flex: 1; min-width: 0; padding: 12px 14px; font: inherit; border: 1px solid var(--line); border-right: 0; background: #fffdf9; border-radius: 0; }
+  .enter button { padding: 12px 16px; }
+  .error { margin: 10px 0 0; color: #8a2f2f; }
+  footer { margin-top: 40px; font-size: .8rem; font-weight: 300; color: #6b6b5f; text-align: center; }
   footer a { color: var(--green); }
+  @media (max-width: 480px) { .notify { flex-direction: column; } .notify input { border-right: 1px solid var(--line); border-bottom: 0; } }
 </style>
 </head>
 <body>
 <main>
-  <img class="logo" src="/images/logo-transparent.png" alt="Siaram Jewelry" width="427" height="140" />
-  <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-    <rect x="4.5" y="10.5" width="15" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.1"/>
-  </svg>
-  <h1>Private access</h1>
-  <p class="lede">We are refreshing the boutique and will be back very soon.</p>
-  <form method="post" action="${GATE_PATH}">
-    <input type="hidden" name="next" value="${escapeHtml(next)}" />
-    <label for="password">Password</label>
-    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus
-      ${wrongPassword ? 'aria-invalid="true" aria-describedby="error"' : ''} />
-    ${wrongPassword ? '<p class="error" id="error" role="alert">That password isn’t right. Please try again.</p>' : ''}
-    <button type="submit">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="1.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
-      Enter
-    </button>
+  <img class="logo" src="/images/logo-hero.png" alt="Siaram Jewelry" width="427" height="96" />
+  <span class="eyebrow">Coming Soon</span>
+  <h1>Something new<br />is coming</h1>
+  <p class="tagline">Simply Elegant. Endlessly Yours.</p>
+  <p class="lede">Our website is almost ready. Leave your email to be the first to know when it launches, and to receive our new
+    collections, the stories behind our pieces and jewelry care advice.</p>
+  <form class="notify" novalidate>
+    <label class="hp" aria-hidden="true">Leave empty <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+    <input type="email" name="email" required autocomplete="email" placeholder="Your email address" aria-label="Email address" />
+    <button type="submit">Notify me</button>
   </form>
-  <footer>Questions about an order? Message us on <a href="https://wa.me/96176052068">WhatsApp</a>
-    or Instagram <a href="https://instagram.com/siaram.jewelry">@siaram.jewelry</a>.</footer>
+  <p class="consent">By subscribing, you agree to receive marketing emails from Siaram Jewelry. Unsubscribe at any time.</p>
+  <p class="msg" role="status" aria-live="polite"></p>
+
+  <details${wrongPassword ? ' open' : ''}>
+    <summary>Have an access password?</summary>
+    <form class="enter" method="post" action="${GATE_PATH}">
+      <input type="hidden" name="next" value="${escapeHtml(next)}" />
+      <input name="password" type="password" autocomplete="current-password" required aria-label="Password" placeholder="Password"
+        ${wrongPassword ? 'aria-invalid="true" aria-describedby="error"' : ''} />
+      <button type="submit">Enter</button>
+    </form>
+    ${wrongPassword ? '<p class="error" id="error" role="alert">That password isn’t right. Please try again.</p>' : ''}
+  </details>
 </main>
+<footer>Questions or orders? Message us on <a href="https://wa.me/96176052068">WhatsApp</a>
+  or Instagram <a href="https://instagram.com/siaram.jewelry">@siaram.jewelry</a>.</footer>
+<script>
+  const form = document.querySelector('.notify');
+  const msg = document.querySelector('.msg');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = form.elements.email;
+    msg.className = 'msg';
+    if (!email.value.trim() || !email.checkValidity()) {
+      msg.textContent = 'Please enter a valid email address.'; msg.className = 'msg err'; email.focus(); return;
+    }
+    const button = form.querySelector('button');
+    button.disabled = true;
+    try {
+      const res = await fetch('${SUBSCRIBE_URL}', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.value.trim(), source: 'coming-soon', website: form.elements.website.value }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Sorry, something went wrong. Please try again.');
+      msg.textContent = data.status === 'already' ? "You're already on our list. Thank you!"
+        : "Thank you! You're on the list. We've sent you a welcome email.";
+      form.reset();
+    } catch (err) {
+      msg.textContent = err.message; msg.className = 'msg err';
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
 </body>
 </html>`;
   return new Response(html, {
