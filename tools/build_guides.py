@@ -512,7 +512,7 @@ care_body = """
     <ol class="care-steps">
       <li class="care-step reveal" id="cleaning">
         <span class="care-num">01</span>
-        <img src="images/journal/cleaning-ring-cloth.jpg" alt="Polishing a Siaram ring with a soft cloth" loading="lazy" />
+        <img src="images/journal/cleaning-at-home.jpg" alt="Cleaning a ring at home with mild soap, warm water and a soft brush" loading="lazy" />
         <h3>Cleaning at home</h3>
         <p>For simple solid-gold pieces without delicate stones, use lukewarm water, a little mild soap and a soft brush, then rinse and dry thoroughly. Finish with a soft cloth for shine.</p>
       </li>
