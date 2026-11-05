@@ -33,7 +33,6 @@ def reviews_html(p):
         return ""
     cards = "\n".join(f"""      <figure class="review-card reveal">{f'<img src="{img}" alt="A client wearing the {p["plain"]}" loading="lazy" />' if img else ''}
         <blockquote>&ldquo;{quote}&rdquo;</blockquote>{f'<p class="review-translation">{tr}</p>' if tr else ''}
-        <figcaption>A Siaram client</figcaption>
       </figure>""" for quote, tr, img in items)
     return f"""<section class="reviews">
   <div class="container">
