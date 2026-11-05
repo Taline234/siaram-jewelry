@@ -1,0 +1,23 @@
+How to publish a journal article
+================================
+
+1. Put the cover photo in images/journal/ (a landscape photo looks best in the email).
+2. Add a new file in this folder, for example journal/the-story-behind-siaram.md, starting like this:
+
+---
+title: The Story Behind Siaram
+date: 2026-11-12
+image: images/journal/story-behind-siaram.jpg
+excerpt: One or two sentences that appear on the Journal page and in the email.
+---
+
+Then write the article. Leave an empty line between paragraphs.
+
+## A heading
+- a list item
+**bold**, *italic*, [a link](https://siaramjewelry.com/shop.html)
+![A photo description](images/journal/photo.jpg)
+
+3. When it is merged to main, the website shows it within a few minutes and, once the site has
+   launched, every subscriber automatically gets it by email (the look of the email is
+   tools/email/journal-template.html).

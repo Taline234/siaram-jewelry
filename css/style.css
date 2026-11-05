@@ -2251,3 +2251,19 @@ legend {
 .unsubscribe-text { font-family: var(--font-serif); font-size: 1.15rem; color: var(--green-mid); margin: 0 0 24px; }
 .unsubscribe-msg { margin-top: 14px; color: #8a2c1c; }
 .unsubscribe-btn[hidden] { display: none; }
+
+/* Journal list and article extras */
+.journal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.journal-card { display: block; text-decoration: none; color: inherit; }
+.journal-photo { display: block; aspect-ratio: 4 / 5; overflow: hidden; background: var(--cream); margin-bottom: 14px; }
+.journal-photo img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s ease; }
+.journal-card:hover .journal-photo img { transform: scale(1.04); }
+.journal-card h2 { font-family: var(--font-serif); font-weight: 500; font-size: 1.45rem; color: var(--green-deep); margin: 8px 0 8px; }
+.journal-card p { font-family: var(--font-serif); font-size: 1.05rem; color: var(--green-mid); margin: 0 0 12px; }
+.journal-more { font-family: var(--font-sans); font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-text); border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.article-figure { margin: 32px 0; }
+.article-figure img { width: 100%; height: auto; display: block; }
+.article-back { margin-top: 40px; }
+@media (max-width: 900px) { .journal-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .journal-grid { grid-template-columns: 1fr; } }
+.article { margin: 0 auto; }
