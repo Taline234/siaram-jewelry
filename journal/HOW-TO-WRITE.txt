@@ -1,27 +1,37 @@
 How to publish a journal article
 ================================
 
-1. Put the cover photo in images/journal/ (a landscape photo looks best in the email).
-2. Add a new file in this folder, for example journal/the-story-behind-siaram.md, starting like this:
+1. Put the photos in images/journal/ (a landscape cover photo looks best).
+2. Add a new file in this folder, for example journal/qamar-more-than-a-moon.md, starting like this:
 
 ---
-title: The Story Behind Siaram
-date: 2026-11-12
-image: images/journal/story-behind-siaram.jpg
-excerpt: One or two sentences that appear on the Journal page and in the email.
-pieces: horseshoe-bracelet, sun-ring, fatima-necklace, triangle-necklace
+title: Qamar: More Than a Moon
+date: 2027-02-04
+image: images/journal/qamar-cover.jpg
+excerpt: One or two sentences that appear under the title, on the Journal page and in the email.
+category: Our Stories
+pieces: qamar-ring, crescent-moon-ring, star-moon-necklace
 ---
 
-("pieces" is optional: up to 4 pieces shown in the email, written as in their web address,
-for example siaramjewelry.com/product-sun-ring -> sun-ring. Without it, the email shows the bestsellers.)
+Only title, date, image and excerpt are required.
+- category: one of Our Stories, Gifting, Gold & Gemstones, Custom & Craft, Styling, Care, Buying Guide
+  (it is the label on the article and the filter buttons on the Journal page).
+- pieces: up to 4 pieces shown as cards under the article and in the email, written as in their web
+  address (siaramjewelry.com/product-qamar-ring -> qamar-ring).
+- email: leave it out and the article is NOT emailed. "email: yes" emails it when it is published;
+  "email: 2027-02-09 10:00" schedules the email for that date and time (Beirut time).
+  subject: an email subject line, if different from the title.
 
-Then write the article. Leave an empty line between paragraphs.
+Then write the article. Leave an empty line between paragraphs. The first paragraph gets a large first letter.
 
-## A heading
-- a list item
-**bold**, *italic*, [a link](https://siaramjewelry.com/shop.html)
-![A photo description](images/journal/photo.jpg)
+## A heading                       (### for a smaller one)
+- a list item                      (or 1. 2. 3. for a numbered list)
+**bold**, *italic*, [a link](shop.html#celestial)
+> A sentence worth remembering     (a large quote between gold lines)
+![A photo description](images/journal/photo.jpg "An optional caption")
+![Second photo](images/journal/photo2.jpg)     (2 or 3 photo lines together = side by side)
+[[pieces: sun-ring, sun-necklace]]  (piece cards in the middle of the text)
+## Explore further                 (everything after it becomes a green panel at the end)
 
-3. When it is merged to main, the website shows it within a few minutes and, once the site has
-   launched, every subscriber automatically gets it by email (the look of the email is
-   tools/email/journal-template.html).
+3. When it is merged to main, the website shows it within a few minutes. Emails go out only for articles
+   with an "email:" line, and only once the site has launched.
