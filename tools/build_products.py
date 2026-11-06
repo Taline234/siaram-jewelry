@@ -213,10 +213,10 @@ P = [
     item("arrow-earrings", "Arrow Drop Earrings", "Earrings", "arrow", 499,
          "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white stones and a vibrant red centre stone.",
          "White zircon and a red centre stone", "Gold arrow threader earring, worn", imgs=3),
-    item("arrow-open-ring", "Arrow Open Ring", "Rings", "arrow", 589,
+    item("arrow-open-ring", "Diverge Arrow Ring", "Rings", "arrow", 589,
          "An open 18k yellow gold ring with the two ends of an arrow facing in opposite directions, set with contrasting black and white stones.",
          "Black and white zircon", "Gold open arrow ring with black and white stones", imgs=3),
-    item("arrow-ring", "Arrow Ring", "Rings", "arrow", 679,
+    item("arrow-ring", "Sahm Ring", "Rings", "arrow", 679,
          "An 18k yellow gold ring where two arrowheads meet: one traced with white stones around a vivid coloured centre stone, the other polished gold.",
          "White zircon and a coloured centre stone", "Gold arrow ring with a coloured centre stone", imgs=3),
 ]
@@ -246,7 +246,7 @@ MEANING = {
     "seahorse-pearl-bracelet": "Named for its delicate sea creature motif, Seahorse celebrates the beauty and quiet wonder of the ocean.",
     "wave-bracelet": "Mar&eacute;e means &ldquo;tide&rdquo; in French, reflecting the sea&rsquo;s flowing movement and natural rhythm.",
     "arrow-necklace": "Arrow is a reminder that when life pulls you backwards, it can be preparing to launch you into something greater.", "arrow-bracelet": "Arrow is a reminder that when life pulls you backwards, it can be preparing to launch you into something greater.", "arrow-earrings": "Arrow is a reminder that when life pulls you backwards, it can be preparing to launch you into something greater.",
-    "arrow-open-ring": "Arrow is a reminder that when life pulls you backwards, it can be preparing to launch you into something greater.", "arrow-ring": "Arrow is a reminder that when life pulls you backwards, it can be preparing to launch you into something greater.",
+    "arrow-open-ring": "Two paths, one journey: Diverge is the courage to choose your own direction.", "arrow-ring": "Sahm means arrow in Arabic: strength, focus and the courage to follow your own path.",
 }
 FORMER_NAME = {
     "horseshoe-necklace": "Horse Shoe Necklace", "horseshoe-necklace-black-stone": "Midnight Horse Shoe Necklace",
