@@ -15,12 +15,12 @@ From a young age, jewelry was part of how I expressed myself. I loved fine piece
 Siaram began with a simple idea: elegant jewelry that feels natural to wear every day, yet remains classic enough to keep for years. I did not want pieces that only looked beautiful. I wanted them to hold meaning: luck, protection, strength, growth and guidance. The result is a collection of refined forms with personal stories behind them.
 
 ![A pencil sketch of the V necklace](images/journal/sketch-v-bird-necklace.jpg "From a sketch")
-![The finished V necklace](images/products/v-bird-necklace-2.jpg "to the finished piece")
+![The three finished necklaces](images/journal/three-necklaces-book.jpg "to the finished pieces")
 
 ## A name with a story
 Siaram is Marais spelled backward, a nod to the horse who inspired the brand name and to the equestrian world that has shaped so much of my life. That connection is woven into the spirit of Siaram: quiet strength, attention to detail and a love of things that endure.
 
-![Riding in the arena](images/hero-arena.jpg)
+![With Marais at the stables](images/about/marais-with-founder.jpg)
 
 ## Explore further
 Explore the inspiration in the [Equestrian Collection](shop.html#equestrian), discover [all our collections](shop.html), or read [our story](about.html).
