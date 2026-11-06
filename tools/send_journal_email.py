@@ -27,10 +27,15 @@ TEMPLATE = open("tools/email/journal-template.html", encoding="utf-8").read()
 BESTSELLERS = ["horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring", "horseshoe-chain-earrings"]
 
 
+# Photos to use in emails instead of a piece's main photo (horseshoe-ring-1 shows another brand's book and box).
+EMAIL_IMAGE = {"horseshoe-ring": BASE + "images/products/horseshoe-ring-2.jpg"}
+
+
 def pieces_html(a):
     """The 2 x 2 grid of pieces: the article's "pieces:" line or the bestsellers."""
     cells = []
     for p in map(piece, (slugs(a.get("pieces", "")) or BESTSELLERS)[:4]):
+        p["image"] = EMAIL_IMAGE.get(p["slug"], p["image"])
         url = BASE + p["page"].removesuffix(".html")
         cells.append(f"""<td width="50%" valign="top" style="padding:0 8px 22px;text-align:left;">
           <a href="{url}"><img src="{html.escape(p['image'])}" width="250" alt="{html.escape(p['name'])}" style="display:block;border:0;width:100%;height:auto;border-radius:8px;" /></a>

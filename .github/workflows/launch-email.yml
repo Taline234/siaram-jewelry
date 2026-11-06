@@ -1,0 +1,23 @@
+# Sends the launch announcement to the mailing list. Run it by hand once, on launch day:
+# GitHub -> Actions -> "Send launch email" -> Run workflow, and type SEND to confirm.
+# Needs the RESEND_API_KEY and RESEND_AUDIENCE_ID repository secrets.
+name: Send launch email
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type SEND to email everyone on the mailing list'
+        required: true
+
+jobs:
+  send:
+    if: github.event.inputs.confirm == 'SEND'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send the launch email
+        run: python3 tools/send_launch_email.py
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_AUDIENCE_ID: ${{ secrets.RESEND_AUDIENCE_ID }}
