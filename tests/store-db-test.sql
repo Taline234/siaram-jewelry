@@ -64,7 +64,7 @@ select pg_temp.expect_error($$select place_order(pg_temp.order_json('South','[{"
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Paris','[{"slug":"v-bird-necklace","quantity":1}]'))$$,
   'only deliver within Lebanon');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"horseshoe-ring","quantity":1}]'))$$,
-  'Midnight Horseshoe Ring.*not available');
+  'Fortune Ring.*not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1},{"slug":"nope","quantity":1}]'))$$,
   '"nope" is not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":11}]'))$$,

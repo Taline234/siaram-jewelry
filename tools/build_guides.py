@@ -451,7 +451,7 @@ service_body = f"""
         <label class="field"><span>Order or invoice number</span>
           <input name="order_ref" required maxlength="40" placeholder="e.g. S017" autocomplete="off" /></label>
         <label class="field"><span>Name of the piece</span>
-          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Midnight Horseshoe Ring" />
+          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Fortune Ring" />
           <datalist id="piece-names">
 {piece_options}
           </datalist></label>
