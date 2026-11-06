@@ -27,8 +27,8 @@ TEMPLATE = open("tools/email/journal-template.html", encoding="utf-8").read()
 BESTSELLERS = ["horseshoe-necklace-black-stone", "horseshoe-bracelet", "horseshoe-ring", "horseshoe-chain-earrings"]
 
 
-# Photos to use in emails instead of a piece's main photo (horseshoe-ring-1 shows another brand's book and box).
-EMAIL_IMAGE = {"horseshoe-ring": BASE + "images/products/horseshoe-ring-2.jpg"}
+# Photos to use in emails instead of a piece's main photo.
+EMAIL_IMAGE = {}
 
 
 def pieces_html(a):
