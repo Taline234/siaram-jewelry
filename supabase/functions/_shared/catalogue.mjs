@@ -405,7 +405,7 @@ export const CATALOGUE = {
     ]
   },
   "RG-05": {
-    "name": "Arrow Open Ring",
+    "name": "Diverge Arrow Ring",
     "category": "Rings",
     "collection": "Arrow",
     "stone": "Black zircon, white zircon",
@@ -413,7 +413,7 @@ export const CATALOGUE = {
     "details": []
   },
   "RG-06": {
-    "name": "Arrow Ring",
+    "name": "Sahm Ring",
     "category": "Rings",
     "collection": "Arrow",
     "stone": "Red stone (centre), white zircon",

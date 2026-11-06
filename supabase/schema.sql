@@ -63,8 +63,8 @@ insert into public.products (slug, name, category, image, price) values
   ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 489),
   ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 689),
   ('arrow-earrings', 'Arrow Drop Earrings', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
-  ('arrow-open-ring', 'Arrow Open Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
-  ('arrow-ring', 'Arrow Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
+  ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
+  ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
 on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
 -- Round prices for the two pieces that were $499.99 and $579.99 (owner, 4 November 2026).
 update public.products set price = 499 where slug = 'crescent-moon-earrings' and price = 499.99;
