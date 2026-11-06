@@ -1,0 +1,32 @@
+# Puts journal articles on the site on their date. Each morning (8:00 Beirut), if an article in journal/*.md is dated
+# today, it is added to journal/published.txt and pushed, which makes Cloudflare rebuild the site with it.
+name: Publish dated journal articles
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find articles dated today
+        id: due
+        run: |
+          today=$(TZ=Asia/Beirut date +%F)
+          due=$(grep -l "^date: $today" journal/*.md 2>/dev/null | tr '\n' ' ')
+          echo "due=$due" >> "$GITHUB_OUTPUT"
+          echo "Due today ($today): ${due:-none}"
+      - name: Record and push
+        if: steps.due.outputs.due != ''
+        run: |
+          for f in ${{ steps.due.outputs.due }}; do grep -qx "$f" journal/published.txt 2>/dev/null || echo "$f" >> journal/published.txt; done
+          git config user.name "siaram-journal"
+          git config user.email "journal@siaramjewelry.com"
+          git add journal/published.txt
+          git diff --cached --quiet || (git commit -m "Journal: publish ${{ steps.due.outputs.due }}" && git push)

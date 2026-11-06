@@ -284,6 +284,8 @@ STONE_LOOK = {  # name: (photo, glow colour behind it)
     "Turquoise": ("turquoise", "#cdeeea"), "Amethyst": ("amethyst", "#eadcf6"), "Aquamarine": ("aquamarine", "#dcf1f8"),
     "Topaz": ("topaz", "#d6edf9"), "Garnet": ("garnet", "#f0d3d6"), "Peridot": ("peridot", "#eaf4cc"),
     "Opal": ("opal", "#eef0f8"), "Black Onyx": ("onyx", "#e3e1dc"),
+    "Moonstone": ("moonstone", "#e8ecf5"), "Tourmaline": ("tourmaline", "#f4dbe6"), "Citrine": ("citrine", "#f8e8c8"),
+    "Tanzanite": ("tanzanite", "#e1dcf6"),
 }
 MONTH_OF = {stone.split(" or ")[0]: month for month, stone in BIRTHSTONES}
 MONTH_OF.update({"Opal": "October", "Topaz": "November", "Turquoise": "December", "Zircon": "December"})

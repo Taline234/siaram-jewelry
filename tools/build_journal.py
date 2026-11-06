@@ -184,11 +184,18 @@ def build():
     HEAD_END = journal.index("</head>")
     BODY_START = journal.index('<section class="page-hero">')
     FOOTER = journal[journal.index('<footer class="site-footer">'):]
-    articles = sorted((read_article(p) for p in glob.glob("journal/*.md")), key=lambda a: a["when"], reverse=True)
+    # An article goes on the site from its date (Beirut time); journal-publish.yml rebuilds the site that morning.
+    today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))).date()
+    if os.environ.get("JOURNAL_PREVIEW_DATE"):  # to preview an article before its date (never set on the real build)
+        today = datetime.date.fromisoformat(os.environ["JOURNAL_PREVIEW_DATE"])
+    articles = sorted((a for a in map(read_article, glob.glob("journal/*.md")) if a["when"] <= today),
+                      key=lambda a: a["when"], reverse=True)
     for a in articles:
         a["category"] = a.get("category") or "Journal"
     if articles:  # the Journal is hidden from search engines only while it is empty
         journal = re.sub(r'<meta name="robots" content="noindex" />\s*', "", journal, count=1)
+        HEAD_END = journal.index("</head>")
+        BODY_START = journal.index('<section class="page-hero">')
 
     for a in articles:
         head = journal[:HEAD_END]
