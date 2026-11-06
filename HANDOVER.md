@@ -17,7 +17,7 @@ on it and say "read HANDOVER.md first".
 - 36 pieces in 7 collections from the October 2026 catalogue; names and prices exactly as printed.
   All 18k yellow gold with zircon; the Seahorse Bracelet has zircon and pearls. Coloured stones (red,
   turquoise, black) are described as in the catalogue — **still to confirm whether they are zircon**.
-- Categories: Necklaces, Earrings, Rings, Bracelets (the Moon/Star Handchain is a bracelet), Anklets.
+- Categories: Necklaces, Earrings, Rings, Bracelets (the Celeste Handchain is a bracelet), Anklets.
 - Delivery: Lebanon only, **not South Lebanon**; free collection by appointment. The courier is Wakilni,
   but **the courier is not named anywhere on the site** (owner's choice).
 - Payment: website orders are **cash** (to the courier on delivery, or at collection); gift-voucher credit

@@ -9,7 +9,7 @@ import re
 
 CATEGORIES = [("All Pieces", "shop.html#all"), ("Necklaces", "shop.html#necklaces"), ("Earrings", "shop.html#earrings"),
               ("Bracelets", "shop.html#bracelets"), ("Rings", "shop.html#rings"), ("Anklets", "shop.html#anklets")]
-COLLECTIONS = [("Equestrian", "shop.html#equestrian"), ("Core", "shop.html#core"), ("Fatima", "shop.html#fatima"),
+COLLECTIONS = [("Equestrian", "shop.html#equestrian"), ("Core", "shop.html#core"), ("Hamsa", "shop.html#fatima"),
                ("Geometric", "shop.html#geometric"), ("Celestial", "shop.html#celestial"), ("Ocean", "shop.html#ocean"),
                ("Arrow", "shop.html#arrow")]
 GIFTS = [("Bestsellers", "index.html#bestsellers"), ("Gift Vouchers", "gift-voucher.html"), ("Custom Pieces", "custom.html"),
@@ -27,7 +27,7 @@ def menus(root=""):
     href, img, eyebrow, title = FEATURE
     mega = (f'        <div class="mega" role="region" aria-label="Shop">\n          <div class="mega-inner">\n'
             + col("Shop by Category", CATEGORIES) + col("Shop by Collection", COLLECTIONS) + col("Gifts &amp; Services", GIFTS)
-            + f'          <a class="mega-feature" href="{u(href)}"><img src="{u(img)}" alt="Horse Shoe Necklace" loading="lazy" />'
+            + f'          <a class="mega-feature" href="{u(href)}"><img src="{u(img)}" alt="Fortune Necklace" loading="lazy" />'
               f'<span class="eyebrow">{eyebrow}</span><span class="mega-feature-title">{title}</span></a>\n'
             + "          </div>\n        </div>\n")
     items = []

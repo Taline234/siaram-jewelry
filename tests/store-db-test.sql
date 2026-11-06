@@ -64,7 +64,7 @@ select pg_temp.expect_error($$select place_order(pg_temp.order_json('South','[{"
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Paris','[{"slug":"v-bird-necklace","quantity":1}]'))$$,
   'only deliver within Lebanon');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"horseshoe-ring","quantity":1}]'))$$,
-  'Horse Shoe Ring.*not available');
+  'Fortune Ring.*not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1},{"slug":"nope","quantity":1}]'))$$,
   '"nope" is not available');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":11}]'))$$,
@@ -97,9 +97,9 @@ select pg_temp.check((select sku = 'EA-03' from products where slug = 'moon-star
 
 -- Metal and size
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1}]'))$$,
-  'choose a size for the Crescent Moon Ring');
+  'choose a size for the Lune Ring');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"crescent-moon-ring","quantity":1,"size":"EU 99"}]'))$$,
-  'choose a size for the Crescent Moon Ring');
+  'choose a size for the Lune Ring');
 select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"v-bird-necklace","quantity":1,"metal":"silver"}]'))$$,
   'yellow, rose or white gold');
 select pg_temp.check((
@@ -438,9 +438,9 @@ select pg_temp.check(not has_function_privilege('anon', 'public.record_sale(json
   'only the server can record sales');
 
 -- The stock table shows each piece's name and code, and the length of pieces without a size.
-select pg_temp.check((select piece = 'Horse Shoe Necklace (NK-01)' and length = '40 cm chain + 6 cm drop chain'
+select pg_temp.check((select piece = 'Fortune Necklace (NK-01)' and length = '40 cm chain + 6 cm drop chain'
                         from stock where product_slug = 'horseshoe-necklace' and metal = 'yellow' and size = '')
-                     and (select piece like 'Midnight Horse Shoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
+                     and (select piece like 'Midnight Horseshoe Bracelet%' from stock where product_slug = 'horseshoe-bracelet' and size = '15–17 cm')
                      and exists (select 1 from stock where product_slug = 'v-pendant-necklace')
                      and exists (select 1 from stock where product_slug = 'crescent-moon-ring' and size = 'EU 54'),
   'every piece is listed in the stock table with its name, code and length');

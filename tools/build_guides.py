@@ -175,7 +175,7 @@ size_body = f"""
 {anklet_rows}
         </tbody>
       </table></div>
-      <p class="size-guide-note">Our Fatima Anklet is 21&ndash;22 cm, which suits most ankles of 19&ndash;20 cm.</p>
+      <p class="size-guide-note">Our Hamsa Anklet is 21&ndash;22 cm, which suits most ankles of 19&ndash;20 cm.</p>
     </div>
 
 {HELP}  </div>
@@ -451,7 +451,7 @@ service_body = f"""
         <label class="field"><span>Order or invoice number</span>
           <input name="order_ref" required maxlength="40" placeholder="e.g. S017" autocomplete="off" /></label>
         <label class="field"><span>Name of the piece</span>
-          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Horse Shoe Ring" />
+          <input name="piece" required maxlength="120" list="piece-names" placeholder="e.g. Fortune Ring" />
           <datalist id="piece-names">
 {piece_options}
           </datalist></label>
@@ -580,7 +580,7 @@ care_body = """
       </li>
       <li class="care-step reveal" id="pearls">
         <span class="care-num">02</span>
-        <img src="images/products/fatima-pearl-earrings-1.jpg" alt="Fatima pearl earrings worn" loading="lazy" />
+        <img src="images/products/fatima-pearl-earrings-1.jpg" alt="Hamsa pearl earrings worn" loading="lazy" />
         <h3>Pearls and delicate stones</h3>
         <p>Wipe freshwater pearls gently with a soft cloth after wear and never soak them. Pearls, opals, emeralds, treated stones and pieces with adhesives need gentler care than the method above.</p>
       </li>

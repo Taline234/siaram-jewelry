@@ -58,7 +58,7 @@ await page.goto(`${ORIGIN}/index.html`);
 await page.waitForSelector('.nav-store');
 assert.equal(await page.locator('[data-grid="bestsellers"] .product-card').count(), 4, 'the four horseshoe bestsellers on the home page');
 assert.equal(await page.locator('[data-grid="bestsellers"] .card-badge').count(), 4);
-assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horseshoe-necklace"]').count(), 0, 'the Horse Shoe Necklace is not a bestseller');
+assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horseshoe-necklace"]').count(), 0, 'the Fortune Necklace is not a bestseller');
 assert.equal(await page.locator('[data-grid="bestsellers"] [data-price-for="horse-eye-necklace"]').count(), 0);
 await page.fill('.newsletter-form [name=email]', 'not an email');
 await page.click('.newsletter-form button');
@@ -368,7 +368,7 @@ await page.selectOption('.size-select', 'EU 54');
 await page.click('.add-to-cart');
 await page.goto(`${ORIGIN}/account.html#wishlist`);
 await page.waitForSelector('.wish-card');
-assert.match(await page.locator('.wish-card').textContent(), /Crescent Moon Ring/);
+assert.match(await page.locator('.wish-card').textContent(), /Lune Ring/);
 await shot('account-wishlist');
 step('wishlist saves a piece and lists it in the account');
 
