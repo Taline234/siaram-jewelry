@@ -2399,6 +2399,14 @@ legend {
 .measure-fig figcaption { font-family: var(--font-serif); font-style: italic; font-size: 0.95rem; color: var(--green-mid); text-align: center; margin-top: 8px; }
 .guide-section .table-wrap, .guide-section .size-guide-tips, .guide-section .size-guide-note { clear: both; }
 @media (max-width: 760px) { .measure-fig { float: none; width: 100%; max-width: 320px; margin: 0 auto 18px; } }
+/* text beside a drawing: centred against the drawing, and table columns of even width */
+@media (min-width: 761px) {
+  .guide-section:has(> .measure-fig) { display: grid; grid-template-columns: minmax(0, 1fr) 260px; column-gap: 32px; }
+  .guide-section:has(> .measure-fig) > * { grid-column: 1 / -1; }
+  .guide-section:has(> .measure-fig) > .measure-fig { float: none; grid-column: 2; grid-row: 2; margin: 0 0 18px; }
+  .guide-section:has(> .measure-fig) > .measure-fig + p { grid-column: 1; grid-row: 2; align-self: center; margin: 0 0 18px; }
+}
+.guide-section .size-table { table-layout: fixed; }
 /* Birthstone pop-ups */
 .gem-pop { background: none; border: 0; padding: 0; font: inherit; color: var(--green-deep); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 4px; cursor: pointer; }
 .gem-pop:hover { color: var(--gold-text); }
