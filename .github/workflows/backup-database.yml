@@ -21,7 +21,24 @@ jobs:
         run: |
           [ -n "$SUPABASE_DB_URL" ] || { echo "Add the SUPABASE_DB_URL repository secret."; exit 1; }
           [ -n "$BACKUP_PASSPHRASE" ] || { echo "Add the BACKUP_PASSPHRASE repository secret."; exit 1; }
-      - uses: supabase/setup-cli@v1
+      # The Supabase tool download sometimes times out (HTTP 504), so try up to three times.
+      - id: cli1
+        uses: supabase/setup-cli@v1
+        continue-on-error: true
+        with:
+          version: latest
+      - if: steps.cli1.outcome == 'failure'
+        run: sleep 60
+      - id: cli2
+        if: steps.cli1.outcome == 'failure'
+        uses: supabase/setup-cli@v1
+        continue-on-error: true
+        with:
+          version: latest
+      - if: steps.cli1.outcome == 'failure' && steps.cli2.outcome == 'failure'
+        run: sleep 180
+      - if: steps.cli1.outcome == 'failure' && steps.cli2.outcome == 'failure'
+        uses: supabase/setup-cli@v1
         with:
           version: latest
       - name: Copy the database
