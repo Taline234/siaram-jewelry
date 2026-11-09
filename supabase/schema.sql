@@ -1510,3 +1510,50 @@ revoke execute on function public.courier_status_update(uuid, int, text) from pu
 grant execute on function public.claim_courier_booking(uuid, boolean), public.courier_booking_details(uuid),
   public.record_courier_booking(uuid, bigint, text, text, text), public.courier_orders_open(),
   public.courier_status_update(uuid, int, text) to service_role;
+
+-- Orders where every piece is in stock are booked with Wakilni automatically, right after the order emails go out
+-- (place-order calls this). Orders with a made-to-order piece wait until you set them to 'ready' yourself.
+create or replace function public.auto_ready_order(p_reference text) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update public.orders o set status = 'ready'
+   where o.reference = p_reference and o.status = 'received' and o.fulfilment = 'delivery' and o.channel = 'Website'
+     and exists (select 1 from public.order_items i where i.order_id = o.id)
+     and not exists (select 1 from public.order_items i where i.order_id = o.id and i.made_to_order);
+  return found;
+end;
+$$;
+
+-- Cancelling a booked order cancels it with Wakilni too (courier-cancel function).
+create or replace function public.courier_cancel_details(p_order_id uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('reference', reference, 'courier_order_id', courier_order_id, 'status', status)
+    from public.orders where id = p_order_id;
+$$;
+
+create or replace function private.order_cancelled_courier() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  v_url    text;
+  v_secret text;
+begin
+  select functions_url, secret into v_url, v_secret from private.cron where id = 1;
+  if v_url is not null and exists (select 1 from pg_extension where extname = 'pg_net') then
+    perform net.http_post(
+      url := v_url || '/courier-cancel',
+      headers := jsonb_build_object('content-type', 'application/json', 'x-cron-secret', v_secret),
+      body := jsonb_build_object('order_id', new.id)
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists order_cancelled_courier on public.orders;
+create trigger order_cancelled_courier after update of status on public.orders
+  for each row when (new.status = 'cancelled' and old.status is distinct from 'cancelled' and new.courier_order_id is not null)
+  execute function private.order_cancelled_courier();
+
+revoke execute on function public.auto_ready_order(text) from public, anon, authenticated;
+revoke execute on function public.courier_cancel_details(uuid) from public, anon, authenticated;
+grant execute on function public.auto_ready_order(text), public.courier_cancel_details(uuid) to service_role;

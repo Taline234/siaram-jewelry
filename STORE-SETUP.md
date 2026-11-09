@@ -134,16 +134,19 @@ Order emails, Supabase and the order functions keep working. Google is told the 
    If the order has a made-to-order piece (rose or white gold, or out of stock), send the customer a
    Whish payment request for it and start production once it clears. Then open **Supabase → Table
    Editor → orders** and set the status to `preparing` (or `cancelled` if it cannot go ahead).
-3. When the parcel is packed, set **status** to `ready`. The site books it with Wakilni straight away, as cash on
-   delivery for the order total plus the delivery fee, and emails you the tracking number and the parcel label
-   (print it and stick it on the box). If Wakilni refuses it (for example an area it does not recognise), you get an
-   email saying why: fix the **city** column, set the status to `preparing` and back to `ready` to try again.
+3. **Everything in stock:** the order is booked with Wakilni automatically, straight after the order emails, as cash
+   on delivery for the order total plus the delivery fee. You get an email with the tracking number and the parcel label
+   (print it and stick it on the box); pack it for pickup. **With a made-to-order piece:** once it is finished and packed,
+   set **status** to `ready` and the same booking happens. If Wakilni refuses a booking (for example an area it does not
+   recognise), you get an email saying why: fix the **city** column, set the status to `preparing` and back to `ready`.
    Once booked, the order becomes `dispatched` and the customer is emailed straight away that it is on its way, with
    a **Track your parcel** link, the tracking number and the cash to have ready.
 4. Every hour the site reads Wakilni's status and marks the order `delivered` once it arrives. If Wakilni shows a problem (cancelled, failed, refused) you get an email.
    You can still do it by hand: book in the Wakilni portal, type the tracking number in **tracking_number** and set
    **status** to `dispatched`.
-5. Orders booked by hand: set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
+5. To cancel an order, set **status** to `cancelled`: the pieces go back into stock and the Wakilni booking is cancelled
+   too (if Wakilni no longer allows it, you get an email asking you to cancel it with them).
+6. Orders booked by hand: set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
 
 **Stock** — in **Table Editor → stock**, one row per piece, metal and size you have ready to ship (size is
 empty for necklaces and earrings, `EU 54` for rings, the length as listed on the site for bracelets, e.g.

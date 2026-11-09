@@ -126,3 +126,9 @@ export async function deliveryStatus(token, courierOrderId) {
   const latest = [...logs].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))[0];
   return { code: Number(latest.status_code), status: String(latest.status) };
 }
+
+// Cancels a Wakilni order (Wakilni allows this only while it is still Pending).
+export async function cancelDelivery(courierOrderId, reason) {
+  const token = await wakilniToken();
+  return call('PUT', `/api/v2/clients/orders/${encodeURIComponent(courierOrderId)}/cancel`, { token, body: { reason } });
+}
