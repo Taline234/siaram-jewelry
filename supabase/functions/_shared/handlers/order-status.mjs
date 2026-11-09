@@ -25,7 +25,7 @@ export default async (req) => {
     subject: `Your Siaram order ${order.reference} is on its way`,
     html: emailLayout(`Your order is on its way, ${order.customer_name.split(' ')[0]}!`,
       `<p style="font-size:15px;line-height:1.6">Your order <strong>${escapeHtml(order.reference)}</strong> has been handed to our
-       courier, Wakilni, who will contact you to arrange delivery. It usually arrives within 2&ndash;4 business days.</p>${tracking}${toPay}${orderSummaryHtml(order)}`),
+       courier, Wakilni, who will contact you to arrange delivery. It usually arrives within 1&ndash;3 business days.</p>${tracking}${toPay}${orderSummaryHtml(order)}`),
   });
   if (!sent) {
     await rpc('claim_dispatch_email', { p_order_id: orderId, p_release: true });
