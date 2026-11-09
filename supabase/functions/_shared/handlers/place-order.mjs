@@ -56,7 +56,10 @@ export default async (req) => {
         to: saved.email,
         subject: `Your Siaram order ${saved.reference}`,
         html: emailLayout(`Thank you, ${saved.customer_name.split(' ')[0]}!`,
-          `<p style="font-size:15px;line-height:1.6">We have received your order <strong>${escapeHtml(saved.reference)}</strong>.</p>
+          `<p style="font-size:15px;line-height:1.6">We have received your order <strong>${escapeHtml(saved.reference)}</strong>.
+            ${(saved.items || []).some((i) => i.made_to_order)
+              ? 'Pieces made for you arrive in about 3&ndash;4 weeks; anything in stock in 3&ndash;5 business days.'
+              : 'It should reach you within 3&ndash;5 business days.'}</p>
            ${paymentInstructionsHtml(saved)}${orderSummaryHtml(saved)}
            <p style="font-size:14px;line-height:1.6">Your receipt and your care and warranty card are attached.</p>`),
         attachments: [receiptFile, careFile].filter(Boolean),
