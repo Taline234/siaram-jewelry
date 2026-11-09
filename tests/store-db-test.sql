@@ -483,8 +483,12 @@ select pg_temp.check((select courier_order_id = 98765 and tracking_number = 'WK1
                      and (select courier_orders_open() @> jsonb_build_array(jsonb_build_object('reference', 'S017')))
                      and (select (courier_booking_details(id)->>'reference') = 'S017' from orders where reference = 'S017'),
   'a booking saves Wakilni''s order id and tracking number, and the order is followed until delivery');
-select pg_temp.check((select (courier_status_update(id, 2, 'Confirmed')->>'order_status') = 'ready' from orders where reference = 'S017'),
-  'a confirmed courier order stays ready');
+select pg_temp.check((select status = 'dispatched' and courier_tracking_url = 'https://track.wakilni.com/WK1' from orders where reference = 'S017'),
+  'a booked order is dispatched at once, so the customer gets the tracking link straight away');
+select pg_temp.check((select (order_summary(id)->>'courier_tracking_url') = 'https://track.wakilni.com/WK1' from orders where reference = 'S017'),
+  'the "on its way" email can read the tracking link');
+select pg_temp.check((select (courier_status_update(id, 2, 'Confirmed')->>'order_status') = 'dispatched' from orders where reference = 'S017'),
+  'a confirmed courier order stays dispatched');
 select pg_temp.check((select (courier_status_update(id, 3, 'Processing')->>'order_status') = 'dispatched' from orders where reference = 'S017'),
   'once the driver has the parcel the order is dispatched');
 select pg_temp.check((select status = 'dispatched' from orders where reference = 'S017'), 'the dispatched status is saved');

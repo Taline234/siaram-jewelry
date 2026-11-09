@@ -75,9 +75,10 @@ test('guest order is saved and both emails are sent', async () => {
 
   const [customer, shop] = emails();
   assert.deepEqual(customer.to, ['rana@example.com']);
-  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the driver/);
-  assert.match(customer.html, /email you when your order ships/);
-  assert.match(customer.html, /Confirmed before dispatch, paid to the courier in cash/);
+  assert.match(customer.html, /pay <strong>\$120\.00<\/strong>\s+in cash to the driver/);
+  assert.match(customer.html, /email you a tracking link when your order ships/);
+  assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">Confirmed before dispatch/);
+  assert.match(customer.html, /plus the delivery fee, which we confirm before dispatch/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
   assert.equal(shop.reply_to, 'rana@example.com');
   assert.match(shop.subject, /S016/);
@@ -85,7 +86,7 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(customer.html, /Crescent Moon Ring &times; 1<br><span[^>]*>18k rose gold &middot; EU 52 &middot; Made to order \(3–4 weeks, paid by Whish\)<\/span>/,
     'emails show metal, size and whether the piece is made to order');
   assert.match(customer.html, /V-Bird Necklace &times; 1<br><span[^>]*>18k yellow gold &middot; In stock<\/span>/);
-  assert.match(customer.html, /You will pay <strong>\$120\.00<\/strong> in cash/);
+  assert.match(customer.html, /You will pay <strong>\$120\.00<\/strong>\s+in cash/);
   assert.match(customer.html, /made-to-order pieces \(<strong>\$85\.00<\/strong>\) are paid by Whish/);
   assert.match(shop.subject, /\$120\.00 cash \+ \$85\.00 Whish/);
   assert.match(shop.html, /Made to order:<\/strong> send the customer a Whish\s+payment request for \$85\.00/);
@@ -111,8 +112,10 @@ test('cash on delivery order tells the customer to pay the driver', async () => 
   }));
   assert.equal(calls.find((c) => c.url.endsWith('/rpc/place_order')).body.p.payment_method, 'cash');
   const [customer, shop] = emails();
-  assert.match(customer.html, /pay <strong>\$120\.00<\/strong> in cash to the driver/);
-  assert.match(customer.html, /To pay in cash on delivery/);
+  assert.match(customer.html, /pay <strong>\$125\.00<\/strong>\s+in cash to the driver when your order arrives \(\$120\.00 for your jewellery and \$5\.00 for delivery\)/);
+  assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">\$5\.00/);
+  assert.match(customer.html, /Total to pay in cash on delivery<\/td><td[^>]*>\$125\.00/);
+  assert.match(customer.html, /tracking link when your order ships/);
   assert.doesNotMatch(customer.html, /via Whish/);
   assert.match(shop.subject, /\$120\.00 cash/);
   assert.match(shop.html, /cash on delivery/);
@@ -329,12 +332,20 @@ test('a dispatched order emails the customer once, with the tracking number and 
   assert.equal(mail.to[0], 'rana@example.com');
   assert.equal(mail.subject, 'Your Siaram order S017 is on its way');
   assert.match(mail.html, /Wakilni tracking number: <strong>WAK-123<\/strong>/);
-  assert.match(mail.html, /\$\d+\.\d\d<\/strong> in cash ready for the driver,\s+plus the \$5\.00 delivery fee/);
+  assert.match(mail.html, /\$125\.00<\/strong> in cash ready for the driver, including the \$5\.00 delivery fee/);
 
   calls.length = 0;
   handlers['/rest/v1/rpc/claim_dispatch_email'] = () => [200, false];
   assert.deepEqual((await (await orderStatus(dispatchRequest('right'))).json()).sent, false);
   assert.equal(emails().length, 0, 'a second request sends nothing');
+});
+
+test('the "on its way" email gives the customer a link to track the parcel', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_dispatch_email'] = () => [200, true];
+  handlers['/rest/v1/rpc/order_summary'] = () => [200, { ...dispatched, courier_tracking_url: 'https://track.wakilni.com/WK1' }];
+  await orderStatus(dispatchRequest('right'));
+  assert.match(emails()[0].html, /<a href="https:\/\/track\.wakilni\.com\/WK1"[^>]*>Track your parcel<\/a>/);
 });
 
 test('if the email fails, the order can be emailed again later', async () => {
@@ -398,6 +409,16 @@ test('a ready order is booked with Wakilni as cash on delivery, and you get the 
   assert.match(mail.subject, /Wakilni booked for S017/);
   assert.match(mail.html, /\$210\.00<\/strong> in cash on delivery/);
   assert.equal(mail.attachments[0].filename, 'wakilni-label-S017.png');
+});
+
+test('if Wakilni sends no tracking link, one is made from the tracking number', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, readyOrder];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  handlers['/api/v2/clients/add_delivery/77'] = () => [200, { delivery_id: 98765, tracking_id: 'WK9' }];
+  await courierBook(courierRequest('courier-book'));
+  assert.equal(calls.find((c) => c.url.endsWith('/record_courier_booking')).body.p_url, 'https://track.wakilni.com/WK9');
 });
 
 test('a gift goes to the recipient, with the sender as second phone', async () => {

@@ -138,9 +138,9 @@ Order emails, Supabase and the order functions keep working. Google is told the 
    delivery for the order total plus the delivery fee, and emails you the tracking number and the parcel label
    (print it and stick it on the box). If Wakilni refuses it (for example an area it does not recognise), you get an
    email saying why: fix the **city** column, set the status to `preparing` and back to `ready` to try again.
-4. Every hour the site reads Wakilni's status. Once the driver has the parcel the order becomes `dispatched` and the
-   customer is emailed that it is on its way (with the tracking number and the cash to have ready); once delivered it
-   becomes `delivered`. If Wakilni shows a problem (cancelled, failed, refused) you get an email.
+   Once booked, the order becomes `dispatched` and the customer is emailed straight away that it is on its way, with
+   a **Track your parcel** link, the tracking number and the cash to have ready.
+4. Every hour the site reads Wakilni's status and marks the order `delivered` once it arrives. If Wakilni shows a problem (cancelled, failed, refused) you get an email.
    You can still do it by hand: book in the Wakilni portal, type the tracking number in **tracking_number** and set
    **status** to `dispatched`.
 5. Orders booked by hand: set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.

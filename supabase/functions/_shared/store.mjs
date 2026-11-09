@@ -161,10 +161,21 @@ export function financeRowsHtml(order, today = new Date()) {
     <table style="border-collapse:collapse">${tr(head, 'th')}${rows.map((r) => tr(r, 'td')).join('')}</table>`;
 }
 
+const feeKnown = (order) => order.delivery_fee !== null && order.delivery_fee !== undefined;
+
+// What the customer hands the driver: the in-stock jewellery still to pay plus the delivery fee.
+export function cashOnDelivery(order) {
+  return paymentSplit(order).cash + (feeKnown(order) ? Number(order.delivery_fee) : 0);
+}
+
+// Delivery as its own line, then one total for the driver (and the Whish part, if any).
 function payRows(order) {
-  const { cash, whish } = paymentSplit(order);
+  const { whish } = paymentSplit(order);
   const row = (label, amount) => `<tr><td style="padding:8px 0;font-weight:bold">${label}</td><td align="right" style="padding:8px 0;font-weight:bold">${money(amount)}</td></tr>`;
-  return `${cash || !whish ? row('To pay in cash on delivery', cash) : ''}${whish ? row('To pay by Whish before production', whish) : ''}`;
+  const delivery = `<tr><td style="padding:6px 0">Delivery</td><td align="right" style="padding:6px 0">${feeKnown(order)
+    ? money(order.delivery_fee) : 'Confirmed before dispatch'}</td></tr>`;
+  const cashLabel = `Total to pay in cash on delivery${feeKnown(order) ? '' : ' (plus delivery)'}`;
+  return `${delivery}${row(cashLabel, cashOnDelivery(order))}${whish ? row('To pay by Whish before production', whish) : ''}`;
 }
 
 // The shop's copy also shows each piece's SKU, to match the finance workbook.
@@ -173,9 +184,6 @@ export function orderSummaryHtml(order, { sku = false } = {}) {
     .map((i) => `<tr><td style="padding:6px 0">${sku && i.sku ? `${escapeHtml(i.sku)} &middot; ` : ''}${escapeHtml(i.name)} &times; ${i.quantity}${itemOptions(i)}</td>
       <td align="right" style="padding:6px 0">${money(i.unit_price * i.quantity)}</td></tr>`)
     .join('');
-  const delivery = order.delivery_fee === null || order.delivery_fee === undefined
-      ? 'Confirmed before dispatch, paid to the courier in cash'
-      : `${money(order.delivery_fee)}, paid to the courier in cash`;
   const voucher = Number(order.voucher_amount) > 0
     ? `<tr><td style="padding:6px 0">Gift voucher ${escapeHtml(order.voucher_code)}</td>
        <td align="right" style="padding:6px 0">&minus;${money(order.voucher_amount)}</td></tr>` : '';
@@ -186,7 +194,6 @@ ${rows}
 <tr><td style="padding:6px 0;border-top:1px solid #e3dccd">Subtotal</td><td align="right" style="padding:6px 0;border-top:1px solid #e3dccd">${money(order.subtotal)}</td></tr>
 ${voucher}
 ${payRows(order)}
-<tr><td style="padding:6px 0;color:#6b6b5f">Delivery</td><td align="right" style="padding:6px 0;color:#6b6b5f">${delivery}</td></tr>
 </table>
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.is_gift && order.gift_recipient_name ? order.gift_recipient_name : order.customer_name)}, ${address}${order.is_gift && order.gift_recipient_phone ? ` (${escapeHtml(order.gift_recipient_phone)})` : ''}</p>
 ${order.is_gift ? `<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Gift:</strong> no prices in the parcel${order.gift_message ? `; message card: &ldquo;${escapeHtml(order.gift_message)}&rdquo;` : ''}</p>` : ''}
@@ -195,13 +202,18 @@ ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Note
 }
 
 export function paymentInstructionsHtml(order) {
-  if (Number(order.total) <= 0) {
-    return '<p style="font-size:15px;line-height:1.6">Your gift voucher covers this order, so there is nothing to pay.</p>';
-  }
   const { cash, whish } = paymentSplit(order);
   const p = (html) => `<p style="font-size:15px;line-height:1.6">${html}</p>`;
-  return (cash ? p(`You will pay <strong>${money(cash)}</strong> in cash to the driver when your order arrives, plus the
-delivery fee. We will email you when your order ships.`) : '')
+  const fee = feeKnown(order) ? Number(order.delivery_fee) : null;
+  const toDriver = cashOnDelivery(order);
+  const breakdown = cash && fee ? ` (${money(cash)} for your jewellery and ${money(fee)} for delivery)`
+    : !cash && fee ? ' for delivery' : '';
+  const cashLine = toDriver > 0
+    ? p(`${Number(order.total) <= 0 ? 'Your gift voucher covers your jewellery. ' : ''}You will pay <strong>${money(toDriver)}</strong>
+in cash to the driver when your order arrives${breakdown}${fee === null ? ', plus the delivery fee, which we confirm before dispatch' : ''}.
+We will email you a tracking link when your order ships.`)
+    : p('Your gift voucher covers this order. We will email you a tracking link when your order ships.');
+  return (toDriver > 0 || !whish ? cashLine : '')
     + (whish ? p(`Your made-to-order pieces (<strong>${money(whish)}</strong>) are paid by Whish: we will send you a payment
 request, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together
 when the whole order is ready.`) : '');

@@ -230,7 +230,7 @@ async function renderAccount() {
 
 async function renderOrders(panel) {
   const { data: orders } = await client.from('orders')
-    .select('reference, created_at, status, total, order_items(name, quantity)')
+    .select('reference, created_at, status, total, tracking_number, courier_tracking_url, order_items(name, quantity)')
     .order('created_at', { ascending: false });
   if (!orders || !orders.length) {
     panel.innerHTML = '<div class="store-empty"><p>You haven\'t placed any orders yet.</p><a href="shop.html" class="btn btn-outline">Shop the Collection</a></div>';
@@ -240,7 +240,9 @@ async function renderOrders(panel) {
     <div><strong>${escapeHtml(o.reference)}</strong>
       <span class="field-note">${new Date(o.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span></div>
     <div>${o.order_items.map((i) => `${escapeHtml(i.name)} &times; ${i.quantity}`).join('<br />')}</div>
-    <div><span class="status-pill status-${o.status}">${STATUS[o.status] || o.status}</span></div>
+    <div><span class="status-pill status-${o.status}">${STATUS[o.status] || o.status}</span>
+      ${o.courier_tracking_url && /^https:\/\//.test(o.courier_tracking_url) && ['ready', 'dispatched'].includes(o.status)
+        ? `<br /><a href="${escapeHtml(o.courier_tracking_url)}" target="_blank" rel="noopener">Track your parcel</a>` : ''}</div>
     <div class="order-total">${money(o.total)}</div></div>`).join('');
 }
 

@@ -37,15 +37,16 @@ function renderSummary() {
     return `<div class="summary-row"><span>${escapeHtml(p.name)} &times; ${i.quantity}
       <small class="summary-options">${optionsLabel(i)}</small>${availabilityHtml(state.stock, i)}</span><span>${money(p.price * i.quantity)}</span></div>`;
   }).join('');
-  const delivery = !t.areaChosen ? 'Choose your area to see the delivery fee.'
-    : t.fee === null ? 'Delivery fee confirmed before dispatch, paid to the courier in cash.'
-    : `Delivery: ${money(t.fee)}, paid to the courier in cash.`;
+  const feeKnown = t.areaChosen && t.fee !== null;
+  const delivery = !t.areaChosen ? 'Choose your area' : t.fee === null ? 'Confirmed before dispatch' : money(t.fee);
+  const toDriver = t.cash + (feeKnown ? Number(t.fee) : 0);
   root.querySelector('.summary-lines').innerHTML = `${lines}
     <div class="summary-row summary-sub"><span>Subtotal</span><span>${money(t.subtotal)}</span></div>
     ${t.discount ? `<div class="summary-row"><span>Gift voucher</span><span>&minus;${money(t.discount)}</span></div>` : ''}
-    ${t.cash || !t.whish ? `<div class="summary-row summary-total"><span>To pay in cash on delivery</span><span>${money(t.cash)}</span></div>` : ''}
+    <div class="summary-row"><span>Delivery</span><span>${delivery}</span></div>
+    ${toDriver || !t.whish ? `<div class="summary-row summary-total"><span>Total to pay in cash on delivery${feeKnown ? '' : ' (plus delivery)'}</span><span>${money(toDriver)}</span></div>` : ''}
     ${t.whish ? `<div class="summary-row summary-total"><span>To pay by Whish before production</span><span>${money(t.whish)}</span></div>` : ''}
-    <p class="summary-note">${delivery}</p>`;
+    <p class="summary-note">You pay the driver in cash when your order arrives${feeKnown ? ', delivery included' : ''}.</p>`;
 }
 
 function fillAddress(a) {
@@ -222,19 +223,20 @@ function showConfirmation(order) {
   const pay = split(Number(order.total), made);
   const toPay = Number(order.total) <= 0
     ? '<p>Your gift voucher covers this order, so there is nothing more to pay for your jewellery.</p>'
-    : `${pay.cash ? `<p>You'll pay <strong>${money(pay.cash)}</strong> in cash to the driver when your order arrives.</p>` : ''}
+    : `${pay.cash ? `<p>You'll pay <strong>${money(pay.cash + (order.delivery_fee == null ? 0 : Number(order.delivery_fee)))}</strong>
+         in cash to the driver when your order arrives${order.delivery_fee == null ? '' : `, including ${money(order.delivery_fee)} delivery`}.</p>` : ''}
        ${pay.whish ? `<p>Your made-to-order pieces (<strong>${money(pay.whish)}</strong>) are paid by Whish: we'll send you a
          payment request, and production starts once it is paid. They take 3&ndash;4 weeks and are final sale.</p>` : ''}`;
   const handover = `<p>${order.delivery_fee === null || order.delivery_fee === undefined
-        ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the courier in cash.'
-        : `The delivery fee of ${money(order.delivery_fee)} is paid to the courier in cash.`}</p>`;
+        ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the driver in cash.'
+        : pay.cash ? '' : `You pay only the ${money(order.delivery_fee)} delivery fee in cash to the driver.`}</p>`;
   root.innerHTML = `<div class="order-done">
     <span class="eyebrow">Order received</span>
     <h2>Thank you, ${escapeHtml(order.customer_name.split(' ')[0])}!</h2>
     <p class="order-ref">Your order reference is <strong>${escapeHtml(order.reference)}</strong></p>
     ${toPay}
     ${handover}
-    <p>We have received your order. We will email you when it ships.</p>
+    <p>We have received your order. We will email you when it ships, with a link to track it.</p>
     <p>A confirmation has been sent to ${escapeHtml(order.email)}.</p>
     <a href="shop.html" class="btn btn-outline">Continue Shopping</a>
   </div>`;
