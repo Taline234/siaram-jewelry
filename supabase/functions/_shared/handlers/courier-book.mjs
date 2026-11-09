@@ -50,7 +50,7 @@ export default async (req) => {
      ${booking.trackingId ? `<p style="font-size:15px;line-height:1.6">Tracking number: <strong>${escapeHtml(booking.trackingId)}</strong>
        ${booking.trackingUrl ? ` &middot; <a href="${escapeHtml(booking.trackingUrl)}">track it</a>` : ''}</p>` : ''}
      <p style="font-size:15px;line-height:1.6">${label.length ? 'The parcel label is attached: print it and stick it on the box. ' : ''}
-     Write <strong>${escapeHtml(order.reference)}</strong> on the parcel. Once the driver has it, the order is marked
-     <strong>dispatched</strong> and the customer is emailed automatically.</p>`, label);
+     Write <strong>${escapeHtml(order.reference)}</strong> on the parcel. The order is now <strong>dispatched</strong>, and
+     the customer has been emailed that it is on its way, with the link to track it.</p>`, label);
   return json({ booked: true, tracking_id: booking.trackingId });
 };

@@ -1438,8 +1438,11 @@ begin
   if p_error is not null then
     update public.orders set courier_error = left(p_error, 1000), courier_booked_at = null where id = p_order_id;
   else
+    -- Booked: the order becomes 'dispatched' at once, so the customer is emailed the tracking link straight away
+    -- (order_dispatched trigger), without waiting for Wakilni's next status.
     update public.orders set courier_order_id = p_courier_order_id, tracking_number = coalesce(p_tracking, tracking_number),
-           courier_tracking_url = p_url, courier_status = 'Pending', courier_error = null
+           courier_tracking_url = p_url, courier_status = 'Pending', courier_error = null,
+           status = case when status = 'ready' then 'dispatched' else status end
      where id = p_order_id;
   end if;
 end;

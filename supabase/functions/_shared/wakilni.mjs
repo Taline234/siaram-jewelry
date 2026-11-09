@@ -111,7 +111,10 @@ export async function bookDelivery(order) {
   await call('POST', `/api/v2/clients/end_bulk/${bulkId}`, { token });
   const id = Number(delivery.delivery_id ?? delivery.id ?? delivery.data?.delivery_id);
   if (!id) throw new Error('Wakilni did not return the delivery id.');
-  return { id, trackingId: delivery.tracking_id || null, trackingUrl: delivery.tracking_url || null,
+  const trackingId = delivery.tracking_id || null;
+  // Wakilni's tracking pages are track.wakilni.com/<tracking id>; used if the link itself is not returned.
+  const trackingUrl = delivery.tracking_url || (trackingId ? `https://track.wakilni.com/${encodeURIComponent(trackingId)}` : null);
+  return { id, trackingId, trackingUrl,
            label: typeof delivery.barcode_label === 'string' ? delivery.barcode_label : null };
 }
 

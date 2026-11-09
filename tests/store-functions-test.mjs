@@ -411,6 +411,16 @@ test('a ready order is booked with Wakilni as cash on delivery, and you get the 
   assert.equal(mail.attachments[0].filename, 'wakilni-label-S017.png');
 });
 
+test('if Wakilni sends no tracking link, one is made from the tracking number', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, readyOrder];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  handlers['/api/v2/clients/add_delivery/77'] = () => [200, { delivery_id: 98765, tracking_id: 'WK9' }];
+  await courierBook(courierRequest('courier-book'));
+  assert.equal(calls.find((c) => c.url.endsWith('/record_courier_booking')).body.p_url, 'https://track.wakilni.com/WK9');
+});
+
 test('a gift goes to the recipient, with the sender as second phone', async () => {
   wakilniOk();
   handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
