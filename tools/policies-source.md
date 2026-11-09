@@ -110,7 +110,7 @@ We may photograph and share our pieces without identifying the customer. We will
 
 ## Where we deliver
 
-We deliver within the Lebanese areas available at checkout or confirmed before a message order is accepted. We do not currently deliver to South Lebanon or Nabatieh. Delivery availability may change; we check the address before accepting payment. If we later cannot deliver an accepted order, we will contact you about an alternative arrangement or a refund where the order cannot be fulfilled.
+We deliver within the Lebanese areas available at checkout or confirmed before a message order is accepted. We do not currently deliver to South Lebanon, Nabatieh or Baalbek-Hermel. Delivery availability may change; we check the address before accepting payment. If we later cannot deliver an accepted order, we will contact you about an alternative arrangement or a refund where the order cannot be fulfilled.
 
 ## Delivery estimates
 

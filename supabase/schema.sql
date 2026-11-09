@@ -1381,3 +1381,128 @@ grant execute on function public.place_order(jsonb, uuid), public.check_voucher(
   public.claim_dispatch_email(uuid, boolean) to service_role;
 revoke execute on function public.touch_activity() from public, anon;
 grant execute on function public.touch_activity() to authenticated;
+
+-- ---------------------------------------------------------------- courier (Wakilni)
+-- Delivery fees from Wakilni's online-store rates ($5 anywhere in Lebanon, November 2026). Only fills empty fees,
+-- so a fee you type in the Table Editor is kept.
+update public.delivery_areas set delivery_fee = 5 where delivery_fee is null and accepts_orders;
+-- Wakilni does not deliver items worth more than $200 to Baalbek, Hermel and nearby areas, and every piece costs more.
+update public.delivery_areas set accepts_orders = false where governorate = 'Baalbek-Hermel';
+
+-- Setting an order's status to 'ready' (packed and ready for pickup) books it with Wakilni as cash on delivery,
+-- through the courier-book function. Every hour courier-sync reads Wakilni's status: when the driver has the
+-- parcel the order becomes 'dispatched' (and the customer gets the "on its way" email), then 'delivered'.
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders add constraint orders_status_check
+  check (status in ('received','awaiting_payment','paid','preparing','ready','dispatched','delivered','cancelled'));
+alter table public.orders add column if not exists courier_order_id bigint;     -- Wakilni's order id
+alter table public.orders add column if not exists courier_tracking_url text;
+alter table public.orders add column if not exists courier_booked_at timestamptz;
+alter table public.orders add column if not exists courier_status text;          -- Wakilni's latest status
+alter table public.orders add column if not exists courier_error text;           -- why the last booking failed
+
+-- Where Wakilni picks parcels up (your address in the Wakilni portal); fill in once in Table Editor -> store_settings.
+alter table public.store_settings add column if not exists courier_pickup_area text;
+alter table public.store_settings add column if not exists courier_pickup_floor int;
+alter table public.store_settings add column if not exists courier_pickup_latitude numeric;
+alter table public.store_settings add column if not exists courier_pickup_longitude numeric;
+
+-- Claims the right to book (true once per order, while it is 'ready' and not booked); release allows a retry.
+create or replace function public.claim_courier_booking(p_order_id uuid, p_release boolean default false) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  if p_release then
+    update public.orders set courier_booked_at = null where id = p_order_id and courier_order_id is null;
+    return false;
+  end if;
+  update public.orders set courier_booked_at = now(), courier_error = null
+   where id = p_order_id and status = 'ready' and courier_order_id is null and courier_booked_at is null
+     and fulfilment = 'delivery';
+  return found;
+end;
+$$;
+
+create or replace function public.courier_booking_details(p_order_id uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select public.order_summary(p_order_id) || jsonb_build_object(
+           'pickup_area', s.courier_pickup_area, 'pickup_floor', s.courier_pickup_floor,
+           'pickup_latitude', s.courier_pickup_latitude, 'pickup_longitude', s.courier_pickup_longitude)
+    from public.store_settings s where s.id = 1;
+$$;
+
+create or replace function public.record_courier_booking(p_order_id uuid, p_courier_order_id bigint,
+                                                         p_tracking text, p_url text, p_error text default null)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if p_error is not null then
+    update public.orders set courier_error = left(p_error, 1000), courier_booked_at = null where id = p_order_id;
+  else
+    update public.orders set courier_order_id = p_courier_order_id, tracking_number = coalesce(p_tracking, tracking_number),
+           courier_tracking_url = p_url, courier_status = 'Pending', courier_error = null
+     where id = p_order_id;
+  end if;
+end;
+$$;
+
+-- Booked orders still on their way, for courier-sync.
+create or replace function public.courier_orders_open() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('id', o.id, 'reference', o.reference, 'courier_order_id', o.courier_order_id,
+                                               'status', o.status, 'courier_status', o.courier_status)), '[]'::jsonb)
+    from public.orders o
+   where o.courier_order_id is not null and o.status in ('ready', 'dispatched');
+$$;
+
+-- Applies Wakilni's status to an order. Returns what changed, so the function can tell you about problems.
+create or replace function public.courier_status_update(p_order_id uuid, p_code int, p_status text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_old text;
+  v_order text;
+  v_new text;
+begin
+  select courier_status, status into v_old, v_order from public.orders where id = p_order_id for update;
+  if not found or v_old is not distinct from p_status then
+    return jsonb_build_object('changed', false);
+  end if;
+  v_new := v_order;
+  if p_code = 3 and v_order = 'ready' then v_new := 'dispatched';                       -- Processing: the driver has it
+  elsif p_code = 4 and p_status not ilike '%reject%' and v_order in ('ready', 'dispatched') then v_new := 'delivered';
+  end if;
+  update public.orders set courier_status = p_status, status = v_new where id = p_order_id;
+  return jsonb_build_object('changed', true, 'order_status', v_new,
+                            'problem', p_code in (5, 6, 7, 8, 9, 10) or p_status ilike '%reject%');
+end;
+$$;
+
+create or replace function private.order_ready() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  v_url    text;
+  v_secret text;
+begin
+  select functions_url, secret into v_url, v_secret from private.cron where id = 1;
+  if v_url is not null and exists (select 1 from pg_extension where extname = 'pg_net') then
+    perform net.http_post(
+      url := v_url || '/courier-book',
+      headers := jsonb_build_object('content-type', 'application/json', 'x-cron-secret', v_secret),
+      body := jsonb_build_object('order_id', new.id)
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists order_ready on public.orders;
+create trigger order_ready after update of status on public.orders
+  for each row when (new.status = 'ready' and old.status is distinct from 'ready' and new.courier_order_id is null)
+  execute function private.order_ready();
+
+revoke execute on function public.claim_courier_booking(uuid, boolean) from public, anon, authenticated;
+revoke execute on function public.courier_booking_details(uuid) from public, anon, authenticated;
+revoke execute on function public.record_courier_booking(uuid, bigint, text, text, text) from public, anon, authenticated;
+revoke execute on function public.courier_orders_open() from public, anon, authenticated;
+revoke execute on function public.courier_status_update(uuid, int, text) from public, anon, authenticated;
+grant execute on function public.claim_courier_booking(uuid, boolean), public.courier_booking_details(uuid),
+  public.record_courier_booking(uuid, bigint, text, text, text), public.courier_orders_open(),
+  public.courier_status_update(uuid, int, text) to service_role;

@@ -2,6 +2,7 @@
 // Run: node --test tests/store-functions-test.mjs
 import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 
 process.env.SUPABASE_URL = 'https://db.test';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'eyJservice';
@@ -14,6 +15,8 @@ const { default: deleteAccount } = await import('../supabase/functions/_shared/h
 const { default: inactiveAccounts } = await import('../supabase/functions/_shared/handlers/inactive-accounts.mjs');
 const { default: exportSales } = await import('../supabase/functions/_shared/handlers/export-sales.mjs');
 const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
+const { default: courierBook } = await import('../supabase/functions/_shared/handlers/courier-book.mjs');
+const { default: courierSync } = await import('../supabase/functions/_shared/handlers/courier-sync.mjs');
 const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
 const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
@@ -341,6 +344,121 @@ test('if the email fails, the order can be emailed again later', async () => {
   handlers['/emails'] = () => [500, {}];
   assert.equal((await orderStatus(dispatchRequest('right'))).status, 502);
   assert.ok(calls.some((c) => c.url.endsWith('/claim_dispatch_email') && c.body.p_release === true));
+});
+
+
+// ---------------------------------------------------------------- Wakilni courier
+const courierRequest = (fn, secret = 'right', body = { order_id: 'o1' }) =>
+  new Request(`https://siaram.test/functions/v1/${fn}`, { method: 'POST', body: JSON.stringify(body), headers: { 'x-cron-secret': secret } });
+const readyOrder = { ...savedOrder, reference: 'S017', status: 'ready', delivery_fee: 5, floor: '3', building: 'Rose Bldg',
+                     pickup_area: 'Achrafieh', pickup_floor: 2 };
+function wakilniOk() {
+  process.env.WAKILNI_KEY = 'k'; process.env.WAKILNI_SECRET = 's';
+  handlers['/rest/v1/rpc/cron_secret_ok'] = (c) => [200, c.body.p_secret === 'right'];
+  handlers['/api/v2/third_party/auth_token'] = () => [200, { message: 'ok', token: 'TOKEN' }];
+  handlers['/api/v2/clients/start_bulk'] = () => [200, { message: 'Bulk order opened', bulk_id: 77 }];
+  handlers['/api/v2/clients/add_delivery/77'] = () => [200, { message: 'Delivery order added', delivery_id: 98765,
+    tracking_id: 'WK1', tracking_url: 'https://track.wakilni.com/WK1', barcode_label: Buffer.from('png').toString('base64') }];
+  handlers['/api/v2/clients/end_bulk/77'] = () => [200, { message: 'Closed Bulk order', bulk_id: 77 }];
+}
+
+test('only the database can book the courier', async () => {
+  wakilniOk();
+  assert.equal((await courierBook(courierRequest('courier-book', 'wrong'))).status, 403);
+  assert.equal((await courierSync(courierRequest('courier-sync', 'wrong'))).status, 403);
+  assert.ok(!calls.some((c) => c.url.includes('wakilni')));
+});
+
+test('a ready order is booked with Wakilni as cash on delivery, and you get the label', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, readyOrder];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  const res = await courierBook(courierRequest('courier-book'));
+  assert.deepEqual(await res.json(), { booked: true, tracking_id: 'WK1' });
+  const auth = calls.find((c) => c.url.includes('/auth_token'));
+  assert.match(auth.url, /key=k&secret=s/);
+  const bulk = calls.find((c) => c.url.endsWith('/start_bulk'));
+  assert.equal(bulk.headers.authorization, 'Bearer TOKEN');
+  assert.deepEqual(bulk.body, { location_id: 1, area: 'Achrafieh', floor: 2 });
+  const d = calls.find((c) => c.url.endsWith('/add_delivery/77')).body;
+  assert.equal(d.waybill, 'S017');
+  assert.equal(d.receiver_first_name, 'Rana');
+  assert.equal(d.receiver_area, 'Achrafieh');
+  assert.equal(d.receiver_floor, 3);
+  assert.equal(d.currency, 1);
+  assert.equal(d.cash_collection_type_id, 52);
+  assert.equal(d.collection_amount, 210, 'the jewellery total plus the $5 delivery fee');
+  assert.deepEqual(d.packages[0], { quantity: 1, type_id: 59, name: 'Jewellery', sku: 'NK-07, RG-01' });
+  assert.ok(calls.some((c) => c.url.endsWith('/end_bulk/77')), 'the pickup is closed so Wakilni receives it');
+  const saved = calls.find((c) => c.url.endsWith('/record_courier_booking')).body;
+  assert.deepEqual([saved.p_courier_order_id, saved.p_tracking], [98765, 'WK1']);
+  const [mail] = emails();
+  assert.equal(mail.to[0], 'shop@siaram.test');
+  assert.match(mail.subject, /Wakilni booked for S017/);
+  assert.match(mail.html, /\$210\.00<\/strong> in cash on delivery/);
+  assert.equal(mail.attachments[0].filename, 'wakilni-label-S017.png');
+});
+
+test('a gift goes to the recipient, with the sender as second phone', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, { ...readyOrder, is_gift: true,
+    gift_recipient_name: 'Maya Khoury', gift_recipient_phone: '71', total: 0 }];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  await courierBook(courierRequest('courier-book'));
+  const d = calls.find((c) => c.url.endsWith('/add_delivery/77')).body;
+  assert.deepEqual([d.receiver_first_name, d.receiver_last_name, d.receiver_phone_number, d.receiver_secondary_phone_number],
+                   ['Maya', 'Khoury', '71', '70']);
+  assert.equal(d.receiver_email, undefined);
+  assert.equal(d.collection_amount, 5, 'a voucher-paid gift: only the delivery fee is collected');
+});
+
+test('a booking Wakilni refuses is recorded and you are told why', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, readyOrder];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  handlers['/api/v2/clients/add_delivery/77'] = () => [422, { message: 'The given data was invalid.',
+    errors: { receiver_area: ['Area not found.'] } }];
+  assert.equal((await courierBook(courierRequest('courier-book'))).status, 502);
+  const saved = calls.find((c) => c.url.endsWith('/record_courier_booking')).body;
+  assert.match(saved.p_error, /Area not found/);
+  const [mail] = emails();
+  assert.match(mail.subject, /Wakilni booking failed for S017/);
+  assert.match(mail.html, /Area not found/);
+});
+
+test('without a pickup area nothing is sent to Wakilni', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/claim_courier_booking'] = () => [200, true];
+  handlers['/rest/v1/rpc/courier_booking_details'] = () => [200, { ...readyOrder, pickup_area: null }];
+  handlers['/rest/v1/rpc/record_courier_booking'] = () => [200, null];
+  assert.equal((await courierBook(courierRequest('courier-book'))).status, 502);
+  assert.ok(!calls.some((c) => c.url.includes('start_bulk')));
+  assert.match(calls.find((c) => c.url.endsWith('/record_courier_booking')).body.p_error, /courier_pickup_area/);
+});
+
+test('the hourly check follows Wakilni and reports problems', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/courier_orders_open'] = () => [200, [
+    { id: 'o1', reference: 'S017', courier_order_id: 98765, status: 'ready' },
+    { id: 'o2', reference: 'S018', courier_order_id: 98766, status: 'dispatched' }]];
+  handlers['/api/v2/clients/orders/status'] = (c) => [200, { success: true, data: { logs:
+    new URL(c.url).searchParams.get('order_id') === '98765'
+      ? [{ status: 'Pending', status_code: 1, created_at: '2026-11-09 10:00:00' },
+         { status: 'Processing', status_code: 3, created_at: '2026-11-09 12:00:00' }]
+      : [{ status: 'Canceled', status_code: 7, created_at: '2026-11-09 12:00:00' }] } }];
+  handlers['/rest/v1/rpc/courier_status_update'] = (c) => [200, c.body.p_code === 3
+    ? { changed: true, order_status: 'dispatched', problem: false }
+    : { changed: true, order_status: 'dispatched', problem: true }];
+  const out = await (await courierSync(courierRequest('courier-sync', 'right', {}))).json();
+  assert.equal(out.checked, 2);
+  const updates = calls.filter((c) => c.url.endsWith('/courier_status_update')).map((c) => [c.body.p_code, c.body.p_status]);
+  assert.deepEqual(updates, [[3, 'Processing'], [7, 'Canceled']], 'the latest status of each order is used');
+  const mails = emails();
+  assert.equal(mails.length, 1);
+  assert.match(mails[0].subject, /Wakilni: Canceled for S018/);
 });
 
 // ---------------------------------------------------------------- custom-piece requests

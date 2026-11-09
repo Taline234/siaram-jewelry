@@ -75,7 +75,17 @@ Your Outlook mailbox stays exactly as it is. Resend only *sends* the automatic e
    repository secret**, name `SUPABASE_ACCESS_TOKEN`, paste the token. From then on, every change to
    `supabase/functions` on `main` is sent to Supabase by `.github/workflows/deploy-functions.yml`
    (GitHub → **Actions** shows each run; **Run workflow** sends it by hand).
-3. **Daily account job**: run [`supabase/cron.sql`](supabase/cron.sql) once in the SQL Editor. It asks the
+3. **Wakilni (the courier)**:
+   1. In the Wakilni portal: **Settings → Api Tokens → Link to your custom app**, type `Siaram website`, click
+      **Create**. Copy the key and the secret it shows.
+   2. In Supabase → **Edge Functions → Secrets**, add `WAKILNI_KEY` (the key) and `WAKILNI_SECRET` (the secret).
+   3. In Supabase → **Table Editor → store_settings**, fill in **courier_pickup_area** with the area of the address
+      Wakilni picks parcels up from, written as in the Wakilni portal (for example `Achrafieh`), and
+      **courier_pickup_floor** if you like.
+   Delivery fees: Wakilni charges online stores $5 anywhere in Lebanon, so every open area is set to $5 in
+   **delivery_areas** (change it there if your contract differs). Baalbek-Hermel is closed, because Wakilni does
+   not deliver items over $200 there.
+4. **Daily account job**: run [`supabase/cron.sql`](supabase/cron.sql) once in the SQL Editor. It asks the
    database to call the `inactive-accounts` function every night, which also keeps the free project awake.
 
 ## 4. Cloudflare Pages — the website
@@ -124,12 +134,16 @@ Order emails, Supabase and the order functions keep working. Google is told the 
    If the order has a made-to-order piece (rose or white gold, or out of stock), send the customer a
    Whish payment request for it and start production once it clears. Then open **Supabase → Table
    Editor → orders** and set the status to `preparing` (or `cancelled` if it cannot go ahead).
-3. Book the delivery with Wakilni as cash on delivery, for the order total plus the delivery fee (the
-   email shows both).
-4. When Wakilni collects the parcel: in **Table Editor → orders**, optionally type Wakilni's tracking number in
-   **tracking_number**, then set **status** to `dispatched`. The customer is emailed straight away that the order is
-   on its way (with the tracking number and the cash to have ready). It is sent once per order.
-5. Set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
+3. When the parcel is packed, set **status** to `ready`. The site books it with Wakilni straight away, as cash on
+   delivery for the order total plus the delivery fee, and emails you the tracking number and the parcel label
+   (print it and stick it on the box). If Wakilni refuses it (for example an area it does not recognise), you get an
+   email saying why: fix the **city** column, set the status to `preparing` and back to `ready` to try again.
+4. Every hour the site reads Wakilni's status. Once the driver has the parcel the order becomes `dispatched` and the
+   customer is emailed that it is on its way (with the tracking number and the cash to have ready); once delivered it
+   becomes `delivered`. If Wakilni shows a problem (cancelled, failed, refused) you get an email.
+   You can still do it by hand: book in the Wakilni portal, type the tracking number in **tracking_number** and set
+   **status** to `dispatched`.
+5. Orders booked by hand: set `delivered` once it arrives. Customers with an account see the status under **My Account → Orders**.
 
 **Stock** — in **Table Editor → stock**, one row per piece, metal and size you have ready to ship (size is
 empty for necklaces and earrings, `EU 54` for rings, the length as listed on the site for bracelets, e.g.

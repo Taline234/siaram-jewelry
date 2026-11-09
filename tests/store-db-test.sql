@@ -460,4 +460,44 @@ select pg_temp.check(unsubscribe_newsletter(gen_random_uuid()) is null, 'an unkn
 select pg_temp.check(not has_function_privilege('anon', 'public.unsubscribe_newsletter(uuid)', 'execute')
                      and not has_function_privilege('anon', 'public.newsletter_token(text)', 'execute'),
   'visitors cannot read or use unsubscribe tokens directly');
+
+-- courier (Wakilni): delivery fees, booking once an order is ready, and status updates
+select pg_temp.check((select delivery_fee = 5 from delivery_areas where governorate = 'Beirut')
+                     and not (select accepts_orders from delivery_areas where governorate = 'Baalbek-Hermel'),
+  'Wakilni''s $5 fee is set, and Baalbek-Hermel (no high-value deliveries) is closed');
+update orders set status = 'preparing', courier_order_id = null, courier_booked_at = null, courier_status = null
+ where reference = 'S017';
+select pg_temp.check(not (select claim_courier_booking(id) from orders where reference = 'S017'),
+  'an order is not booked with the courier before it is ready');
+update orders set status = 'ready' where reference = 'S017';
+select pg_temp.check((select claim_courier_booking(id) from orders where reference = 'S017')
+                     and not (select claim_courier_booking(id) from orders where reference = 'S017'),
+  'a ready order is claimed for booking once');
+select record_courier_booking(id, null, null, null, 'Area not found') from orders where reference = 'S017';
+select pg_temp.check((select courier_error = 'Area not found' and courier_booked_at is null from orders where reference = 'S017')
+                     and (select claim_courier_booking(id) from orders where reference = 'S017'),
+  'a failed booking is recorded and can be tried again');
+select record_courier_booking(id, 98765, 'WK1', 'https://track.wakilni.com/WK1') from orders where reference = 'S017';
+select pg_temp.check((select courier_order_id = 98765 and tracking_number = 'WK1' and courier_error is null
+                        from orders where reference = 'S017')
+                     and (select courier_orders_open() @> jsonb_build_array(jsonb_build_object('reference', 'S017')))
+                     and (select (courier_booking_details(id)->>'reference') = 'S017' from orders where reference = 'S017'),
+  'a booking saves Wakilni''s order id and tracking number, and the order is followed until delivery');
+select pg_temp.check((select (courier_status_update(id, 2, 'Confirmed')->>'order_status') = 'ready' from orders where reference = 'S017'),
+  'a confirmed courier order stays ready');
+select pg_temp.check((select (courier_status_update(id, 3, 'Processing')->>'order_status') = 'dispatched' from orders where reference = 'S017'),
+  'once the driver has the parcel the order is dispatched');
+select pg_temp.check((select status = 'dispatched' from orders where reference = 'S017'), 'the dispatched status is saved');
+select pg_temp.check((select not (courier_status_update(id, 3, 'Processing')->>'changed')::boolean from orders where reference = 'S017'),
+  'the same courier status twice changes nothing');
+select pg_temp.check((select (courier_status_update(id, 4, 'Success, Rejected')->>'problem')::boolean from orders where reference = 'S017'),
+  'a refused delivery is reported');
+select pg_temp.check((select status = 'dispatched' from orders where reference = 'S017'),
+  'a refused delivery is not marked delivered');
+select pg_temp.check((select (courier_status_update(id, 4, 'Success')->>'order_status') = 'delivered' from orders where reference = 'S017'),
+  'a successful delivery marks the order delivered');
+select pg_temp.check(not has_function_privilege('anon', 'public.claim_courier_booking(uuid, boolean)', 'execute')
+                     and not has_function_privilege('authenticated', 'public.courier_status_update(uuid, int, text)', 'execute')
+                     and not has_function_privilege('anon', 'public.courier_booking_details(uuid)', 'execute'),
+  'only the server can book or update deliveries');
 \echo 'ALL STORE DATABASE TESTS PASSED'

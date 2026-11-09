@@ -33,3 +33,17 @@ select cron.schedule(
   );
   $$
 );
+
+-- Every hour, read Wakilni's status for booked orders (marks them dispatched, then delivered).
+select cron.schedule(
+  'siaram-courier-sync',
+  '23 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/courier-sync',
+    headers := jsonb_build_object('content-type', 'application/json',
+                                  'x-cron-secret', (select secret from private.cron where id = 1)),
+    body := '{}'::jsonb
+  );
+  $$
+);
