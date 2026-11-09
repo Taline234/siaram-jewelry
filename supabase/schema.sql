@@ -317,6 +317,7 @@ alter table public.orders add column if not exists submission_id text unique;
 alter table public.orders alter column governorate drop not null;
 -- For the "on its way" email (see order_dispatched below): the courier's tracking number, and when it was sent.
 alter table public.orders add column if not exists tracking_number text;
+alter table public.orders add column if not exists courier_tracking_url text;  -- Wakilni's tracking page (see courier below)
 alter table public.orders add column if not exists dispatched_email_at timestamptz;
 alter table public.orders alter column city drop not null;
 alter table public.orders alter column street drop not null;
@@ -590,7 +591,7 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
-      'tracking_number', o.tracking_number, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
+      'tracking_number', o.tracking_number, 'courier_tracking_url', o.courier_tracking_url, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
       'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size,

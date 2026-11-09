@@ -249,9 +249,10 @@ step('expired gift voucher is refused at checkout');
 await page.fill('[name=voucher_code]', 'siaram-good-0001');
 await page.click('.voucher-apply');
 await page.waitForFunction(() => /Voucher applied/.test(document.querySelector('.voucher-msg').textContent));
-assert.match(await page.locator('.summary-total').textContent(), /To pay by Whish before production\s*\$70\.00/,
+assert.match(await page.locator('.summary-lines').textContent(), /To pay by Whish before production\s*\$70\.00/,
   'the rose gold piece is made to order, so it is paid by Whish');
-assert.match(await page.locator('.summary-note').textContent(), /Delivery: \$5\.00, paid to the courier in cash/);
+assert.match(await page.locator('.summary-lines').textContent(), /Delivery\s*\$5\.00\s*Total to pay in cash on delivery\s*\$5\.00/,
+  'delivery is its own line and is paid to the driver in cash');
 step('valid voucher applied to the jewellery: 120 - 50 = 70 by Whish (made to order), $5 delivery paid to the courier');
 
 assert.match(await page.locator('.checkout-mode').textContent(), /Continue as a guest/, 'guest checkout is shown clearly');
@@ -276,8 +277,8 @@ await page.waitForSelector('.order-done');
 const doneText = await page.locator('.order-done').textContent();
 const ref = doneText.match(/S\d{3,}/)[0];
 assert.match(doneText, /\$70\.00/);
-assert.match(doneText, /delivery fee of \$5\.00 is paid to the courier in cash/);
-assert.match(doneText, /We will email you when it ships/, 'the customer is told what happens next');
+assert.match(doneText, /You pay only the \$5\.00 delivery fee in cash to the driver/);
+assert.match(doneText, /We will email you when it ships, with a link to track it/, 'the customer is told what happens next');
 await shot('order-confirmation');
 const [guestOrder] = await q('select * from orders where reference = $1', [ref]);
 assert.ok(guestOrder.terms_accepted_at, 'the order records that the delivery and returns terms were accepted');
@@ -379,11 +380,11 @@ assert.equal(await page.inputValue('[name=email]'), 'rana@example.com');
 assert.equal(await page.inputValue('[name=governorate]'), 'Mount Lebanon');
 assert.equal(await page.locator('[name=age_confirmed]').count(), 0);
 assert.equal(await page.locator('.address-fields').isVisible(), true, 'the address is always asked for');
-assert.match(await page.locator('.summary-total').textContent(), /To pay in cash on delivery\s*\$85\.00/);
+assert.match(await page.locator('.summary-total').textContent(), /Total to pay in cash on delivery\s*\$90\.00/, 'the $85 piece plus $5 delivery');
 await page.check('[name=accept_terms]');
 await page.click('button[type=submit]');
 await page.waitForSelector('.order-done');
-assert.match(await page.locator('.order-done').textContent(), /pay \$85\.00 in cash to the driver/);
+assert.match(await page.locator('.order-done').textContent(), /pay \$90\.00\s+in cash to the driver when your order arrives, including \$5\.00 delivery/);
 assert.equal((await q("select quantity from stock where product_slug = 'crescent-moon-ring' and size = 'EU 54'"))[0].quantity, 0,
   'the order takes the ring off stock');
 const ref2 = (await page.locator('.order-done').textContent()).match(/S\d{3,}/)[0];
