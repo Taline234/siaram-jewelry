@@ -87,6 +87,8 @@ function renderForm(profile) {
 
       <fieldset><legend>Delivery address</legend>
         <p class="field-note">We deliver within Lebanon${closed.length ? `, except ${closed.map(escapeHtml).join(', ')}` : ''}, by Wakilni.
+          In-stock pieces arrive in 2&ndash;3 business days in Beirut and nearby (Jnah to Dbayeh, up to Baabda) and
+          3&ndash;4 business days elsewhere; pieces made to order in 3&ndash;4 weeks.
           The delivery fee is paid to the courier in cash. Your address also appears on your receipt.</p>
         <input type="hidden" name="fulfilment" value="delivery" />
         <div class="address-fields">

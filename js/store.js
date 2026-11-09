@@ -80,12 +80,12 @@ export async function loadStock() {
 export const inStock = (stock, item) => (stock.get(lineKey(item)) || 0) >= (item.quantity || 1);
 
 export function availabilityHtml(stock, item) {
-  if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; ships in 1&ndash;2 business days</span>';
+  if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; delivered in 2&ndash;4 business days</span>';
   const have = stock.get(lineKey(item)) || 0;
   const few = have > 0
-    ? ` <span class="availability-note">Only ${have} in stock: choose ${have} to receive ${have === 1 ? 'it' : 'them'} in 1&ndash;2 business days.</span>`
+    ? ` <span class="availability-note">Only ${have} in stock: choose ${have} to receive ${have === 1 ? 'it' : 'them'} in 2&ndash;4 business days.</span>`
     : '';
-  return `<span class="availability made-to-order">Made to order &middot; 3&ndash;4 weeks, paid by Whish, final sale</span>${few}`;
+  return `<span class="availability made-to-order">Made to order &middot; delivered in 3&ndash;4 weeks, paid by Whish, final sale</span>${few}`;
 }
 
 // ---------------------------------------------------------------- cart

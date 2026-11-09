@@ -114,7 +114,7 @@ We deliver within the Lebanese areas available at checkout or confirmed before a
 
 ## Delivery estimates
 
-In-stock orders normally reach you within three to four business days after order acceptance and the required payment. Orders placed outside business hours begin processing on the next business day. Our business hours are Monday to Friday, 9 am to 5 pm, Lebanon time, excluding Lebanese public holidays.
+In-stock orders normally reach you within two to three business days in Beirut and nearby (from Jnah to Dbayeh and up to Baabda), and within three to four business days elsewhere in Lebanon, after order acceptance and the required payment. Orders placed outside business hours begin processing on the next business day. Our business hours are Monday to Friday, 9 am to 5 pm, Lebanon time, excluding Lebanese public holidays.
 
 Standard designs that are out of stock and must be made normally reach you within three to four weeks of order acceptance and required payment. Bespoke delivery normally takes three to four weeks from production submission after design approval and cleared deposit. The bespoke estimate does not include design development.
 
