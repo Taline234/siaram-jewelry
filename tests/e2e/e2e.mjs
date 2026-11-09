@@ -398,7 +398,8 @@ step(`signed-in checkout prefilled from profile + preferred address; order ${ref
 
 await page.goto(`${ORIGIN}/account.html#orders`);
 await page.waitForSelector('.order-card');
-assert.match(await page.locator('.order-card').textContent(), new RegExp(`${ref2}.*Order received`, 's'));
+assert.match(await page.locator('.order-card').textContent(), new RegExp(`${ref2}.*Ready for pickup by the courier`, 's'),
+  'an order with everything in stock goes to the courier automatically');
 assert.equal(await page.locator('.order-card').count(), 1, 'guest order by someone else is not shown');
 await shot('account-orders');
 step('order history shows the order and its status');

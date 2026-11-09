@@ -17,6 +17,7 @@ const { default: exportSales } = await import('../supabase/functions/_shared/han
 const { default: orderStatus } = await import('../supabase/functions/_shared/handlers/order-status.mjs');
 const { default: courierBook } = await import('../supabase/functions/_shared/handlers/courier-book.mjs');
 const { default: courierSync } = await import('../supabase/functions/_shared/handlers/courier-sync.mjs');
+const { default: courierCancel } = await import('../supabase/functions/_shared/handlers/courier-cancel.mjs');
 const { default: customRequest } = await import('../supabase/functions/_shared/handlers/custom-request.mjs');
 const { default: serviceRequest } = await import('../supabase/functions/_shared/handlers/service-request.mjs');
 const { default: voucherRequest } = await import('../supabase/functions/_shared/handlers/voucher-request.mjs');
@@ -102,6 +103,31 @@ test('guest order is saved and both emails are sent', async () => {
   const pdf = Buffer.from(customer.attachments[0].content, 'base64');
   assert.equal(pdf.subarray(0, 5).toString(), '%PDF-', 'the receipt is a PDF');
   assert.doesNotMatch(shop.html, /<b>Haddad/, 'customer text is escaped in emails');
+});
+
+test('an order with everything in stock is sent to the courier automatically, after the emails', async () => {
+  const inStock = { ...savedOrder, items: [savedOrder.items[0]], fulfilment: 'delivery' };
+  handlers['/rest/v1/rpc/place_order'] = () => [200, inStock];
+  handlers['/rest/v1/rpc/auto_ready_order'] = () => [200, true];
+  await placeOrder(request('/api/place-order', {
+    customer_name: 'Rana', email: 'rana@example.com', phone: '70', governorate: 'Beirut', city: 'A', street: 'S',
+    age_confirmed: true, items: [{ slug: 'v-bird-necklace', quantity: 1 }],
+  }));
+  const order = calls.map((c) => c.url);
+  const ready = order.findIndex((u) => u.endsWith('/rpc/auto_ready_order'));
+  assert.ok(ready > order.lastIndexOf('https://api.resend.com/emails'), 'booked only after both emails are sent');
+  assert.equal(calls[ready].body.p_reference, 'S016');
+  assert.match(emails()[1].html, /being booked with Wakilni now/);
+});
+
+test('an order with a made-to-order piece waits for you to set it ready', async () => {
+  handlers['/rest/v1/rpc/place_order'] = () => [200, savedOrder];
+  await placeOrder(request('/api/place-order', {
+    customer_name: 'Rana', email: 'rana@example.com', phone: '70', governorate: 'Beirut', city: 'A', street: 'S',
+    age_confirmed: true, items: [{ slug: 'v-bird-necklace', quantity: 1 }],
+  }));
+  assert.ok(!calls.some((c) => c.url.endsWith('/rpc/auto_ready_order')));
+  assert.match(emails()[1].html, /set the order to <strong>ready<\/strong> to book Wakilni/);
 });
 
 test('cash on delivery order tells the customer to pay the driver', async () => {
@@ -458,6 +484,28 @@ test('without a pickup area nothing is sent to Wakilni', async () => {
   assert.equal((await courierBook(courierRequest('courier-book'))).status, 502);
   assert.ok(!calls.some((c) => c.url.includes('start_bulk')));
   assert.match(calls.find((c) => c.url.endsWith('/record_courier_booking')).body.p_error, /courier_pickup_area/);
+});
+
+test('cancelling a booked order cancels it with Wakilni', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/courier_cancel_details'] = () => [200, { reference: 'S017', courier_order_id: 98765, status: 'cancelled' }];
+  handlers['/rest/v1/rpc/courier_status_update'] = () => [200, { changed: true }];
+  handlers['/api/v2/clients/orders/98765/cancel'] = () => [200, { message: 'Order canceled', delivery_id: 98765 }];
+  assert.deepEqual(await (await courierCancel(courierRequest('courier-cancel'))).json(), { cancelled: true });
+  const put = calls.find((c) => c.url.endsWith('/orders/98765/cancel'));
+  assert.equal(put.method, 'PUT');
+  assert.match(put.body.reason, /S017 cancelled/);
+  assert.equal(emails().length, 0);
+});
+
+test('if Wakilni refuses the cancellation, you are asked to cancel it with them', async () => {
+  wakilniOk();
+  handlers['/rest/v1/rpc/courier_cancel_details'] = () => [200, { reference: 'S017', courier_order_id: 98765, status: 'cancelled' }];
+  handlers['/api/v2/clients/orders/98765/cancel'] = () => [422, { message: 'Only pending orders can be canceled.' }];
+  assert.equal((await courierCancel(courierRequest('courier-cancel'))).status, 502);
+  const [mail] = emails();
+  assert.match(mail.subject, /Cancel S017 with Wakilni/);
+  assert.match(mail.html, /Only pending orders can be canceled/);
 });
 
 test('the hourly check follows Wakilni and reports problems', async () => {

@@ -38,6 +38,8 @@ export default async (req) => {
 
     const notify = env('ORDER_NOTIFY_EMAIL');
     const pay = paymentSplit(saved);
+    const autoShip = saved.fulfilment !== 'collection' && (saved.items || []).length > 0
+      && (saved.items || []).every((i) => !i.made_to_order);
     const howPaid = [pay.cash && `$${pay.cash.toFixed(2)} cash`, pay.whish && `$${pay.whish.toFixed(2)} Whish`].filter(Boolean).join(' + ')
       || 'gift voucher';
     // The receipt and the care and warranty card, from the owner's Canva template. If they cannot be
@@ -74,11 +76,23 @@ export default async (req) => {
             leave every price out of the parcel${saved.gift_message ? ' and add the message card' : ''}.</p>` : ''}${pay.whish ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Made to order:</strong> send the customer a Whish
             payment request for $${pay.whish.toFixed(2)}, and order production once it is paid.</p>` : ''}
            <p style="font-size:15px;line-height:1.6">Payment: ${howPaid}${pay.cash ? ' (cash on delivery)' : ''}.
-            Status: received — new order to prepare${user ? ' (placed from a customer account)' : ' (guest order)'}.</p>
+            ${autoShip ? 'Everything is in stock, so it is being booked with Wakilni now: you will get the label in a minute. Pack it for pickup.'
+              : 'Status: received. When the made-to-order pieces are finished and packed, set the order to <strong>ready</strong> to book Wakilni.'}
+            ${user ? '(Placed from a customer account.)' : '(Guest order.)'}</p>
            ${orderSummaryHtml(saved, { sku: true })}${financeRowsHtml(saved)}`),
         attachments: [receiptFile].filter(Boolean),
       }),
     ]);
+
+    // Everything in stock: book the courier now (the database then calls courier-book). Done after the emails, so
+    // the customer gets the order confirmation before the "on its way" email with the tracking link.
+    if (autoShip) {
+      try {
+        await rpc('auto_ready_order', { p_reference: saved.reference });
+      } catch (err) {
+        console.error('Automatic courier booking failed', saved.reference, err);
+      }
+    }
 
     return json({ order: saved });
   } catch (err) {

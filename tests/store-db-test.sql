@@ -504,4 +504,17 @@ select pg_temp.check(not has_function_privilege('anon', 'public.claim_courier_bo
                      and not has_function_privilege('authenticated', 'public.courier_status_update(uuid, int, text)', 'execute')
                      and not has_function_privilege('anon', 'public.courier_booking_details(uuid)', 'execute'),
   'only the server can book or update deliveries');
+
+-- automatic courier booking for in-stock orders
+update orders set status = 'received' where reference = 'S018';
+update order_items set made_to_order = true where order_id = (select id from orders where reference = 'S018');
+select pg_temp.check(not auto_ready_order('S018'), 'an order with a made-to-order piece is not booked automatically');
+update order_items set made_to_order = false where order_id = (select id from orders where reference = 'S018');
+select pg_temp.check(auto_ready_order('S018') and not auto_ready_order('S018'), 'an all-in-stock order is set ready once');
+select pg_temp.check((select status = 'ready' from orders where reference = 'S018'), 'the order is ready for the courier');
+update orders set courier_order_id = 5, status = 'cancelled' where reference = 'S018';
+select pg_temp.check((select status = 'cancelled' from orders where reference = 'S018'), 'a booked order can be cancelled (Wakilni is told by courier-cancel)');
+select pg_temp.check(not has_function_privilege('anon', 'public.auto_ready_order(text)', 'execute')
+                     and not has_function_privilege('anon', 'public.courier_cancel_details(uuid)', 'execute'),
+  'only the server can send orders to the courier');
 \echo 'ALL STORE DATABASE TESTS PASSED'
