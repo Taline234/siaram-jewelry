@@ -54,3 +54,11 @@ import_map = "./functions/import_map.json"
 [functions.newsletter-unsubscribe]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.courier-book]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.courier-sync]
+verify_jwt = false
+import_map = "./functions/import_map.json"

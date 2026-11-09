@@ -230,7 +230,7 @@ await page.waitForSelector('form.checkout-layout');
 const govs = await page.locator('[name=governorate] option').allTextContents();
 assert.ok(!govs.includes('South') && !govs.includes('Nabatieh'), 'South and Nabatieh are not offered');
 assert.ok(govs.includes('Bekaa') && govs.includes('Beirut'));
-assert.match(await page.locator('.checkout-main').textContent(), /within Lebanon, except Nabatieh, South, by Wakilni/);
+assert.match(await page.locator('.checkout-main').textContent(), /within Lebanon, except Baalbek-Hermel, Nabatieh, South, by Wakilni/);
 assert.equal(await page.locator('[name=fulfilment][value=collection]').count(), 0, 'collection is not offered');
 assert.equal(await page.locator('.checkout-mode a[href="account.html?next=checkout.html#create"]').count(), 1, 'guests can create an account');
 step('checkout lists Lebanese governorates without South');
