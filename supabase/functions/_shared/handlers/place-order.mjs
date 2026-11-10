@@ -26,6 +26,8 @@ export default async (req) => {
       quantity: Number.parseInt(i?.quantity, 10) || 0,
       metal: String(i?.metal ?? 'yellow').slice(0, 20),
       size: String(i?.size ?? '').slice(0, 30),
+      // A different stone or pearl chosen on the product page (checked by place_order); always made to order.
+      stone: String(i?.stone ?? '').slice(0, 80),
     }));
 
     // Account holders proved they are 18+ when they signed up.

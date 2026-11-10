@@ -77,11 +77,12 @@ export async function loadStock() {
   return stockPromise;
 }
 
-export const inStock = (stock, item) => (stock.get(lineKey(item)) || 0) >= (item.quantity || 1);
+// A piece with a different stone or pearl is always made to order.
+export const inStock = (stock, item) => !item.stone && (stock.get(stockKey(item)) || 0) >= (item.quantity || 1);
 
 export function availabilityHtml(stock, item) {
   if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; delivered in 2&ndash;4 business days &middot; cash on delivery</span>';
-  const have = stock.get(lineKey(item)) || 0;
+  const have = item.stone ? 0 : stock.get(stockKey(item)) || 0;
   const few = have > 0
     ? ` <span class="availability-note">Only ${have} in stock: choose ${have} to receive ${have === 1 ? 'it' : 'them'} in 2&ndash;4 business days.</span>`
     : '';
@@ -96,11 +97,15 @@ export function getCart() {
   memoryCart ||= storageGet(CART_KEY, []);
   return memoryCart
     .filter((i) => i && typeof i.slug === 'string' && i.quantity > 0)
-    .map((i) => ({ metal: 'yellow', size: '', ...i, quantity: Math.min(i.quantity, 3) }));
+    .map((i) => ({ metal: 'yellow', size: '', stone: '', ...i, quantity: Math.min(i.quantity, 3) }));
 }
 
-// One cart line per piece, metal and size.
-export const lineKey = (i) => `${i.slug}|${i.metal || 'yellow'}|${i.size || ''}`;
+// One cart line per piece, metal, size and stone choice; stock is kept per piece, metal and size.
+const stockKey = (i) => `${i.slug}|${i.metal || 'yellow'}|${i.size || ''}`;
+export const lineKey = (i) => `${stockKey(i)}|${i.stone || ''}`;
+
+// The different stone or pearl chosen on the product page, e.g. "black zircon, blue freshwater pearls".
+export const stoneLabel = (stone) => (stone ? `Made with ${stone}` : '');
 
 export const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
 
@@ -108,6 +113,7 @@ export const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white:
 export function optionsLabel(i) {
   const parts = [METALS[i.metal] || METALS.yellow];
   if (i.size) parts.push(i.size);
+  if (i.stone) parts.push(stoneLabel(i.stone));
   return parts.map(escapeHtml).join(' &middot; ');
 }
 
@@ -127,7 +133,7 @@ export function setCart(items) {
 
 export function addToCart(slug, quantity = 1, options = {}) {
   const cart = getCart();
-  const item = { slug, metal: options.metal || 'yellow', size: options.size || '' };
+  const item = { slug, metal: options.metal || 'yellow', size: options.size || '', stone: options.stone || '' };
   const line = cart.find((i) => lineKey(i) === lineKey(item));
   if (line) line.quantity = Math.min(line.quantity + quantity, 3);
   else cart.push({ ...item, quantity: Math.min(quantity, 3) });
@@ -246,7 +252,7 @@ async function setupBuyBox(products) {
         toast('Please choose a size first.');
         return;
       }
-      addToCart(slug, Number(box.querySelector('.qty-select').value), { metal, size: size ? size.value : '' });
+      addToCart(slug, Number(box.querySelector('.qty-select').value), { metal, size: size ? size.value : '', stone: altStone(options) });
       toast(`Added to your cart &middot; <a href="cart.html">View cart</a>`);
     });
     // Once the piece can be bought online, Add to Cart replaces the email enquiry;
@@ -261,7 +267,11 @@ async function setupBuyBox(products) {
   if (purchasable(product)) await showAvailability(slug);
 }
 
-// "In stock" or "Made to order" for the metal and size chosen on a piece's page.
+// The different stone and/or pearl chosen on a piece's page ('' when it is made as shown).
+export const altStone = (options) => [...(options?.querySelectorAll('.alt-stone-select') || [])]
+  .map((s) => s.value).filter(Boolean).join(', ');
+
+// "In stock" or "Made to order" for the metal, size and stone chosen on a piece's page.
 async function showAvailability(slug) {
   const options = document.querySelector('.product-options');
   if (!options) return;
@@ -280,7 +290,7 @@ async function showAvailability(slug) {
     const size = options.querySelector('.size-select');
     const quantity = Number(document.querySelector('.product-buy .qty-select')?.value) || 1;
     status.hidden = Boolean(size && !size.value);
-    if (!status.hidden) status.innerHTML = availabilityHtml(stock, { slug, metal, size: size ? size.value : '', quantity });
+    if (!status.hidden) status.innerHTML = availabilityHtml(stock, { slug, metal, size: size ? size.value : '', stone: altStone(options), quantity });
   };
   options.addEventListener('change', update);
   document.querySelector('.product-buy .qty-select')?.addEventListener('change', update);

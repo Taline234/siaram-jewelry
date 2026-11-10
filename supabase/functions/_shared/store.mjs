@@ -137,11 +137,12 @@ export function paymentSplit(order) {
   return { cash, whish: Number(order.total) - cash };
 }
 
-// Metal and size under each piece.
+// Metal, size and any different stone or pearl under each piece.
 const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
 function itemOptions(i) {
   const parts = [METALS[i.metal] || METALS.yellow];
   if (i.size) parts.push(i.size);
+  if (i.stone) parts.push(`Made with ${i.stone}`);
   parts.push(i.made_to_order ? 'Made to order (3–4 weeks, paid by Whish)' : 'In stock');
   return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
 }

@@ -70,7 +70,7 @@ test('guest order is saved and both emails are sent', async () => {
   assert.equal(rpc.body.p_user_id, null);
   assert.equal(rpc.body.p.age_confirmed, true);
   assert.equal(rpc.body.p.payment_method, 'cash', 'website orders are cash');
-  assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2, metal: 'yellow', size: '' }], 'browser prices are dropped');
+  assert.deepEqual(rpc.body.p.items, [{ slug: 'v-bird-necklace', quantity: 2, metal: 'yellow', size: '', stone: '' }], 'browser prices are dropped');
   assert.equal(rpc.headers.apikey, 'eyJservice');
   assert.equal(rpc.headers.authorization, 'Bearer eyJservice', 'legacy JWT key is also sent as Bearer');
 

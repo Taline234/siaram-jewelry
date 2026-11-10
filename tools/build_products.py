@@ -96,20 +96,20 @@ P = [
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "Designed as a subtle charm for everyday wear.", imgs=3),
     item("horseshoe-necklace-black-stone", "Midnight Horseshoe Necklace", "Necklaces", "equestrian", 525,
-         "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black onyx, finished with a fine drop chain ending in a white zircon.",
-         "Black onyx and white zircon", "Y-shaped gold necklace with a black onyx horseshoe, worn with a white top",
+         "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black zircons, finished with a fine drop chain ending in a white zircon.",
+         "Black and white zircon", "Y-shaped gold necklace with a black zircon horseshoe, worn with a white top",
          "Designed as a subtle charm for everyday wear.", imgs=3),
     item("horseshoe-bracelet", "Midnight Horseshoe Bracelet", "Bracelets", "equestrian", 450,
-         "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black onyx, paired with a brilliant white zircon.",
-         "Black onyx and white zircon", "Gold chain bracelet with a black onyx horseshoe and a white zircon, on the wrist", imgs=3),
+         "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black zircons, paired with a brilliant white zircon.",
+         "Black and white zircon", "Gold chain bracelet with a black zircon horseshoe and a white zircon, on the wrist", imgs=3),
     item("horseshoe-ring", "Fortune Ring", "Rings", "equestrian", 350,
-         "A horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
+         "A horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; white zircon.",
          "Pav&eacute; white zircon", "Gold horseshoe ring set with pavé zircon, worn on the hand",
          "A nod to the bond between a horse and its rider that gave Siaram its name. Delicate enough to stack, easy to wear every day.",
          imgs=3),
     item("horseshoe-chain-earrings", "Midnight Horseshoe Earring", "Earrings", "equestrian", 420,
-         "An 18k yellow gold earring featuring a black onyx horseshoe, connected by a fine gold chain to a sparkling white zircon stud.",
-         "Black onyx and white zircon", "Gold horseshoe chain earring with a white zircon stud, worn on the ear",
+         "An 18k yellow gold earring featuring a black zircon horseshoe, connected by a fine gold chain to a sparkling white zircon stud.",
+         "Black and white zircon", "Gold horseshoe chain earring with a white zircon stud, worn on the ear",
          "Made for two piercings in one ear: the chain drapes between them and catches the light as you move.",
          imgs=3),
     # Equestrian: horse eye
@@ -198,14 +198,14 @@ P = [
          "White zircon", "Gold sun stud earring with white zircon, worn", imgs=3),
     # Ocean
     item("seahorse-pearl-bracelet", "Seahorse Bracelet", "Bracelets", "ocean", 420,
-         "A fine 18k yellow gold chain bracelet with a seahorse charm and a subtle zircon detail, accented by three small white freshwater pearls.",
+         "A fine 18k yellow gold chain bracelet with a seahorse charm and a subtle white zircon detail, accented by three small white freshwater pearls.",
          "White zircon and white freshwater pearls", "Gold seahorse bracelet with white freshwater pearls, on the wrist", imgs=3),
     item("wave-bracelet", "Mar&eacute;e Bracelet", "Bracelets", "ocean", 410,
          "An 18k yellow gold chain bracelet with a fluid wave-inspired design, centred with a luminous white freshwater pearl.",
          "White freshwater pearls", "Gold wave bracelet with a pearl, on the wrist", imgs=3),
     # Arrow
     item("arrow-necklace", "Arrow Necklace", "Necklaces", "arrow", 489,
-         "A Y-shaped 18k yellow gold necklace with an arrow motif and a subtle zircon accent, finished with a fine drop chain and arrow tip.",
+         "A Y-shaped 18k yellow gold necklace with an arrow motif and a subtle white zircon accent, finished with a fine drop chain and arrow tip.",
          "White zircon", "Y-shaped gold arrow necklace worn with a black top", imgs=3),
     item("arrow-bracelet", "Arrow Bracelet", "Bracelets", "arrow", 689,
          "A delicate 18k yellow gold bracelet featuring a geometric arrow, accented with sparkling white zircons and a vibrant red zircon at its centre.",
@@ -225,10 +225,10 @@ P = [
 #      and the former name, so earlier records and links can still be matched.
 MEANING = {
     "horseshoe-necklace": "Named for good fortune, this horseshoe is a reminder of luck, protection and the possibilities ahead.",
-    "horseshoe-necklace-black-stone": "Midnight evokes the depth of its black onyx, while the horseshoe celebrates luck and the bond between horse and rider.",
-    "horseshoe-bracelet": "Midnight evokes the depth of its black onyx, while the horseshoe celebrates luck and the bond between horse and rider.",
+    "horseshoe-necklace-black-stone": "Midnight evokes the depth of its black zircons, while the horseshoe celebrates luck and the bond between horse and rider.",
+    "horseshoe-bracelet": "Midnight evokes the depth of its black zircons, while the horseshoe celebrates luck and the bond between horse and rider.",
     "horseshoe-ring": "Named for good fortune, this horseshoe is a reminder of luck, protection and the possibilities ahead.",
-    "horseshoe-chain-earrings": "Midnight evokes the depth of its black onyx, while the horseshoe celebrates luck and the bond between horse and rider.",
+    "horseshoe-chain-earrings": "Midnight evokes the depth of its black zircons, while the horseshoe celebrates luck and the bond between horse and rider.",
     "horse-eye-necklace": "Regard means &ldquo;gaze&rdquo; in French, honouring the quiet trust and connection shared through a horse&rsquo;s eyes.", "horse-eye-bracelet": "Regard means &ldquo;gaze&rdquo; in French, honouring the quiet trust and connection shared through a horse&rsquo;s eyes.", "horse-eye-ring": "Regard means &ldquo;gaze&rdquo; in French, honouring the quiet trust and connection shared through a horse&rsquo;s eyes.", "horse-eye-stud": "Regard means &ldquo;gaze&rdquo; in French, honouring the quiet trust and connection shared through a horse&rsquo;s eyes.",
     "curved-marquise-necklace": "Aria is a musical term for a solo vocal piece, chosen to evoke the design&rsquo;s flowing movement and graceful lines.", "curved-marquise-bracelet": "Aria is a musical term for a solo vocal piece, chosen to evoke the design&rsquo;s flowing movement and graceful lines.", "curved-marquise-earrings": "Aria is a musical term for a solo vocal piece, chosen to evoke the design&rsquo;s flowing movement and graceful lines.",
     "eye-necklace": "Named for the protective-eye tradition, Nazar symbolises a wish to ward off ill intent and welcome good fortune.",
@@ -274,10 +274,10 @@ for p in P:
 #      materials, and sizes. ring = the size the ring is made in; wrist = adjustable chain (cm).
 D = {
     "horseshoe-necklace": dict(sku="NK-01", stone="White zircon", dims=[("Length", "40 cm chain + 6 cm drop chain")]),
-    "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black onyx, white zircon", dims=[("Length", "39.5&ndash;41.5 cm chain (adjustable) + 5 cm drop chain")]),
-    "horseshoe-bracelet": dict(sku="BR-02", stone="Black onyx, white zircon", wrist=(15, 17)),
+    "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Length", "39.5&ndash;41.5 cm chain (adjustable) + 5 cm drop chain")]),
+    "horseshoe-bracelet": dict(sku="BR-02", stone="Black zircon, white zircon", wrist=(15, 17)),
     "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
-    "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black onyx, white zircon"),
+    "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black zircon, white zircon"),
     "horse-eye-ring": dict(sku="RG-07", stone="Red zircon (marquise cut), white zircon", ring=54),
     "horse-eye-stud": dict(sku="EA-06", stone="Red zircon (marquise cut), white zircon"),
     "horse-eye-bracelet": dict(sku="BR-08", stone="Red zircon (marquise cut), white zircon", wrist=(16, 17.5)),
@@ -413,6 +413,52 @@ NECKLACE_GUIDE = """<dialog class="size-guide" id="size-guide-necklace" aria-lab
 
 """
 
+# A different stone or pearl, chosen on the product page: always made to order (owner, 10 November 2026).
+# The values are what the cart, the order and the receipt carry; keep them in step with ALT_STONES in
+# supabase/schema.sql (place_order) and supabase/functions/_shared/handlers/place-order.mjs.
+ZIRCONS = ["white zircon", "black zircon", "red zircon"]
+PEARLS = ["white freshwater pearls", "blue freshwater pearls"]
+
+
+def alt_choices(p):
+    """The other zircon colours and pearls this piece could be made with: (kind, options)."""
+    text = html.unescape(p["stones"]).lower()
+    out = []
+    if "zircon" in text:
+        have = [z for z in ZIRCONS if z.split()[0] in text]
+        out.append(("stone", [z for z in ZIRCONS if have != [z]]))
+    if "pearl" in text:
+        have = [x for x in PEARLS if x.split()[0] + " freshwater" in text]
+        out.append(("pearl", [x for x in PEARLS if have != [x]]))
+    return out
+
+
+MTO_DIALOG = """          <dialog class="size-guide mto-dialog" id="alt-stone-dialog" aria-labelledby="alt-stone-title">
+            <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
+            <h2 id="alt-stone-title">Made to order</h2>
+            <p>With a different stone or pearl, this piece is made to order for you. Please allow 3 to 4 weeks.</p>
+            <p class="size-guide-note">Made-to-order pieces are paid in full by Whish payment link before production and are final sale.</p>
+            <button type="button" class="btn btn-primary mto-ok">OK</button>
+          </dialog>
+"""
+
+
+def alt_stone_html(p):
+    groups = []
+    for kind, values in alt_choices(p):
+        opts = "\n".join(f'                <option value="{v}">{v[0].upper() + v[1:]}</option>' for v in values)
+        groups.append(f"""          <details class="option-group alt-stone">
+            <summary>Select a different {kind}</summary>
+            <label class="alt-stone-label" for="alt-{kind}">Different {kind} (made to order)</label>
+            <select id="alt-{kind}" class="alt-stone-select" name="alt_{kind}">
+                <option value="">As shown</option>
+{opts}
+            </select>
+          </details>
+""")
+    return "".join(groups) + (MTO_DIALOG if groups else "")
+
+
 def options_html(p):
     """Metal and size pickers. They show on every product page; the cart reads them."""
     metals = "\n".join(
@@ -449,10 +495,10 @@ def options_html(p):
 {metals}
             </div>
           </fieldset>
-{size}{necklace_guide}          <p class="made-to-order-note" data-metal-note="yellow">If this piece is out of stock in yellow gold, it is made to order: allow 3 to 4 weeks. In-stock pieces are paid in cash on delivery.</p>
+{size}{necklace_guide}{alt_stone_html(p)}          <p class="made-to-order-note" data-metal-note="yellow">If this piece is out of stock in yellow gold, it is made to order: allow 3 to 4 weeks. In-stock pieces are paid in cash on delivery.</p>
           <p class="made-to-order-note" data-metal-note="other" hidden>18k rose and white gold are made to order: allow 3 to 4 weeks.</p>
-          <p class="made-to-order-terms">Made-to-order pieces are paid in full by Whish payment link before production and are final sale.
-            Prefer a different stone or freshwater pearls? We can make this piece for you to order: <a href="contact.html">contact us</a>.</p>
+          <p class="made-to-order-terms">Made-to-order pieces, including any piece with a different stone or pearl, are paid in full by
+            Whish payment link before production and are final sale.</p>
         </div>
 """
 
@@ -481,7 +527,7 @@ def specs_html(p):
     if p["other"]:
         rows.append(("Other", p["other"]))
     rows += p["dims"]
-    rows.append(("Care", "Store in its Siaram pouch; avoid perfume, lotion and harsh chemicals; clean with a soft, dry cloth"))
+    rows.append(("Care", "Store separately; avoid perfume, lotion and harsh chemicals; clean with a soft, dry cloth"))
     body = "\n".join(f"          <dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
     return f"""        <h2 class="specs-title">Details</h2>
         <dl class="product-specs">

@@ -176,3 +176,19 @@ document.addEventListener('change', (e) => {
   const yellow = e.target.value === 'yellow';
   document.querySelectorAll('[data-metal-note]').forEach((n) => { n.hidden = (n.dataset.metalNote === 'yellow') !== yellow; });
 });
+
+// Product pages: choosing a different stone or pearl makes the piece made to order; say so straight away.
+document.addEventListener('change', (e) => {
+  if (!e.target.classList?.contains('alt-stone-select') || !e.target.value) return;
+  const dialog = document.getElementById('alt-stone-dialog');
+  if (!dialog || dialog.open) return;
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open', '');
+});
+document.querySelectorAll('#alt-stone-dialog').forEach((dialog) => {
+  dialog.querySelectorAll('.size-guide-close, .mto-ok').forEach((b) => b.addEventListener('click', () => dialog.close()));
+  dialog.addEventListener('click', (e) => {
+    const r = dialog.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+  });
+});

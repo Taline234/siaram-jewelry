@@ -305,6 +305,20 @@ select pg_temp.check((select bool_and(not made_to_order) from order_items i join
   'an order takes the piece in stock; the next order of it is made to order');
 select pg_temp.check((select (order_summary(id)->'items'->0->>'made_to_order')::boolean from orders where reference = :'stock_ref2'),
   'the order summary says which pieces are made to order');
+-- A different stone or pearl is always made to order, never taken from stock, and is its own line.
+update stock set quantity = 5 where product_slug = 'qamar-ring' and metal = 'yellow' and size = 'EU 55';
+select place_order(pg_temp.order_json('Beirut','[{"slug":"qamar-ring","quantity":1,"size":"EU 55","stone":"Black zircon"},
+  {"slug":"qamar-ring","quantity":1,"size":"EU 55"}]')) ->> 'reference' as stone_ref \gset
+select pg_temp.check((select array_agg(stone || '/' || made_to_order order by stone) = array['/false', 'black zircon/true']
+                        from order_items i join orders o on o.id = i.order_id where o.reference = :'stone_ref')
+                     and (select quantity = 4 from stock where product_slug = 'qamar-ring' and metal = 'yellow' and size = 'EU 55')
+                     and (select order_summary(id)->'items' @> '[{"stone":"black zircon","made_to_order":true}]'::jsonb
+                            from orders where reference = :'stone_ref'),
+  'a different stone is made to order and does not take stock; the same piece as shown still ships from stock');
+select pg_temp.expect_error($$select place_order(pg_temp.order_json('Beirut','[{"slug":"qamar-ring","quantity":1,"size":"EU 55","stone":"diamond"}]'))$$,
+  'Please choose the stone or pearl');  -- only the stones and pearls offered can be chosen
+update orders set status = 'cancelled' where reference = :'stone_ref';
+update stock set quantity = 1 where product_slug = 'qamar-ring' and metal = 'yellow' and size = 'EU 55';
 select pg_temp.check(not exists (select 1 from available_stock() where product_slug = 'sun-necklace'),
   'a sold-out piece is not shown as in stock');
 update orders set status = 'cancelled' where reference = :'stock_ref2';

@@ -2538,3 +2538,30 @@ main:focus { outline: none; }
 .reveal { transform: translateY(12px); transition: opacity 0.35s ease, transform 0.35s ease; }
 
 .made-to-order-terms { font-family: var(--font-serif); font-size: 0.98rem; color: var(--green-mid); margin: 4px 0 14px; line-height: 1.6; }
+
+/* ---------------------------------------------------------------- different stone or pearl (product pages) */
+.alt-stone summary {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--green-deep);
+  text-decoration: underline;
+  text-decoration-color: var(--gold-soft);
+  text-underline-offset: 3px;
+  width: fit-content;
+}
+.alt-stone summary:hover { color: var(--gold); }
+.alt-stone[open] summary { margin-bottom: 10px; }
+.alt-stone-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--green-mid);
+  margin-bottom: 8px;
+}
+.alt-stone-select { width: 100%; padding: 12px 14px; border: 1px solid var(--line); background: var(--ivory); font: inherit; font-size: 0.95rem; color: inherit; }
+.product-options .alt-stone + .alt-stone { margin-top: -10px; }
+.mto-dialog { width: min(420px, calc(100vw - 32px)); text-align: center; }
+.mto-dialog .mto-ok { margin-top: 8px; min-width: 140px; justify-content: center; text-align: center; }
