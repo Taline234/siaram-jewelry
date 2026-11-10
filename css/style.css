@@ -2580,3 +2580,8 @@ main:focus { outline: none; }
 .video-toggle.is-paused .video-toggle-pause {
   width: 0; height: 0; border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent #fff; margin-left: 3px;
 }
+
+/* Product cards: the button always sits at the bottom of the card, so buttons line up across a row
+   even when one card has an extra line (e.g. "Single earring"). */
+.product-grid .product-card .product-body > .btn { margin-top: auto; }
+.product-body > .card-sold-as { margin-left: 0; }
