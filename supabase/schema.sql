@@ -338,8 +338,11 @@ alter table public.order_items add column if not exists sku text;
 alter table public.order_items add column if not exists metal text not null default 'yellow'
   check (metal in ('yellow', 'rose', 'white'));
 alter table public.order_items add column if not exists size text not null default '';
+-- A different stone or pearl chosen on the product page ('' when made as shown), e.g. 'black zircon' or
+-- 'black zircon, blue freshwater pearls'. Such a piece is always made to order.
+alter table public.order_items add column if not exists stone text not null default '';
 alter table public.order_items drop constraint if exists order_items_pkey;
-alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size);
+alter table public.order_items add constraint order_items_pkey primary key (order_id, product_slug, metal, size, stone);
 -- True when the piece was not in stock when ordered: made to order (3-4 weeks, paid by Whish, final sale).
 alter table public.order_items add column if not exists made_to_order boolean not null default false;
 
@@ -598,7 +601,7 @@ language sql stable security definer set search_path = public as $$
       'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
-                                                    'made_to_order', i.made_to_order)
+                                                    'stone', i.stone, 'made_to_order', i.made_to_order)
                                                     order by i.name)
                   from public.order_items i where i.order_id = o.id))
       from public.orders o cross join public.store_settings s
@@ -616,6 +619,7 @@ declare
   v_qty       int;
   v_metal     text;
   v_size      text;
+  v_stone     text;
   v_subtotal  numeric(10,2) := 0;
   v_discount  numeric(10,2) := 0;
   v_total     numeric(10,2);
@@ -719,14 +723,27 @@ begin
     elsif not (v_size = any(v_product.sizes)) then
       raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
     end if;
+    -- A different stone or pearl: one zircon colour and/or one pearl, as offered on the product pages
+    -- (ZIRCONS and PEARLS in tools/build_products.py).
+    v_stone := lower(coalesce(trim(v_item->>'stone'), ''));
+    if v_stone <> '' and not (v_stone = any(array[
+         'white zircon', 'black zircon', 'red zircon', 'white freshwater pearls', 'blue freshwater pearls',
+         'white zircon, white freshwater pearls', 'white zircon, blue freshwater pearls',
+         'black zircon, white freshwater pearls', 'black zircon, blue freshwater pearls',
+         'red zircon, white freshwater pearls', 'red zircon, blue freshwater pearls'])) then
+      raise exception 'Please choose the stone or pearl for the % again.', v_product.name using errcode = 'P0001';
+    end if;
     -- Ready to ship if enough are in stock (taken off now, row-locked, so two orders cannot take the
-    -- same piece); otherwise the line is made to order.
-    update public.stock set quantity = quantity - v_qty, updated_at = now()
-     where product_slug = v_product.slug and metal = v_metal and size = v_size and quantity >= v_qty;
-    v_in_stock := found;
-    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
-    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size, not v_in_stock)
-    on conflict (order_id, product_slug, metal, size)
+    -- same piece); otherwise the line is made to order. A different stone or pearl is always made to order.
+    v_in_stock := false;
+    if v_stone = '' then
+      update public.stock set quantity = quantity - v_qty, updated_at = now()
+       where product_slug = v_product.slug and metal = v_metal and size = v_size and quantity >= v_qty;
+      v_in_stock := found;
+    end if;
+    insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, stone, made_to_order)
+    values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_product.price, v_qty, v_metal, v_size, v_stone, not v_in_stock)
+    on conflict (order_id, product_slug, metal, size, stone)
       do update set quantity = least(order_items.quantity + excluded.quantity, 10),
                     made_to_order = order_items.made_to_order or excluded.made_to_order;
     v_subtotal := v_subtotal + v_product.price * v_qty;
@@ -843,7 +860,7 @@ begin
     insert into public.order_items (order_id, product_slug, sku, name, unit_price, quantity, metal, size, made_to_order)
     values (v_order_id, v_product.slug, v_product.sku, v_product.name, v_price, v_qty, v_metal, v_size,
             not coalesce((v_item->>'from_stock')::boolean, true))
-    on conflict (order_id, product_slug, metal, size)
+    on conflict (order_id, product_slug, metal, size, stone)
       do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_price * v_qty;
   end loop;

@@ -17,7 +17,7 @@ export const CATALOGUE = {
     "name": "Midnight Horseshoe Necklace",
     "category": "Necklaces",
     "collection": "Equestrian",
-    "stone": "Black onyx, white zircon",
+    "stone": "Black zircon, white zircon",
     "other": "",
     "details": [
       [
@@ -30,7 +30,7 @@ export const CATALOGUE = {
     "name": "Midnight Horseshoe Bracelet",
     "category": "Bracelets",
     "collection": "Equestrian",
-    "stone": "Black onyx, white zircon",
+    "stone": "Black zircon, white zircon",
     "other": "",
     "details": [
       [
@@ -56,7 +56,7 @@ export const CATALOGUE = {
     "name": "Midnight Horseshoe Earring",
     "category": "Earrings",
     "collection": "Equestrian",
-    "stone": "Black onyx, white zircon",
+    "stone": "Black zircon, white zircon",
     "other": "",
     "details": [
       [

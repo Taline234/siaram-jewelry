@@ -302,7 +302,7 @@ async function submit(e) {
     is_gift: form.elements.is_gift.checked,
     age_confirmed: Boolean(state.session) || form.elements.age_confirmed.checked,
     terms_accepted: form.elements.accept_terms.checked,
-    items: getCart().map(({ slug, quantity, metal, size }) => ({ slug, quantity, metal, size })),
+    items: getCart().map(({ slug, quantity, metal, size, stone }) => ({ slug, quantity, metal, size, stone })),
   };
   try {
     const headers = { 'content-type': 'application/json' };

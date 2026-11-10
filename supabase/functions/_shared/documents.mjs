@@ -99,6 +99,7 @@ export function itemDescription(item) {
   const c = CATALOGUE[item.sku] || {};
   const parts = [METALS[item.metal] || METALS.yellow];
   if (c.stone) parts.push(`Stones: ${c.stone}`);
+  if (item.stone) parts.push(`Made with ${item.stone} instead (chosen by the customer)`);
   if (c.other) parts.push(c.other);
   // The ring size in the product photos is not the size bought, so it stays off receipts.
   const details = (c.details || []).filter(([k]) => k !== 'Size in the photos' && !(item.size && k === 'Length' && c.category === 'Bracelets'));
@@ -250,7 +251,7 @@ export async function receiptPdf(order, when = new Date()) {
   text(p, 'THANK YOU', M, top, f.serif, 26, C.green);
   const boxW = 240;
   const notes = [
-    ['JEWELRY CARE:', 'Avoid contact with perfume, lotion and harsh chemicals. Store in the provided pouch.'],
+    ['JEWELRY CARE:', 'Avoid contact with perfume, lotion and harsh chemicals. Store each piece separately.'],
     ['EXCHANGE / RETURN POLICY:', 'In-stock pieces may be returned or exchanged within 14 days of delivery in original, unworn, undamaged condition. Made-to-order and custom pieces are final sale.'],
     ['', 'Please see our full terms and policies, including the care guide: siaramjewelry.com/returns.html'],
   ];
@@ -313,7 +314,7 @@ export async function careWarrantyPdf(order, when = new Date()) {
   const cw = W - 2 * M - 40;
   text(p, 'WARRANTY', x, y, f.serif, 22, C.green);
   y -= 34;
-  const pieces = (order.items || []).map((i) => `${i.name} (${METALS[i.metal] || METALS.yellow}${i.size ? `, ${i.size}` : ''})`);
+  const pieces = (order.items || []).map((i) => `${i.name} (${METALS[i.metal] || METALS.yellow}${i.size ? `, ${i.size}` : ''}${i.stone ? `, made with ${i.stone}` : ''})`);
   const fields = [
     ['CLIENT NAME:', order.customer_name],
     ['ORDER NUMBER:', order.reference, true],
@@ -350,7 +351,7 @@ export async function careWarrantyPdf(order, when = new Date()) {
   y = centredLogo(p, f, logo, H - 90);
   text(p, 'CARE GUIDE', x, y - 10, f.serif, 22, C.green);
   y = para(p, 'To preserve the longevity and beauty of your jewelry:', x, y - 46, cw, f.serif, 16, C.green);
-  for (const it of ['Store pieces individually in their original pouch or box.', 'Avoid contact with perfumes, lotions and harsh chemicals (especially mercury-based compounds).',
+  for (const it of ['Store pieces individually, in a soft pouch or a lined box.', 'Avoid contact with perfumes, lotions and harsh chemicals (especially mercury-based compounds).',
     'Clean gently with a soft, dry cloth.', 'Although water-resistant, proper care ensures long-lasting shine.']) {
     y -= 6;
     p.drawCircle({ x: x + 6, y: y + 5, size: 2, color: C.green });

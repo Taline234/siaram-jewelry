@@ -180,7 +180,7 @@ Step 1. Contact us within 14 days of receiving your order, at customerservice@si
 
 Step 2. We reply with the return address and how to send the piece. Please do not send anything before you receive our instructions.
 
-Step 3. Pack the piece securely in its original box and pouch, with any certificate and other packaging it came with. Do not wear it, and do not send gold jewellery through a service that does not accept it.
+Step 3. Pack the piece securely, with everything it came with. Do not wear it, and do not send gold jewellery through a service that does not accept it.
 
 Step 4. Hand the parcel to the courier, or bring it to us by appointment, within five calendar days of receiving our instructions. Keep the collection or postage receipt. For a change-of-mind return, you arrange and pay for the return delivery; for a defective or incorrect piece, we arrange and pay for it.
 
