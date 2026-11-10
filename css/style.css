@@ -2536,3 +2536,5 @@ main:focus { outline: none; }
 .page-hero + section.shop-products { padding-top: 40px; }
 /* Entrance animations are shorter and gentler, so sections are never left blank for long. */
 .reveal { transform: translateY(12px); transition: opacity 0.35s ease, transform 0.35s ease; }
+
+.made-to-order-terms { font-family: var(--font-serif); font-size: 0.98rem; color: var(--green-mid); margin: 4px 0 14px; line-height: 1.6; }

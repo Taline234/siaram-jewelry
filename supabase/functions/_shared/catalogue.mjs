@@ -58,7 +58,12 @@ export const CATALOGUE = {
     "collection": "Equestrian",
     "stone": "Black onyx, white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A single earring"
+      ]
+    ]
   },
   "RG-07": {
     "name": "Regard Ring",
@@ -79,7 +84,12 @@ export const CATALOGUE = {
     "collection": "Equestrian",
     "stone": "Red zircon (marquise cut), white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "BR-08": {
     "name": "Regard Bracelet",
@@ -141,6 +151,10 @@ export const CATALOGUE = {
     "other": "",
     "details": [
       [
+        "Sold as",
+        "A pair"
+      ],
+      [
         "Drop chain",
         "2 cm"
       ]
@@ -166,6 +180,10 @@ export const CATALOGUE = {
     "stone": "",
     "other": "White freshwater pearl",
     "details": [
+      [
+        "Sold as",
+        "A pair"
+      ],
       [
         "Drop chain",
         "3 cm"
@@ -279,6 +297,10 @@ export const CATALOGUE = {
     "other": "",
     "details": [
       [
+        "Sold as",
+        "A pair"
+      ],
+      [
         "Star chain",
         "2.5 cm"
       ],
@@ -294,7 +316,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "White freshwater pearls",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "NK-03": {
     "name": "Celestial Necklace",
@@ -367,7 +394,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "BR-01": {
     "name": "Seahorse Bracelet",
@@ -428,6 +460,10 @@ export const CATALOGUE = {
     "stone": "Red zircon (centre), white zircon",
     "other": "",
     "details": [
+      [
+        "Sold as",
+        "A pair"
+      ],
       [
         "Drop chain",
         "4 cm"

@@ -54,8 +54,17 @@ body = f"""
     <div class="guide-section reveal" id="sending">
       <h2>Sending a gift</h2>
       <p>At checkout, tick <strong>This is a gift</strong>: we deliver to the person you name, leave every price out of the
-        parcel and add your message card. Every piece arrives in a Siaram box with its pouch and story card.</p>
+        parcel and add your message card.</p>
       <p>Not sure about a size? See our <a href="size-guide.html">Size Guide</a>, or <a href="contact.html">ask us</a>.</p>
+    </div>
+
+    <div class="guide-help reveal">
+      <h2>Still not sure what to get them?</h2>
+      <p>Tell us a little about them and we will help you choose, or let them choose for themselves with a gift voucher.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="contact.html">Ask Us for Ideas</a>
+        <a class="btn btn-outline" href="gift-voucher.html">Give a Gift Voucher</a>
+      </div>
     </div>
   </div>
 </section>

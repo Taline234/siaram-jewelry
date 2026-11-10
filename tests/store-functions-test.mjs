@@ -77,7 +77,7 @@ test('guest order is saved and both emails are sent', async () => {
   const [customer, shop] = emails();
   assert.deepEqual(customer.to, ['rana@example.com']);
   assert.match(customer.html, /pay <strong>\$120\.00<\/strong>\s+in cash to the driver/);
-  assert.match(customer.html, /email you a tracking link when your order ships/);
+  assert.match(customer.html, /Tracking is available when your order is dispatched/);
   assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">Confirmed before dispatch/);
   assert.match(customer.html, /plus the delivery fee, which we confirm before dispatch/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
@@ -141,7 +141,7 @@ test('cash on delivery order tells the customer to pay the driver', async () => 
   assert.match(customer.html, /pay <strong>\$125\.00<\/strong>\s+in cash to the driver when your order arrives \(\$120\.00 for your jewellery and \$5\.00 for delivery\)/);
   assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">\$5\.00/);
   assert.match(customer.html, /Total to pay in cash on delivery<\/td><td[^>]*>\$125\.00/);
-  assert.match(customer.html, /tracking link when your order ships/);
+  assert.match(customer.html, /Tracking is available when your order is dispatched/);
   assert.doesNotMatch(customer.html, /via Whish/);
   assert.match(shop.subject, /\$120\.00 cash/);
   assert.match(shop.html, /cash on delivery/);
@@ -558,7 +558,7 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
   assert.match(shop.html, /Rose gold/);
   assert.equal(customer.to[0], 'rana@example.com');
-  assert.match(customer.html, /aim to reply by WhatsApp\s+within 2&ndash;4 business days/);
+  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2 days/);
   assert.match(shop.html, /Preferred contact: WhatsApp/, 'the shop sees how the customer wants to be contacted');
   assert.equal(saved.preferred_contact, 'WhatsApp');
   assert.equal(customer.attachments, undefined);

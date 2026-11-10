@@ -190,7 +190,7 @@ if (form) {
           <span class="eyebrow">Request received</span>
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(body.reference)}</strong></p>
-          <p>We have emailed you a copy and aim to reply within 2&ndash;4 business days.</p>
+          <p>We have emailed you a copy and aim to respond within 2 days.</p>
         </div>`;
       } catch (err) {
         msg.textContent = err.message;

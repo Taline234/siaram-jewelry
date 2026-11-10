@@ -165,8 +165,7 @@ function renderForm(profile) {
       <fieldset><legend>Payment</legend>
         <input type="hidden" name="payment_method" value="cash" />
         <div class="pay-details" aria-live="polite"></div>
-        <p class="field-note">We do not take card payments. You get an order received email now, and your tracking number
-          when your order is dispatched.</p>
+        <p class="field-note">We do not take card payments. You get an order received email now. Tracking is available when your order is dispatched.</p>
       </fieldset>
 
       <fieldset class="checkout-confirm">
@@ -265,7 +264,7 @@ function showConfirmation(order) {
     <p class="order-ref">Your order reference is <strong>${escapeHtml(order.reference)}</strong></p>
     ${toPay}
     ${handover}
-    <p>We have received your order. We will email you when it ships, with a link to track it.</p>
+    <p>We have received your order. Tracking is available when your order is dispatched.</p>
     <p>A confirmation has been sent to ${escapeHtml(order.email)}.</p>
     <a href="shop.html" class="btn btn-outline">Continue Shopping</a>
   </div>`;
