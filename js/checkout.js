@@ -84,6 +84,15 @@ function renderForm(profile) {
           ${field('phone', 'Phone (with country code if outside Lebanon)', 'required type="tel" autocomplete="tel" placeholder="+961 70 123 456"')}
           ${field('email', 'Email', `required type="email" autocomplete="email"${signedIn ? ' readonly' : ''}`)}
         </div>
+        <fieldset class="contact-pref">
+          <legend>How would you like us to contact you?</legend>
+          <div class="choice-pills">
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" required /><span>Call</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" required /><span>Text message</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" required /><span>WhatsApp</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" required /><span>Email</span></label>
+          </div>
+        </fieldset>
       </fieldset>
 
       <fieldset><legend>Delivery address</legend>
@@ -174,6 +183,7 @@ function renderForm(profile) {
   if (profile) {
     form.elements.customer_name.value = `${profile.first_name} ${profile.last_name}`.trim();
     form.elements.phone.value = profile.phone || '';
+    if (profile.preferred_contact) form.elements.preferred_contact.value = profile.preferred_contact;
   }
   if (state.session) form.elements.email.value = state.session.user.email;
   if (preferred) fillAddress(preferred);
@@ -250,7 +260,8 @@ async function submit(e) {
   error.textContent = '';
   if (!form.checkValidity()) {
     const bad = form.querySelector('input:invalid, select:invalid, textarea:invalid');
-    error.textContent = bad.type === 'checkbox' ? 'Please tick the confirmation boxes to continue.'
+    error.textContent = bad.name === 'preferred_contact' ? 'Please choose how you would like us to contact you.'
+      : bad.type === 'checkbox' ? 'Please tick the confirmation boxes to continue.'
       : bad.type === 'email' && bad.value.trim() ? 'Please check your email address: it should look like name@example.com.'
       : 'Please fill in all required fields.';
     bad.focus();
@@ -327,7 +338,7 @@ async function init() {
   let profile = null;
   if (session) {
     const [p, a] = await Promise.all([
-      client.from('profiles').select('first_name, last_name, phone').maybeSingle(),
+      client.from('profiles').select('first_name, last_name, phone, preferred_contact').maybeSingle(),
       client.from('addresses').select('*').order('created_at'),
     ]);
     profile = p.data;

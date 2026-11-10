@@ -33,6 +33,7 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="home">
+<a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header">
   <nav class="nav">
@@ -88,12 +89,12 @@
           <a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v14H3z"/><path d="m3 7 9 6 9-6"/></svg>Email</a>
         </div>
       </div>
-      <button class="nav-toggle" aria-label="Menu">
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
-  <div class="mobile-menu">
+  <div class="mobile-menu" id="mobile-menu">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
     <details class="mobile-shop">
@@ -130,6 +131,7 @@
     <div class="mobile-enquire"><span>Enquire</span><a href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry">Email</a></div>
   </div>
 </header>
+<main id="main">
 
 <section class="hero hero-template">
   <div class="hero-content">
@@ -258,17 +260,17 @@
       <h2>Shop by Category</h2>
     </div>
     <div class="category-tiles">
-      <a class="category-tile reveal" href="shop.html#necklaces"><span class="category-photo"><img src="images/products/star-moon-necklace-1.jpg" alt="Necklaces" loading="lazy" /></span>
+      <a class="category-tile reveal" href="shop.html#necklaces"><span class="category-photo"><img src="images/products/star-moon-necklace-1.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Necklaces <span aria-hidden="true">&rarr;</span></span></a>
-      <a class="category-tile reveal" href="shop.html#earrings"><span class="category-photo"><img src="images/products/arrow-earrings-1.jpg" alt="Earrings" loading="lazy" /></span>
+      <a class="category-tile reveal" href="shop.html#earrings"><span class="category-photo"><img src="images/products/arrow-earrings-1.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Earrings <span aria-hidden="true">&rarr;</span></span></a>
-      <a class="category-tile reveal" href="shop.html#rings"><span class="category-photo"><img src="images/products/sun-ring-1.jpg" alt="Rings" loading="lazy" /></span>
+      <a class="category-tile reveal" href="shop.html#rings"><span class="category-photo"><img src="images/products/sun-ring-1.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Rings <span aria-hidden="true">&rarr;</span></span></a>
-      <a class="category-tile reveal" href="shop.html#bracelets"><span class="category-photo"><img src="images/products/horseshoe-bracelet-1.jpg" alt="Bracelets" loading="lazy" /></span>
+      <a class="category-tile reveal" href="shop.html#bracelets"><span class="category-photo"><img src="images/products/horseshoe-bracelet-1.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Bracelets <span aria-hidden="true">&rarr;</span></span></a>
-      <a class="category-tile reveal" href="shop.html#anklets"><span class="category-photo"><img src="images/products/fatima-anklet-1.jpg" alt="Anklets" loading="lazy" /></span>
+      <a class="category-tile reveal" href="shop.html#anklets"><span class="category-photo"><img src="images/products/fatima-anklet-1.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Anklets <span aria-hidden="true">&rarr;</span></span></a>
-      <a class="category-tile reveal" href="custom.html"><span class="category-photo"><img src="images/custom/name-necklaces.jpg" alt="Custom" loading="lazy" /></span>
+      <a class="category-tile reveal" href="custom.html"><span class="category-photo"><img src="images/custom/name-necklaces.jpg" alt="" loading="lazy" /></span>
         <span class="category-name">Custom <span aria-hidden="true">&rarr;</span></span></a>
     </div>
   </div>
@@ -281,7 +283,7 @@
       <h2>From Sketch to Gold</h2>
       <p>Every Siaram piece passes through the same careful hands, from the first drawing to the final polish.</p>
     </div>
-    <div class="craft-steps">
+    <div class="craft-steps" tabindex="0" role="region" aria-label="How a piece is made, step by step">
       <figure class="craft-step reveal">
         <div class="craft-photo"><img src="images/craft/sketch.jpg" alt="A pencil sketch of an Arabic name bracelet, with notes for the diamonds and chain" loading="lazy" /></div>
         <figcaption><span class="craft-num">I</span><h3>The Sketch</h3>
@@ -405,6 +407,8 @@
   </div>
 </section>
 
+</main>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-grid">
@@ -413,7 +417,7 @@
         <p>Simply Elegant. Endlessly Yours. Delicate, timeless jewelry made for everyday layering.</p>
       </div>
       <div class="footer-col">
-        <h4>About</h4>
+        <h2 class="footer-heading">About</h2>
         <ul>
           <li><a href="about.html">Our Story</a></li>
           <li><a href="custom.html">Custom Pieces</a></li>
@@ -426,7 +430,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Policies</h4>
+        <h2 class="footer-heading">Policies</h2>
         <ul>
           <li><a href="terms.html">Terms &amp; Conditions</a></li>
           <li><a href="shipping.html">Shipping &amp; Delivery</a></li>
@@ -440,7 +444,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h2 class="footer-heading">Contact</h2>
         <ul class="footer-contact-list">
           <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="https://wa.me/96176052068" target="_blank" rel="noopener">+961 76 052 068</a></li>
           <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg><a href="mailto:customerservice@siaramjewelry.com">customerservice@siaramjewelry.com</a></li>

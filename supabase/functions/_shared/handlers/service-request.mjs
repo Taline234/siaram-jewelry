@@ -2,7 +2,7 @@
 // customers can attach photos. Saves the request with an RR number, emails it to the shop with the photos attached,
 // and sends the customer a confirmation telling them not to post anything before we reply.
 import { Buffer } from 'node:buffer';
-import { CustomerError, configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
+import { configured, contactMethod, CustomerError, emailLayout, env, escapeHtml, json, replyBy, rpc, sendEmail } from '../store.mjs';
 
 const KINDS = ['Return', 'Exchange', 'Repair'];
 const MAX_FILES = 4;
@@ -32,10 +32,12 @@ export default async (req) => {
       name: text(form, 'name'),
       email: text(form, 'email'),
       phone: text(form, 'phone', 40),
+      preferred_contact: contactMethod(text(form, 'preferred_contact', 20)),
     };
     if (!request.kind) throw new CustomerError('Please choose return, exchange or repair.');
     for (const [field, label] of [['order_ref', 'your order or invoice number'], ['piece', 'the name of the piece'],
-      ['problem', "what's wrong"], ['cause', 'how the issue happened'], ['name', 'your name'], ['phone', 'your WhatsApp number']]) {
+      ['problem', "what's wrong"], ['cause', 'how the issue happened'], ['name', 'your name'], ['phone', 'your phone number'],
+      ['preferred_contact', 'how you would like us to contact you']]) {
       if (!request[field]) throw new CustomerError(`Please tell us ${label}.`);
     }
 
@@ -66,7 +68,7 @@ export default async (req) => {
         subject: `${request.kind} request ${reference} — ${request.order_ref.toUpperCase()} (${request.name})`,
         html: emailLayout(`${request.kind} request ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(request.name)}</strong> &middot; ${escapeHtml(request.email)}
-           &middot; WhatsApp ${escapeHtml(request.phone)}</p>${details}
+           &middot; Phone ${escapeHtml(request.phone)}<br><strong>Preferred contact: ${escapeHtml(request.preferred_contact)}</strong></p>${details}
            <p style="font-size:14px;line-height:1.6">${attachments.length} photo(s) attached.
            Reply to this email to answer the customer. The request is saved in Supabase (service_requests).</p>`),
         attachments,
@@ -76,7 +78,8 @@ export default async (req) => {
         subject: `Your ${what} request ${reference}`,
         html: emailLayout(`Thank you, ${request.name.split(' ')[0]}`,
           `<p style="font-size:15px;line-height:1.6">We have received your ${what} request (reference
-           <strong>${escapeHtml(reference)}</strong>). We will reply within 3 to 5 business days with the next steps.</p>
+           <strong>${escapeHtml(reference)}</strong>). We will reply by ${escapeHtml(replyBy(request.preferred_contact))}
+           within 3 to 5 business days with the next steps.</p>
            <p style="font-size:15px;line-height:1.6"><strong>Please do not send the piece until you receive our instructions.</strong></p>${details}`),
       }),
     ]);

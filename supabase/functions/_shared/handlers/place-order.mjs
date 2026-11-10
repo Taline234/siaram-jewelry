@@ -6,7 +6,7 @@ import {
 import { careWarrantyPdf, receiptPdf } from '../documents.mjs';
 
 const FIELDS = ['customer_name', 'email', 'phone', 'fulfilment', 'payment_method', 'governorate', 'city', 'street', 'building', 'floor', 'notes', 'voucher_code', 'submission_id',
-  'gift_recipient_name', 'gift_recipient_phone', 'gift_message'];
+  'gift_recipient_name', 'gift_recipient_phone', 'gift_message', 'preferred_contact'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);

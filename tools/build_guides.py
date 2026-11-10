@@ -483,11 +483,20 @@ service_body = f"""
       <div class="form-grid">
         <label class="field"><span>Full name</span>
           <input name="name" required maxlength="200" autocomplete="name" /></label>
-        <label class="field"><span>WhatsApp number (with country code)</span>
+        <label class="field"><span>Phone number (with country code)</span>
           <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
         <label class="field"><span>Email</span>
           <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
       </div>
+      <fieldset class="contact-pref">
+        <legend>How would you like us to contact you?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" required /><span>Call</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" required /><span>Text message</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" required /><span>WhatsApp</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" required /><span>Email</span></label>
+        </div>
+      </fieldset>
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       <p class="field-note">We use these details only to handle your request; see our <a href="privacy.html">Privacy Policy</a>.</p>
       <p class="form-msg" role="alert"></p>
@@ -554,11 +563,20 @@ voucher_body = f"""
         <div class="form-grid">
           <label class="field"><span>Full name</span>
             <input name="name" required maxlength="200" autocomplete="name" /></label>
-          <label class="field"><span>WhatsApp number (with country code)</span>
+          <label class="field"><span>Phone number (with country code)</span>
             <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
           <label class="field"><span>Email</span>
             <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
         </div>
+        <fieldset class="contact-pref">
+          <legend>How would you like us to contact you?</legend>
+          <div class="choice-pills">
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" required /><span>Call</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" required /><span>Text message</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" required /><span>WhatsApp</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" required /><span>Email</span></label>
+          </div>
+        </fieldset>
       </fieldset>
       <label class="check"><input type="checkbox" name="final_sale" required />
         <span>I understand that gift vouchers are final sale: once issued, they cannot be cancelled, refunded or exchanged for cash.</span></label>

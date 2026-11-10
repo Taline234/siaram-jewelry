@@ -3,7 +3,8 @@
 
 Writes the same top menu (with the Shop dropdown) and phone menu into every page, from the lists below.
 Run it again after changing a list. 404.html gets addresses from the site root, because it can appear at any address.
-Product pages copy their header from shop.html (tools/build_products.py), so they keep this menu too."""
+Product pages copy their header from shop.html (tools/build_products.py), so they keep this menu too.
+It also adds the Skip to content link, <main> and the footer heading levels: run it last, after any other build_ tool."""
 import glob
 import re
 
@@ -51,12 +52,30 @@ def menus(root=""):
     phone.append('    <div class="mobile-enquire"><span>Enquire</span>'
                  '<a href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp</a>'
                  '<a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry">Email</a></div>')
-    mobile = '<div class="mobile-menu">\n' + "\n".join(phone) + "\n  </div>"
+    mobile = '<div class="mobile-menu" id="mobile-menu">\n' + "\n".join(phone) + "\n  </div>"
     return desktop, mobile
 
 
 NAV_RE = re.compile(r'<ul class="nav-links">.*?\n    </ul>', re.S)
-MOBILE_RE = re.compile(r'<div class="mobile-menu">.*?\n  </div>', re.S)
+MOBILE_RE = re.compile(r'<div class="mobile-menu"(?: id="mobile-menu")?>.*?\n  </div>', re.S)
+
+FOOTER_RE = re.compile(r'<footer class="site-footer">.*?</footer>', re.S)
+
+
+def accessible(page):
+    """Landmarks and headings every page needs for screen readers and keyboard users: a "Skip to content" link,
+    the page content inside <main>, footer headings at h2 (not h4), and a menu button that says if it is open."""
+    if '<a class="skip-link"' not in page:
+        page = re.sub(r'(<body[^>]*>)', r'\1\n<a class="skip-link" href="#main">Skip to content</a>', page, count=1)
+    if '<main' not in page and '</header>' in page and '<footer class="site-footer">' in page:
+        page = page.replace('</header>', '</header>\n<main id="main">', 1)
+        page = page.replace('<footer class="site-footer">', '</main>\n\n<footer class="site-footer">', 1)
+    page = FOOTER_RE.sub(lambda m: m.group(0).replace('<h4>', '<h2 class="footer-heading">').replace('</h4>', '</h2>'),
+                         page, count=1)
+    page = page.replace('<button class="nav-toggle" aria-label="Menu">',
+                        '<button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">')
+    return page
+
 
 for path in sorted(glob.glob("*.html")):
     page = open(path, encoding="utf-8").read()
@@ -65,6 +84,7 @@ for path in sorted(glob.glob("*.html")):
     desktop, mobile = menus("/" if path == "404.html" else "")
     new = NAV_RE.sub(lambda _: desktop, page, count=1)
     new = MOBILE_RE.sub(lambda _: mobile, new, count=1)
+    new = accessible(new)
     if new != page:
         open(path, "w", encoding="utf-8").write(new)
         print("menu updated:", path)

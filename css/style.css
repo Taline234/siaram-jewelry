@@ -649,7 +649,7 @@ a.product-media { display: block; }
 
 .help-icon { font-size: 1.4rem; }
 
-.help-card h4 {
+.help-card h4, .help-card h3 {
   font-family: var(--font-serif);
   font-size: 1.3rem;
   color: var(--green-deep);
@@ -823,7 +823,7 @@ a.product-media { display: block; }
   font-size: 0.86rem;
   color: var(--green-mid);
 }
-.contact-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+.contact-card h3, .contact-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
 .contact-card p {
   font-family: var(--font-serif);
   color: #5c5c50;
@@ -2458,3 +2458,34 @@ legend {
   .guide-section .size-table { table-layout: auto; }
   .guide-section .size-table th { letter-spacing: 0.06em; font-size: 0.68rem; }
 }
+
+/* ---------------------------------------------------------------- accessibility (November 2026 review) */
+/* "Skip to content": hidden until a keyboard user presses Tab, then shown at the top left. */
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 1000; background: var(--green-deep); color: var(--cream);
+  padding: 10px 18px; font-family: var(--font-sans); font-size: 0.85rem; letter-spacing: 0.08em; text-decoration: none; border-radius: 2px; }
+.skip-link:focus { top: 12px; outline: 2px solid var(--gold); outline-offset: 2px; }
+main:focus { outline: none; }
+/* Small gold text on cream uses the darker gold (at least 4.5:1); on dark green, the soft gold. */
+.step-num, .specs-title, .gem-card .gem-meaning, .legal-toc h2, .product-detail-info p.product-price { color: var(--gold-text); }
+.home .craft .eyebrow, .craft-num { color: var(--gold-soft); }
+/* Footer headings are h2 for screen readers, but look as before. */
+.site-footer h2.footer-heading { font-family: var(--font-sans); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--gold-text); margin: 1.33em 0 18px; line-height: normal; font-style: normal; }
+.footer-newsletter-text h2.footer-heading { font-size: 1rem; letter-spacing: normal; text-transform: none; color: var(--green-deep); margin: 1.33em 0 10px; }
+/* A clear focus ring on form fields (the gold border alone was too faint). */
+.store-root input:focus-visible, .store-root select:focus-visible, .store-root textarea:focus-visible, .qty-select:focus-visible,
+.custom-form input:focus-visible, .custom-form select:focus-visible, .custom-form textarea:focus-visible {
+  outline: 2px solid var(--gold-text); outline-offset: 1px; border-color: var(--gold-text); }
+/* The homepage "How it's made" row scrolls sideways on phones; show where it is when focused by keyboard. */
+.craft-steps:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 4px; }
+/* People who turn off motion on their device see everything without the fade and slide animations. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
+/* "How would you like us to contact you?" on the checkout and request forms */
+.contact-pref { border: 0; padding: 0; margin: 16px 0 6px; min-width: 0; }
+.contact-pref legend { font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.08em; color: var(--green-deep);
+  margin-bottom: 10px; padding: 0; }

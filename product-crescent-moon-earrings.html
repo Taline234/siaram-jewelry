@@ -70,6 +70,7 @@
 <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header">
   <nav class="nav">
@@ -125,12 +126,12 @@
           <a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 5h18v14H3z"/><path d="m3 7 9 6 9-6"/></svg>Email</a>
         </div>
       </div>
-      <button class="nav-toggle" aria-label="Menu">
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
-  <div class="mobile-menu">
+  <div class="mobile-menu" id="mobile-menu">
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
     <details class="mobile-shop">
@@ -167,6 +168,7 @@
     <div class="mobile-enquire"><span>Enquire</span><a href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:customerservice@siaramjewelry.com?subject=Enquiry">Email</a></div>
   </div>
 </header>
+<main id="main">
 
 <section class="product-detail-section">
   <div class="container">
@@ -281,11 +283,13 @@
   </div>
 </section>
 
+</main>
+
 <footer class="site-footer">
   <div class="container">
     <div class="footer-newsletter">
       <div class="footer-newsletter-text">
-        <h4>Join our mailing list</h4>
+        <h2 class="footer-heading">Join our mailing list</h2>
         <p>Be the first to explore new collections, with styling inspiration, jewelry care advice and stories from Siaram.</p>
       </div>
       <form class="newsletter-form" novalidate>
@@ -306,7 +310,7 @@
         <p>Simply Elegant. Endlessly Yours. Delicate, timeless jewelry made for everyday layering.</p>
       </div>
       <div class="footer-col">
-        <h4>About</h4>
+        <h2 class="footer-heading">About</h2>
         <ul>
           <li><a href="about.html">Our Story</a></li>
           <li><a href="custom.html">Custom Pieces</a></li>
@@ -319,7 +323,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Policies</h4>
+        <h2 class="footer-heading">Policies</h2>
         <ul>
           <li><a href="terms.html">Terms &amp; Conditions</a></li>
           <li><a href="shipping.html">Shipping &amp; Delivery</a></li>
@@ -333,7 +337,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Contact</h4>
+        <h2 class="footer-heading">Contact</h2>
         <ul class="footer-contact-list">
           <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><a href="https://wa.me/96176052068" target="_blank" rel="noopener">+961 76 052 068</a></li>
           <li><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 4h16v16H4z"/><path d="m4 6 8 7 8-7"/></svg><a href="mailto:customerservice@siaramjewelry.com">customerservice@siaramjewelry.com</a></li>
