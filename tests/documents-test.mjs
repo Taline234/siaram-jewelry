@@ -7,7 +7,7 @@ import { CATALOGUE } from '../supabase/functions/_shared/catalogue.mjs';
 
 test('item descriptions name the metal, stones, pearls and size for customs', () => {
   assert.equal(itemDescription({ sku: 'RG-06', metal: 'rose', size: 'EU 54' }),
-    '18k rose gold\nStones: Red stone (centre), white zircon\nRing size EU 54');
+    '18k rose gold\nStones: Red zircon (centre), white zircon\nRing size EU 54');
   assert.equal(itemDescription({ sku: 'BR-06', metal: 'white', size: '17 cm' }),
     '18k white gold\nWhite freshwater pearl\nLength 17 cm', 'a chosen bracelet length replaces the standard one');
   assert.match(itemDescription({ sku: 'NK-01', metal: 'yellow', size: '' }), /^18k yellow gold\nStones: White zircon\nLength: 40 cm chain \+ 6 cm drop chain$/);

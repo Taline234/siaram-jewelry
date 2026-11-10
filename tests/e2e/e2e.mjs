@@ -35,8 +35,9 @@ assert.equal(await page.locator('.product-price').textContent(), '$559.00');
 assert.equal(await page.locator('.product-buy').isHidden(), true);
 assert.equal(await page.locator('.nav-store').count(), 0);
 await page.goto(`${ORIGIN}/cart.html`);
-assert.match(await page.locator('#store-root').textContent(), /Online ordering is coming soon/);
-step('before setup: catalogue prices, no cart icons, "coming soon" on store pages');
+assert.match(await page.locator('#store-root').textContent(), /Online ordering is not available right now/);
+assert.equal(await page.evaluate(() => document.documentElement.classList.contains('store-pending')), false, 'ordering buttons are not left hidden');
+step('without the store: catalogue prices, no cart icons, and a clear "not available" message with contact options');
 
 // ------------------------------------------------ store on, guest shopping
 await setState({ storeOn: true, emails: [] });
@@ -171,8 +172,8 @@ assert.match(await page.locator('.voucher-form .form-msg').textContent(), /start
 await page.fill('.voucher-form [name=amount_other]', '400');
 await page.fill('.voucher-form [name=recipient_name]', 'Maya Aoun');
 await page.fill('.voucher-form [name=recipient_phone]', '+961 71 222 333');
-await page.locator('.voucher-form .choice-pill', { hasText: 'Me, so I can give it myself' }).click();
-assert.ok(await page.isChecked('.voucher-form [name=send_to][value=purchaser]'));
+assert.equal(await page.locator('.voucher-form [name=send_to]').count(), 0, 'vouchers always go to the recipient: no "send it to me" option');
+assert.doesNotMatch(await page.locator('.voucher-form').textContent(), /print/i, 'the voucher is digital: nothing is printed');
 await page.fill('.voucher-form [name=name]', 'Nour Aoun');
 await page.fill('.voucher-form [name=phone]', '+961 70 123 456');
 await page.fill('.voucher-form [name=email]', 'nour@example.com');
@@ -186,11 +187,12 @@ await page.waitForSelector('.voucher-done');
 assert.match(await page.locator('.voucher-done').textContent(), /VR\d{3}/);
 const [voucherRow] = await q("select amount, recipient_phone, send_to, message from voucher_requests where email = 'nour@example.com'");
 assert.deepEqual([Number(voucherRow.amount), voucherRow.recipient_phone, voucherRow.send_to, voucherRow.message],
-  [400, '+961 71 222 333', 'purchaser', 'Happy birthday, Maya!'], 'the personal message is saved with the order');
-const voucherMails = (await setState({})).emails.filter((e) => /gift voucher order/i.test(e.subject));
+  [400, '+961 71 222 333', 'recipient', 'Happy birthday, Maya!'], 'the personal message is saved with the request');
+assert.match(await page.locator('.voucher-done').textContent(), /contact you by phone/, 'payment is arranged the way the buyer chose');
+const voucherMails = (await setState({})).emails.filter((e) => /gift voucher (order|request)/i.test(e.subject));
 assert.equal(voucherMails.length, 2);
 await setState({ emails: [] });
-step('gift voucher order form: amount check, final-sale tick, saved with a VR number, emailed to the shop and the buyer');
+step('gift voucher request: amount check, final-sale tick, always for the recipient, saved with a VR number, emailed to the shop and the buyer');
 
 await page.goto(`${ORIGIN}/product-horseshoe-ring.html`);
 await page.waitForSelector('.product-buy:not([hidden])');
@@ -203,7 +205,7 @@ await page.goto(`${ORIGIN}/product-v-bird-necklace.html`);
 await page.waitForSelector('.add-to-cart');
 assert.equal(await page.locator('.product-price').textContent(), '$120.00');
 assert.equal(await page.locator('.product-actions a[href^="mailto:"]').count(), 0);
-assert.match(await page.locator('.made-to-order-note').textContent(), /made to order: allow 3 to 4 weeks\. Made-to-order pieces are final sale\./);
+assert.match(await page.locator('.made-to-order-note').textContent(), /made to order: allow 3 to 4 weeks\. They are paid in full by Whish payment link before production and are final sale\./);
 await page.waitForSelector('.stock-status .availability');
 assert.match(await page.locator('.stock-status').textContent(), /In stock · delivered in 2–4 business days/, 'yellow gold is in stock');
 await page.selectOption('.product-buy .qty-select', '2');

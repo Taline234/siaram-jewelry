@@ -87,8 +87,8 @@ export default async (req) => {
         subject: `Your custom piece request ${reference}`,
         html: emailLayout(`Thank you, ${request.name.split(' ')[0]}!`,
           `<p style="font-size:15px;line-height:1.6">We have received your request for a custom piece (reference
-           <strong>${escapeHtml(reference)}</strong>). We will reply by ${escapeHtml(replyBy(request.preferred_contact))}
-           within 3 to 5 business days with ideas, questions or a first design and quote.</p>${details}`),
+           <strong>${escapeHtml(reference)}</strong>). We aim to reply by ${escapeHtml(replyBy(request.preferred_contact))}
+           within 2&ndash;4 business days with ideas, questions or a first design and quote.</p>${details}`),
       }),
     ]);
     return json({ reference });

@@ -34,6 +34,9 @@ on it and say "read HANDOVER.md first".
   edit the catalogue data in `tools/build_products.py`, then run `python3 tools/build_products.py`.
 - Policy pages: edit `tools/policies-source.md` (or the replacements in `tools/build_policies.py`),
   then run `python3 tools/build_policies.py tools/policies-source.md`.
+- Rebuild order when several change: `build_products.py`, `build_guides.py`, `build_policies.py tools/policies-source.md`,
+  `build_gift_guide.py` (Gift Guide, from the shop cards), then always `build_nav.py` last (menus, Skip to content,
+  `<main>`, footer headings and the loading-state class); `tests/check-site.py` fails if that last step is missed.
 - Product photos are in `images/products/<slug>-N.jpg` (1200×1500 where the original allowed). They
   were cropped from the July 2026 shoot; the originals are on the owner's laptop
   ("Siaram Shoot July 2026").

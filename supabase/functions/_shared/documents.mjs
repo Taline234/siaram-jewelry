@@ -100,7 +100,8 @@ export function itemDescription(item) {
   const parts = [METALS[item.metal] || METALS.yellow];
   if (c.stone) parts.push(`Stones: ${c.stone}`);
   if (c.other) parts.push(c.other);
-  const details = (c.details || []).filter(([k]) => !(item.size && k === 'Length' && c.category === 'Bracelets'));
+  // The ring size in the product photos is not the size bought, so it stays off receipts.
+  const details = (c.details || []).filter(([k]) => k !== 'Size in the photos' && !(item.size && k === 'Length' && c.category === 'Bracelets'));
   if (item.size) parts.push(c.category === 'Rings' ? `Ring size ${item.size}` : `Length ${item.size}`);
   for (const [k, v] of details) parts.push(`${k}: ${v}`);
   if (item.made_to_order) parts.push('Made to order (3–4 weeks), final sale');

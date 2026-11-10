@@ -13,7 +13,7 @@ CATEGORIES = [("All Pieces", "shop.html#all"), ("Necklaces", "shop.html#necklace
 COLLECTIONS = [("Equestrian", "shop.html#equestrian"), ("Core", "shop.html#core"), ("Hamsa", "shop.html#fatima"),
                ("Geometric", "shop.html#geometric"), ("Celestial", "shop.html#celestial"), ("Ocean", "shop.html#ocean"),
                ("Arrow", "shop.html#arrow")]
-GIFTS = [("Bestsellers", "index.html#bestsellers"), ("Gift Vouchers", "gift-voucher.html"), ("Custom Pieces", "custom.html"),
+GIFTS = [("Gift Guide", "gift-guide.html"), ("Bestsellers", "index.html#bestsellers"), ("Gift Vouchers", "gift-voucher.html"), ("Custom Pieces", "custom.html"),
          ("Size Guide", "size-guide.html"), ("Gold &amp; Gemstones", "materials.html"),
          ("Care Guide", "care-guide.html")]
 FEATURE = ("shop.html#equestrian", "images/products/horseshoe-necklace-1.jpg", "Bestsellers", "Our Horseshoe Pieces")
@@ -72,6 +72,9 @@ def accessible(page):
         page = page.replace('<footer class="site-footer">', '</main>\n\n<footer class="site-footer">', 1)
     page = FOOTER_RE.sub(lambda m: m.group(0).replace('<h4>', '<h2 class="footer-heading">').replace('</h4>', '</h2>'),
                          page, count=1)
+    # Ordering controls stay hidden (keeping their space) until prices and stock have loaded: see js/store.js.
+    if 'store-pending' not in page:
+        page = page.replace('</head>', '<script>document.documentElement.classList.add(\'store-pending\')</script>\n</head>', 1)
     page = page.replace('<button class="nav-toggle" aria-label="Menu">',
                         '<button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">')
     return page

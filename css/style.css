@@ -2489,3 +2489,50 @@ main:focus { outline: none; }
 .contact-pref { border: 0; padding: 0; margin: 16px 0 6px; min-width: 0; }
 .contact-pref legend { font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.08em; color: var(--green-deep);
   margin-bottom: 10px; padding: 0; }
+
+/* Neutral loading state while prices, stock and the cart load (no "coming soon" or enquiry flash). */
+.store-pending .product-actions, .store-pending .product-card .btn-contact { visibility: hidden; }
+.store-failed .product-actions, .store-failed .product-card .btn-contact { visibility: visible; }
+.store-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 64px 0; min-height: 260px;
+  font-family: var(--font-serif); font-size: 1.1rem; color: var(--green-mid); }
+.store-loading p { margin: 0; }
+.store-spinner { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--gold-soft); border-top-color: var(--green-deep);
+  animation: store-spin 0.9s linear infinite; }
+@keyframes store-spin { to { transform: rotate(360deg); } }
+.store-load-error { margin: 8px 0 12px; }
+
+/* Homepage trust bar: the returns promise is qualified and links to the policy. */
+.trust-link { color: inherit; text-decoration: none; }
+.trust-link:hover strong, .trust-link:focus-visible strong { text-decoration: underline; }
+.trust-sub { display: block; font-family: var(--font-serif); font-style: italic; font-size: 0.85rem; letter-spacing: 0; text-transform: none; margin-top: 2px; opacity: 0.9; }
+
+/* Gift voucher request: the four steps from request to delivery */
+.voucher-steps { margin: 14px auto 10px; padding-left: 1.3em; max-width: 620px; text-align: left; font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.7; color: var(--ink); }
+.voucher-steps li { margin-bottom: 4px; }
+/* Gift Guide */
+.gift-band .product-grid { grid-template-columns: repeat(4, 1fr); margin-top: 18px; }
+@media (max-width: 1000px) { .gift-band .product-grid { grid-template-columns: repeat(2, 1fr); } }
+.gift-ideas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 12px; }
+@media (max-width: 760px) { .gift-ideas { grid-template-columns: 1fr; } }
+.gift-idea { display: block; background: var(--ivory); border: 1px solid var(--line); border-radius: 8px; padding: 22px; color: var(--ink); text-decoration: none; }
+.gift-idea strong { display: block; font-family: var(--font-serif); font-size: 1.3rem; font-weight: 500; color: var(--green-deep); margin-bottom: 6px; }
+.gift-idea span { font-family: var(--font-serif); font-size: 1.02rem; line-height: 1.6; }
+.gift-idea:hover, .gift-idea:focus-visible { border-color: var(--gold); }
+
+/* Earrings: "Pair" or "Single earring" beside the price on product cards */
+.card-sold-as { display: inline-block; margin-left: 8px; font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--green-mid); }
+
+/* Product page: the meaning of the name and the collection story, after the buy button */
+.product-story { margin: 22px 0 6px; border-top: 1px solid var(--line); padding-top: 14px; }
+.product-story summary { cursor: pointer; font-family: var(--font-sans); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--green-deep); }
+.product-story p { font-family: var(--font-serif); font-size: 1.05rem; line-height: 1.75; color: var(--ink); margin: 12px 0 0; }
+
+/* Layout refinements (November 2026 review) */
+/* The homepage's main button is solid, so it stands out as the first thing to press. */
+.hero-template .hero-btn { background: var(--green-deep); color: var(--cream); border-color: var(--green-deep); }
+.hero-template .hero-btn:hover, .hero-template .hero-btn:focus-visible { background: var(--green-mid); color: var(--cream); border-color: var(--green-mid); }
+/* Shop: products appear sooner (less space between the title band and the filters). */
+.page-hero + section.shop-products { padding-top: 40px; }
+/* Entrance animations are shorter and gentler, so sections are never left blank for long. */
+.reveal { transform: translateY(12px); transition: opacity 0.35s ease, transform 0.35s ease; }

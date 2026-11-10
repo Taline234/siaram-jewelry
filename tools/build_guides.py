@@ -451,7 +451,7 @@ service_body = f"""
     <div class="section-head reveal">
       <span class="eyebrow">Returns &amp; Repairs</span>
       <h2>Tell Us What Happened</h2>
-      <p>We reply within 3 to 5 business days with the next steps. Please do not send the piece until you receive our
+      <p>We aim to reply within 2&ndash;4 business days with the next steps. Please do not send the piece until you receive our
         instructions. See our <a href="returns.html">Returns</a> and <a href="warranty.html">Warranty</a> policies.</p>
     </div>
     <form class="custom-form service-form reveal" novalidate enctype="multipart/form-data">
@@ -520,8 +520,14 @@ voucher_body = f"""
     <div class="section-head reveal">
       <span class="eyebrow">A Gift They Choose</span>
       <h2>Order a Gift Voucher</h2>
-      <p>A digital Siaram gift voucher from $100, issued to the person you name and valid for six months. We contact you
-        on WhatsApp to arrange payment, then send the voucher. See our <a href="gift-vouchers.html">Gift Voucher policy</a>.</p>
+      <p>A digital Siaram gift voucher from $100, valid for six months and sent directly to the person you name.</p>
+      <ol class="voucher-steps">
+        <li><strong>Request it here.</strong> Nothing is paid yet.</li>
+        <li><strong>We arrange payment with you</strong> by Whish payment link, on WhatsApp unless you choose another way below.</li>
+        <li><strong>Once it is paid, we issue the voucher</strong> in the recipient's name.</li>
+        <li><strong>We send it to the recipient</strong> by email or WhatsApp, on the date you choose or as soon as it is paid.</li>
+      </ol>
+      <p>See our <a href="gift-vouchers.html">Gift Voucher policy</a>.</p>
     </div>
     <form class="custom-form voucher-form reveal" novalidate>
       <fieldset>
@@ -544,19 +550,15 @@ voucher_body = f"""
           <label class="field"><span>Recipient's WhatsApp (with country code)</span>
             <input name="recipient_phone" type="tel" maxlength="40" autocomplete="off" placeholder="+961 70 123 456" /></label>
         </div>
-        <p class="field-note">Give at least one: only the named recipient can use the voucher, and we check it at checkout.</p>
+        <p class="field-note">Give at least one: we send the voucher there. We email it when you give an email address, otherwise we send it on WhatsApp. Only the named recipient can use the voucher, and we check it at checkout.</p>
       </fieldset>
       <fieldset>
-        <legend>Send the voucher to</legend>
-        <div class="choice-pills">
-          <label class="choice-pill"><input type="radio" name="send_to" value="recipient" required /><span>The recipient directly</span></label>
-          <label class="choice-pill"><input type="radio" name="send_to" value="purchaser" /><span>Me, so I can give it myself</span></label>
-        </div>
+        <legend>When and with what message?</legend>
         <label class="field voucher-date"><span>Send it on (optional, e.g. their birthday)</span>
           <input name="send_on" type="date" /></label>
         <label class="field voucher-message"><span>Personal message (optional)</span>
           <textarea name="message" rows="4" maxlength="400" placeholder="Happy birthday! I hope you find a piece that feels like you."></textarea></label>
-        <p class="field-note">We print it on a Siaram message card that comes with the voucher.</p>
+        <p class="field-note">Your message appears on a Siaram message card, sent with the digital voucher.</p>
       </fieldset>
       <fieldset>
         <legend>Your details</legend>
@@ -583,7 +585,7 @@ voucher_body = f"""
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       <p class="field-note">We use these details only for this voucher; see our <a href="privacy.html">Privacy Policy</a>.</p>
       <p class="form-msg" role="alert"></p>
-      <button class="btn btn-primary" type="submit">Order My Gift Voucher</button>
+      <button class="btn btn-primary" type="submit">Send Voucher Request</button>
     </form>
   </div>
 </section>

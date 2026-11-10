@@ -30,6 +30,27 @@ function split(total, madeToOrder) {
   return { cash, whish: total - cash };
 }
 
+// How this basket is paid: in-stock pieces in cash on delivery, made-to-order pieces in full by Whish payment link
+// before production, delivery always in cash to the driver, and voucher credit off the jewellery (in-stock first).
+function renderPayment(t, feeKnown, toDriver) {
+  const box = root.querySelector('.pay-details');
+  if (!box) return;
+  const fee = !t.areaChosen ? 'the delivery fee' : feeKnown ? `${money(t.fee)} delivery` : 'the delivery fee (confirmed before dispatch)';
+  const parts = [];
+  if (t.whish) {
+    parts.push(`<p class="pay-option"><span><strong>Whish payment link, before production: ${money(t.whish)}</strong><br /><span>For the
+      pieces made to order (rose or white gold, or out of stock). We send you the link after you order and start making them
+      once it is paid. Made-to-order pieces cannot be cancelled once ordered and are final sale.</span></span></p>`);
+  }
+  const jewelleryCash = t.cash ? `${money(t.cash)} for your in-stock jewellery and ` : '';
+  parts.push(`<p class="pay-option"><span><strong>Cash on delivery: ${feeKnown ? money(toDriver) : `${money(toDriver)} plus delivery`}</strong><br /><span>Paid
+    to the driver when your order arrives: ${jewelleryCash}${fee}.${t.whish
+      ? ' Pieces already paid by Whish are not paid again.' : ''}</span></span></p>`);
+  if (t.whish && t.cash) parts.push('<p class="field-note">Your order is delivered together, once the made-to-order pieces are ready.</p>');
+  if (t.discount) parts.push(`<p class="field-note">Your gift voucher takes ${money(t.discount)} off your jewellery (in-stock pieces first). It does not cover delivery.</p>`);
+  box.innerHTML = parts.join('');
+}
+
 function renderSummary() {
   const t = totals();
   const lines = t.cart.map((i) => {
@@ -47,6 +68,7 @@ function renderSummary() {
     ${toDriver || !t.whish ? `<div class="summary-row summary-total"><span>Total to pay in cash on delivery${feeKnown ? '' : ' (plus delivery)'}</span><span>${money(toDriver)}</span></div>` : ''}
     ${t.whish ? `<div class="summary-row summary-total"><span>To pay by Whish before production</span><span>${money(t.whish)}</span></div>` : ''}
     <p class="summary-note">You pay the driver in cash when your order arrives${feeKnown ? ', delivery included' : ''}.</p>`;
+  renderPayment(t, feeKnown, toDriver);
 }
 
 function fillAddress(a) {
@@ -142,12 +164,9 @@ function renderForm(profile) {
 
       <fieldset><legend>Payment</legend>
         <input type="hidden" name="payment_method" value="cash" />
-        <p class="pay-option"><span><strong>Cash on delivery</strong><br /><span>You pay
-          the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
-        <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
-          jewellery, not delivery. Pieces made to order (rose or white gold, or out of stock) are paid in full by Whish before
-          production, cannot be cancelled once ordered and are final sale; we send you a Whish payment link. We do not take card payments. You get an order received email now and another when
-          your order ships.</p>
+        <div class="pay-details" aria-live="polite"></div>
+        <p class="field-note">We do not take card payments. You get an order received email now, and your tracking number
+          when your order is dispatched.</p>
       </fieldset>
 
       <fieldset class="checkout-confirm">
@@ -156,8 +175,8 @@ function renderForm(profile) {
           <p class="terms-summary-title">Delivery and returns</p>
           <ul>
             <li>You pay the delivery fee. For international orders, you also pay customs clearance, import duties, taxes and any related fees.</li>
-            <li>If you return a piece because you no longer want it, you get a refund for the piece, but you pay all return costs, and the original delivery fee is not refunded.</li>
-            <li>If we sent a defective or incorrect piece, we cover the return costs.</li>
+            <li>If you return an eligible in-stock piece within 14 days because you no longer want it, you get a refund for the piece, but you pay all return costs, and the original delivery fee is not refunded. Made-to-order pieces are final sale.</li>
+            <li>If a piece arrives damaged, defective or incorrect, tell us, preferably within 48 hours, and we cover the return costs.</li>
             <li>A refund may be refused or reduced if the piece is not returned in its original good condition and packaging.</li>
           </ul>
           <p>Full details and how to return a piece: <a href="shipping.html" target="_blank">Shipping</a> and
@@ -350,6 +369,17 @@ async function init() {
 if (storeEnabled) {
   init().catch((err) => {
     console.error(err);
-    root.innerHTML = '<p class="form-error">Sorry, checkout could not be loaded. Please refresh the page.</p>';
+    root.innerHTML = `<div class="store-empty" role="alert"><p>Sorry, checkout could not be loaded. Please check your connection and try again.</p>
+      <div class="product-actions" style="justify-content:center">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        <a class="btn btn-outline" href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp Us</a>
+      </div></div>`;
   });
+}
+
+if (!storeEnabled && root) {
+  root.innerHTML = `<div class="store-empty"><p>Online ordering is not available right now. We'd love to help you by email or WhatsApp.</p>
+    <div class="product-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="mailto:customerservice@siaramjewelry.com?subject=Order%20enquiry">Email Us</a>
+      <a class="btn btn-outline" href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp Us</a></div></div>`;
 }

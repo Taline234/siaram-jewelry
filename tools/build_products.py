@@ -96,129 +96,129 @@ P = [
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "Designed as a subtle charm for everyday wear.", imgs=3),
     item("horseshoe-necklace-black-stone", "Midnight Horseshoe Necklace", "Necklaces", "equestrian", 525,
-         "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black onyx, finished with a fine drop chain ending in a white stone.",
+         "A Y-shaped 18k yellow gold necklace featuring a horseshoe set with black onyx, finished with a fine drop chain ending in a white zircon.",
          "Black onyx and white zircon", "Y-shaped gold necklace with a black onyx horseshoe, worn with a white top",
          "Designed as a subtle charm for everyday wear.", imgs=3),
     item("horseshoe-bracelet", "Midnight Horseshoe Bracelet", "Bracelets", "equestrian", 450,
-         "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black onyx, paired with a brilliant white stone.",
-         "Black onyx and white zircon", "Gold chain bracelet with a black onyx horseshoe and a white stone, on the wrist", imgs=3),
+         "A fine 18k yellow gold chain bracelet featuring a horseshoe set with black onyx, paired with a brilliant white zircon.",
+         "Black onyx and white zircon", "Gold chain bracelet with a black onyx horseshoe and a white zircon, on the wrist", imgs=3),
     item("horseshoe-ring", "Fortune Ring", "Rings", "equestrian", 350,
          "A horseshoe ring in 18k yellow gold, set with sparkling pav&eacute; zircon.",
-         "Pav&eacute; zircon", "Gold horseshoe ring set with pavé zircon, worn on the hand",
+         "Pav&eacute; white zircon", "Gold horseshoe ring set with pavé zircon, worn on the hand",
          "A nod to the bond between a horse and its rider that gave Siaram its name. Delicate enough to stack, easy to wear every day.",
          imgs=3),
     item("horseshoe-chain-earrings", "Midnight Horseshoe Earring", "Earrings", "equestrian", 420,
-         "An 18k yellow gold earring featuring a black onyx horseshoe, connected by a fine gold chain to a sparkling white stone stud.",
-         "Black onyx and white zircon", "Gold horseshoe chain earring with a white stone stud, worn on the ear",
+         "An 18k yellow gold earring featuring a black onyx horseshoe, connected by a fine gold chain to a sparkling white zircon stud.",
+         "Black onyx and white zircon", "Gold horseshoe chain earring with a white zircon stud, worn on the ear",
          "Made for two piercings in one ear: the chain drapes between them and catches the light as you move.",
          imgs=3),
     # Equestrian: horse eye
     item("horse-eye-ring", "Regard Ring", "Rings", "equestrian", 555,
-         "An open 18k yellow gold ring in the shape of a horse eye, with a striking marquise-cut red stone and white stones along its curved silhouette.",
-         "Marquise-cut red stone and white zircon", "Gold horse eye ring with a red stone, worn on a hand resting on a horse", imgs=3),
+         "An open 18k yellow gold ring in the shape of a horse eye, with a striking marquise-cut red zircon and white zircons along its curved silhouette.",
+         "Marquise-cut red zircon and white zircon", "Gold horse eye ring with a red zircon, worn on a hand resting on a horse", imgs=3),
     item("horse-eye-stud", "Regard Stud Earrings", "Earrings", "equestrian", 410,
-         "A bold 18k yellow gold horse eye stud with a marquise-shaped coloured centre stone, framed by subtle sparkling stones.",
-         "Marquise-shaped coloured centre stone and zircon", "Gold horse eye stud earring, worn on the ear", imgs=3),
+         "A bold 18k yellow gold horse eye stud with a marquise-cut red zircon at its centre, framed by subtle sparkling white zircons.",
+         "Marquise-cut red zircon and white zircon", "Gold horse eye stud earring, worn on the ear", imgs=3),
     item("horse-eye-bracelet", "Regard Bracelet", "Bracelets", "equestrian", 450,
-         "An 18k yellow gold chain bracelet featuring an elegant horse eye motif, set with a rich marquise-shaped red stone and sparkling white stones.",
-         "Marquise-cut red stone and white zircon", "Gold horse eye bracelet laid out with other Siaram pieces", imgs=1),
+         "An 18k yellow gold chain bracelet featuring an elegant horse eye motif, set with a rich marquise-shaped red zircon and sparkling white zircons.",
+         "Marquise-cut red zircon and white zircon", "Gold horse eye bracelet laid out with other Siaram pieces", imgs=1),
     item("horse-eye-necklace", "Regard Necklace", "Necklaces", "equestrian", 620,
-         "An eye-catching 18k yellow gold necklace with a horse eye motif, set with a striking marquise-cut red stone and finished with delicate stone detailing along the eye.",
-         "Marquise-cut red stone and zircon", "Gold horse eye necklace worn in dappled light", imgs=3),
+         "An eye-catching 18k yellow gold necklace with a horse eye motif, set with a striking marquise-cut red zircon and finished with delicate stone detailing along the eye.",
+         "Marquise-cut red zircon and white zircon", "Gold horse eye necklace worn in dappled light", imgs=3),
     # Core
     item("curved-marquise-necklace", "Aria Necklace", "Necklaces", "core", 610,
-         "An 18k yellow gold necklace with a fluid curved motif, accented with a sparkling marquise-cut stone and smaller stone details.",
-         "Marquise-cut and round zircon", "Gold curved marquise necklace set with zircon, worn with a white top",
+         "An 18k yellow gold necklace with a fluid curved motif, accented with a sparkling marquise-cut white zircon and smaller white zircon details.",
+         "Marquise-cut and round white zircon", "Gold curved marquise necklace set with zircon, worn with a white top",
          'It layers beautifully with the <a href="product-v-bird-necklace.html">Envole Necklace</a> and <a href="product-v-pendant-necklace.html">Vertex Necklace</a>; each is sold separately.',
          imgs=3),
     item("curved-marquise-bracelet", "Aria Bracelet", "Bracelets", "core", 465,
-         "An 18k yellow gold chain bracelet featuring a fluid marquise-inspired curve, partially set with sparkling white stones.",
+         "An 18k yellow gold chain bracelet featuring a fluid marquise-inspired curve, partially set with sparkling white zircons.",
          "White zircon", "Gold curved marquise bracelet on the wrist", imgs=3),
     item("curved-marquise-earrings", "Aria Earrings", "Earrings", "core", 540,
-         "Delicate drop earrings in 18k yellow gold: a white stone stud, a fine chain and a sculpted curve, finished with a marquise-cut stone surrounded by smaller stones.",
+         "Delicate drop earrings in 18k yellow gold: a white zircon stud, a fine chain and a sculpted curve, finished with a marquise-cut white zircon surrounded by smaller white zircons.",
          "Marquise-cut and round white zircon", "Gold curved marquise drop earrings displayed on a portrait vase",
          imgs=3),
     item("eye-necklace", "Nazar Necklace", "Necklaces", "core", 630,
-         "A delicate 18k yellow gold chain adorned with white pearls, with an eye-shaped pendant embellished with white stones and a striking turquoise centre.",
-         "White zircon, turquoise centre stone and white pearls", "Gold eye necklace with pearls and a turquoise centre, in warm light", imgs=3),
+         "A delicate 18k yellow gold chain adorned with white freshwater pearls, with an eye-shaped pendant embellished with white zircons and a striking turquoise centre.",
+         "White zircon, turquoise centre stone and white freshwater pearls", "Gold eye necklace with pearls and a turquoise centre, in warm light", imgs=3),
     # Fatima
     item("fatima-pearl-earrings", "Hamsa Pearl Asymmetric Earrings", "Earrings", "fatima", 450,
-         "An asymmetric pair in 18k yellow gold: a geometric triangle stud with a fine drop chain finished with a luminous white pearl, and an openwork Hamsa hand charm.",
-         "White pearl", "Asymmetric gold Hamsa and pearl drop earrings, worn", imgs=3),
+         "An asymmetric pair in 18k yellow gold: a geometric triangle stud with a fine drop chain finished with a luminous white freshwater pearl, and an openwork Hamsa hand charm.",
+         "White freshwater pearl", "Asymmetric gold Hamsa and pearl drop earrings, worn", imgs=3),
     item("fatima-necklace", "Hamsa Necklace", "Necklaces", "fatima", 645,
-         "A delicate Y-shaped 18k yellow gold necklace with an intricate Hamsa hand charm, accented with three blue freshwater pearls and finished with a dangling white pearl.",
-         "Turquoise-toned pearls and a white pearl", "Y-shaped gold Hamsa hand necklace with blue freshwater pearls, worn with a white shirt", imgs=3),
+         "A delicate Y-shaped 18k yellow gold necklace with an intricate Hamsa hand charm, accented with three blue freshwater pearls and finished with a dangling white freshwater pearl.",
+         "Blue freshwater pearls and a white freshwater pearl", "Y-shaped gold Hamsa hand necklace with blue freshwater pearls, worn with a white shirt", imgs=3),
     item("fatima-ring", "Hamsa Ring", "Rings", "fatima", 355,
-         "A minimal open ring in 18k yellow gold with a fine chain and a small Hamsa hand outline set with a white stone.",
+         "A minimal open ring in 18k yellow gold with a fine chain and a small Hamsa hand outline set with a white zircon.",
          "White zircon", "Minimal gold Hamsa ring worn by the sea", imgs=3),
     item("fatima-anklet", "Hamsa Anklet", "Anklets", "fatima", 420,
          "A delicate 18k yellow gold chain anklet with an open Hamsa hand charm and three blue freshwater pearls along the chain.",
-         "Turquoise-toned pearls", "Gold Hamsa anklet with blue freshwater pearls, laid out with other pieces", imgs=3),
+         "Blue freshwater pearls", "Gold Hamsa anklet with blue freshwater pearls, laid out with other pieces", imgs=3),
     # Geometric
     item("v-pendant-necklace", "Vertex Necklace", "Necklaces", "geometric", 489,
-         "A Y-shaped 18k yellow gold necklace with a sleek V-shaped centrepiece, finished with a fine drop chain and a geometric pendant accented with a white stone.",
-         "White zircon", "Gold V pendant necklace with a white stone drop, layered",
+         "A Y-shaped 18k yellow gold necklace with a sleek V-shaped centrepiece, finished with a fine drop chain and a geometric pendant accented with a white zircon.",
+         "White zircon", "Gold V pendant necklace with a white zircon drop, layered",
          'It layers beautifully with the <a href="product-curved-marquise-necklace.html">Aria</a> and <a href="product-v-bird-necklace.html">Envole</a> necklaces; each is sold separately.',
          imgs=3),
     item("triangle-necklace", "Tria Necklace", "Necklaces", "geometric", 519,
-         "An open triangle necklace in 18k yellow gold, centred with a white stone.",
-         "White zircon", "Gold open triangle necklace with a white stone, on an open book", imgs=3),
+         "An open triangle necklace in 18k yellow gold, centred with a white zircon.",
+         "White zircon", "Gold open triangle necklace with a white zircon, on an open book", imgs=3),
     item("v-bird-necklace", "Envole Necklace", "Necklaces", "geometric", 559,
-         "An 18k yellow gold necklace with a sculpted V-shaped bird motif embellished with sparkling white stones.",
+         "An 18k yellow gold necklace with a sculpted V-shaped bird motif embellished with sparkling white zircons.",
          "Pav&eacute; white zircon", "Gold V bird necklace set with white zircon, on an open book",
          'It layers beautifully with the <a href="product-curved-marquise-necklace.html">Aria Necklace</a> and <a href="product-v-pendant-necklace.html">Vertex Necklace</a>; each is sold separately.',
          imgs=3),
     # Celestial
     item("moon-star-handchain", "Celeste Handchain", "Bracelets", "celestial", 622,
-         "A delicate 18k yellow gold hand chain featuring an intricate crescent moon with a white stone, connecting to an open star charm and a fine chain ring.",
+         "A delicate 18k yellow gold hand chain featuring an intricate crescent moon with a white zircon, connecting to an open star charm and a fine chain ring.",
          "White zircon", "Gold moon and star hand chain, worn with a white shirt", imgs=3),
     item("moon-star-pendant-earring", "Celeste Drop Earrings", "Earrings", "celestial", 450,
-         "A white stone stud drop earring in 18k yellow gold, with a star suspended from a gold chain and a moon set with a black stone.",
+         "A white zircon stud drop earring in 18k yellow gold, with a star suspended from a gold chain and a moon set with a black stone.",
          "White and black zircon", "Gold moon and star drop earring, worn by the sea", imgs=3),
     item("crescent-moon-earrings", "Lune Pearl Earrings", "Earrings", "celestial", 499,
-         "Crescent moon studs in 18k yellow gold set with white stones, finished with a fine chain and a dangling white pearl.",
-         "White zircon and white pearls", "Gold crescent moon earrings with pearl drops", imgs=2),
+         "Crescent moon studs in 18k yellow gold set with white zircons, finished with a fine chain and a dangling white freshwater pearl.",
+         "White zircon and white freshwater pearls", "Gold crescent moon earrings with pearl drops", imgs=2),
     item("star-moon-necklace", "Celestial Necklace", "Necklaces", "celestial", 470,
          "A delicate Y-shaped 18k yellow gold necklace with a hollow star connector and a small crescent moon drop.",
-         "Zircon", "Y-shaped gold star and moon necklace displayed on a candle", imgs=3),
+         "White zircon", "Y-shaped gold star and moon necklace displayed on a candle", imgs=3),
     item("qamar-ring", "Qamar Ring", "Rings", "celestial", 430,
-         "The Arabic word &ldquo;&#1602;&#1605;&#1585;&rdquo; (qamar, moon) crafted into an 18k yellow gold ring with a white stone.",
+         "The Arabic word &ldquo;&#1602;&#1605;&#1585;&rdquo; (qamar, moon) crafted into an 18k yellow gold ring with a white zircon.",
          "White zircon", "Gold ring spelling qamar in Arabic, among white roses", imgs=3),
     item("crescent-moon-ring", "Lune Ring", "Rings", "celestial", 340,
          "A bold 18k yellow gold open crescent moon ring with a central stone detail.",
-         "Zircon", "Gold open crescent moon ring with a zircon, on a wooden block", imgs=3),
+         "White zircon", "Gold open crescent moon ring with a zircon, on a wooden block", imgs=3),
     item("sun-necklace", "Sol Necklace", "Necklaces", "celestial", 579,
-         "An open sun pendant in 18k yellow gold framed with shimmering stones and finished with a single suspended white pearl.",
-         "White zircon and a white pearl", "Gold open sun necklace with a pearl, worn with a white shirt", imgs=3),
+         "An open sun pendant in 18k yellow gold framed with shimmering white zircons and finished with a single suspended white freshwater pearl.",
+         "White zircon and a white freshwater pearl", "Gold open sun necklace with a pearl, worn with a white shirt", imgs=3),
     item("sun-ring", "Sol Ring", "Rings", "celestial", 540,
-         "A radiant open ring in 18k yellow gold with a white stone-set sun motif and a sweeping curved band of shining stones.",
+         "A radiant open ring in 18k yellow gold with a white zircon-set sun motif and a sweeping curved band of shining stones.",
          "White zircon", "Gold sun ring set with white zircon, worn on the hand", imgs=3),
     item("sun-stud-earrings", "Sol Stud Earrings", "Earrings", "celestial", 569,
-         "A statement sun-shaped stud in 18k yellow gold with an open centre, surrounded by sparkling white stones and polished golden rays.",
+         "A statement sun-shaped stud in 18k yellow gold with an open centre, surrounded by sparkling white zircons and polished golden rays.",
          "White zircon", "Gold sun stud earring with white zircon, worn", imgs=3),
     # Ocean
     item("seahorse-pearl-bracelet", "Seahorse Bracelet", "Bracelets", "ocean", 420,
-         "A fine 18k yellow gold chain bracelet with a seahorse charm and a subtle zircon detail, accented by three small white pearls.",
-         "Zircon and white pearls", "Gold seahorse bracelet with white pearls, on the wrist", imgs=3),
+         "A fine 18k yellow gold chain bracelet with a seahorse charm and a subtle zircon detail, accented by three small white freshwater pearls.",
+         "White zircon and white freshwater pearls", "Gold seahorse bracelet with white freshwater pearls, on the wrist", imgs=3),
     item("wave-bracelet", "Mar&eacute;e Bracelet", "Bracelets", "ocean", 410,
-         "An 18k yellow gold chain bracelet with a fluid wave-inspired design, centred with a luminous white pearl.",
-         "White pearl", "Gold wave bracelet with a pearl, on the wrist", imgs=3),
+         "An 18k yellow gold chain bracelet with a fluid wave-inspired design, centred with a luminous white freshwater pearl.",
+         "White freshwater pearls", "Gold wave bracelet with a pearl, on the wrist", imgs=3),
     # Arrow
     item("arrow-necklace", "Arrow Necklace", "Necklaces", "arrow", 489,
          "A Y-shaped 18k yellow gold necklace with an arrow motif and a subtle zircon accent, finished with a fine drop chain and arrow tip.",
-         "Zircon", "Y-shaped gold arrow necklace worn with a black top", imgs=3),
+         "White zircon", "Y-shaped gold arrow necklace worn with a black top", imgs=3),
     item("arrow-bracelet", "Arrow Bracelet", "Bracelets", "arrow", 689,
-         "A delicate 18k yellow gold bracelet featuring a geometric arrow, accented with sparkling stones and a vibrant red centre stone.",
-         "White zircon and a red centre stone", "Gold arrow bracelet with a red stone, in warm light", imgs=3),
+         "A delicate 18k yellow gold bracelet featuring a geometric arrow, accented with sparkling white zircons and a vibrant red zircon at its centre.",
+         "White zircon and a red zircon centre", "Gold arrow bracelet with a red zircon, in warm light", imgs=3),
     item("arrow-earrings", "Arrow Drop Earrings", "Earrings", "arrow", 499,
-         "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white stones and a vibrant red centre stone.",
-         "White zircon and a red centre stone", "Gold arrow threader earring, worn", imgs=3),
+         "An 18k yellow gold threader earring with a fine chain and a geometric arrowhead, accented with sparkling white zircons and a vibrant red zircon at its centre.",
+         "White zircon and a red zircon centre", "Gold arrow threader earring, worn", imgs=3),
     item("arrow-open-ring", "Diverge Arrow Ring", "Rings", "arrow", 589,
-         "An open 18k yellow gold ring with the two ends of an arrow facing in opposite directions, set with contrasting black and white stones.",
-         "Black and white zircon", "Gold open arrow ring with black and white stones", imgs=3),
+         "An open 18k yellow gold ring with the two ends of an arrow facing in opposite directions, set with contrasting black and white zircons.",
+         "Black and white zircon", "Gold open arrow ring with black and white zircons", imgs=3),
     item("arrow-ring", "Sahm Ring", "Rings", "arrow", 679,
-         "An 18k yellow gold ring where two arrowheads meet: one traced with white stones around a vivid coloured centre stone, the other polished gold.",
-         "White zircon and a coloured centre stone", "Gold arrow ring with a coloured centre stone", imgs=3),
+         "An 18k yellow gold ring where two arrowheads meet: one traced with white zircons around a vivid red zircon at the centre, the other polished gold.",
+         "White zircon and a red zircon centre", "Gold arrow ring with a coloured centre stone", imgs=3),
 ]
 
 # ---- approved names (November 2026): the meaning behind each name, shown in the description,
@@ -278,16 +278,16 @@ D = {
     "horseshoe-bracelet": dict(sku="BR-02", stone="Black onyx, white zircon", wrist=(15, 17)),
     "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
     "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black onyx, white zircon"),
-    "horse-eye-ring": dict(sku="RG-07", stone="Red stone (marquise cut), white zircon", ring=54),
-    "horse-eye-stud": dict(sku="EA-06", stone="Red stone (marquise cut), white zircon"),
-    "horse-eye-bracelet": dict(sku="BR-08", stone="Red stone (marquise cut), white zircon", wrist=(16, 17.5)),
-    "horse-eye-necklace": dict(sku="NK-10", stone="Red stone (marquise cut), white zircon", dims=[("Length", "37&ndash;40 cm chain (adjustable)")]),
+    "horse-eye-ring": dict(sku="RG-07", stone="Red zircon (marquise cut), white zircon", ring=54),
+    "horse-eye-stud": dict(sku="EA-06", stone="Red zircon (marquise cut), white zircon"),
+    "horse-eye-bracelet": dict(sku="BR-08", stone="Red zircon (marquise cut), white zircon", wrist=(16, 17.5)),
+    "horse-eye-necklace": dict(sku="NK-10", stone="Red zircon (marquise cut), white zircon", dims=[("Length", "37&ndash;40 cm chain (adjustable)")]),
     "curved-marquise-necklace": dict(sku="NK-12", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
     "curved-marquise-bracelet": dict(sku="BR-07", stone="White zircon", wrist=(15, 17)),
     "curved-marquise-earrings": dict(sku="EA-08", stone="White zircon", dims=[("Drop chain", "2 cm")]),
     "eye-necklace": dict(sku="NK-02", stone="Turquoise stone (centre), white zircon", other="White freshwater pearls", dims=[("Length", "40&ndash;52.5 cm chain (adjustable)")]),
     "fatima-pearl-earrings": dict(sku="EA-01", other="White freshwater pearl", dims=[("Drop chain", "3 cm")]),
-    "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Length", "38&ndash;40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white pearl)")]),
+    "fatima-necklace": dict(sku="NK-06", other="Blue freshwater pearls, white freshwater pearl", dims=[("Length", "38&ndash;40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white freshwater pearl)")]),
     "fatima-ring": dict(sku="RG-03", stone="White zircon", ring=54),
     "fatima-anklet": dict(sku="AK-01", other="Blue freshwater pearls", dims=[("Chain", "21&ndash;22 cm (adjustable)")]),
     "v-pendant-necklace": dict(sku="NK-08", stone="White zircon", dims=[("Length", "50&ndash;52 cm chain (adjustable)")]),
@@ -305,10 +305,10 @@ D = {
     "seahorse-pearl-bracelet": dict(sku="BR-01", stone="White zircon", other="White freshwater pearls", wrist=(15, 16)),
     "wave-bracelet": dict(sku="BR-06", other="White freshwater pearl", wrist=(15, 16.5)),
     "arrow-necklace": dict(sku="NK-04", stone="White zircon", dims=[("Length", "41 cm chain + 5.5 cm drop chain")]),
-    "arrow-bracelet": dict(sku="BR-05", stone="Red stone (centre), white zircon", wrist=(16, 17)),
-    "arrow-earrings": dict(sku="EA-04", stone="Red stone (centre), white zircon", dims=[("Drop chain", "4 cm")]),
+    "arrow-bracelet": dict(sku="BR-05", stone="Red zircon (centre), white zircon", wrist=(16, 17)),
+    "arrow-earrings": dict(sku="EA-04", stone="Red zircon (centre), white zircon", dims=[("Drop chain", "4 cm")]),
     "arrow-open-ring": dict(sku="RG-05", stone="Black zircon, white zircon", ring=55),
-    "arrow-ring": dict(sku="RG-06", stone="Red stone (centre), white zircon", ring=55),
+    "arrow-ring": dict(sku="RG-06", stone="Red zircon (centre), white zircon", ring=55),
 }
 assert set(D) == {p["slug"] for p in P}
 
@@ -339,6 +339,9 @@ for p in P:
     if "wrist" in d:
         dims.insert(0, ("Wrist chain" if p["slug"] == "moon-star-handchain" else "Length",
                         f"{cm(d['wrist'][0])}&ndash;{cm(d['wrist'][1])} cm (adjustable)"))
+    if "ring" in d:  # the ring in the photos; every size in the picker can be ordered
+        us = dict(RING_SIZES).get(d["ring"])
+        dims.insert(0, ("Size in the photos", f"EU {d['ring']}" + (f" &middot; US {us}" if us else "")))
     p["dims"] = dims
 for p in P:
     p["imgs"] = [f"images/products/{p['slug']}-{i}.jpg" for i in range(1, p["nimgs"] + 1)]
@@ -371,7 +374,7 @@ def card(p):
         <div class="product-body">
           <span class="product-cat">{COLL[p['coll']][0]} Collection</span>
           <h3><a href="{p['page']}">{p['name']}</a></h3>
-          <span class="card-price" data-price-for="{p['slug']}">{p['price_text']}</span>
+          <span class="card-price" data-price-for="{p['slug']}">{p['price_text']}</span>{card_sold_as(p)}
           <p>{p['short']}</p>
           <a class="product-link" href="{p['page']}">View Details</a>
           <a class="btn btn-contact" href="{mail}">
@@ -446,12 +449,19 @@ def options_html(p):
 {metals}
             </div>
           </fieldset>
-{size}{necklace_guide}          <p class="made-to-order-note">Rose and white gold, and pieces that are out of stock, are made to order: allow 3 to 4 weeks. Made-to-order pieces are final sale.</p>
+{size}{necklace_guide}          <p class="made-to-order-note">Rose and white gold, and pieces that are out of stock, are made to order: allow 3 to 4 weeks. They are paid in full by Whish payment link before production and are final sale. In-stock pieces are paid in cash on delivery.</p>
         </div>
 """
 
 # Earrings are sold as a pair, except the Horse Shoe Earring, which is a single earring (owner, 4 November 2026).
 SINGLE_EARRINGS = {"horseshoe-chain-earrings"}
+
+def card_sold_as(p):
+    """Beside the price on shop and home cards: whether earrings are one earring or a pair."""
+    if p["cat"] != "Earrings":
+        return ""
+    return f'<span class="card-sold-as">{"Single earring" if p["slug"] in SINGLE_EARRINGS else "Pair"}</span>'
+
 
 def sold_as(p):
     if p["cat"] != "Earrings":
@@ -468,7 +478,7 @@ def specs_html(p):
     if p["other"]:
         rows.append(("Other", p["other"]))
     rows += p["dims"]
-    rows.append(("In the box", "Your piece arrives in a Siaram pouch"))
+    rows.append(("In the box", "A Siaram box, pouch and story card"))
     rows.append(("Care", "Store in its Siaram pouch; avoid perfume, lotion and harsh chemicals; clean with a soft, dry cloth"))
     body = "\n".join(f"          <dt>{k}</dt><dd>{v}</dd>" for k, v in rows)
     return f"""        <h2 class="specs-title">Details</h2>
@@ -539,7 +549,14 @@ for p in P:
     others = ([o for o in P if o is not p and o["coll"] == p["coll"] and o["cat"] != p["cat"]]
               + [o for o in P if o is not p and o["coll"] == p["coll"] and o["cat"] == p["cat"]]
               + [o for o in P if o["coll"] != p["coll"]])[:3]
-    paras = "\n".join(f"        <p>{b}</p>" for b in p["body"])
+    # The short description stays at the top with the price and options; the meaning of the name and the collection
+    # story follow the buy button, in a section the customer can open.
+    paras = f"        <p>{p['body'][0]}</p>" if p["body"] else ""
+    story = "".join(f"\n          <p>{b}</p>" for b in p["body"][1:])
+    story_html = (f"""        <details class="product-story" open>
+          <summary>The story behind the {p['plain'] if 'plain' in p else p['name']}</summary>{story}
+        </details>
+""" if story else "")
     body = f"""<section class="product-detail-section">
   <div class="container">
     <nav class="breadcrumb" aria-label="Breadcrumb">
@@ -560,8 +577,8 @@ for p in P:
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>
         </div>
-        <p class="product-note">Questions about sizing or a custom version? <a href="contact.html">Contact us</a>.
-          See our <a href="shipping.html">delivery &amp; collection</a>, <a href="returns.html">returns &amp; exchanges</a> and
+{story_html}        <p class="product-note">Questions about sizing or a custom version? <a href="contact.html">Contact us</a>.
+          See our <a href="shipping.html">delivery</a>, <a href="returns.html">returns &amp; exchanges</a> and
           <a href="warranty.html">warranty</a> policies.</p>
 {specs_html(p)}      </div>
     </div>

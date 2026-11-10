@@ -28,25 +28,30 @@ async function sendOne(id) {
   const v = await rpc('claim_voucher_email', { p_id: id });
   if (!v) return { id, sent: false, reason: 'not paid, already sent or not due yet' };
   const site = env('SITE_URL') || 'https://siaramjewelry.com';
-  const toRecipient = v.send_to === 'recipient' && v.recipient_email;
+  // Vouchers go straight to the recipient: by email when we have their address; otherwise to their WhatsApp, which the
+  // owner sends by hand (the voucher PDF comes to the shop's inbox with the number to send it to).
+  // (Older requests could ask for the buyer instead; they keep that.)
+  const toBuyer = v.send_to === 'purchaser';
+  const byEmail = !toBuyer && Boolean(v.recipient_email);
+  const byWhatsApp = !toBuyer && !v.recipient_email && Boolean(v.recipient_phone);
   const first = (name) => String(name).split(' ')[0];
-  const voucherEmail = toRecipient
-    ? {
-      to: v.recipient_email,
-      subject: `${v.name} sent you a Siaram gift voucher`,
-      html: emailLayout(`A gift for you, ${first(v.recipient_name)}`,
-        `<p style="font-size:15px;line-height:1.6">${escapeHtml(v.name)} has sent you a Siaram Jewelry gift voucher, so you can
-         choose a piece you love.</p>${voucherCard(v)}${howTo(site)}`),
-    }
-    : {
-      to: v.email,
-      subject: `Your Siaram gift voucher for ${v.recipient_name}`,
-      html: emailLayout(`Here is your gift voucher, ${first(v.name)}`,
-        `<p style="font-size:15px;line-height:1.6">Thank you for your order ${escapeHtml(v.reference)}. Here is the voucher for
-         ${escapeHtml(v.recipient_name)}, ready for you to give${v.send_to === 'recipient' ? ' (we only had their WhatsApp number, so please pass it on)' : ''}.
-         Only ${escapeHtml(v.recipient_name)} can use it.</p>${voucherCard(v)}${howTo(site)}`),
-    };
-  // The voucher on the owner's Canva card (and their personal message card), as a PDF to print or forward.
+  const recipientHtml = `<p style="font-size:15px;line-height:1.6">${escapeHtml(v.name)} has sent you a Siaram Jewelry gift voucher, so you can
+         choose a piece you love.</p>${voucherCard(v)}${howTo(site)}`;
+  const voucherEmail = byEmail
+    ? { to: v.recipient_email, subject: `${v.name} sent you a Siaram gift voucher`,
+        html: emailLayout(`A gift for you, ${first(v.recipient_name)}`, recipientHtml) }
+    : byWhatsApp
+      ? { to: env('ORDER_NOTIFY_EMAIL'), subject: `Send gift voucher ${v.voucher_code} on WhatsApp to ${v.recipient_name}`,
+          html: emailLayout(`Send this voucher on WhatsApp`,
+            `<p style="font-size:15px;line-height:1.6">Order ${escapeHtml(v.reference)} only has the recipient's WhatsApp number:
+             <strong>${escapeHtml(v.recipient_phone)}</strong>. Please send ${escapeHtml(v.recipient_name)} the attached voucher
+             card on WhatsApp today, with the code and how to use it (below). The buyer has been told it is on its way.</p>
+             <hr style="border:0;border-top:1px solid #e3dccd;margin:18px 0">${recipientHtml}`) }
+      : { to: v.email, subject: `Your Siaram gift voucher for ${v.recipient_name}`,
+          html: emailLayout(`Here is your gift voucher, ${first(v.name)}`,
+            `<p style="font-size:15px;line-height:1.6">Thank you for your order ${escapeHtml(v.reference)}. Here is the voucher for
+             ${escapeHtml(v.recipient_name)}, ready for you to give. Only ${escapeHtml(v.recipient_name)} can use it.</p>${voucherCard(v)}${howTo(site)}`) };
+  // The voucher on the owner's Canva card (with the personal message card, when there is one), as a PDF.
   try {
     voucherEmail.attachments = [{ filename: `Siaram-gift-voucher-${v.voucher_code}.pdf`, content: await voucherPdf(v) }];
   } catch (err) {
@@ -56,27 +61,31 @@ async function sendOne(id) {
   if (message) {
     voucherEmail.html = voucherEmail.html.replace(voucherCard(v), `${voucherCard(v)}<p style="font-size:15px;line-height:1.6;font-style:italic;text-align:center;color:#1b3a2b">&ldquo;${escapeHtml(message)}&rdquo;<br>&mdash; ${escapeHtml(v.name)}</p>`);
   }
-  voucherEmail.html = voucherEmail.html.replace(howTo(site), `${howTo(site)}<p style="font-size:14px;line-height:1.6;color:#6b665a">Your voucher card is attached as a PDF, ready to print or forward.</p>`);
+  voucherEmail.html = voucherEmail.html.replace(howTo(site), `${howTo(site)}<p style="font-size:14px;line-height:1.6;color:#6b665a">The voucher card is attached as a PDF${message ? ', with the personal message card' : ''}.</p>`);
   const sent = await sendEmail(voucherEmail);
   if (!sent) {
     await rpc('claim_voucher_email', { p_id: id, p_release: true });
     return { id, sent: false, reason: 'email failed' };
   }
-  const notes = [sendEmail({
-    to: env('ORDER_NOTIFY_EMAIL'),
-    subject: `Gift voucher ${v.voucher_code} sent (${v.reference})`,
-    html: emailLayout(`Gift voucher ${v.voucher_code} sent`,
-      `<p style="font-size:15px;line-height:1.6">The ${money(v.amount)} voucher for ${escapeHtml(v.recipient_name)}
-       (order ${escapeHtml(v.reference)}, bought by ${escapeHtml(v.name)}) was emailed to ${escapeHtml(voucherEmail.to)}.</p>`),
-  })];
-  if (toRecipient) {
+  const notes = [];
+  if (byEmail || toBuyer) {
+    notes.push(sendEmail({
+      to: env('ORDER_NOTIFY_EMAIL'),
+      subject: `Gift voucher ${v.voucher_code} sent (${v.reference})`,
+      html: emailLayout(`Gift voucher ${v.voucher_code} sent`,
+        `<p style="font-size:15px;line-height:1.6">The ${money(v.amount)} voucher for ${escapeHtml(v.recipient_name)}
+         (order ${escapeHtml(v.reference)}, bought by ${escapeHtml(v.name)}) was emailed to ${escapeHtml(voucherEmail.to)}.</p>`),
+    }));
+  }
+  if (byEmail || byWhatsApp) {
     notes.push(sendEmail({
       to: v.email,
       subject: `Your gift voucher for ${v.recipient_name} has been sent`,
-      html: emailLayout(`Your gift has been sent, ${first(v.name)}`,
-        `<p style="font-size:15px;line-height:1.6">We have emailed your ${money(v.amount)} Siaram gift voucher to
-         ${escapeHtml(v.recipient_name)} (${escapeHtml(v.recipient_email)}). It is valid until ${longDate(v.expires_at)}.
-         Thank you for your order ${escapeHtml(v.reference)}.</p>`),
+      html: emailLayout(`Your gift is on its way, ${first(v.name)}`,
+        `<p style="font-size:15px;line-height:1.6">${byEmail
+          ? `We have emailed your ${money(v.amount)} Siaram gift voucher to ${escapeHtml(v.recipient_name)} (${escapeHtml(v.recipient_email)}).`
+          : `We are sending your ${money(v.amount)} Siaram gift voucher to ${escapeHtml(v.recipient_name)} on WhatsApp (${escapeHtml(v.recipient_phone)}).`}
+         It is valid until ${longDate(v.expires_at)}. Thank you for your order ${escapeHtml(v.reference)}.</p>`),
     }));
   }
   await Promise.all(notes);
