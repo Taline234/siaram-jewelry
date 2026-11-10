@@ -90,7 +90,7 @@ test('guest order is saved and both emails are sent', async () => {
   assert.match(customer.html, /You will pay <strong>\$120\.00<\/strong>\s+in cash/);
   assert.match(customer.html, /made-to-order pieces \(<strong>\$85\.00<\/strong>\) are paid by Whish/);
   assert.match(shop.subject, /\$120\.00 cash \+ \$85\.00 Whish/);
-  assert.match(shop.html, /Made to order:<\/strong> send the customer a Whish\s+payment request for \$85\.00/);
+  assert.match(shop.html, /Made to order:<\/strong> send the customer a Whish\s+payment link for \$85\.00/);
   assert.doesNotMatch(customer.html, /NK-07/, 'the customer email does not');
   assert.match(shop.html, /For your finance workbook/, 'the shop email lists rows for the finance workbook');
   assert.match(shop.html, /<td[^>]*>S016<\/td><td[^>]*>\d\d\/\d\d\/\d{4}<\/td><td[^>]*>Rana &lt;b&gt;Haddad&lt;\/b&gt;<\/td><td[^>]*>Website<\/td><td[^>]*>NK-07<\/td><td[^>]*>1<\/td><td[^>]*>120\.00<\/td><td[^>]*>Cash<\/td>/,

@@ -222,7 +222,7 @@ We will email you a tracking link when your order ships.`)
     : p('Your gift voucher covers this order. We will email you a tracking link when your order ships.');
   return (toDriver > 0 || !whish ? cashLine : '')
     + (whish ? p(`Your made-to-order pieces (<strong>${money(whish)}</strong>) are paid by Whish: we will send you a payment
-request, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together
+link, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together
 when the whole order is ready.`) : '');
 }
 

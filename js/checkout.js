@@ -146,7 +146,7 @@ function renderForm(profile) {
           the driver in cash when your order arrives, together with the delivery fee.</span></span></p>
         <p class="field-note">Gift-voucher credit is applied first; any remaining balance is paid in cash. Vouchers cover
           jewellery, not delivery. Pieces made to order (rose or white gold, or out of stock) are paid in full by Whish before
-          production, cannot be cancelled once ordered and are final sale; we send you a Whish payment request. We do not take card payments. You get an order received email now and another when
+          production, cannot be cancelled once ordered and are final sale; we send you a Whish payment link. We do not take card payments. You get an order received email now and another when
           your order ships.</p>
       </fieldset>
 
@@ -236,7 +236,7 @@ function showConfirmation(order) {
     : `${pay.cash ? `<p>You'll pay <strong>${money(pay.cash + (order.delivery_fee == null ? 0 : Number(order.delivery_fee)))}</strong>
          in cash to the driver when your order arrives${order.delivery_fee == null ? '' : `, including ${money(order.delivery_fee)} delivery`}.</p>` : ''}
        ${pay.whish ? `<p>Your made-to-order pieces (<strong>${money(pay.whish)}</strong>) are paid by Whish: we'll send you a
-         payment request, and production starts once it is paid. They take 3&ndash;4 weeks and are final sale.</p>` : ''}`;
+         payment link, and production starts once it is paid. They take 3&ndash;4 weeks and are final sale.</p>` : ''}`;
   const handover = `<p>${order.delivery_fee === null || order.delivery_fee === undefined
         ? 'We\'ll confirm the delivery fee before dispatch; it is paid to the driver in cash.'
         : pay.cash ? '' : `You pay only the ${money(order.delivery_fee)} delivery fee in cash to the driver.`}</p>`;

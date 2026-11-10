@@ -132,7 +132,7 @@ Order emails, Supabase and the order functions keep working. Google is told the 
    care and warranty card attached (both drawn after the "Siaram Invoice" Canva template).
 2. New orders start as `received`, and the customer has already had an "order received" email.
    If the order has a made-to-order piece (rose or white gold, or out of stock), send the customer a
-   Whish payment request for it and start production once it clears. Then open **Supabase → Table
+   Whish payment link for it and start production once it clears. Then open **Supabase → Table
    Editor → orders** and set the status to `preparing` (or `cancelled` if it cannot go ahead).
 3. **Everything in stock:** the order is booked with Wakilni automatically, straight after the order emails, as cash
    on delivery for the order total plus the delivery fee. You get an email with the tracking number and the parcel label

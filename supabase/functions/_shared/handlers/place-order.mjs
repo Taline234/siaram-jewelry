@@ -74,7 +74,7 @@ export default async (req) => {
           `${saved.is_gift ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Gift order:</strong> deliver to
             ${escapeHtml(saved.gift_recipient_name || '')}${saved.gift_recipient_phone ? ` (${escapeHtml(saved.gift_recipient_phone)})` : ''},
             leave every price out of the parcel${saved.gift_message ? ' and add the message card' : ''}.</p>` : ''}${pay.whish ? `<p style="font-size:15px;line-height:1.6;color:#8a2c1c"><strong>Made to order:</strong> send the customer a Whish
-            payment request for $${pay.whish.toFixed(2)}, and order production once it is paid.</p>` : ''}
+            payment link for $${pay.whish.toFixed(2)}, and order production once it is paid.</p>` : ''}
            <p style="font-size:15px;line-height:1.6">Payment: ${howPaid}${pay.cash ? ' (cash on delivery)' : ''}.
             ${autoShip ? 'Everything is in stock, so it is being booked with Wakilni now: you will get the label in a minute. Pack it for pickup.'
               : 'Status: received. When the made-to-order pieces are finished and packed, set the order to <strong>ready</strong> to book Wakilni.'}
