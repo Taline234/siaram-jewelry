@@ -192,3 +192,33 @@ document.querySelectorAll('#alt-stone-dialog').forEach((dialog) => {
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
   });
 });
+
+// About page videos: silent and looping. They play only while on screen, never for people who turn off
+// motion on their device (they see the still), and the button pauses or plays them.
+(() => {
+  const videos = document.querySelectorAll('.loop-video');
+  if (!videos.length) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  videos.forEach((video) => {
+    const button = video.parentElement.querySelector('.video-toggle');
+    let paused = reduced; // the visitor's choice
+    const show = () => {
+      button.setAttribute('aria-label', paused ? 'Play video' : 'Pause video');
+      button.classList.toggle('is-paused', paused);
+    };
+    const play = () => { const p = video.play(); if (p) p.catch(() => {}); };
+    button.addEventListener('click', () => {
+      paused = !paused;
+      if (paused) video.pause(); else play();
+      show();
+    });
+    show();
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !paused) play(); else video.pause();
+      }, { threshold: 0.25 }).observe(video);
+    } else if (!paused) {
+      play();
+    }
+  });
+})();
