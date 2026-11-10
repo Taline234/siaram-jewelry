@@ -16,6 +16,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <link rel="icon" href="images/logo.jpeg" />
 <link rel="stylesheet" href="css/style.css" />
+<script>document.documentElement.classList.add('store-pending')</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -50,6 +51,7 @@
           </div>
           <div class="mega-col">
             <h4>Gifts &amp; Services</h4>
+            <a href="gift-guide.html">Gift Guide</a>
             <a href="index.html#bestsellers">Bestsellers</a>
             <a href="gift-voucher.html">Gift Vouchers</a>
             <a href="custom.html">Custom Pieces</a>
@@ -101,6 +103,7 @@
         <a href="shop.html#ocean">Ocean</a>
         <a href="shop.html#arrow">Arrow</a>
         <p class="mobile-sub-title">Gifts &amp; Services</p>
+        <a href="gift-guide.html">Gift Guide</a>
         <a href="index.html#bestsellers">Bestsellers</a>
         <a href="gift-voucher.html">Gift Vouchers</a>
         <a href="custom.html">Custom Pieces</a>
@@ -128,13 +131,14 @@
 <section class="store-section">
   <div class="container">
     <div id="store-root" class="store-root">
-    <div class="store-empty">
-      <p>Online ordering is coming soon. In the meantime, we'd love to help you by email or WhatsApp.</p>
+    <div class="store-loading" role="status"><span class="store-spinner" aria-hidden="true"></span><p>Loading your bag&hellip;</p></div>
+    <noscript><div class="store-empty">
+      <p>Ordering needs JavaScript. Please turn it on, or order by email or WhatsApp.</p>
       <div class="product-actions" style="justify-content:center">
         <a class="btn btn-primary" href="mailto:customerservice@siaramjewelry.com?subject=Order%20enquiry">Email Us</a>
         <a class="btn btn-outline" href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp Us</a>
       </div>
-    </div>
+    </div></noscript>
     </div>
   </div>
 </section>

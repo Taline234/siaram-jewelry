@@ -54,7 +54,7 @@ If you submit a review for publication, you permit us to display it for that pur
 
 ## Problems with an order
 
-Contact customerservice@siaramjewelry.com with your order reference and a short explanation. We aim to respond within three to five business days. This is a response target, not a requirement to resolve every repair or investigation within that period. A return or claim is treated as notified when you send it, not when we reply.
+Contact customerservice@siaramjewelry.com with your order reference and a short explanation. We aim to respond within 2 days. This is a response target, not a requirement to resolve every repair or investigation within that period. A return or claim is treated as notified when you send it, not when we reply.
 
 Our Shipping, Returns and exchanges, Warranty and repairs, Custom orders and Gift vouchers policies explain the available processes. Our Privacy and Cookie policies explain how personal information and website storage are handled.
 
@@ -124,7 +124,7 @@ These are estimated arrival times, not merely dispatch times. We will notify you
 
 We arrange the courier. Delivery charges depend on the destination and service and are disclosed before you commit to the order. You are responsible for paying the delivery fee. Within Lebanon, it is paid to the courier in cash. Please provide an accurate address and a working phone number and ensure an authorised recipient can receive the package.
 
-We will share dispatch and delivery information, including a tracking reference where the selected service provides one. Please check the package on arrival. If it appears opened or damaged, photograph it if possible and notify us promptly, preferably within 48 hours. Keep the packaging while we review the issue. You do not need an unboxing video to make a claim.
+Tracking is available when your order is dispatched. Please check the package on arrival. If it appears opened or damaged, photograph it if possible and notify us promptly, preferably within 48 hours. Keep the packaging while we review the issue. You do not need an unboxing video to make a claim.
 
 ## International orders
 
@@ -328,7 +328,7 @@ Warranty and complaint working files: normally two years after the matter closes
 
 You may ask us what information we hold about you, request a copy or correction, ask for deletion where applicable, withdraw a consent or object to relevant use. Email customerservice@siaramjewelry.com. We may request proportionate information to verify your identity; please do not send identity documents unless we explain why they are necessary and provide a suitable method.
 
-We aim to acknowledge or respond within three to five business days and will explain any further steps or time needed. If information must be retained for accounting, legal or dispute purposes, we explain why and restrict its use as appropriate rather than promising unconditional deletion.
+We aim to acknowledge or respond within 2 days and will explain any further steps or time needed. If information must be retained for accounting, legal or dispute purposes, we explain why and restrict its use as appropriate rather than promising unconditional deletion.
 
 ## Security children and policy changes
 

@@ -66,6 +66,17 @@ function render(products, stock) {
 if (storeEnabled) {
   // Stock labels are a bonus: the cart still works if they cannot be loaded.
   Promise.all([loadProducts(), loadStock().catch(() => new Map())]).then(([products, stock]) => render(products, stock)).catch(() => {
-    root.innerHTML = '<p class="form-error">Sorry, the cart could not be loaded. Please refresh the page.</p>';
+    root.innerHTML = `<div class="store-empty" role="alert"><p>Sorry, your bag could not be loaded. Please check your connection and try again.</p>
+      <div class="product-actions" style="justify-content:center">
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Try Again</button>
+        <a class="btn btn-outline" href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp Us</a>
+      </div></div>`;
   });
+}
+
+if (!storeEnabled && root) {
+  root.innerHTML = `<div class="store-empty"><p>Online ordering is not available right now. We'd love to help you by email or WhatsApp.</p>
+    <div class="product-actions" style="justify-content:center">
+      <a class="btn btn-primary" href="mailto:customerservice@siaramjewelry.com?subject=Order%20enquiry">Email Us</a>
+      <a class="btn btn-outline" href="https://wa.me/96176052068" target="_blank" rel="noopener">WhatsApp Us</a></div></div>`;
 }

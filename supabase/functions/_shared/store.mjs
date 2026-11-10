@@ -218,8 +218,8 @@ export function paymentInstructionsHtml(order) {
   const cashLine = toDriver > 0
     ? p(`${Number(order.total) <= 0 ? 'Your gift voucher covers your jewellery. ' : ''}You will pay <strong>${money(toDriver)}</strong>
 in cash to the driver when your order arrives${breakdown}${fee === null ? ', plus the delivery fee, which we confirm before dispatch' : ''}.
-We will email you a tracking link when your order ships.`)
-    : p('Your gift voucher covers this order. We will email you a tracking link when your order ships.');
+Tracking is available when your order is dispatched.`)
+    : p('Your gift voucher covers this order. Tracking is available when your order is dispatched.');
   return (toDriver > 0 || !whish ? cashLine : '')
     + (whish ? p(`Your made-to-order pieces (<strong>${money(whish)}</strong>) are paid by Whish: we will send you a payment
 link, and production starts once it is paid. They take 3–4 weeks and are final sale. Everything is delivered together

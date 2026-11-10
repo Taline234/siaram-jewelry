@@ -77,7 +77,7 @@ test('guest order is saved and both emails are sent', async () => {
   const [customer, shop] = emails();
   assert.deepEqual(customer.to, ['rana@example.com']);
   assert.match(customer.html, /pay <strong>\$120\.00<\/strong>\s+in cash to the driver/);
-  assert.match(customer.html, /email you a tracking link when your order ships/);
+  assert.match(customer.html, /Tracking is available when your order is dispatched/);
   assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">Confirmed before dispatch/);
   assert.match(customer.html, /plus the delivery fee, which we confirm before dispatch/);
   assert.deepEqual(shop.to, ['shop@siaram.test']);
@@ -141,7 +141,7 @@ test('cash on delivery order tells the customer to pay the driver', async () => 
   assert.match(customer.html, /pay <strong>\$125\.00<\/strong>\s+in cash to the driver when your order arrives \(\$120\.00 for your jewellery and \$5\.00 for delivery\)/);
   assert.match(customer.html, /Delivery<\/td><td align="right" style="padding:6px 0">\$5\.00/);
   assert.match(customer.html, /Total to pay in cash on delivery<\/td><td[^>]*>\$125\.00/);
-  assert.match(customer.html, /tracking link when your order ships/);
+  assert.match(customer.html, /Tracking is available when your order is dispatched/);
   assert.doesNotMatch(customer.html, /via Whish/);
   assert.match(shop.subject, /\$120\.00 cash/);
   assert.match(shop.html, /cash on delivery/);
@@ -558,7 +558,7 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
   assert.match(shop.html, /Rose gold/);
   assert.equal(customer.to[0], 'rana@example.com');
-  assert.match(customer.html, /reply by WhatsApp\s+within 3 to 5 business days/);
+  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2 days/);
   assert.match(shop.html, /Preferred contact: WhatsApp/, 'the shop sees how the customer wants to be contacted');
   assert.equal(saved.preferred_contact, 'WhatsApp');
   assert.equal(customer.attachments, undefined);
@@ -634,15 +634,19 @@ const postVoucher = (body) => voucherRequest(new Request('https://siaram.test/fu
 test('a gift voucher order is saved, the shop gets the line to issue it and the buyer is told it is final sale', async () => {
   handlers['/rest/v1/rpc/save_voucher_request'] = () => [200, { reference: 'VR001' }];
   const res = await postVoucher(voucherOrder());
-  assert.deepEqual(await res.json(), { reference: 'VR001' });
+  assert.deepEqual(await res.json(), { reference: 'VR001', contact_by: 'phone' });
   const saved = calls.find((c) => c.url.endsWith('/save_voucher_request')).body.p;
   assert.equal(saved.amount, 150);
   assert.equal(saved.send_on, '2026-12-24');
   const [shop, buyer] = emails();
   assert.equal(shop.subject, 'Gift voucher order VR001 — $150 (Rana Haddad)');
   assert.match(shop.html, /change VR001's\s+status from <strong>new<\/strong> to <strong>paid<\/strong>/);
-  assert.match(shop.html, /emailed automatically on 2026-12-24/);
-  assert.equal(buyer.subject, 'Your gift voucher order VR001');
+  assert.match(shop.html, /sent to the recipient on 2026-12-24/);
+  assert.match(shop.html, /Whish payment link \(by phone\)/, 'payment is arranged the way the buyer chose');
+  assert.equal(saved.send_to, 'recipient', 'vouchers always go to the recipient');
+  assert.equal(buyer.subject, 'Your gift voucher request VR001');
+  assert.match(buyer.html, /contact you by phone to arrange payment by\s+Whish payment link/);
+  assert.doesNotMatch(buyer.html, /print/i);
   assert.match(buyer.html, /final sale/);
 });
 
@@ -650,7 +654,6 @@ test('gift voucher orders refuse small amounts, no recipient contact, no final-s
   assert.match((await (await postVoucher(voucherOrder({ amount: 50 }))).json()).error, /\$100 or more/);
   assert.match((await (await postVoucher(voucherOrder({ amount: 120.5 }))).json()).error, /whole dollars/);
   assert.match((await (await postVoucher(voucherOrder({ recipient_email: '' }))).json()).error, /email or WhatsApp/);
-  assert.match((await (await postVoucher(voucherOrder({ send_to: 'neighbour' }))).json()).error, /who we should send/);
   assert.match((await (await postVoucher(voucherOrder({ final_sale: false }))).json()).error, /final sale/);
   assert.equal((await postVoucher(voucherOrder({ website: 'spam' }))).status, 400);
   assert.equal(emails().length, 0);
@@ -692,18 +695,28 @@ test('a paid voucher is emailed to the recipient with its code, and the buyer an
   assert.equal(emails().length, 0, 'a second request, or one before the send date, sends nothing');
 });
 
-test('a voucher for the buyer to give, or for a recipient with only WhatsApp, goes to the buyer', async () => {
+test('a voucher for a recipient with only WhatsApp comes to the shop to send, and the buyer is told', async () => {
   handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
-  for (const v of [{ ...paidVoucher, send_to: 'purchaser' }, { ...paidVoucher, recipient_email: null, recipient_phone: '+961 71 000 000' }]) {
-    calls.length = 0;
-    handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, v];
-    await voucherSend(sendRequest('right'));
-    const [gift, shop, ...rest] = emails();
-    assert.equal(gift.to[0], 'rana@example.com');
-    assert.match(gift.html, /GV0001-K7QM4X/);
-    assert.equal(shop.to[0], 'shop@siaram.test');
-    assert.equal(rest.length, 0);
-  }
+  handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, { ...paidVoucher, recipient_email: null, recipient_phone: '+961 71 000 000' }];
+  await voucherSend(sendRequest('right'));
+  const [toShop, buyer, ...rest] = emails();
+  assert.equal(toShop.to[0], 'shop@siaram.test');
+  assert.match(toShop.subject, /on WhatsApp/);
+  assert.match(toShop.html, /\+961 71 000 000/);
+  assert.match(toShop.html, /GV0001-K7QM4X/);
+  assert.equal(buyer.to[0], 'rana@example.com');
+  assert.match(buyer.html, /on WhatsApp/);
+  assert.equal(rest.length, 0);
+});
+
+test('an older request for the buyer to give the voucher still goes to the buyer', async () => {
+  handlers['/rest/v1/rpc/cron_secret_ok'] = () => [200, true];
+  handlers['/rest/v1/rpc/claim_voucher_email'] = () => [200, { ...paidVoucher, send_to: 'purchaser' }];
+  await voucherSend(sendRequest('right'));
+  const [gift, shop, ...rest] = emails();
+  assert.equal(gift.to[0], 'rana@example.com');
+  assert.equal(shop.to[0], 'shop@siaram.test');
+  assert.equal(rest.length, 0);
 });
 
 test('the daily run sends every voucher that is due, and a failed email can be sent again later', async () => {

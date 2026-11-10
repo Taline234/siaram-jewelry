@@ -80,7 +80,7 @@ export async function loadStock() {
 export const inStock = (stock, item) => (stock.get(lineKey(item)) || 0) >= (item.quantity || 1);
 
 export function availabilityHtml(stock, item) {
-  if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; delivered in 2&ndash;4 business days</span>';
+  if (inStock(stock, item)) return '<span class="availability in-stock">In stock &middot; delivered in 2&ndash;4 business days &middot; cash on delivery</span>';
   const have = stock.get(lineKey(item)) || 0;
   const few = have > 0
     ? ` <span class="availability-note">Only ${have} in stock: choose ${have} to receive ${have === 1 ? 'it' : 'them'} in 2&ndash;4 business days.</span>`
@@ -362,8 +362,22 @@ async function recordActivity() {
   if (!error) storageSet('siaram-last-active', Date.now());
 }
 
+// If prices and stock cannot be loaded, say so (with a way to try again) instead of leaving the page half-ready.
+function showLoadError() {
+  document.documentElement.classList.add('store-failed');
+  const where = document.querySelector('.product-buy[data-slug]');
+  if (!where || document.querySelector('.store-load-error')) return;
+  const note = document.createElement('p');
+  note.className = 'store-load-error form-error';
+  note.setAttribute('role', 'alert');
+  note.innerHTML = 'Prices and ordering could not load. <button type="button" class="link-btn">Try again</button>, or enquire by email below.';
+  note.querySelector('button').addEventListener('click', () => location.reload());
+  where.before(note);
+}
+
 async function init() {
-  if (!storeEnabled) return;
+  const ready = () => document.documentElement.classList.remove('store-pending');
+  if (!storeEnabled) { ready(); return; }
   document.documentElement.classList.add('store-on');
   addHeaderLinks();
   setupNewsletter();
@@ -372,10 +386,12 @@ async function init() {
     await fillPrices(products);
     setupCardButtons(products);
     await setupBuyBox(products);
-    await recordActivity();
   } catch (err) {
     console.error('Store failed to load', err);
+    showLoadError();
   }
+  ready();
+  recordActivity().catch(() => {});
 }
 
 init();

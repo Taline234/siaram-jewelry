@@ -169,3 +169,10 @@ document.querySelectorAll('.enquire-menu').forEach((menu) => {
   document.addEventListener('click', (e) => { if (!menu.contains(e.target)) set(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
 });
+
+// Product pages: the made-to-order note follows the metal chosen (yellow gold: only if out of stock; rose and white: always).
+document.addEventListener('change', (e) => {
+  if (e.target.name !== 'metal') return;
+  const yellow = e.target.value === 'yellow';
+  document.querySelectorAll('[data-metal-note]').forEach((n) => { n.hidden = (n.dataset.metalNote === 'yellow') !== yellow; });
+});

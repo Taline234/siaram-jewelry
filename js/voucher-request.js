@@ -19,7 +19,6 @@ function problem(f) {
     return ["Please add the recipient's email or WhatsApp number.", rEmail];
   }
   if (!rEmail.checkValidity()) return ["Please check the recipient's email address.", rEmail];
-  if (!f.elements.send_to.value) return ['Please choose who we should send the voucher to.', f.querySelector('[name=send_to]')];
   for (const name of ['name', 'phone', 'email']) {
     const el = f.elements[name];
     if (!el.value.trim() || !el.checkValidity()) {
@@ -52,7 +51,7 @@ if (form) {
       const f = form.elements;
       const body = {
         amount: amountOf(form), recipient_name: f.recipient_name.value, recipient_email: f.recipient_email.value,
-        recipient_phone: f.recipient_phone.value, send_to: f.send_to.value, send_on: f.send_on.value, message: f.message.value,
+        recipient_phone: f.recipient_phone.value, send_to: 'recipient', send_on: f.send_on.value, message: f.message.value,
         name: f.name.value, email: f.email.value, phone: f.phone.value, preferred_contact: f.preferred_contact.value, final_sale: f.final_sale.checked, website: f.website.value,
       };
       const button = form.querySelector('[type=submit]');
@@ -65,16 +64,16 @@ if (form) {
         const reply = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(reply.error || 'Sorry, your order could not be sent. Please try again or email us.');
         form.outerHTML = `<div class="order-done custom-done voucher-done">
-          <span class="eyebrow">Order received</span>
+          <span class="eyebrow">Request received</span>
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(reply.reference)}</strong></p>
-          <p>We have emailed you a copy and will contact you on WhatsApp to arrange payment.
-            The voucher is sent once payment is received.</p>
+          <p>We have emailed you a copy and will contact you ${reply.contact_by ? `by ${escapeHtml(reply.contact_by)}` : 'on WhatsApp'}
+            to arrange payment by Whish payment link. Once it is paid, we issue the voucher and send it to the recipient.</p>
         </div>`;
       } catch (err) {
         msg.textContent = err.message;
         button.disabled = false;
-        button.textContent = 'Order My Gift Voucher';
+        button.textContent = 'Send Voucher Request';
       }
     });
   }

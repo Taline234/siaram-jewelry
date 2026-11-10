@@ -1,7 +1,7 @@
 // POST /functions/v1/voucher-request — the gift voucher order form (gift-voucher.html). Saves the order with a VR number
 // and emails the shop and the buyer. Payment is arranged by WhatsApp for now; when the owner marks the order paid, the
 // database creates the voucher and voucher-send emails it.
-import { configured, contactMethod, CustomerError, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
+import { configured, contactMethod, CustomerError, emailLayout, env, escapeHtml, json, replyBy, rpc, sendEmail } from '../store.mjs';
 
 const text = (body, name, max = 200) => String(body?.[name] ?? '').trim().slice(0, max);
 
@@ -23,7 +23,7 @@ export default async (req) => {
       recipient_name: text(body, 'recipient_name'),
       recipient_email: text(body, 'recipient_email'),
       recipient_phone: text(body, 'recipient_phone', 40),
-      send_to: ['recipient', 'purchaser'].includes(text(body, 'send_to')) ? text(body, 'send_to') : '',
+      send_to: 'recipient', // vouchers are always sent straight to the recipient
       send_on: /^\d{4}-\d{2}-\d{2}$/.test(text(body, 'send_on')) ? text(body, 'send_on') : '',
       name: text(body, 'name'),
       email: text(body, 'email'),
@@ -38,7 +38,6 @@ export default async (req) => {
     if (!order.recipient_email && !order.recipient_phone) {
       throw new CustomerError("Please add the recipient's email or WhatsApp number, so that only they can use the voucher.");
     }
-    if (!order.send_to) throw new CustomerError('Please choose who we should send the voucher to.');
     if (!order.name || !order.phone) throw new CustomerError('Please enter your name and phone number.');
     if (!order.preferred_contact) throw new CustomerError('Please choose how you would like us to contact you.');
     if (body.final_sale !== true) {
@@ -47,7 +46,9 @@ export default async (req) => {
 
     const { reference } = await rpc('save_voucher_request', { p: order });
 
-    const sendTo = order.send_to === 'recipient' ? `${order.recipient_name} (the recipient)` : `${order.name} (the buyer)`;
+    const sendTo = order.recipient_email ? `${order.recipient_name}, by email` : `${order.recipient_name}, on WhatsApp`;
+    // Payment is arranged on WhatsApp unless the buyer chose another way.
+    const contactBy = order.preferred_contact && order.preferred_contact !== 'WhatsApp' ? replyBy(order.preferred_contact) : 'WhatsApp';
     const rows = [
       ['Amount', `$${amount}`], ['Recipient', order.recipient_name], ["Recipient's email", order.recipient_email || '—'],
       ["Recipient's WhatsApp", order.recipient_phone || '—'], ['Send the voucher to', sendTo],
@@ -62,23 +63,25 @@ export default async (req) => {
         html: emailLayout(`Gift voucher order ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(order.name)}</strong> &middot; ${escapeHtml(order.email)}
            &middot; Phone ${escapeHtml(order.phone)}<br><strong>Preferred contact: ${escapeHtml(order.preferred_contact)}</strong></p>${details}
-           <p style="font-size:14px;line-height:1.6">1. Contact the buyer on WhatsApp to arrange payment.<br>
+           <p style="font-size:14px;line-height:1.6">1. Send the buyer a Whish payment link (by ${escapeHtml(contactBy)}).<br>
            2. Once paid, open Supabase, then Table Editor, then <strong>voucher_requests</strong>, and change ${escapeHtml(reference)}'s
            status from <strong>new</strong> to <strong>paid</strong>.<br>
-           3. That's all: the voucher code is created and emailed automatically${order.send_on ? ` on ${escapeHtml(order.send_on)}` : ''}, and you get a copy.</p>`),
+           3. That's all: the voucher code is created and sent to the recipient${order.send_on ? ` on ${escapeHtml(order.send_on)}` : ''}
+           (by email automatically; if we only have their WhatsApp, you get the voucher to send them).</p>`),
       }),
       sendEmail({
         to: order.email,
-        subject: `Your gift voucher order ${reference}`,
+        subject: `Your gift voucher request ${reference}`,
         html: emailLayout(`Thank you, ${order.name.split(' ')[0]}!`,
-          `<p style="font-size:15px;line-height:1.6">We have received your order for a <strong>$${amount}</strong> Siaram gift voucher
-           (reference <strong>${escapeHtml(reference)}</strong>). We will contact you on WhatsApp to arrange payment. The voucher is
-           issued and sent once payment is received, and is valid for six months.</p>${details}
+          `<p style="font-size:15px;line-height:1.6">We have received your request for a <strong>$${amount}</strong> Siaram gift voucher
+           (reference <strong>${escapeHtml(reference)}</strong>). We will contact you by ${escapeHtml(contactBy)} to arrange payment by
+           Whish payment link. Once it is paid, we issue the voucher and send it to ${escapeHtml(order.recipient_name)}. It is valid
+           for six months.</p>${details}
            <p style="font-size:14px;line-height:1.6;color:#6b665a">Gift vouchers are final sale: once issued, they cannot be cancelled,
            refunded or exchanged for cash.</p>`),
       }),
     ]);
-    return json({ reference });
+    return json({ reference, contact_by: contactBy });
   } catch (err) {
     if (err instanceof CustomerError) return json({ error: err.message }, 400);
     console.error(err);

@@ -45,7 +45,12 @@ export const CATALOGUE = {
     "collection": "Equestrian",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 54 · US 7"
+      ]
+    ]
   },
   "EA-02": {
     "name": "Midnight Horseshoe Earring",
@@ -53,29 +58,44 @@ export const CATALOGUE = {
     "collection": "Equestrian",
     "stone": "Black onyx, white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A single earring"
+      ]
+    ]
   },
   "RG-07": {
     "name": "Regard Ring",
     "category": "Rings",
     "collection": "Equestrian",
-    "stone": "Red stone (marquise cut), white zircon",
+    "stone": "Red zircon (marquise cut), white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 54 · US 7"
+      ]
+    ]
   },
   "EA-06": {
     "name": "Regard Stud Earrings",
     "category": "Earrings",
     "collection": "Equestrian",
-    "stone": "Red stone (marquise cut), white zircon",
+    "stone": "Red zircon (marquise cut), white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "BR-08": {
     "name": "Regard Bracelet",
     "category": "Bracelets",
     "collection": "Equestrian",
-    "stone": "Red stone (marquise cut), white zircon",
+    "stone": "Red zircon (marquise cut), white zircon",
     "other": "",
     "details": [
       [
@@ -88,7 +108,7 @@ export const CATALOGUE = {
     "name": "Regard Necklace",
     "category": "Necklaces",
     "collection": "Equestrian",
-    "stone": "Red stone (marquise cut), white zircon",
+    "stone": "Red zircon (marquise cut), white zircon",
     "other": "",
     "details": [
       [
@@ -131,6 +151,10 @@ export const CATALOGUE = {
     "other": "",
     "details": [
       [
+        "Sold as",
+        "A pair"
+      ],
+      [
         "Drop chain",
         "2 cm"
       ]
@@ -157,6 +181,10 @@ export const CATALOGUE = {
     "other": "White freshwater pearl",
     "details": [
       [
+        "Sold as",
+        "A pair"
+      ],
+      [
         "Drop chain",
         "3 cm"
       ]
@@ -171,7 +199,7 @@ export const CATALOGUE = {
     "details": [
       [
         "Length",
-        "38–40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white pearl)"
+        "38–40 cm chain (adjustable) + 5.5 cm drop chain (blue pearls to white freshwater pearl)"
       ]
     ]
   },
@@ -181,7 +209,12 @@ export const CATALOGUE = {
     "collection": "Hamsa",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 54 · US 7"
+      ]
+    ]
   },
   "AK-01": {
     "name": "Hamsa Anklet",
@@ -264,6 +297,10 @@ export const CATALOGUE = {
     "other": "",
     "details": [
       [
+        "Sold as",
+        "A pair"
+      ],
+      [
         "Star chain",
         "2.5 cm"
       ],
@@ -279,7 +316,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "White freshwater pearls",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "NK-03": {
     "name": "Celestial Necklace",
@@ -300,7 +342,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 55 · US 7.5"
+      ]
+    ]
   },
   "RG-01": {
     "name": "Lune Ring",
@@ -308,7 +355,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 54 · US 7"
+      ]
+    ]
   },
   "NK-11": {
     "name": "Sol Necklace",
@@ -329,7 +381,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 54 · US 7"
+      ]
+    ]
   },
   "EA-07": {
     "name": "Sol Stud Earrings",
@@ -337,7 +394,12 @@ export const CATALOGUE = {
     "collection": "Celestial",
     "stone": "White zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Sold as",
+        "A pair"
+      ]
+    ]
   },
   "BR-01": {
     "name": "Seahorse Bracelet",
@@ -382,7 +444,7 @@ export const CATALOGUE = {
     "name": "Arrow Bracelet",
     "category": "Bracelets",
     "collection": "Arrow",
-    "stone": "Red stone (centre), white zircon",
+    "stone": "Red zircon (centre), white zircon",
     "other": "",
     "details": [
       [
@@ -395,9 +457,13 @@ export const CATALOGUE = {
     "name": "Arrow Drop Earrings",
     "category": "Earrings",
     "collection": "Arrow",
-    "stone": "Red stone (centre), white zircon",
+    "stone": "Red zircon (centre), white zircon",
     "other": "",
     "details": [
+      [
+        "Sold as",
+        "A pair"
+      ],
       [
         "Drop chain",
         "4 cm"
@@ -410,14 +476,24 @@ export const CATALOGUE = {
     "collection": "Arrow",
     "stone": "Black zircon, white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 55 · US 7.5"
+      ]
+    ]
   },
   "RG-06": {
     "name": "Sahm Ring",
     "category": "Rings",
     "collection": "Arrow",
-    "stone": "Red stone (centre), white zircon",
+    "stone": "Red zircon (centre), white zircon",
     "other": "",
-    "details": []
+    "details": [
+      [
+        "Size in the photos",
+        "EU 55 · US 7.5"
+      ]
+    ]
   }
 };
