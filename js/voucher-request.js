@@ -26,6 +26,7 @@ function problem(f) {
       return [name === 'email' ? 'Please enter a valid email address.' : 'Please fill in your details.', el];
     }
   }
+  if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
   if (!f.elements.final_sale.checked) return ['Please confirm that you understand gift vouchers are final sale.', f.elements.final_sale];
   return null;
 }
@@ -52,7 +53,7 @@ if (form) {
       const body = {
         amount: amountOf(form), recipient_name: f.recipient_name.value, recipient_email: f.recipient_email.value,
         recipient_phone: f.recipient_phone.value, send_to: f.send_to.value, send_on: f.send_on.value, message: f.message.value,
-        name: f.name.value, email: f.email.value, phone: f.phone.value, final_sale: f.final_sale.checked, website: f.website.value,
+        name: f.name.value, email: f.email.value, phone: f.phone.value, preferred_contact: f.preferred_contact.value, final_sale: f.final_sale.checked, website: f.website.value,
       };
       const button = form.querySelector('[type=submit]');
       button.disabled = true;

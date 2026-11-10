@@ -534,7 +534,7 @@ test('the hourly check follows Wakilni and reports problems', async () => {
 function customForm(extra = {}) {
   const f = new FormData();
   const fields = { piece: 'Ring', gold: 'Rose gold', cut: 'Oval', setting: 'Bezel', size: 'EU 54', description: 'An oval emerald ring',
-    name: 'Rana Haddad', email: 'rana@example.com', phone: '+961 70 000 000', budget: '$500–$1,000', ...extra };
+    name: 'Rana Haddad', email: 'rana@example.com', phone: '+961 70 000 000', preferred_contact: 'WhatsApp', budget: '$500–$1,000', ...extra };
   for (const [k, v] of Object.entries(fields)) f.append(k, v);
   f.append('stones', 'Emerald');
   f.append('stones', 'Not a real stone');
@@ -558,11 +558,14 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
   assert.match(shop.html, /Rose gold/);
   assert.equal(customer.to[0], 'rana@example.com');
-  assert.match(customer.html, /reply within 3 to 5 business days/);
+  assert.match(customer.html, /reply by WhatsApp\s+within 3 to 5 business days/);
+  assert.match(shop.html, /Preferred contact: WhatsApp/, 'the shop sees how the customer wants to be contacted');
+  assert.equal(saved.preferred_contact, 'WhatsApp');
   assert.equal(customer.attachments, undefined);
 });
 
 test('custom requests refuse a missing choice, wrong files and spam', async () => {
+  assert.match((await (await post(customForm({ preferred_contact: 'Pigeon' }))).json()).error, /how you would like us to contact you/);
   assert.match((await (await post(customForm({ piece: 'Spaceship' }))).json()).error, /type of piece/);
   const big = customForm();
   big.append('files', new File([new Uint8Array(9 * 1024 * 1024)], 'huge.jpg', { type: 'image/jpeg' }));
@@ -579,7 +582,7 @@ function serviceForm(extra = {}) {
   const f = new FormData();
   const fields = { kind: 'Repair', order_ref: 's017', piece: 'Horse Shoe Ring', problem: 'A stone is loose',
     cause: 'I noticed it after it caught on a sweater', name: 'Rana Haddad', email: 'rana@example.com',
-    phone: '+961 70 000 000', ...extra };
+    phone: '+961 70 000 000', preferred_contact: 'Email', ...extra };
   for (const [k, v] of Object.entries(fields)) f.append(k, v);
   return f;
 }
@@ -624,7 +627,7 @@ test('return and repair requests refuse missing details, wrong files and spam', 
 // ---------------------------------------------------------------- gift voucher orders
 const voucherOrder = (extra = {}) => ({ amount: 150, recipient_name: "Maya O'Neil", recipient_email: 'maya@example.com',
   recipient_phone: '', send_to: 'recipient', send_on: '2026-12-24', name: 'Rana Haddad', email: 'rana@example.com',
-  phone: '+961 70 000 000', final_sale: true, ...extra });
+  phone: '+961 70 000 000', preferred_contact: 'Call', final_sale: true, ...extra });
 const postVoucher = (body) => voucherRequest(new Request('https://siaram.test/functions/v1/voucher-request', {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }));
 

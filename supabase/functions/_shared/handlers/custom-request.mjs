@@ -2,7 +2,7 @@
 // so customers can attach sketches or photos). Saves the request, emails it to the shop with the files attached,
 // and sends the customer a confirmation.
 import { Buffer } from 'node:buffer';
-import { CustomerError, configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
+import { configured, contactMethod, CustomerError, emailLayout, env, escapeHtml, json, replyBy, rpc, sendEmail } from '../store.mjs';
 
 const PIECES = ['Ring', 'Necklace', 'Bracelet', 'Earrings', 'Anklet', 'Pendant or charm', 'Other', 'Not sure yet'];
 const GOLDS = ['Yellow gold', 'Rose gold', 'White gold', 'Not sure yet'];
@@ -35,6 +35,7 @@ export default async (req) => {
       name: text(form, 'name'),
       email: text(form, 'email'),
       phone: text(form, 'phone', 40),
+      preferred_contact: contactMethod(text(form, 'preferred_contact', 20)),
       piece: oneOf(text(form, 'piece'), PIECES),
       gold: oneOf(text(form, 'gold'), GOLDS),
       stones: form.getAll('stones').map(String).filter((s) => STONES.includes(s))
@@ -46,6 +47,7 @@ export default async (req) => {
       occasion: /^\d{4}-\d{2}-\d{2}$/.test(text(form, 'occasion')) ? text(form, 'occasion') : '',
       budget: oneOf(text(form, 'budget'), BUDGETS),
     };
+    if (!request.preferred_contact) throw new CustomerError('Please choose how you would like us to contact you.');
     if (!request.piece) throw new CustomerError('Please choose the type of piece.');
     if (!request.gold) throw new CustomerError('Please choose a gold colour.');
     if (request.stones.includes('Other')) throw new CustomerError('Please tell us which other gemstones you would like.');
@@ -75,7 +77,7 @@ export default async (req) => {
         subject: `Custom request ${reference} — ${request.piece} (${request.name})`,
         html: emailLayout(`Custom request ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(request.name)}</strong> &middot; ${escapeHtml(request.email)}
-           &middot; WhatsApp ${escapeHtml(request.phone)}</p>${details}
+           &middot; Phone ${escapeHtml(request.phone)}<br><strong>Preferred contact: ${escapeHtml(request.preferred_contact)}</strong></p>${details}
            <p style="font-size:14px;line-height:1.6">${attachments.length ? `${attachments.length} file(s) attached.` : 'No files attached.'}
            Reply to this email to answer the customer. The request is saved in Supabase (custom_requests).</p>`),
         attachments,
@@ -85,8 +87,8 @@ export default async (req) => {
         subject: `Your custom piece request ${reference}`,
         html: emailLayout(`Thank you, ${request.name.split(' ')[0]}!`,
           `<p style="font-size:15px;line-height:1.6">We have received your request for a custom piece (reference
-           <strong>${escapeHtml(reference)}</strong>). We will reply within 3 to 5 business days with ideas, questions or a first
-           design and quote.</p>${details}`),
+           <strong>${escapeHtml(reference)}</strong>). We will reply by ${escapeHtml(replyBy(request.preferred_contact))}
+           within 3 to 5 business days with ideas, questions or a first design and quote.</p>${details}`),
       }),
     ]);
     return json({ reference });

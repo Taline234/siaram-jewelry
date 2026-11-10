@@ -163,6 +163,8 @@ create table if not exists public.profiles (
 );
 -- Earlier versions of this file required a date of birth; the birthday is now optional.
 alter table public.profiles alter column date_of_birth drop not null;
+-- How the customer prefers to be contacted (also asked on every form): Call, Text message, WhatsApp or Email.
+alter table public.profiles add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
 alter table public.profiles add column if not exists age_confirmed boolean not null default false;
 alter table public.profiles add column if not exists marketing_email boolean not null default false;
 alter table public.profiles add column if not exists marketing_whatsapp boolean not null default false;
@@ -317,6 +319,7 @@ alter table public.orders add column if not exists submission_id text unique;
 alter table public.orders alter column governorate drop not null;
 -- For the "on its way" email (see order_dispatched below): the courier's tracking number, and when it was sent.
 alter table public.orders add column if not exists tracking_number text;
+alter table public.orders add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
 alter table public.orders add column if not exists courier_tracking_url text;  -- Wakilni's tracking page (see courier below)
 alter table public.orders add column if not exists dispatched_email_at timestamptz;
 alter table public.orders alter column city drop not null;
@@ -591,7 +594,7 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
-      'tracking_number', o.tracking_number, 'courier_tracking_url', o.courier_tracking_url, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
+      'tracking_number', o.tracking_number, 'preferred_contact', o.preferred_contact, 'courier_tracking_url', o.courier_tracking_url, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
       'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
                                                     'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
@@ -680,7 +683,7 @@ begin
   insert into public.orders (reference, user_id, customer_name, email, phone, fulfilment, governorate, city, street,
                              building, floor, notes, subtotal, delivery_fee, total, age_confirmed,
                              payment_method, status, terms_accepted_at, submission_id,
-                             is_gift, gift_recipient_name, gift_recipient_phone, gift_message)
+                             is_gift, gift_recipient_name, gift_recipient_phone, gift_message, preferred_contact)
   values (v_ref, p_user_id, trim(p->>'customer_name'), lower(trim(p->>'email')), trim(p->>'phone'),
           case when v_collect then 'collection' else 'delivery' end,
           v_area.governorate, nullif(trim(p->>'city'), ''), nullif(trim(p->>'street'), ''),
@@ -691,7 +694,8 @@ begin
           coalesce((p->>'is_gift')::boolean, false),
           case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_name'), 200), '') end,
           case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_recipient_phone'), 40), '') end,
-          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_message'), 300), '') end)
+          case when coalesce((p->>'is_gift')::boolean, false) then nullif(left(trim(p->>'gift_message'), 300), '') end,
+          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end)
   returning id into v_order_id;
 
   for v_item in select * from jsonb_array_elements(p->'items') loop
@@ -886,6 +890,7 @@ create table if not exists public.custom_requests (
 );
 alter table public.custom_requests enable row level security;
 alter table public.custom_requests add column if not exists setting text;
+alter table public.custom_requests add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
 alter table public.store_settings add column if not exists next_custom_number int not null default 1;
 
 create or replace function public.save_custom_request(p jsonb) returns jsonb
@@ -905,12 +910,13 @@ begin
   update public.store_settings set next_custom_number = next_custom_number + 1 where id = 1
   returning 'CR' || lpad((next_custom_number - 1)::text, 3, '0') into v_ref;
   insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, setting, size, description,
-                                      occasion, budget, files)
+                                      occasion, budget, files, preferred_contact)
   values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), p->>'piece', p->>'gold',
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'stones') x), '{}'),
           nullif(p->>'cut', ''), nullif(p->>'setting', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
           nullif(p->>'occasion', '')::date, nullif(p->>'budget', ''),
-          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'));
+          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'),
+          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end);
   return jsonb_build_object('reference', v_ref);
 end $$;
 
@@ -935,6 +941,7 @@ create table if not exists public.service_requests (
 );
 alter table public.service_requests enable row level security;
 alter table public.store_settings add column if not exists next_service_number int not null default 1;
+alter table public.service_requests add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
 
 create or replace function public.save_service_request(p jsonb) returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -952,10 +959,11 @@ begin
   end if;
   update public.store_settings set next_service_number = next_service_number + 1 where id = 1
   returning 'RR' || lpad((next_service_number - 1)::text, 3, '0') into v_ref;
-  insert into public.service_requests (reference, kind, order_ref, piece, problem, cause, name, email, phone, files)
+  insert into public.service_requests (reference, kind, order_ref, piece, problem, cause, name, email, phone, files, preferred_contact)
   values (v_ref, p->>'kind', upper(trim(p->>'order_ref')), trim(p->>'piece'), trim(p->>'problem'), trim(p->>'cause'),
           trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'),
-          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'));
+          coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'),
+          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end);
   return jsonb_build_object('reference', v_ref);
 end $$;
 
@@ -982,6 +990,7 @@ create table if not exists public.voucher_requests (
 alter table public.voucher_requests enable row level security;
 alter table public.voucher_requests add column if not exists message text check (char_length(message) <= 400);
 alter table public.store_settings add column if not exists next_voucher_request_number int not null default 1;
+alter table public.voucher_requests add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
 
 create or replace function public.save_voucher_request(p jsonb) returns jsonb
 language plpgsql security definer set search_path = public as $$
@@ -1007,10 +1016,11 @@ begin
   update public.store_settings set next_voucher_request_number = next_voucher_request_number + 1 where id = 1
   returning 'VR' || lpad((next_voucher_request_number - 1)::text, 3, '0') into v_ref;
   insert into public.voucher_requests (reference, amount, recipient_name, recipient_email, recipient_phone, send_to, send_on,
-                                       name, email, phone, message)
+                                       name, email, phone, message, preferred_contact)
   values (v_ref, (p->>'amount')::numeric, trim(p->>'recipient_name'), nullif(lower(trim(p->>'recipient_email')), ''),
           nullif(trim(p->>'recipient_phone'), ''), p->>'send_to', nullif(p->>'send_on', '')::date,
-          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), nullif(left(trim(p->>'message'), 400), ''));
+          trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), nullif(left(trim(p->>'message'), 400), ''),
+          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end);
   return jsonb_build_object('reference', v_ref);
 end $$;
 
@@ -1237,7 +1247,7 @@ create policy "Own order items" on public.order_items for select
 -- Customers may edit their name and phone, never their date of birth or activity dates.
 revoke insert, update, delete on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant update (first_name, last_name, phone, date_of_birth, marketing_email, marketing_whatsapp) on public.profiles to authenticated;
+grant update (first_name, last_name, phone, date_of_birth, marketing_email, marketing_whatsapp, preferred_contact) on public.profiles to authenticated;
 
 -- Browsers can only read orders; orders are created by the server.
 revoke insert, update, delete on public.orders, public.order_items from anon, authenticated;

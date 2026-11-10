@@ -14,6 +14,7 @@ function problem(f) {
       return [name === 'email' ? 'Please enter a valid email address.' : 'Please fill in all the fields.', el];
     }
   }
+  if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
   const files = [...f.elements.files.files];
   if (!files.length) return ['Please attach at least one photo of the piece.', f.elements.files];
   if (files.length > MAX_FILES) return [`Please attach up to ${MAX_FILES} photos.`, f.elements.files];

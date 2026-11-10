@@ -76,6 +76,12 @@ export async function readJson(req, maxBytes = 20000) {
   }
 }
 
+// ---------------------------------------------------------------- how the customer likes to be contacted
+export const CONTACT_METHODS = ['Call', 'Text message', 'WhatsApp', 'Email'];
+export const contactMethod = (value) => (CONTACT_METHODS.includes(String(value || '')) ? String(value) : '');
+// "We will reply by ..." wording for each method.
+export const replyBy = (method) => ({ Call: 'phone', 'Text message': 'text message', WhatsApp: 'WhatsApp', Email: 'email' })[method] || 'email';
+
 // ---------------------------------------------------------------- email
 export const escapeHtml = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -198,6 +204,7 @@ ${payRows(order)}
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Deliver to:</strong> ${escapeHtml(order.is_gift && order.gift_recipient_name ? order.gift_recipient_name : order.customer_name)}, ${address}${order.is_gift && order.gift_recipient_phone ? ` (${escapeHtml(order.gift_recipient_phone)})` : ''}</p>
 ${order.is_gift ? `<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Gift:</strong> no prices in the parcel${order.gift_message ? `; message card: &ldquo;${escapeHtml(order.gift_message)}&rdquo;` : ''}</p>` : ''}
 <p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Phone:</strong> ${escapeHtml(order.phone)} &nbsp; <strong>Email:</strong> ${escapeHtml(order.email)}</p>
+${order.preferred_contact ? `<p style="font-size:15px;line-height:1.6;margin:0 0 6px"><strong>Preferred contact:</strong> ${escapeHtml(order.preferred_contact)}</p>` : ''}
 ${order.notes ? `<p style="font-size:15px;line-height:1.6;margin:0"><strong>Notes:</strong> ${escapeHtml(order.notes)}</p>` : ''}`;
 }
 

@@ -3,12 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.querySelector('.nav-toggle');
   const menu = document.querySelector('.mobile-menu');
   if (toggle && menu) {
-    toggle.addEventListener('click', () => {
-      menu.classList.toggle('open');
-    });
-    menu.querySelectorAll('a').forEach((a) =>
-      a.addEventListener('click', () => menu.classList.remove('open'))
-    );
+    // aria-expanded tells screen readers whether the phone menu is open.
+    const setOpen = (open) => { menu.classList.toggle('open', open); toggle.setAttribute('aria-expanded', String(open)); };
+    toggle.addEventListener('click', () => setOpen(!menu.classList.contains('open')));
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
   }
 
   // Reveal on scroll

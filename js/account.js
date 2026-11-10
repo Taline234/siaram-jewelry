@@ -345,6 +345,15 @@ async function renderDetails(panel, session, profile) {
         ${field('email', 'Email', 'readonly')}
         ${birthdayField()}
       </div>
+      <fieldset class="contact-pref">
+        <legend>How would you like us to contact you about your orders?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" /><span>Call</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" /><span>Text message</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" /><span>WhatsApp</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" /><span>Email</span></label>
+        </div>
+      </fieldset>
       <p class="field-note marketing-note">News about new collections, styling and care advice (you can change this at any time):</p>
       <label class="check"><input type="checkbox" name="marketing_email" /> <span>Yes, by email</span></label>
       <label class="check"><input type="checkbox" name="marketing_whatsapp" /> <span>Yes, by WhatsApp</span></label>
@@ -372,6 +381,7 @@ async function renderDetails(panel, session, profile) {
   setBirthday(details, profile?.date_of_birth || '');
   details.elements.marketing_email.checked = Boolean(profile?.marketing_email);
   details.elements.marketing_whatsapp.checked = Boolean(profile?.marketing_whatsapp);
+  if (profile?.preferred_contact) details.elements.preferred_contact.value = profile.preferred_contact;
   details.addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = details.elements;
@@ -387,6 +397,7 @@ async function renderDetails(panel, session, profile) {
       date_of_birth: f.date_of_birth.value || null,
       marketing_email: f.marketing_email.checked,
       marketing_whatsapp: f.marketing_whatsapp.checked,
+      preferred_contact: f.preferred_contact.value || null,
     }).eq('id', session.user.id);
     formMessage(details, error ? (/18 or older/.test(error.message) ? error.message : 'Sorry, your details could not be saved.') : 'Saved.', !error);
   });

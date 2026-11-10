@@ -77,6 +77,13 @@ def check_page(path: str, all_failures: list):
     if not title_match or not title_match.group(1).strip():
         all_failures.append(f"{rel_path}: missing or empty <title>")
 
+    # Accessibility landmarks written by tools/build_nav.py (run it after rebuilding pages).
+    if '<ul class="nav-links">' in content:
+        if '<main id="main">' not in content or 'class="skip-link"' not in content:
+            all_failures.append(f"{rel_path}: missing <main> or the Skip to content link (run python3 tools/build_nav.py)")
+        if re.search(r'<footer class="site-footer">.*?<h4', content, re.S):
+            all_failures.append(f"{rel_path}: footer headings should be h2 (run python3 tools/build_nav.py)")
+
     parser = PageChecker()
     parser.feed(content)
 
@@ -124,7 +131,8 @@ def check_page(path: str, all_failures: list):
                                     else os.path.join(page_dir, src))
         if not os.path.isfile(resolved):
             all_failures.append(f"{rel_path}:{line}: broken image -> {src}")
-        if not alt or not alt.strip():
+        # alt="" is allowed: it marks a decorative image whose meaning is already in the text next to it.
+        if alt is None or (alt != "" and not alt.strip()):
             all_failures.append(f"{rel_path}:{line}: <img src=\"{src}\"> missing alt text")
 
 

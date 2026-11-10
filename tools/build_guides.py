@@ -101,6 +101,22 @@ ring_rows = "\n".join(f"          <tr><td>{eu / 3.14159:.1f} mm</td><td>{eu} mm<
 bracelet_rows = "\n".join(f"          <tr><td>{w} cm</td><td>{w + 1} cm</td><td>{w + 2} cm</td></tr>" for w in range(11, 21))
 anklet_rows = "\n".join(f"          <tr><td>{a} cm</td><td>{a + 1}&ndash;{a + 2} cm</td></tr>" for a in range(18, 26))
 
+
+RING_STEPS = """<div class="ring-steps">
+        <h3 class="ring-steps-title">Get your ring size perfectly <span class="ring-steps-script">at home</span></h3>
+        <span class="ring-steps-rule" aria-hidden="true"></span>
+        <ol>
+          <li><span class="ring-steps-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M20 30V12a3 3 0 0 1 6 0v12m0-6a3 3 0 0 1 6 0v8m0-4a3 3 0 0 1 6 0v8c0 7-4 12-11 12h-2c-5 0-8-3-11-8l-4-7a3 3 0 0 1 5-3l3 4"/><path d="M14 20c2-1 10-1 14 0" stroke-dasharray="2 3"/></svg></span>
+            <span>Wrap a strip of paper or a piece of thread around the base of your finger.</span></li>
+          <li><span class="ring-steps-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M32 8l8 8-20 20-10 2 2-10z"/><path d="M28 12l8 8M12 30l6 6"/></svg></span>
+            <span>Mark the point where the ends meet with a pen.</span></li>
+          <li><span class="ring-steps-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="6" y="18" width="36" height="12" rx="1.5"/><path d="M12 18v5M18 18v3M24 18v5M30 18v3M36 18v5"/></svg></span>
+            <span>Lay it flat along a ruler and measure up to the mark in millimetres.</span></li>
+          <li><span class="ring-steps-icon" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="29" r="11"/><circle cx="24" cy="29" r="7.5"/><path d="M19 15l5-6 5 6-5 4z"/></svg></span>
+            <span>Find that circumference in the table below: that is your size.</span></li>
+        </ol>
+      </div>"""
+
 size_body = f"""
 <section class="guide">
   <div class="container guide-container">
@@ -110,8 +126,8 @@ size_body = f"""
       <h2>Rings</h2>
       {RING_FIG}
       <p>Take a ring that fits the right finger well and measure its inside diameter: straight across the centre, at the
-        widest part. Or wrap a strip of paper around the base of your finger, mark where it overlaps, and measure that
-        length: this is the circumference.</p>
+        widest part, then find it in the first column below. No ring to measure? Follow the four steps below instead.</p>
+      {RING_STEPS}
       <div class="table-wrap"><table class="size-table">
         <thead><tr><th>Inside diameter</th><th>Circumference</th><th>US</th><th>EU</th></tr></thead>
         <tbody>
@@ -467,11 +483,20 @@ service_body = f"""
       <div class="form-grid">
         <label class="field"><span>Full name</span>
           <input name="name" required maxlength="200" autocomplete="name" /></label>
-        <label class="field"><span>WhatsApp number (with country code)</span>
+        <label class="field"><span>Phone number (with country code)</span>
           <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
         <label class="field"><span>Email</span>
           <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
       </div>
+      <fieldset class="contact-pref">
+        <legend>How would you like us to contact you?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" required /><span>Call</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" required /><span>Text message</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" required /><span>WhatsApp</span></label>
+          <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" required /><span>Email</span></label>
+        </div>
+      </fieldset>
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
       <p class="field-note">We use these details only to handle your request; see our <a href="privacy.html">Privacy Policy</a>.</p>
       <p class="form-msg" role="alert"></p>
@@ -538,11 +563,20 @@ voucher_body = f"""
         <div class="form-grid">
           <label class="field"><span>Full name</span>
             <input name="name" required maxlength="200" autocomplete="name" /></label>
-          <label class="field"><span>WhatsApp number (with country code)</span>
+          <label class="field"><span>Phone number (with country code)</span>
             <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
           <label class="field"><span>Email</span>
             <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
         </div>
+        <fieldset class="contact-pref">
+          <legend>How would you like us to contact you?</legend>
+          <div class="choice-pills">
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Call" required /><span>Call</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Text message" required /><span>Text message</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="WhatsApp" required /><span>WhatsApp</span></label>
+            <label class="choice-pill"><input type="radio" name="preferred_contact" value="Email" required /><span>Email</span></label>
+          </div>
+        </fieldset>
       </fieldset>
       <label class="check"><input type="checkbox" name="final_sale" required />
         <span>I understand that gift vouchers are final sale: once issued, they cannot be cancelled, refunded or exchanged for cash.</span></label>

@@ -1,7 +1,7 @@
 // POST /functions/v1/voucher-request — the gift voucher order form (gift-voucher.html). Saves the order with a VR number
 // and emails the shop and the buyer. Payment is arranged by WhatsApp for now; when the owner marks the order paid, the
 // database creates the voucher and voucher-send emails it.
-import { CustomerError, configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
+import { configured, contactMethod, CustomerError, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
 
 const text = (body, name, max = 200) => String(body?.[name] ?? '').trim().slice(0, max);
 
@@ -28,6 +28,7 @@ export default async (req) => {
       name: text(body, 'name'),
       email: text(body, 'email'),
       phone: text(body, 'phone', 40),
+      preferred_contact: contactMethod(text(body, 'preferred_contact', 20)),
       message: text(body, 'message', 400),
     };
     if (!Number.isInteger(amount) || amount < 100 || amount > 100000) {
@@ -38,7 +39,8 @@ export default async (req) => {
       throw new CustomerError("Please add the recipient's email or WhatsApp number, so that only they can use the voucher.");
     }
     if (!order.send_to) throw new CustomerError('Please choose who we should send the voucher to.');
-    if (!order.name || !order.phone) throw new CustomerError('Please enter your name and WhatsApp number.');
+    if (!order.name || !order.phone) throw new CustomerError('Please enter your name and phone number.');
+    if (!order.preferred_contact) throw new CustomerError('Please choose how you would like us to contact you.');
     if (body.final_sale !== true) {
       throw new CustomerError('Please confirm that you understand gift vouchers are final sale.');
     }
@@ -59,7 +61,7 @@ export default async (req) => {
         subject: `Gift voucher order ${reference} — $${amount} (${order.name})`,
         html: emailLayout(`Gift voucher order ${reference}`,
           `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(order.name)}</strong> &middot; ${escapeHtml(order.email)}
-           &middot; WhatsApp ${escapeHtml(order.phone)}</p>${details}
+           &middot; Phone ${escapeHtml(order.phone)}<br><strong>Preferred contact: ${escapeHtml(order.preferred_contact)}</strong></p>${details}
            <p style="font-size:14px;line-height:1.6">1. Contact the buyer on WhatsApp to arrange payment.<br>
            2. Once paid, open Supabase, then Table Editor, then <strong>voucher_requests</strong>, and change ${escapeHtml(reference)}'s
            status from <strong>new</strong> to <strong>paid</strong>.<br>
