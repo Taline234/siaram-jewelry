@@ -30,7 +30,7 @@ Please check your contact details, delivery address, size and order details. Tel
 
 Website orders for pieces in stock are paid in cash to the courier on delivery, together with the courier's delivery fee. Gift-voucher credit is applied first.
 
-Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment request. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom deposits and balances follow our Custom orders policy.
+Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment link. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom deposits and balances follow our Custom orders policy.
 
 # Terms and conditions continued
 
@@ -80,9 +80,9 @@ Approval covers the design, spelling and lettering, size, metal colour, stones, 
 
 ## Deposit and balance
 
-After approval, we send a Whish payment request for a 50% deposit. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the deposit clears, we submit the order for production and email you to confirm it is in production. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
+After approval, we send a Whish payment link for a 50% deposit. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the deposit clears, we submit the order for production and email you to confirm it is in production. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
 
-The remaining 50% is paid in cash to the courier on delivery. Any delivery fee is separate and disclosed in advance.
+When the piece is ready, we send a second Whish payment link for the remaining 50%. We ship the piece once it is paid. Any delivery fee is separate, disclosed in advance and paid to the courier in cash on delivery.
 
 If, after taking payment, Siaram cannot supply the agreed piece and you do not accept an alternative, we will refund the payments for that piece. This is different from a customer deciding to cancel a producible, approved piece after production submission.
 
