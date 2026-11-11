@@ -378,6 +378,10 @@ select save_custom_request('{"name":"Nour","email":"nour@example.com","phone":""
     "description":"A gift","preferred_contact":"Email","guidance":true}'::jsonb)->>'reference' as cr_simple \gset
 select pg_temp.check((select guidance and gold is null and phone is null from custom_requests where reference = :'cr_simple'),
   'the simple custom request needs no gold or phone (email reply) and keeps the guidance flag');
+select save_custom_request('{"name":"Nour","email":"nour@example.com","piece":"Ring","description":"A ring","preferred_contact":"Email",
+    "guidance":true,"call_requested":true,"call_date":"2030-01-07","call_time":"10:30","call_note":"Mornings"}'::jsonb)->>'reference' as cr_call \gset
+select pg_temp.check((select call_date = '2030-01-07' and call_time = '10:30' and call_note = 'Mornings' from custom_requests where reference = :'cr_call'),
+  'a requested guidance call keeps its day and time');
 select pg_temp.expect_error($$select save_custom_request('{"name":"Rana","email":"x","phone":"70","piece":"Ring","gold":"Rose gold","description":"x"}')$$,
   'valid email address');
 select pg_temp.check(not has_function_privilege('anon', 'public.save_custom_request(jsonb)', 'execute')

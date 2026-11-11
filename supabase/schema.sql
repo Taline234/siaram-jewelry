@@ -915,6 +915,10 @@ alter table public.custom_requests add column if not exists preferred_contact te
 alter table public.custom_requests alter column gold drop not null;
 alter table public.custom_requests alter column phone drop not null;
 alter table public.custom_requests add column if not exists guidance boolean not null default false;
+-- A requested guidance call (Beirut time); the team confirms it. Not a booking.
+alter table public.custom_requests add column if not exists call_date date;
+alter table public.custom_requests add column if not exists call_time text;
+alter table public.custom_requests add column if not exists call_note text;
 alter table public.store_settings add column if not exists next_custom_number int not null default 1;
 
 create or replace function public.save_custom_request(p jsonb) returns jsonb
@@ -934,14 +938,17 @@ begin
   update public.store_settings set next_custom_number = next_custom_number + 1 where id = 1
   returning 'CR' || lpad((next_custom_number - 1)::text, 3, '0') into v_ref;
   insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, setting, size, description,
-                                      occasion, budget, files, preferred_contact, guidance)
+                                      occasion, budget, files, preferred_contact, guidance, call_date, call_time, call_note)
   values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), nullif(trim(p->>'phone'), ''), p->>'piece', nullif(p->>'gold', ''),
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'stones') x), '{}'),
           nullif(p->>'cut', ''), nullif(p->>'setting', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
           nullif(p->>'occasion', '')::date, nullif(p->>'budget', ''),
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'),
           case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end,
-          coalesce((p->>'guidance')::boolean, false));
+          coalesce((p->>'guidance')::boolean, false),
+          case when coalesce((p->>'call_requested')::boolean, false) then nullif(p->>'call_date', '')::date end,
+          case when coalesce((p->>'call_requested')::boolean, false) then nullif(p->>'call_time', '') end,
+          case when coalesce((p->>'call_requested')::boolean, false) then nullif(trim(p->>'call_note'), '') end);
   return jsonb_build_object('reference', v_ref);
 end $$;
 

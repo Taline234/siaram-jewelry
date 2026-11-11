@@ -69,7 +69,7 @@ function setupGuidance(f) {
   const check = f.elements.guidance;
   if (!box || !check) return;
   const sync = () => {
-    box.hidden = !(f.elements.piece.value === 'Not sure yet' || check.checked);
+    box.hidden = !(f.elements.piece.value === 'Not sure yet' || check.checked || f.elements.call_requested.value === 'yes');
     const notSure = {
       gold: f.elements.gold.value === NOT_SURE,
       stones: Boolean(f.querySelector(`[name=stones][value="${NOT_SURE}"]`)?.checked),
@@ -89,6 +89,34 @@ function setupGuidance(f) {
     sync();
   });
   sync();
+}
+
+// "Request a guidance call": a request, not a booking. Calls are Monday to Friday, 9am-5pm Beirut time.
+const isWeekday = (iso) => { const d = new Date(`${iso}T12:00:00Z`).getUTCDay(); return d >= 1 && d <= 5; };
+const beirutToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Beirut' }).format(new Date());
+function setupCallRequest(f) {
+  const toggle = f.querySelector('.call-toggle');
+  const fields = f.querySelector('.call-fields');
+  if (!toggle || !fields) return;
+  const set = (on) => {
+    f.elements.call_requested.value = on ? 'yes' : '';
+    fields.hidden = !on;
+    toggle.hidden = on;
+    toggle.setAttribute('aria-expanded', on);
+    if (on) { f.elements.guidance.checked = true; f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true })); }
+  };
+  f.elements.call_date.min = beirutToday();
+  toggle.addEventListener('click', () => { set(true); f.elements.call_date.focus(); });
+  f.querySelector('.call-cancel').addEventListener('click', () => { set(false); toggle.focus(); });
+}
+function callProblem(f) {
+  if (f.elements.call_requested.value !== 'yes') return null;
+  const day = f.elements.call_date.value;
+  if (!day) return ['Please choose a day for your guidance call.', f.elements.call_date];
+  if (!isWeekday(day)) return ['Guidance calls are Monday to Friday. Please choose a weekday.', f.elements.call_date];
+  if (day < beirutToday()) return ['Please choose a day from today onwards.', f.elements.call_date];
+  if (!f.elements.call_time.value) return ['Please choose a time between 9am and 5pm Beirut time.', f.elements.call_time];
+  return null;
 }
 
 // The phone number is required only for a call, text or WhatsApp reply.
@@ -230,6 +258,7 @@ if (form) {
   setupStones(form);
   setupGuidance(form);
   setupPhone(form);
+  setupCallRequest(form);
   setupSizeStudio(form);
   if (!storeEnabled) {
     form.innerHTML = '<p class="field-note">Please <a href="mailto:customerservice@siaramjewelry.com?subject=Custom%20Piece%20Enquiry">email us</a> with your idea.</p>';
@@ -238,7 +267,7 @@ if (form) {
       e.preventDefault();
       const msg = form.querySelector('.form-msg');
       msg.textContent = '';
-      const bad = problem(form);
+      const bad = problem(form) || callProblem(form);
       if (bad) {
         msg.textContent = bad[0];
         bad[1].focus();
@@ -259,6 +288,8 @@ if (form) {
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(body.reference)}</strong></p>
           <p>We have emailed you a copy and aim to reply within 2–4 business days${form.elements.guidance.checked ? ', with some guidance to get you started' : ''}.</p>
+          ${form.elements.call_requested.value === 'yes' ? `<p><strong>Your guidance call is requested, not yet booked.</strong> We will reply within 2 days to
+            confirm a time (Monday to Friday, 9am to 5pm Beirut time) and email you the Microsoft Teams link.</p>` : ''}
         </div>`;
       } catch (err) {
         msg.textContent = err.message;

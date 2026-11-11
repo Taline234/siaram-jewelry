@@ -591,6 +591,34 @@ test('a custom request with no stones drops the cut and setting; a call needs a 
   assert.match((await (await post(customForm({ phone: '', preferred_contact: 'Call' }))).json()).error, /phone number/);
 });
 
+// The next weekday and the next Saturday, as YYYY-MM-DD (at least a week away, so always in the future).
+function nextDay(wanted) {
+  const d = new Date(Date.now() + 7 * 86400000);
+  while (wanted(d.getUTCDay()) === false) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+const nextWeekday = nextDay((day) => day >= 1 && day <= 5);
+const nextSaturday = nextDay((day) => day === 6);
+
+test('a guidance call is a request within business hours, shown to the shop in Beirut and Ghana time', async () => {
+  handlers['/rest/v1/rpc/save_custom_request'] = () => [200, { reference: 'CR004' }];
+  const f = customForm({ call_requested: 'yes', call_date: nextWeekday, call_time: '10:30', call_note: 'Any morning' });
+  assert.deepEqual(await (await post(f)).json(), { reference: 'CR004' });
+  const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.deepEqual([saved.call_requested, saved.call_date, saved.call_time, saved.guidance], [true, nextWeekday, '10:30', true]);
+  const [shop, customer] = emails();
+  assert.match(shop.subject, /guidance call requested$/);
+  assert.match(shop.html, /10:30 am Beirut time/);
+  assert.match(shop.html, /(7|8):30 am in Ghana/, 'the owner sees the time in Ghana too');
+  assert.match(customer.html, /requested, not yet booked/);
+  assert.match(customer.html, /at least 12 hours before/);
+  assert.match(customer.html, /more than 10 minutes late/);
+  for (const [extra, error] of [[{ call_date: nextSaturday, call_time: '10:00' }, /Monday to Friday/],
+    [{ call_date: nextWeekday, call_time: '17:00' }, /between 9am and 5pm/], [{ call_date: '2020-01-06', call_time: '10:00' }, /from today/]]) {
+    assert.match((await (await post(customForm({ call_requested: 'yes', ...extra }))).json()).error, error);
+  }
+});
+
 test('custom requests refuse a missing choice, wrong files and spam', async () => {
   assert.match((await (await post(customForm({ preferred_contact: 'Pigeon' }))).json()).error, /how you would like us to contact you/);
   assert.match((await (await post(customForm({ piece: 'Spaceship' }))).json()).error, /type of piece/);
