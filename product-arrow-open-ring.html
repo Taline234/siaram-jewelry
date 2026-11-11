@@ -234,25 +234,45 @@
           </div>
           <details class="option-group alt-stone">
             <summary>Select a different stone</summary>
-            <label class="alt-stone-label" for="alt-stone">Different stone (made to order)</label>
+            <label class="alt-stone-label" for="alt-stone">Different stone (made to order, confirmed with you)</label>
             <select id="alt-stone" class="alt-stone-select" name="alt_stone">
                 <option value="">As shown</option>
-                <option value="white zircon">White zircon</option>
-                <option value="black zircon">Black zircon</option>
-                <option value="red zircon">Red zircon</option>
+                <optgroup label="Zircon">
+                  <option value="white zircon">White zircon</option>
+                  <option value="black zircon">Black zircon</option>
+                  <option value="red zircon">Red zircon</option>
+                  <option value="blue zircon">Blue zircon</option>
+                </optgroup>
+                <optgroup label="Other gemstones">
+                  <option value="emerald">Emerald</option>
+                  <option value="ruby">Ruby</option>
+                  <option value="sapphire">Sapphire</option>
+                  <option value="amethyst">Amethyst</option>
+                  <option value="aquamarine">Aquamarine</option>
+                  <option value="topaz">Topaz</option>
+                  <option value="garnet">Garnet</option>
+                  <option value="peridot">Peridot</option>
+                  <option value="turquoise">Turquoise</option>
+                </optgroup>
             </select>
           </details>
-          <dialog class="size-guide mto-dialog" id="alt-stone-dialog" aria-labelledby="alt-stone-title">
-            <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
-            <h2 id="alt-stone-title">Made to order</h2>
-            <p>With a different stone or pearl, this piece is made to order for you. Please allow 3 to 4 weeks.</p>
-            <p class="size-guide-note">Made-to-order pieces are paid in full by Whish payment link before production and are final sale.</p>
-            <button type="button" class="btn btn-primary mto-ok">OK</button>
+          <dialog class="size-guide mto-dialog" id="alt-stone-dialog" aria-labelledby="alt-stone-title" aria-describedby="alt-stone-text">
+            <button type="button" class="size-guide-close" aria-label="Cancel">&times;</button>
+            <h2 id="alt-stone-title">Made to order: please confirm</h2>
+            <div id="alt-stone-text">
+              <p>With <strong class="alt-stone-choice">a different stone</strong>, this piece is made to order for you. Please allow 3 to 4 weeks.</p>
+              <p class="size-guide-note">We will contact you to confirm the stone, its availability and the price before anything is made.
+                Made-to-order pieces are paid in full by Whish payment link before production and are final sale.</p>
+            </div>
+            <div class="mto-actions">
+              <button type="button" class="btn btn-primary mto-ok">Confirm</button>
+              <button type="button" class="btn btn-outline mto-cancel">Cancel</button>
+            </div>
           </dialog>
           <p class="made-to-order-note" data-metal-note="yellow">If this piece is out of stock in yellow gold, it is made to order: allow 3 to 4 weeks. In-stock pieces are paid in cash on delivery.</p>
           <p class="made-to-order-note" data-metal-note="other" hidden>18k rose and white gold are made to order: allow 3 to 4 weeks.</p>
           <p class="made-to-order-terms">Made-to-order pieces, including any piece with a different stone or pearl, are paid in full by
-            Whish payment link before production and are final sale.</p>
+            Whish payment link before production and are final sale. A different stone or pearl is confirmed with you first.</p>
         </div>
         <div class="product-buy" data-slug="arrow-open-ring" hidden></div>
         <div class="product-actions">

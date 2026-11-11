@@ -177,21 +177,45 @@ document.addEventListener('change', (e) => {
   document.querySelectorAll('[data-metal-note]').forEach((n) => { n.hidden = (n.dataset.metalNote === 'yellow') !== yellow; });
 });
 
-// Product pages: choosing a different stone or pearl makes the piece made to order; say so straight away.
-document.addEventListener('change', (e) => {
-  if (!e.target.classList?.contains('alt-stone-select') || !e.target.value) return;
+// Product pages: choosing a different stone or pearl makes the piece made to order. A pop-up says so at once and
+// asks the customer to confirm; Cancel (or closing it) puts the choice back to "As shown".
+(() => {
   const dialog = document.getElementById('alt-stone-dialog');
-  if (!dialog || dialog.open) return;
-  if (typeof dialog.showModal === 'function') dialog.showModal();
-  else dialog.setAttribute('open', '');
-});
-document.querySelectorAll('#alt-stone-dialog').forEach((dialog) => {
-  dialog.querySelectorAll('.size-guide-close, .mto-ok').forEach((b) => b.addEventListener('click', () => dialog.close()));
+  if (!dialog) return;
+  let select = null;
+  let confirmed = false;
+  document.addEventListener('change', (e) => {
+    if (!e.target.classList?.contains('alt-stone-select') || !e.target.value) return;
+    select = e.target;
+    confirmed = false;
+    dialog.querySelector('.alt-stone-choice').textContent = select.selectedOptions[0].textContent.toLowerCase();
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+  });
+  // Keeps the choice only when confirmed; runs once, whichever way the pop-up is closed (buttons, backdrop, Escape).
+  const settle = () => {
+    if (!select) return;
+    const s = select;
+    select = null;
+    if (!confirmed) {
+      s.value = '';
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    s.focus();
+  };
+  const finish = (ok) => {
+    confirmed = ok;
+    settle();
+    if (dialog.open) dialog.close();
+  };
+  dialog.querySelector('.mto-ok').addEventListener('click', () => finish(true));
+  dialog.querySelectorAll('.size-guide-close, .mto-cancel').forEach((b) => b.addEventListener('click', () => finish(false)));
   dialog.addEventListener('click', (e) => {
     const r = dialog.getBoundingClientRect();
-    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) dialog.close();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) finish(false);
   });
-});
+  dialog.addEventListener('cancel', () => finish(false)); // Escape key
+})();
 
 // About page videos: silent and looping. They play only while on screen, never for people who turn off
 // motion on their device (they see the still), and the button pauses or plays them.

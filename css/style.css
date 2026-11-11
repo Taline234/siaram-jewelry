@@ -2585,3 +2585,43 @@ main:focus { outline: none; }
    even when one card has an extra line (e.g. "Single earring"). */
 .product-grid .product-card .product-body > .btn { margin-top: auto; }
 .product-body > .card-sold-as { margin-left: 0; }
+
+/* ---------------------------------------------------------------- Custom page: simpler request form */
+.custom-form .field-note { margin: 0; }
+.custom-form label.field small.field-note { display: block; margin-top: 6px; font-size: 0.82rem; color: #5c5c50; }
+.guidance-box { background: var(--ivory); border: 1px solid var(--line); border-left: 3px solid var(--gold-soft); padding: 18px 20px; }
+.guidance-box h3 { margin: 0 0 4px; font-size: 1.3rem; }
+.guidance-box p { margin: 0 0 12px; font-family: var(--font-serif); font-size: 1.02rem; line-height: 1.5; }
+.guidance-box .check-field, .custom-form .check-field { display: flex; gap: 10px; align-items: flex-start; font-size: 0.95rem; }
+.custom-form .check-field input { width: auto; margin-top: 3px; accent-color: var(--green-deep); }
+.design-details { border: 1px solid var(--line); background: var(--ivory); }
+.design-details > summary {
+  cursor: pointer; list-style: none; padding: 18px 52px 18px 20px; position: relative; display: grid; gap: 4px;
+}
+.design-details > summary::-webkit-details-marker { display: none; }
+.design-details > summary::after {
+  content: "+"; position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+  font-size: 1.5rem; color: var(--green-deep); line-height: 1;
+}
+.design-details[open] > summary::after { content: "\2212"; }
+.design-details > summary:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.design-details-title { font-family: var(--font-serif); font-size: 1.25rem; color: var(--green-deep); }
+.design-details-sub { font-size: 0.85rem; color: var(--green-mid); }
+.design-details-body { padding: 4px 20px 22px; display: grid; gap: 22px; border-top: 1px solid var(--line); }
+.design-details-body > .field-note:first-child { margin-top: 14px; }
+.not-sure-help { margin: 10px 0 0; font-size: 0.88rem; color: var(--green-mid); }
+.not-sure-help a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+.not-sure-help .link-btn { font-size: 0.88rem; padding: 0; text-transform: none; letter-spacing: 0; }
+.stone-style .not-sure-help { grid-column: 1 / -1; margin-top: 0; }
+.reply-time { margin: 0; font-family: var(--font-serif); font-size: 1.05rem; color: var(--green-deep); }
+@media (max-width: 600px) {
+  .design-details > summary { padding: 16px 46px 16px 16px; }
+  .design-details-body { padding: 4px 14px 18px; }
+}
+/* Product page: earrings worn across two piercings */
+.piercing-note { border-left: 3px solid var(--gold-soft); padding: 8px 0 8px 14px; margin: -4px 0 16px; font-size: 0.95rem; line-height: 1.5; }
+.piercing-note strong { color: var(--green-deep); }
+.mto-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.mto-dialog .mto-cancel { min-width: 140px; justify-content: center; }
+.custom-form [hidden] { display: none !important; }
+.mto-actions .btn { margin-top: 0; }

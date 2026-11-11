@@ -99,7 +99,7 @@ export function itemDescription(item) {
   const c = CATALOGUE[item.sku] || {};
   const parts = [METALS[item.metal] || METALS.yellow];
   if (c.stone) parts.push(`Stones: ${c.stone}`);
-  if (item.stone) parts.push(`Made with ${item.stone} instead (chosen by the customer)`);
+  if (item.stone) parts.push(`Made with ${item.stone} instead (chosen by the customer, confirmed before production)`);
   if (c.other) parts.push(c.other);
   // The ring size in the product photos is not the size bought, so it stays off receipts.
   const details = (c.details || []).filter(([k]) => k !== 'Size in the photos' && !(item.size && k === 'Length' && c.category === 'Bracelets'));

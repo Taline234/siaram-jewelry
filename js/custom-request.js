@@ -6,19 +6,24 @@ const form = document.querySelector('.custom-form');
 const MAX_FILES = 3;
 const MAX_BYTES = 8 * 1024 * 1024;
 
+const NOT_SURE = 'Not sure — please advise';
+// A call, text or WhatsApp needs a phone number; an email reply does not.
+const PHONE_NEEDED = ['Call', 'Text message', 'WhatsApp'];
+const phoneNeeded = (f) => PHONE_NEEDED.includes(f.elements.preferred_contact.value);
+
+// Only what the customer can see is checked: optional design details never block sending.
 function problem(f) {
-  if (!f.elements.piece.value) return ['Please choose the type of piece.', f.querySelector('[name=piece]')];
-  if (!f.elements.gold.value) return ['Please choose a gold colour, or "Not sure yet".', f.querySelector('[name=gold]')];
-  if (f.querySelector('[name=stones][value=Other]').checked && !f.elements.stones_other.value.trim()) {
-    return ['Please tell us which other gemstones you would like.', f.elements.stones_other];
-  }
-  for (const name of ['description', 'name', 'phone', 'email']) {
+  if (!f.elements.piece.value) return ['Please choose the type of piece, or "Not sure yet".', f.querySelector('[name=piece]')];
+  if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
+  for (const name of ['description', 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
     const el = f.elements[name];
     if (!el.value.trim() || !el.checkValidity()) {
-      return [name === 'email' ? 'Please enter a valid email address.' : 'Please fill in all required fields.', el];
+      if (name === 'email') return ['Please enter a valid email address.', el];
+      if (name === 'phone') return ['Please add your phone number so we can call, text or WhatsApp you, or choose email.', el];
+      if (name === 'description') return ['Please tell us a little about your idea.', el];
+      return ['Please fill in your name.', el];
     }
   }
-  if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
   const files = [...f.elements.files.files];
   if (files.length > MAX_FILES) return [`Please attach up to ${MAX_FILES} files.`, f.elements.files];
   const big = files.find((file) => file.size > MAX_BYTES);
@@ -39,6 +44,62 @@ function setupStonesOther(f) {
     sync();
     if (other.checked) f.elements.stones_other.focus();
   });
+  sync();
+}
+
+// "No stones" and the other gemstones exclude each other; with no stones, the cut and setting questions are hidden.
+function setupStones(f) {
+  const boxes = [...f.querySelectorAll('[name=stones]')];
+  const none = boxes.find((b) => b.value === 'No stones');
+  const style = f.querySelector('.stone-style');
+  const sync = () => { if (style) style.hidden = none.checked; };
+  boxes.forEach((b) => b.addEventListener('change', () => {
+    if (b === none && none.checked) boxes.forEach((o) => { if (o !== none && o.checked) { o.checked = false; o.dispatchEvent(new Event('change')); } });
+    if (b !== none && b.checked && none.checked) none.checked = false;
+    sync();
+  }));
+  sync();
+}
+
+// Guidance: the "Need a little guidance?" box shows for "Not sure yet", or once guidance is asked for.
+// "Not sure" in a design field shows a short note beside it, with the guide and a link that asks for guidance
+// (the same single checkbox, so the request is flagged once).
+function setupGuidance(f) {
+  const box = f.querySelector('.guidance-box');
+  const check = f.elements.guidance;
+  if (!box || !check) return;
+  const sync = () => {
+    box.hidden = !(f.elements.piece.value === 'Not sure yet' || check.checked);
+    const notSure = {
+      gold: f.elements.gold.value === NOT_SURE,
+      stones: Boolean(f.querySelector(`[name=stones][value="${NOT_SURE}"]`)?.checked),
+      cut: f.elements.cut.value === NOT_SURE || f.elements.setting.value === NOT_SURE,
+    };
+    f.querySelectorAll('.not-sure-help').forEach((help) => {
+      help.hidden = !notSure[help.dataset.helpFor];
+      const ask = help.querySelector('.ask-guidance');
+      ask.textContent = check.checked ? 'guidance requested ✓' : 'ask us to guide you';
+      ask.setAttribute('aria-pressed', check.checked);
+    });
+  };
+  f.addEventListener('change', sync);
+  f.addEventListener('click', (e) => {
+    if (!e.target.closest('.ask-guidance')) return;
+    check.checked = true;
+    sync();
+  });
+  sync();
+}
+
+// The phone number is required only for a call, text or WhatsApp reply.
+function setupPhone(f) {
+  const phone = f.elements.phone;
+  const label = f.querySelector('.phone-label');
+  const sync = () => {
+    phone.required = phoneNeeded(f);
+    label.textContent = phone.required ? 'Phone (with country code)' : 'Phone (optional, with country code)';
+  };
+  f.querySelectorAll('[name=preferred_contact]').forEach((r) => r.addEventListener('change', sync));
   sync();
 }
 
@@ -67,6 +128,7 @@ function setupSizeStudio(f) {
     studio.querySelector('.neck-picker')?.classList.toggle('is-pendant', piece === 'Pendant or charm');
     hint.hidden = Boolean(piece);
     if (piece && !any) hint.hidden = true;
+    studio.hidden = Boolean(piece) && !any && !input.value;
   };
   studio.addEventListener('click', (e) => {
     const choice = e.target.closest('[data-size]');
@@ -165,6 +227,9 @@ function setupFitDial(picker, choose) {
 
 if (form) {
   setupStonesOther(form);
+  setupStones(form);
+  setupGuidance(form);
+  setupPhone(form);
   setupSizeStudio(form);
   if (!storeEnabled) {
     form.innerHTML = '<p class="field-note">Please <a href="mailto:customerservice@siaramjewelry.com?subject=Custom%20Piece%20Enquiry">email us</a> with your idea.</p>';
@@ -183,30 +248,23 @@ if (form) {
       button.disabled = true;
       button.textContent = 'Sending…';
       try {
-        const res = await fetch(apiUrl('custom-request'), { method: 'POST', body: new FormData(form) });
+        const data = new FormData(form);
+        // With no stones, a cut or setting chosen earlier does not apply.
+        if (data.getAll('stones').includes('No stones')) { data.delete('cut'); data.delete('setting'); }
+        const res = await fetch(apiUrl('custom-request'), { method: 'POST', body: data });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || 'Sorry, your request could not be sent. Please try again or email us.');
         form.outerHTML = `<div class="order-done custom-done">
           <span class="eyebrow">Request received</span>
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(body.reference)}</strong></p>
-          <p>We have emailed you a copy and aim to respond within 2 days.</p>
+          <p>We have emailed you a copy and aim to reply within 2–4 business days${form.elements.guidance.checked ? ', with some guidance to get you started' : ''}.</p>
         </div>`;
       } catch (err) {
         msg.textContent = err.message;
         button.disabled = false;
-        button.textContent = 'Send My Request';
+        button.textContent = 'Send my request';
       }
     });
   }
 }
-
-// "I have nothing to upload": clears and switches off the photo field.
-document.addEventListener('change', (event) => {
-  if (event.target.name !== 'no_upload') return;
-  const files = event.target.form && event.target.form.elements.files;
-  if (!files) return;
-  if (event.target.checked) files.value = '';
-  files.disabled = event.target.checked;
-  files.closest('.field').classList.toggle('is-off', event.target.checked);
-});

@@ -723,14 +723,16 @@ begin
     elsif not (v_size = any(v_product.sizes)) then
       raise exception 'Please choose a size for the %.', v_product.name using errcode = 'P0001';
     end if;
-    -- A different stone or pearl: one zircon colour and/or one pearl, as offered on the product pages
-    -- (ZIRCONS and PEARLS in tools/build_products.py).
+    -- A different stone or pearl: at most one stone and one pearl, from those offered on the product pages
+    -- (ZIRCONS, GEMSTONES and PEARLS in tools/build_products.py), e.g. 'emerald, pink freshwater pearls'.
     v_stone := lower(coalesce(trim(v_item->>'stone'), ''));
-    if v_stone <> '' and not (v_stone = any(array[
-         'white zircon', 'black zircon', 'red zircon', 'white freshwater pearls', 'blue freshwater pearls',
-         'white zircon, white freshwater pearls', 'white zircon, blue freshwater pearls',
-         'black zircon, white freshwater pearls', 'black zircon, blue freshwater pearls',
-         'red zircon, white freshwater pearls', 'red zircon, blue freshwater pearls'])) then
+    if v_stone <> '' and (
+         coalesce(array_length(string_to_array(v_stone, ', '), 1), 0) > 2
+         or exists (select 1 from unnest(string_to_array(v_stone, ', ')) x
+                     where x <> all (array['white zircon', 'black zircon', 'red zircon', 'blue zircon', 'emerald', 'ruby',
+                                           'sapphire', 'amethyst', 'aquamarine', 'topaz', 'garnet', 'peridot', 'turquoise',
+                                           'white freshwater pearls', 'cream freshwater pearls', 'pink freshwater pearls',
+                                           'blue freshwater pearls']))) then
       raise exception 'Please choose the stone or pearl for the % again.', v_product.name using errcode = 'P0001';
     end if;
     -- Ready to ship if enough are in stock (taken off now, row-locked, so two orders cannot take the
@@ -908,6 +910,11 @@ create table if not exists public.custom_requests (
 alter table public.custom_requests enable row level security;
 alter table public.custom_requests add column if not exists setting text;
 alter table public.custom_requests add column if not exists preferred_contact text check (preferred_contact in ('Call', 'Text message', 'WhatsApp', 'Email'));
+-- The simpler form: design details (gold) are optional, the phone is needed only for a call, text or WhatsApp
+-- reply, and "I'd like some guidance" flags the request for the team.
+alter table public.custom_requests alter column gold drop not null;
+alter table public.custom_requests alter column phone drop not null;
+alter table public.custom_requests add column if not exists guidance boolean not null default false;
 alter table public.store_settings add column if not exists next_custom_number int not null default 1;
 
 create or replace function public.save_custom_request(p jsonb) returns jsonb
@@ -916,7 +923,7 @@ declare
   v_ref text;
   v_field text;
 begin
-  foreach v_field in array array['name', 'email', 'phone', 'piece', 'gold', 'description'] loop
+  foreach v_field in array array['name', 'email', 'piece', 'description'] loop
     if coalesce(trim(p->>v_field), '') = '' then
       raise exception 'Please fill in the % field.', v_field using errcode = 'P0001';
     end if;
@@ -927,13 +934,14 @@ begin
   update public.store_settings set next_custom_number = next_custom_number + 1 where id = 1
   returning 'CR' || lpad((next_custom_number - 1)::text, 3, '0') into v_ref;
   insert into public.custom_requests (reference, name, email, phone, piece, gold, stones, cut, setting, size, description,
-                                      occasion, budget, files, preferred_contact)
-  values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), trim(p->>'phone'), p->>'piece', p->>'gold',
+                                      occasion, budget, files, preferred_contact, guidance)
+  values (v_ref, trim(p->>'name'), lower(trim(p->>'email')), nullif(trim(p->>'phone'), ''), p->>'piece', nullif(p->>'gold', ''),
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'stones') x), '{}'),
           nullif(p->>'cut', ''), nullif(p->>'setting', ''), nullif(trim(p->>'size'), ''), trim(p->>'description'),
           nullif(p->>'occasion', '')::date, nullif(p->>'budget', ''),
           coalesce((select array_agg(x) from jsonb_array_elements_text(p->'files') x), '{}'),
-          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end);
+          case when p->>'preferred_contact' in ('Call', 'Text message', 'WhatsApp', 'Email') then p->>'preferred_contact' end,
+          coalesce((p->>'guidance')::boolean, false));
   return jsonb_build_object('reference', v_ref);
 end $$;
 

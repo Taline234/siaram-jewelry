@@ -558,10 +558,37 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
   assert.match(shop.html, /Rose gold/);
   assert.equal(customer.to[0], 'rana@example.com');
-  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2 days/);
+  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2–4 business days/);
+  assert.equal(saved.guidance, false);
   assert.match(shop.html, /Preferred contact: WhatsApp/, 'the shop sees how the customer wants to be contacted');
   assert.equal(saved.preferred_contact, 'WhatsApp');
   assert.equal(customer.attachments, undefined);
+});
+
+test('the simple custom request: no design details, guidance asked for, no phone when replying by email', async () => {
+  handlers['/rest/v1/rpc/save_custom_request'] = () => [200, { reference: 'CR002' }];
+  const f = new FormData();
+  for (const [k, v] of Object.entries({ piece: 'Not sure yet', description: 'A gift for my mother', name: 'Rana Haddad',
+    email: 'rana@example.com', preferred_contact: 'Email', guidance: 'yes' })) f.append(k, v);
+  assert.deepEqual(await (await post(f)).json(), { reference: 'CR002' });
+  const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.equal(saved.guidance, true);
+  assert.equal(saved.gold, '');
+  assert.equal(saved.phone, '');
+  const [shop, customer] = emails();
+  assert.match(shop.subject, /guidance requested$/);
+  assert.match(shop.html, /Guidance requested/);
+  assert.match(customer.html, /You asked for some guidance/);
+});
+
+test('a custom request with no stones drops the cut and setting; a call needs a phone number', async () => {
+  handlers['/rest/v1/rpc/save_custom_request'] = () => [200, { reference: 'CR003' }];
+  const f = customForm();
+  f.append('stones', 'No stones');
+  await post(f);
+  const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.deepEqual([saved.stones, saved.cut, saved.setting], [['No stones'], '', '']);
+  assert.match((await (await post(customForm({ phone: '', preferred_contact: 'Call' }))).json()).error, /phone number/);
 });
 
 test('custom requests refuse a missing choice, wrong files and spam', async () => {

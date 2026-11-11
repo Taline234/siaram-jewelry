@@ -11,7 +11,7 @@ test('item descriptions name the metal, stones, pearls and size for customs', ()
   assert.equal(itemDescription({ sku: 'BR-06', metal: 'white', size: '17 cm' }),
     '18k white gold\nWhite freshwater pearl\nLength 17 cm', 'a chosen bracelet length replaces the standard one');
   assert.equal(itemDescription({ sku: 'RG-06', metal: 'yellow', size: 'EU 54', stone: 'black zircon', made_to_order: true }),
-    '18k yellow gold\nStones: Red zircon (centre), white zircon\nMade with black zircon instead (chosen by the customer)\nRing size EU 54\nMade to order (3–4 weeks), final sale',
+    '18k yellow gold\nStones: Red zircon (centre), white zircon\nMade with black zircon instead (chosen by the customer, confirmed before production)\nRing size EU 54\nMade to order (3–4 weeks), final sale',
     'a different stone chosen on the site is on the receipt');
   assert.match(itemDescription({ sku: 'NK-01', metal: 'yellow', size: '' }), /^18k yellow gold\nStones: White zircon\nLength: 40 cm chain \+ 6 cm drop chain$/);
 });
