@@ -38,7 +38,7 @@ Pieces made to order (rose or white gold, or a piece that is out of stock) are p
 
 Pieces in stock can be cancelled free of charge until the order is dispatched. To cancel, contact customerservice@siaramjewelry.com or the channel you used to place the order, with your order reference. Any gift-voucher credit used goes back onto the voucher.
 
-Made-to-order pieces (rose or white gold, or a design that is out of stock) cannot be cancelled once ordered, because production starts straight away. They are final sale, so they cannot be returned or exchanged for a change of mind. Custom, personalised and engraved pieces are also final sale and follow our Custom orders policy. This does not affect any cancellation or refund right provided by law.
+Made-to-order pieces (rose or white gold, or a design that is out of stock) cannot be cancelled once ordered, because production starts straight away. They are final sale, so they cannot be returned or exchanged for a change of mind. Custom, personalised and engraved pieces are also final sale and follow our Custom orders policy. Earrings are final sale for hygiene reasons, so they cannot be returned or exchanged; in-stock earrings can still be cancelled free of charge until the order is dispatched. This does not affect any cancellation or refund right provided by law.
 
 ## Accounts and website use
 
@@ -154,7 +154,7 @@ Under this voluntary offer, the piece must be unworn, unused, unaltered and unda
 
 ## Items outside the voluntary offer
 
-Our 14-day returns and exchanges policy excludes final-sale pieces: made-to-order pieces (rose or white gold, or a design that was out of stock when you ordered it), custom, personalised and engraved pieces, sale items or limited editions identified as final sale before purchase, and gift vouchers. We tell you a piece is final sale before you order it.
+Our 14-day returns and exchanges policy excludes final-sale pieces: made-to-order pieces (rose or white gold, or a design that was out of stock when you ordered it), custom, personalised and engraved pieces, earrings (for hygiene reasons, earrings cannot be returned or exchanged), sale items or limited editions identified as final sale before purchase, and gift vouchers. We tell you a piece is final sale before you order it.
 
 These exclusions do not remove an applicable legal withdrawal right or remedies for a defective, incorrect or misdescribed piece. In particular, a sale or limited-edition label alone does not remove a legal withdrawal right.
 

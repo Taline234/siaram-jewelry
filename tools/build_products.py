@@ -528,6 +528,14 @@ def card_sold_as(p):
 TWO_PIERCINGS = {"horseshoe-chain-earrings"}
 
 
+def earring_final_sale(p):
+    """Earrings are final sale for hygiene reasons (owner, 11 November 2026)."""
+    if p["cat"] != "Earrings":
+        return ""
+    return ('        <p class="final-sale-note"><strong>Final sale.</strong> For hygiene reasons, earrings cannot be returned or '
+            'exchanged. A faulty piece is still covered by our <a href="warranty.html">warranty</a>.</p>\n')
+
+
 def piercing_note(p):
     if p["slug"] not in TWO_PIERCINGS:
         return ""
@@ -545,6 +553,7 @@ def specs_html(p):
             ("Metal", "18k yellow, rose or white gold")]
     if sold_as(p):
         rows.insert(3, ("Sold as", "A single earring" if p["slug"] in SINGLE_EARRINGS else "A pair"))
+        rows.append(("Returns", "Final sale: for hygiene reasons, earrings cannot be returned or exchanged"))
     if p["stone"]:
         rows.append(("Stone", p["stone"]))
     if p["other"]:
@@ -643,7 +652,7 @@ for p in P:
         <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["slug"] in BESTSELLERS else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
-{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{piercing_note(p)}{paras}
+{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{piercing_note(p)}{earring_final_sale(p)}{paras}
 {options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>

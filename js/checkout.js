@@ -175,6 +175,7 @@ function renderForm(profile) {
           <ul>
             <li>You pay the delivery fee. For international orders, you also pay customs clearance, import duties, taxes and any related fees.</li>
             <li>If you return an eligible in-stock piece within 14 days because you no longer want it, you get a refund for the piece, but you pay all return costs, and the original delivery fee is not refunded. Made-to-order pieces are final sale.</li>
+            <li>Earrings are final sale: for hygiene reasons, they cannot be returned or exchanged.</li>
             <li>If a piece arrives damaged, defective or incorrect, tell us, preferably within 48 hours, and we cover the return costs.</li>
             <li>A refund may be refused or reduced if the piece is not returned in its original good condition and packaging.</li>
           </ul>

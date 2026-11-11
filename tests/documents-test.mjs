@@ -16,6 +16,11 @@ test('item descriptions name the metal, stones, pearls and size for customs', ()
   assert.match(itemDescription({ sku: 'NK-01', metal: 'yellow', size: '' }), /^18k yellow gold\nStones: White zircon\nLength: 40 cm chain \+ 6 cm drop chain$/);
 });
 
+test('earrings are final sale on the receipt, for hygiene reasons', () => {
+  assert.match(itemDescription({ sku: 'EA-02', metal: 'yellow', size: '' }), /Final sale: earrings cannot be returned or exchanged \(hygiene\)$/);
+  assert.doesNotMatch(itemDescription({ sku: 'NK-01', metal: 'yellow', size: '' }), /Final sale/);
+});
+
 test('every website piece has catalogue details', () => {
   assert.equal(Object.keys(CATALOGUE).length, 36);
   for (const [sku, c] of Object.entries(CATALOGUE)) assert.ok(c.name && c.category, sku);
