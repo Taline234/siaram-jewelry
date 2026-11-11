@@ -277,7 +277,8 @@ D = {
     "horseshoe-necklace-black-stone": dict(sku="NK-05", stone="Black zircon, white zircon", dims=[("Length", "39.5&ndash;41.5 cm chain (adjustable) + 5 cm drop chain")]),
     "horseshoe-bracelet": dict(sku="BR-02", stone="Black zircon, white zircon", wrist=(15, 17)),
     "horseshoe-ring": dict(sku="RG-04", stone="White zircon", ring=54),
-    "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black zircon, white zircon"),
+    "horseshoe-chain-earrings": dict(sku="EA-02", stone="Black zircon, white zircon",
+                                     dims=[("Piercings", "Two in the same ear, joined by the chain")]),
     "horse-eye-ring": dict(sku="RG-07", stone="Red zircon (marquise cut), white zircon", ring=54),
     "horse-eye-stud": dict(sku="EA-06", stone="Red zircon (marquise cut), white zircon"),
     "horse-eye-bracelet": dict(sku="BR-08", stone="Red zircon (marquise cut), white zircon", wrist=(16, 17.5)),
@@ -413,43 +414,54 @@ NECKLACE_GUIDE = """<dialog class="size-guide" id="size-guide-necklace" aria-lab
 
 """
 
-# A different stone or pearl, chosen on the product page: always made to order (owner, 10 November 2026).
-# The values are what the cart, the order and the receipt carry; keep them in step with ALT_STONES in
-# supabase/schema.sql (place_order) and supabase/functions/_shared/handlers/place-order.mjs.
-ZIRCONS = ["white zircon", "black zircon", "red zircon"]
-PEARLS = ["white freshwater pearls", "blue freshwater pearls"]
+# A different stone or pearl, chosen on the product page: always made to order, and confirmed with the customer
+# (stone, availability and price) before anything is made (owner, 10 and 11 November 2026). The stones are the
+# zircon colours we use and the gemstones in the Materials guide; the pearls are the freshwater pearl colours there.
+# Keep the values in step with ALT_STONES in supabase/schema.sql (place_order).
+ZIRCONS = ["white zircon", "black zircon", "red zircon", "blue zircon"]
+GEMSTONES = ["emerald", "ruby", "sapphire", "amethyst", "aquamarine", "topaz", "garnet", "peridot", "turquoise"]
+PEARLS = ["white freshwater pearls", "cream freshwater pearls", "pink freshwater pearls", "blue freshwater pearls"]
 
 
 def alt_choices(p):
-    """The other zircon colours and pearls this piece could be made with: (kind, options)."""
+    """What this piece could be made with instead: (kind, [(group label, options)])."""
     text = html.unescape(p["stones"]).lower()
     out = []
     if "zircon" in text:
         have = [z for z in ZIRCONS if z.split()[0] in text]
-        out.append(("stone", [z for z in ZIRCONS if have != [z]]))
+        out.append(("stone", [("Zircon", [z for z in ZIRCONS if have != [z]]), ("Other gemstones", GEMSTONES)]))
     if "pearl" in text:
         have = [x for x in PEARLS if x.split()[0] + " freshwater" in text]
-        out.append(("pearl", [x for x in PEARLS if have != [x]]))
+        out.append(("pearl", [("Freshwater pearls", [x for x in PEARLS if have != [x]])]))
     return out
 
 
-MTO_DIALOG = """          <dialog class="size-guide mto-dialog" id="alt-stone-dialog" aria-labelledby="alt-stone-title">
-            <button type="button" class="size-guide-close" aria-label="Close">&times;</button>
-            <h2 id="alt-stone-title">Made to order</h2>
-            <p>With a different stone or pearl, this piece is made to order for you. Please allow 3 to 4 weeks.</p>
-            <p class="size-guide-note">Made-to-order pieces are paid in full by Whish payment link before production and are final sale.</p>
-            <button type="button" class="btn btn-primary mto-ok">OK</button>
+MTO_DIALOG = """          <dialog class="size-guide mto-dialog" id="alt-stone-dialog" aria-labelledby="alt-stone-title" aria-describedby="alt-stone-text">
+            <button type="button" class="size-guide-close" aria-label="Cancel">&times;</button>
+            <h2 id="alt-stone-title">Made to order: please confirm</h2>
+            <div id="alt-stone-text">
+              <p>With <strong class="alt-stone-choice">a different stone</strong>, this piece is made to order for you. Please allow 3 to 4 weeks.</p>
+              <p class="size-guide-note">We will contact you to confirm the stone, its availability and the price before anything is made.
+                Made-to-order pieces are paid in full by Whish payment link before production and are final sale.</p>
+            </div>
+            <div class="mto-actions">
+              <button type="button" class="btn btn-primary mto-ok">Confirm</button>
+              <button type="button" class="btn btn-outline mto-cancel">Cancel</button>
+            </div>
           </dialog>
 """
 
 
 def alt_stone_html(p):
     groups = []
-    for kind, values in alt_choices(p):
-        opts = "\n".join(f'                <option value="{v}">{v[0].upper() + v[1:]}</option>' for v in values)
+    for kind, sets in alt_choices(p):
+        opts = "\n".join(
+            f'                <optgroup label="{label}">\n' + "\n".join(
+                f'                  <option value="{v}">{v[0].upper() + v[1:]}</option>' for v in values) + "\n                </optgroup>"
+            for label, values in sets if values)
         groups.append(f"""          <details class="option-group alt-stone">
             <summary>Select a different {kind}</summary>
-            <label class="alt-stone-label" for="alt-{kind}">Different {kind} (made to order)</label>
+            <label class="alt-stone-label" for="alt-{kind}">Different {kind} (made to order, confirmed with you)</label>
             <select id="alt-{kind}" class="alt-stone-select" name="alt_{kind}">
                 <option value="">As shown</option>
 {opts}
@@ -498,7 +510,7 @@ def options_html(p):
 {size}{necklace_guide}{alt_stone_html(p)}          <p class="made-to-order-note" data-metal-note="yellow">If this piece is out of stock in yellow gold, it is made to order: allow 3 to 4 weeks. In-stock pieces are paid in cash on delivery.</p>
           <p class="made-to-order-note" data-metal-note="other" hidden>18k rose and white gold are made to order: allow 3 to 4 weeks.</p>
           <p class="made-to-order-terms">Made-to-order pieces, including any piece with a different stone or pearl, are paid in full by
-            Whish payment link before production and are final sale.</p>
+            Whish payment link before production and are final sale. A different stone or pearl is confirmed with you first.</p>
         </div>
 """
 
@@ -510,6 +522,17 @@ def card_sold_as(p):
     if p["cat"] != "Earrings":
         return ""
     return f'<span class="card-sold-as">{"Single earring" if p["slug"] in SINGLE_EARRINGS else "Pair"}</span>'
+
+
+# Earrings that are worn across two piercings in the same ear (owner, 11 November 2026): said clearly on the page.
+TWO_PIERCINGS = {"horseshoe-chain-earrings"}
+
+
+def piercing_note(p):
+    if p["slug"] not in TWO_PIERCINGS:
+        return ""
+    return ('        <p class="piercing-note"><strong>Needs two piercings in the same ear.</strong> '
+            'The stud goes in one hole and the horseshoe in the other, joined by the chain.</p>\n')
 
 
 def sold_as(p):
@@ -620,7 +643,7 @@ for p in P:
         <span class="eyebrow">{COLL[p['coll']][0]} Collection &middot; {p['cat']}</span>{f" {BADGE}" if p["slug"] in BESTSELLERS else ""}
         <h1>{p['name']}</h1>
         <p class="product-price" data-price-for="{p['slug']}">{p['price_text']}</p>
-{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{paras}
+{('        <p class="sold-as">' + sold_as(p) + '</p>' + chr(10)) if sold_as(p) else ''}{piercing_note(p)}{paras}
 {options_html(p)}        <div class="product-buy" data-slug="{p['slug']}" hidden></div>
         <div class="product-actions">
           <a class="btn btn-primary" href="{mail}">Enquire by Email</a>

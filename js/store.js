@@ -105,7 +105,7 @@ const stockKey = (i) => `${i.slug}|${i.metal || 'yellow'}|${i.size || ''}`;
 export const lineKey = (i) => `${stockKey(i)}|${i.stone || ''}`;
 
 // The different stone or pearl chosen on the product page, e.g. "black zircon, blue freshwater pearls".
-export const stoneLabel = (stone) => (stone ? `Made with ${stone}` : '');
+export const stoneLabel = (stone) => (stone ? `Made with ${stone} (to be confirmed)` : '');
 
 export const METALS = { yellow: '18k yellow gold', rose: '18k rose gold', white: '18k white gold' };
 

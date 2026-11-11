@@ -189,9 +189,8 @@
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Request a Custom Piece</span>
-      <h2>Tell Us About Your Idea</h2>
-      <p>Choose what you can; "not sure" is always fine. We aim to respond within 2 days with ideas, questions or a
-        first design and quote.</p>
+      <h2>Tell us about your idea</h2>
+      <p>Share what you know. We will guide you through the rest.</p>
     </div>
     <form class="custom-form reveal" novalidate enctype="multipart/form-data">
       <fieldset>
@@ -207,18 +206,90 @@
           <label class="choice-pill"><input type="radio" name="piece" value="Not sure yet" /><span>Not sure yet</span></label>
         </div>
       </fieldset>
-      <fieldset>
-        <legend>Gold colour <a class="guide-link size-guide-open" data-guide="gold" href="materials.html#gold">See the gold colours</a></legend>
-        <div class="choice-pills">
-          <label class="choice-pill"><input type="radio" name="gold" value="Yellow gold" required /><span>Yellow gold</span></label>
+
+      <div class="guidance-box" hidden>
+        <h3>Need a little guidance?</h3>
+        <p>We can help you explore ideas, choose materials and find a starting point.</p>
+        <label class="check-field"><input type="checkbox" name="guidance" value="yes" /> <span>I&rsquo;d like some guidance</span></label>
+        <div class="call-request">
+          <input type="hidden" name="call_requested" value="" />
+          <button type="button" class="btn btn-outline call-toggle" aria-expanded="false" aria-controls="call-fields">Request a guidance call</button>
+          <div class="call-fields" id="call-fields" hidden>
+            <p>A free video call of up to 30 minutes on Microsoft Teams; we email you the link. Calls are
+              <strong>Monday to Friday, 9am to 5pm Beirut time</strong>, so please choose a time within those hours.</p>
+            <div class="form-grid">
+              <label class="field"><span>Preferred day (Monday to Friday)</span>
+                <input type="date" name="call_date" /></label>
+              <label class="field"><span>Preferred time (Beirut time)</span>
+                <select name="call_time">
+                <option value="">Choose a time</option>
+                <option value="09:00">9:00 am</option>
+                <option value="09:30">9:30 am</option>
+                <option value="10:00">10:00 am</option>
+                <option value="10:30">10:30 am</option>
+                <option value="11:00">11:00 am</option>
+                <option value="11:30">11:30 am</option>
+                <option value="12:00">12:00 pm</option>
+                <option value="12:30">12:30 pm</option>
+                <option value="13:00">1:00 pm</option>
+                <option value="13:30">1:30 pm</option>
+                <option value="14:00">2:00 pm</option>
+                <option value="14:30">2:30 pm</option>
+                <option value="15:00">3:00 pm</option>
+                <option value="15:30">3:30 pm</option>
+                <option value="16:00">4:00 pm</option>
+                <option value="16:30">4:30 pm</option>
+                </select></label>
+            </div>
+            <label class="field"><span>Other days or times that suit you (optional, within our hours)</span>
+              <input name="call_note" maxlength="200" placeholder="e.g. any weekday morning" /></label>
+            <ul class="call-rules">
+              <li>This is a request: your call is booked only once we confirm a time with you. We reply within 2 days.</li>
+              <li>To cancel or change the time, please tell us at least 12 hours before.</li>
+              <li>If you are more than 10 minutes late, the call is cancelled; you are welcome to request another.</li>
+            </ul>
+            <button type="button" class="link-btn call-cancel">I don&rsquo;t need a call</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="field"><span>Your idea</span>
+        <textarea name="description" rows="5" required maxlength="4000"
+          placeholder="A name or initial, a symbol, a stone, an occasion, a piece you have seen…"></textarea></label>
+      <label class="field"><span>Add inspiration (optional: up to 3 photos, sketches or PDFs, 8 MB each)</span>
+        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
+      <div class="form-grid">
+        <label class="field"><span>Budget (optional)</span>
+          <select name="budget">
+              <option value="">Choose a range</option>
+              <option>Under $500</option>
+              <option>$500–$1,000</option>
+              <option>$1,000–$2,000</option>
+              <option>Over $2,000</option>
+              <option>Not sure yet</option>
+          </select></label>
+        <label class="field"><span>Occasion date (optional)</span><input type="date" name="occasion" aria-describedby="occasion-note" />
+          <small class="field-note" id="occasion-note">A requested date is not guaranteed: we will confirm with you whether we can meet it.</small></label>
+      </div>
+
+      <details class="design-details">
+        <summary><span class="design-details-title">I know what I want — add design details</span>
+          <span class="design-details-sub">Gold colour, gemstones, cut, setting and size.</span></summary>
+        <div class="design-details-body">
+          <p class="field-note">All design details are optional. Leave anything undecided and we will help.</p>
+          <fieldset>
+            <legend>Gold colour <a class="guide-link size-guide-open" data-guide="gold" href="materials.html#gold">See the gold colours</a></legend>
+            <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="gold" value="Yellow gold" /><span>Yellow gold</span></label>
           <label class="choice-pill"><input type="radio" name="gold" value="Rose gold" /><span>Rose gold</span></label>
           <label class="choice-pill"><input type="radio" name="gold" value="White gold" /><span>White gold</span></label>
-          <label class="choice-pill"><input type="radio" name="gold" value="Not sure yet" /><span>Not sure yet</span></label>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Gemstones <span class="legend-note">(choose any)</span> <a class="guide-link size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Gemstone guide</a></legend>
-        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="gold" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
+            </div>
+        <p class="not-sure-help" data-help-for="gold" hidden>We will suggest the gold colour that suits you and the piece. <a class="size-guide-open" data-guide="gold" href="materials.html#gold">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </fieldset>
+          <fieldset>
+            <legend>Gemstones <span class="legend-note">(choose any)</span> <a class="guide-link size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Gemstone guide</a></legend>
+            <div class="choice-pills">
           <label class="choice-pill"><input type="checkbox" name="stones" value="No stones" /><span>No stones</span></label>
           <label class="choice-pill"><input type="checkbox" name="stones" value="Diamond" /><span>Diamond</span></label>
           <label class="choice-pill"><input type="checkbox" name="stones" value="White zircon" /><span>White zircon</span></label>
@@ -232,14 +303,15 @@
           <label class="choice-pill"><input type="checkbox" name="stones" value="Birthstone" /><span>Birthstone</span></label>
           <label class="choice-pill"><input type="checkbox" name="stones" value="My own stone" /><span>My own stone</span></label>
           <label class="choice-pill"><input type="checkbox" name="stones" value="Other" /><span>Other</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure, I need guidance" /><span>Not sure, I need guidance</span></label>
-        </div>
-        <label class="field stones-other" hidden><span>Which gemstones?</span>
-          <input name="stones_other" maxlength="200" placeholder="e.g. Amethyst, tanzanite, pink sapphire" /></label>
-      </fieldset>
-      <div class="form-grid">
-        <label class="field"><span>Stone cut <a class="guide-link size-guide-open" data-guide="cuts" href="materials.html#cuts">See the cuts</a></span>
-          <select name="cut">
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
+            </div>
+            <label class="field stones-other" hidden><span>Which gemstones?</span>
+              <input name="stones_other" maxlength="200" placeholder="e.g. Amethyst, tanzanite, pink sapphire" /></label>
+        <p class="not-sure-help" data-help-for="stones" hidden>We will suggest stones for your idea and budget. <a class="size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </fieldset>
+          <div class="form-grid stone-style">
+            <label class="field"><span>Stone cut <a class="guide-link size-guide-open" data-guide="cuts" href="materials.html#cuts">See the cuts</a></span>
+              <select name="cut">
               <option value="">Choose a cut (optional)</option>
               <option>Round brilliant</option>
               <option>Oval</option>
@@ -251,10 +323,10 @@
               <option>Heart</option>
               <option>Baguette</option>
               <option>Cabochon</option>
-              <option>Not sure yet</option>
-          </select></label>
-        <label class="field"><span>Stone setting <a class="guide-link size-guide-open" data-guide="settings" href="materials.html#settings">See the settings</a></span>
-          <select name="setting">
+              <option>Not sure — please advise</option>
+              </select></label>
+            <label class="field"><span>Stone setting <a class="guide-link size-guide-open" data-guide="settings" href="materials.html#settings">See the settings</a></span>
+              <select name="setting">
               <option value="">Choose a setting (optional)</option>
               <option>Prong (claw)</option>
               <option>Bezel</option>
@@ -264,14 +336,15 @@
               <option>Flush</option>
               <option>Bar</option>
               <option>Cluster</option>
-              <option>Not sure yet</option>
-          </select></label>
-      </div>
+              <option>Not sure — please advise</option>
+              </select></label>
+        <p class="not-sure-help" data-help-for="cut" hidden>We will recommend a cut and setting for your stones. <a class="size-guide-open" data-guide="cuts" href="materials.html#cuts">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </div>
       <fieldset class="size-studio">
-        <legend>Size or length <span class="legend-note">(optional)</span> <a class="guide-link size-guide-open" data-guide="size" href="size-guide.html">Size guide</a></legend>
+        <legend>Size or length <a class="guide-link size-guide-open" data-guide="size" href="size-guide.html">Size guide</a></legend>
         <svg class="sketch-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><filter id="ring-soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="1.1" /></filter><linearGradient id="hoop-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2a4" /><stop offset="0.5" stop-color="#c9a24f" /><stop offset="1" stop-color="#8a6a26" /></linearGradient><radialGradient id="stone-shine" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffffff" /><stop offset="0.6" stop-color="#eef2f5" /><stop offset="1" stop-color="#b9c3cc" /></radialGradient><linearGradient id="ring-gold" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stop-color="#f6e2a4" /><stop offset="0.45" stop-color="#d4ae58" /><stop offset="1" stop-color="#9c7a2f" /></linearGradient></defs></svg>
-        <p class="size-studio-hint">Choose the type of piece above, then pick a size here.</p>
+        <p class="size-studio-hint">Choose the type of piece above to see the sizes for it.</p>
         <div class="size-panel" data-for="Necklace|Pendant or charm" hidden>
           <p class="size-panel-note">Where should it fall? Choose a length.</p>
           <div class="neck-picker">
@@ -377,29 +450,15 @@
         <label class="field size-own"><span>Your choice, or type your own</span>
           <input name="size" maxlength="80" placeholder="e.g. EU 54, 16 cm, 45 cm" /></label>
       </fieldset>
-      <label class="field"><span>Describe your piece</span>
-        <textarea name="description" rows="5" required maxlength="4000"
-          placeholder="A name or initial, the feeling you want, a piece you have seen, a stone you own…"></textarea></label>
-      <label class="field"><span>Sketch or photos (optional, up to 3 photos or PDFs, 8 MB each)</span>
-        <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
-      <label class="check-field no-upload"><input type="checkbox" name="no_upload" /> <span>I have nothing to upload: I will describe my idea, and we can find the design and stone together</span></label>
-      <div class="form-grid">
-        <label class="field"><span>Occasion date (optional)</span><input type="date" name="occasion" /></label>
-        <label class="field"><span>Budget (optional)</span>
-          <select name="budget">
-              <option value="">Choose a range</option>
-              <option>Under $500</option>
-              <option>$500–$1,000</option>
-              <option>$1,000–$2,000</option>
-              <option>Over $2,000</option>
-              <option>Not sure yet</option>
-          </select></label>
-      </div>
+        </div>
+      </details>
+
       <div class="form-grid">
         <label class="field"><span>Full name</span><input name="name" required maxlength="200" autocomplete="name" /></label>
-        <label class="field"><span>Phone number (with country code)</span>
-          <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
         <label class="field"><span>Email</span><input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
+        <label class="field"><span class="phone-label">Phone (with country code)</span>
+          <input name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" aria-describedby="phone-note" />
+          <small class="field-note" id="phone-note">Needed if you would like a call, text or WhatsApp.</small></label>
       </div>
       <fieldset class="contact-pref">
         <legend>How would you like us to contact you?</legend>
@@ -411,10 +470,11 @@
         </div>
       </fieldset>
       <input type="text" name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <p class="reply-time">We aim to reply within 2 days.</p>
       <p class="field-note">We use these details only to reply about your piece; see our <a href="privacy.html">Privacy Policy</a>
         and how deposits work in our <a href="custom-orders.html">Custom Orders policy</a>.</p>
       <p class="form-msg form-error" role="alert"></p>
-      <button type="submit" class="btn btn-primary">Send My Request</button>
+      <button type="submit" class="btn btn-primary">Send my request</button>
     </form>
   </div>
 </section>

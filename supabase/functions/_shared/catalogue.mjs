@@ -62,6 +62,10 @@ export const CATALOGUE = {
       [
         "Sold as",
         "A single earring"
+      ],
+      [
+        "Piercings",
+        "Two in the same ear, joined by the chain"
       ]
     ]
   },
