@@ -106,6 +106,7 @@ export function itemDescription(item) {
   if (item.size) parts.push(c.category === 'Rings' ? `Ring size ${item.size}` : `Length ${item.size}`);
   for (const [k, v] of details) parts.push(`${k}: ${v}`);
   if (item.made_to_order) parts.push('Made to order (3–4 weeks), final sale');
+  else if (c.category === 'Earrings') parts.push('Final sale: earrings cannot be returned or exchanged (hygiene)');
   return parts.join('\n');
 }
 

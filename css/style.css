@@ -2631,3 +2631,7 @@ main:focus { outline: none; }
 .call-fields > p { margin: 0; }
 .call-rules { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: 0.92rem; line-height: 1.5; color: var(--green-mid); }
 .call-fields .call-cancel { justify-self: start; }
+/* Product page: earrings are final sale (hygiene) */
+.final-sale-note { margin: -4px 0 16px; font-size: 0.95rem; line-height: 1.5; color: var(--green-mid); }
+.final-sale-note strong { color: var(--green-deep); }
+.final-sale-note a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }

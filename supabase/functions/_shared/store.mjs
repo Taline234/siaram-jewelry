@@ -9,6 +9,7 @@
 //   SITE_URL                   https://siaramjewelry.com
 //   OWNER_EMAILS               optional: who sees the Workbook download (comma separated)
 import { Buffer } from 'node:buffer';
+import { CATALOGUE } from './catalogue.mjs';
 
 export const env = (name) => (globalThis.Deno ? globalThis.Deno.env.get(name) : process.env[name]) || '';
 
@@ -144,6 +145,8 @@ function itemOptions(i) {
   if (i.size) parts.push(i.size);
   if (i.stone) parts.push(`Made with ${i.stone} (we confirm the stone, availability and price with you before production)`);
   parts.push(i.made_to_order ? 'Made to order (3–4 weeks, paid by Whish)' : 'In stock');
+  // Earrings are final sale for hygiene reasons.
+  if (CATALOGUE[i.sku]?.category === 'Earrings') parts.push('Final sale: earrings cannot be returned or exchanged (hygiene)');
   return `<br><span style="font-size:13px;color:#6b665a">${parts.map(escapeHtml).join(' &middot; ')}</span>`;
 }
 

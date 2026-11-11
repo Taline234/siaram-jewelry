@@ -451,6 +451,7 @@ service_body = f"""
     <div class="section-head reveal">
       <span class="eyebrow">Returns &amp; Repairs</span>
       <h2>Tell Us What Happened</h2>
+      <p>For hygiene reasons, earrings cannot be returned or exchanged; repairs are welcome.</p>
       <p>We aim to respond within 2 days with the next steps. Please do not send the piece until you receive our
         instructions. See our <a href="returns.html">Returns</a> and <a href="warranty.html">Warranty</a> policies.</p>
     </div>
