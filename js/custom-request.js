@@ -287,7 +287,7 @@ if (form) {
           <span class="eyebrow">Request received</span>
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(body.reference)}</strong></p>
-          <p>We have emailed you a copy and aim to reply within 2–4 business days${form.elements.guidance.checked ? ', with some guidance to get you started' : ''}.</p>
+          <p>We have emailed you a copy and aim to reply within 2 days${form.elements.guidance.checked ? ', with some guidance to get you started' : ''}.</p>
           ${form.elements.call_requested.value === 'yes' ? `<p><strong>Your guidance call is requested, not yet booked.</strong> We will reply within 2 days to
             confirm a time (Monday to Friday, 9am to 5pm Beirut time) and email you the Microsoft Teams link.</p>` : ''}
         </div>`;

@@ -89,7 +89,7 @@ await page.goto(`${ORIGIN}/custom.html`);
 await page.waitForSelector('.custom-form');
 assert.ok(await page.locator('.design-details').evaluate((d) => !d.open), 'design details start folded away');
 assert.equal(await page.locator('.custom-form h2, .custom-request h2').first().textContent(), 'Tell us about your idea');
-assert.match(await page.locator('.custom-form .reply-time').textContent(), /2–4 business days/);
+assert.match(await page.locator('.custom-form .reply-time').textContent(), /within 2 days/);
 await page.click('.custom-form button[type=submit]');
 assert.match(await page.locator('.custom-form .form-msg').textContent(), /type of piece/);
 // "Not sure yet" offers guidance; the guidance checkbox flags the request without booking anything.

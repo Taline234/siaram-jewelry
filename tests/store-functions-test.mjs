@@ -558,7 +558,7 @@ test('a custom request is saved and emailed to the shop with the sketch, and the
   assert.deepEqual(shop.attachments.map((a) => a.filename), ['my sketch.png']);
   assert.match(shop.html, /Rose gold/);
   assert.equal(customer.to[0], 'rana@example.com');
-  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2–4 business days/);
+  assert.match(customer.html, /aim to respond by WhatsApp\s+within 2 days/);
   assert.equal(saved.guidance, false);
   assert.match(shop.html, /Preferred contact: WhatsApp/, 'the shop sees how the customer wants to be contacted');
   assert.equal(saved.preferred_contact, 'WhatsApp');

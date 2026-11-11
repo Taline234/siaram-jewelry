@@ -148,7 +148,7 @@ export default async (req) => {
         html: emailLayout(`Thank you, ${request.name.split(' ')[0]}!`,
           `<p style="font-size:15px;line-height:1.6">We have received your request for a custom piece (reference
            <strong>${escapeHtml(reference)}</strong>). We aim to respond by ${escapeHtml(replyBy(request.preferred_contact))}
-           within 2–4 business days with ideas, questions or a first design and quote.${request.guidance
+           within 2 days with ideas, questions or a first design and quote.${request.guidance
              ? ' You asked for some guidance, so we will help you find a starting point.' : ''}</p>${request.call_requested
              ? `<p style="font-size:15px;line-height:1.6"><strong>Your guidance call is requested, not yet booked.</strong> You asked for
                 ${escapeHtml(callFor)}. We will reply within 2 days to confirm a time and email you the Microsoft Teams link.</p>${callRules}` : ''}${details}`),
