@@ -15,7 +15,9 @@ const phoneNeeded = (f) => PHONE_NEEDED.includes(f.elements.preferred_contact.va
 function problem(f) {
   if (!f.elements.piece.value) return ['Please choose the type of piece, or "Not sure yet".', f.querySelector('[name=piece]')];
   if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
-  for (const name of ['description', 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
+  // "Not sure yet": the idea is optional (the guidance box has its own optional notes).
+  const notSure = f.elements.piece.value === 'Not sure yet';
+  for (const name of [...(notSure ? [] : ['description']), 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
     const el = f.elements[name];
     if (!el.value.trim() || !el.checkValidity()) {
       if (name === 'email') return ['Please enter a valid email address.', el];
@@ -98,19 +100,52 @@ function setupCallRequest(f) {
   const toggle = f.querySelector('.call-toggle');
   const fields = f.querySelector('.call-fields');
   if (!toggle || !fields) return;
+  const notesLabel = f.querySelector('.guidance-notes-label');
+  const route = f.querySelector('.message-route');
+  // With a call, the notes are optional; without one, "Not sure yet" customers say what they would like guidance on.
+  const label = () => {
+    const byMessage = f.elements.piece.value === 'Not sure yet' && f.elements.call_requested.value !== 'yes';
+    notesLabel.textContent = byMessage ? 'What would you like guidance on?' : 'Anything you’d like us to know before we talk? (optional)';
+    f.elements.guidance_notes.required = byMessage;
+    route.hidden = !byMessage;
+    toggle.textContent = byMessage ? 'Request a guidance call instead' : 'Request a guidance call';
+  };
   const set = (on) => {
     f.elements.call_requested.value = on ? 'yes' : '';
     fields.hidden = !on;
     toggle.hidden = on;
     toggle.setAttribute('aria-expanded', on);
     if (on) { f.elements.guidance.checked = true; f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true })); }
+    label();
   };
   f.elements.call_date.min = beirutToday();
-  toggle.addEventListener('click', () => { set(true); f.elements.call_date.focus(); });
-  f.querySelector('.call-cancel').addEventListener('click', () => { set(false); toggle.focus(); });
+  let declined = false;
+  toggle.addEventListener('click', () => { declined = false; set(true); f.elements.call_date.focus(); });
+  f.querySelector('.call-cancel').addEventListener('click', () => {
+    declined = true;
+    set(false);
+    if (f.elements.piece.value === 'Not sure yet') f.elements.guidance_notes.focus(); else toggle.focus();
+  });
+  f.querySelectorAll('[name=piece]').forEach((r) => r.addEventListener('change', () => {
+    const notSure = f.elements.piece.value === 'Not sure yet';
+    f.classList.toggle('is-not-sure', notSure);
+    f.querySelector('.idea-fields').hidden = notSure;
+    if (notSure) {
+      f.elements.guidance.checked = true;
+      if (!declined) set(true);
+      f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    label();
+  }));
+  label();
 }
 function callProblem(f) {
-  if (f.elements.call_requested.value !== 'yes') return null;
+  if (f.elements.call_requested.value !== 'yes') {
+    if (f.elements.piece.value === 'Not sure yet' && !f.elements.guidance_notes.value.trim()) {
+      return ['Please tell us what you would like guidance on, or request a guidance call.', f.elements.guidance_notes];
+    }
+    return null;
+  }
   const day = f.elements.call_date.value;
   if (!day) return ['Please choose a day for your guidance call.', f.elements.call_date];
   if (!isWeekday(day)) return ['Guidance calls are Monday to Friday. Please choose a weekday.', f.elements.call_date];

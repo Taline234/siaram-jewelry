@@ -1056,7 +1056,8 @@ begin
   return jsonb_build_object('reference', v_ref);
 end $$;
 
--- Paying for a voucher order: in the Table Editor, set its status to 'paid'. The voucher is then created
+-- Paying for a voucher order: on the account page, Gift Vouchers tab, press Mark as paid (or, in the Table Editor,
+-- set its status to 'paid'). The voucher is then created
 -- (issue_gift_voucher) and the voucher-send function emails it, straight away or on the chosen send date
 -- (a daily job sends those). Status becomes 'issued' once the email has gone.
 alter table public.voucher_requests add column if not exists emailed_at timestamptz;
@@ -1105,6 +1106,36 @@ language sql stable security definer set search_path = public as $$
   select id from public.voucher_requests
    where status = 'paid' and emailed_at is null and voucher_code is not null
      and (send_on is null or send_on <= (now() at time zone 'Asia/Beirut')::date);
+$$;
+
+-- The owner's Gift Vouchers tab (account page, through the voucher-admin function): recent requests, and marking one
+-- paid (which creates the voucher and sends it, as above) or cancelled. Only a request still waiting ('new') can change.
+create or replace function public.owner_voucher_requests() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'reference', q.reference, 'created_at', q.created_at, 'amount', q.amount, 'status', q.status,
+           'name', q.name, 'email', q.email, 'phone', q.phone, 'preferred_contact', q.preferred_contact,
+           'recipient_name', q.recipient_name, 'recipient_email', q.recipient_email, 'recipient_phone', q.recipient_phone,
+           'send_on', q.send_on, 'voucher_code', q.voucher_code, 'emailed_at', q.emailed_at) order by q.created_at desc), '[]'::jsonb)
+    from (select * from public.voucher_requests order by created_at desc limit 100) q;
+$$;
+
+create or replace function public.set_voucher_request_status(p_reference text, p_status text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  r public.voucher_requests;
+begin
+  if p_status not in ('paid', 'cancelled') then
+    raise exception 'Please choose paid or cancelled.' using errcode = 'P0001';
+  end if;
+  update public.voucher_requests set status = p_status
+   where reference = upper(trim(p_reference)) and status = 'new'
+  returning * into r;
+  if not found then
+    raise exception 'Request % is not waiting for payment any more.', upper(trim(p_reference)) using errcode = 'P0001';
+  end if;
+  return jsonb_build_object('reference', r.reference, 'status', r.status, 'voucher_code', r.voucher_code);
+end;
 $$;
 
 -- ---------------------------------------------------------------- newsletter
@@ -1296,6 +1327,9 @@ grant execute on function public.save_service_request(jsonb) to service_role;
 revoke all on public.voucher_requests from anon, authenticated;
 revoke execute on function public.save_voucher_request(jsonb) from public, anon, authenticated;
 grant execute on function public.save_voucher_request(jsonb) to service_role;
+revoke execute on function public.owner_voucher_requests() from public, anon, authenticated;
+revoke execute on function public.set_voucher_request_status(text, text) from public, anon, authenticated;
+grant execute on function public.owner_voucher_requests(), public.set_voucher_request_status(text, text) to service_role;
 revoke execute on function public.record_sale(jsonb) from public, anon, authenticated;
 grant execute on function public.record_sale(jsonb) to service_role;
 revoke execute on function public.claim_voucher_email(uuid, boolean) from public, anon, authenticated;

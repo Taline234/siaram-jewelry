@@ -2654,3 +2654,13 @@ main:focus { outline: none; }
   .step-sketch { width: 100px; height: 100px; }
 }
 #request { scroll-margin-top: 90px; }
+/* Account page (owner): gift voucher requests */
+.voucher-admin .voucher-row { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; flex-wrap: wrap; line-height: 1.6; }
+.voucher-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+@media (max-width: 600px) { .voucher-actions { align-items: flex-start; } }
+/* Custom form: "Not sure yet" puts the guidance call first */
+.idea-fields { display: grid; gap: 22px; }
+.guidance-notes { margin-top: 12px; }
+.guidance-notes textarea { min-height: 90px; }
+.custom-form.is-not-sure .guidance-box { border-left-width: 4px; }
+.message-route { margin: 0 0 12px; font-family: var(--font-serif); font-size: 1.02rem; color: var(--green-deep); }

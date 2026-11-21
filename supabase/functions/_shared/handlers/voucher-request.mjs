@@ -55,32 +55,33 @@ export default async (req) => {
       ['Send on', order.send_on || 'As soon as it is paid'], ['Personal message', order.message || '—'],
     ].map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:#6b665a">${k}</td><td style="padding:4px 0">${escapeHtml(v)}</td></tr>`).join('');
     const details = `<table role="presentation" style="font-size:15px;margin:8px 0 14px">${rows}</table>`;
-    await Promise.all([
-      sendEmail({
-        to: env('ORDER_NOTIFY_EMAIL'),
-        replyTo: order.email,
-        subject: `Gift voucher order ${reference} — $${amount} (${order.name})`,
-        html: emailLayout(`Gift voucher order ${reference}`,
-          `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(order.name)}</strong> &middot; ${escapeHtml(order.email)}
-           &middot; Phone ${escapeHtml(order.phone)}<br><strong>Preferred contact: ${escapeHtml(order.preferred_contact)}</strong></p>${details}
-           <p style="font-size:14px;line-height:1.6">1. Send the buyer a Whish payment link (by ${escapeHtml(contactBy)}).<br>
-           2. Once paid, open Supabase, then Table Editor, then <strong>voucher_requests</strong>, and change ${escapeHtml(reference)}'s
-           status from <strong>new</strong> to <strong>paid</strong>.<br>
-           3. That's all: the voucher code is created and sent to the recipient${order.send_on ? ` on ${escapeHtml(order.send_on)}` : ''}
-           (by email automatically; if we only have their WhatsApp, you get the voucher to send them).</p>`),
-      }),
-      sendEmail({
-        to: order.email,
-        subject: `Your gift voucher request ${reference}`,
-        html: emailLayout(`Thank you, ${order.name.split(' ')[0]}!`,
-          `<p style="font-size:15px;line-height:1.6">We have received your request for a <strong>$${amount}</strong> Siaram gift voucher
-           (reference <strong>${escapeHtml(reference)}</strong>). We will contact you by ${escapeHtml(contactBy)} to arrange payment by
-           Whish payment link. Once it is paid, we issue the voucher and send it to ${escapeHtml(order.recipient_name)}. It is valid
-           for six months.</p>${details}
-           <p style="font-size:14px;line-height:1.6;color:#6b665a">Gift vouchers are final sale: once issued, they cannot be cancelled,
-           refunded or exchanged for cash.</p>`),
-      }),
-    ]);
+    // The buyer's copy goes first, so the shop's email can say if it could not be delivered.
+    const buyerCopy = await sendEmail({
+      to: order.email,
+      subject: `Your gift voucher request ${reference}`,
+      html: emailLayout(`Thank you, ${order.name.split(' ')[0]}!`,
+        `<p style="font-size:15px;line-height:1.6">We have received your request for a <strong>$${amount}</strong> Siaram gift voucher
+         (reference <strong>${escapeHtml(reference)}</strong>). We aim to contact you within 2 days, by ${escapeHtml(contactBy)}, to arrange
+         payment by Whish payment link. Nothing is sent to ${escapeHtml(order.recipient_name)} until it is paid; then we issue the voucher
+         and send it to them. It is valid for six months.</p>${details}
+         <p style="font-size:14px;line-height:1.6;color:#6b665a">Gift vouchers are final sale: once issued, they cannot be cancelled,
+         refunded or exchanged for cash.</p>`),
+    });
+    await sendEmail({
+      to: env('ORDER_NOTIFY_EMAIL'),
+      replyTo: order.email,
+      subject: `Gift voucher order ${reference} — $${amount} (${order.name})`,
+      html: emailLayout(`Gift voucher order ${reference}`,
+        `<p style="font-size:15px;line-height:1.6"><strong>${escapeHtml(order.name)}</strong> &middot; ${escapeHtml(order.email)}
+         &middot; Phone ${escapeHtml(order.phone)}<br><strong>Preferred contact: ${escapeHtml(order.preferred_contact)}</strong></p>${details}
+         ${buyerCopy ? '' : `<p style="font-size:14px;line-height:1.6;color:#8a2c1c"><strong>The confirmation email to the buyer could not be
+           delivered</strong> (${escapeHtml(order.email)}). Please contact them by ${escapeHtml(contactBy)}.</p>`}
+         <p style="font-size:14px;line-height:1.6">1. Send the buyer a Whish payment link (by ${escapeHtml(contactBy)}), within 2 days.<br>
+         2. Once it is paid, sign in on the website, open <strong>Account</strong>, then the <strong>Gift Vouchers</strong> tab, and press
+         <strong>Mark as paid</strong> beside ${escapeHtml(reference)}.<br>
+         3. That's all: the voucher code is created and sent to the recipient${order.send_on ? ` on ${escapeHtml(order.send_on)}` : ''}
+         (by email automatically; if we only have their WhatsApp, you get the voucher to send them). Nothing is sent before step 2.</p>`),
+    });
     return json({ reference, contact_by: contactBy });
   } catch (err) {
     if (err instanceof CustomerError) return json({ error: err.message }, 400);

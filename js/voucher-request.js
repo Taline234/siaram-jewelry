@@ -67,7 +67,7 @@ if (form) {
           <span class="eyebrow">Request received</span>
           <h2>Thank you!</h2>
           <p class="order-ref">Your reference is <strong>${escapeHtml(reply.reference)}</strong></p>
-          <p>We have emailed you a copy and will contact you ${reply.contact_by ? `by ${escapeHtml(reply.contact_by)}` : 'on WhatsApp'}
+          <p>We have emailed you a copy and aim to contact you within 2 days, ${reply.contact_by ? `by ${escapeHtml(reply.contact_by)}` : 'on WhatsApp'},
             to arrange payment by Whish payment link. Once it is paid, we issue the voucher and send it to the recipient.</p>
         </div>`;
       } catch (err) {
