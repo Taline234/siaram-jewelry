@@ -100,6 +100,10 @@ assert.ok(await page.locator('.call-fields').isVisible(), '"Not sure yet" opens 
 assert.ok(await page.locator('.guidance-notes').isVisible(), 'with an optional notes box');
 assert.ok(await page.locator('.idea-fields').isHidden(), 'the idea, inspiration, budget and design details step aside');
 await page.click('.call-cancel');
+assert.ok(await page.locator('.call-fields').isHidden(), '"I\'d rather you message me" hides the call fields');
+assert.equal(await page.locator('.guidance-notes-label').textContent(), 'What would you like guidance on?');
+assert.ok(await page.locator('.message-route').isVisible(), 'and says we will contact them by their chosen method');
+assert.ok(await page.locator('.custom-form [name=guidance_notes]').evaluate((t) => t.required), 'without a call, the guidance box must be filled in');
 await page.uncheck('.custom-form [name=guidance]');
 assert.equal(await page.locator('.custom-form').getByText(/book a guidance call/i).count(), 0, 'no booking button until a booking system exists');
 assert.ok(await page.locator('.size-studio').isHidden(), 'no size question until the type of piece has sizes');

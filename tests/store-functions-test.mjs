@@ -630,8 +630,8 @@ test('"Not sure yet" needs no idea: the notes for the call are kept with the req
   calls.length = 0;
   const g = new FormData();
   for (const [k, v] of Object.entries({ piece: 'Not sure yet', name: 'Rana', email: 'rana@example.com', preferred_contact: 'Email' })) g.append(k, v);
-  await post(g);
-  assert.equal(calls.find((c) => c.url.endsWith('/save_custom_request')).body.p.description, 'Not sure yet: would like some guidance.');
+  assert.match((await (await post(g)).json()).error, /what you would like guidance on, or request a guidance call/,
+    'without a call, a not-sure customer says what they would like guidance on');
   assert.match((await (await post(customForm({ description: '' }))).json()).error, /tell us a little about your idea/, 'other pieces still need the idea');
 });
 

@@ -199,11 +199,13 @@
         <h3>Need a little guidance?</h3>
         <p>We can help you explore ideas, choose materials and find a starting point.</p>
         <label class="check-field"><input type="checkbox" name="guidance" value="yes" /> <span>I&rsquo;d like some guidance</span></label>
-        <label class="field guidance-notes"><span>Anything you&rsquo;d like us to know before we talk? (optional)</span>
+        <label class="field guidance-notes"><span class="guidance-notes-label">Anything you&rsquo;d like us to know before we talk? (optional)</span>
           <textarea name="guidance_notes" rows="3" maxlength="2000"
             placeholder="Who it is for, an occasion, styles or stones you like, a rough budget…"></textarea></label>
         <div class="call-request">
           <input type="hidden" name="call_requested" value="" />
+          <p class="message-route" hidden>No call needed: we will contact you within 2 days, by the contact method you choose below, to help
+            you get started.</p>
           <button type="button" class="btn btn-outline call-toggle" aria-expanded="false" aria-controls="call-fields">Request a guidance call</button>
           <div class="call-fields" id="call-fields" hidden>
             <p>A free video call of up to 30 minutes on Microsoft Teams; we email you the link. Calls are
@@ -239,7 +241,7 @@
               <li>To cancel or change the time, please tell us at least 12 hours before.</li>
               <li>If you are more than 10 minutes late, the call is cancelled; you are welcome to request another.</li>
             </ul>
-            <button type="button" class="link-btn call-cancel">I don&rsquo;t need a call</button>
+            <button type="button" class="link-btn call-cancel">I&rsquo;d rather you message me</button>
           </div>
         </div>
       </div>
