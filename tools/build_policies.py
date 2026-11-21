@@ -27,7 +27,7 @@ PAGES = [
     ("Warranty and repairs", "warranty.html", "Warranty &amp; Repairs",
      "Siaram Jewelry's one-year manufacturing warranty, what it covers, how claims are assessed, and paid repair and resizing services."),
     ("Custom orders", "custom-orders.html", "Custom Orders",
-     "How bespoke Siaram Jewelry pieces are designed, approved, paid for (50% deposit) and made, and how customer stones are handled."),
+     "How bespoke Siaram Jewelry pieces are designed, approved, paid for (in full, before production) and made, and how customer stones are handled."),
     ("Digital gift vouchers", "gift-vouchers.html", "Gift Vouchers",
      "Siaram Jewelry digital gift vouchers: from US$100, valid for six months, issued to a named recipient, and how to redeem them."),
     ("Privacy policy", "privacy.html", "Privacy Policy",
@@ -90,7 +90,7 @@ REPLACE = [
     ("Payment providers process payments and any payment credentials you choose to save through their supported features. ",
      ""),
     (" [SAVED-PAYMENT FEATURE AND STORAGE ARRANGEMENT]",
-     " Our website does not take or store card details. Made-to-order pieces and custom deposits are paid through "
+     " Our website does not take or store card details. Made-to-order and custom pieces are paid through "
      "Whish Money payment links, which Whish processes under its own terms; we receive the payment status, amount and "
      "reference for our order and accounting records."),
     ("Accounts: while active, then reviewed after 24 months of inactivity; we notify you before deleting the account profile.",
@@ -122,7 +122,7 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           your browser's request shares your IP address with them, but they set no cookies.</li>
         <li><strong>Wakilni</strong> (Lebanon), our courier, delivers orders and collects cash-on-delivery payments; it receives the
           recipient's name, phone number, delivery address and the amount to collect.</li>
-        <li><strong>Whish Money</strong> (Lebanon) processes payment links for made-to-order pieces and custom pieces (deposit and balance).</li>
+        <li><strong>Whish Money</strong> (Lebanon) processes payment links for made-to-order pieces and custom pieces.</li>
 
       </ul>
       <p>Technical logs kept by our hosting and database providers are kept for short periods set by those providers
