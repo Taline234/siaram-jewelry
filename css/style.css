@@ -2635,3 +2635,22 @@ main:focus { outline: none; }
 .final-sale-note { margin: -4px 0 16px; font-size: 0.95rem; line-height: 1.5; color: var(--green-mid); }
 .final-sale-note strong { color: var(--green-deep); }
 .final-sale-note a { color: var(--green-deep); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------------------------------------------------------------- Custom page: more compact, less scrolling */
+.custom-hero { padding: 40px 0 28px; }
+.custom-rule { margin-top: 22px; }
+.custom-process, .custom-made, .custom-request, .custom-worn { padding: 48px 0; }
+.custom-made { padding-bottom: 16px; }
+.custom-request { padding-top: 32px; }
+.step-sketch { width: 130px; height: 130px; margin-bottom: 10px; }
+.custom-steps p { font-size: 1rem; line-height: 1.6; }
+.custom-steps p a { color: var(--green-deep); text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px; }
+.custom-made .custom-gallery { max-width: 900px; margin: 0 auto; gap: 16px; }
+.custom-made .custom-gallery img { aspect-ratio: 1 / 1; }
+.custom-made .section-head, .custom-request .section-head, .custom-worn .section-head { margin-bottom: 24px; }
+.custom-worn .review-grid-single { grid-template-columns: minmax(0, 320px); }
+@media (max-width: 700px) {
+  .custom-process, .custom-made, .custom-request, .custom-worn { padding: 32px 0; }
+  .step-sketch { width: 100px; height: 100px; }
+}
+#request { scroll-margin-top: 90px; }

@@ -30,7 +30,7 @@ Please check your contact details, delivery address, size and order details. Tel
 
 Website orders for pieces in stock are paid in cash to the courier on delivery, together with the courier's delivery fee. Gift-voucher credit is applied first.
 
-Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment link. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom deposits and balances follow our Custom orders policy.
+Pieces made to order (rose or white gold, or a piece that is out of stock) are paid in full by Whish before production starts. After you order, we send you a Whish payment link. Production starts once the payment clears. We do not take card payments, and we will never ask for card numbers or security codes. Custom pieces are also paid in full by Whish before production, as set out in our Custom orders policy.
 
 # Terms and conditions continued
 
@@ -76,19 +76,19 @@ Updated policies apply to future orders from the stated effective date. The vers
 
 Send your idea, sketch, reference or details of a stone you own. Our goldsmiths propose a drawing, metal, stone and finish. We refine the proposal with you and obtain written approval through your order channel.
 
-Approval covers the design, spelling and lettering, size, metal colour, stones, price and timing. Please check every detail, including Arabic lettering. There is no separate design fee. We check manufacturing feasibility before requesting a production deposit.
+Approval covers the design, spelling and lettering, size, metal colour, stones, price and timing. Please check every detail, including Arabic lettering. There is no separate design fee. We check manufacturing feasibility before requesting payment.
 
-## Deposit and balance
+## Payment
 
-After approval, we send a Whish payment link for a 50% deposit. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the deposit clears, we submit the order for production and email you to confirm it is in production. The deposit is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
+Custom pieces are paid in full before production. After approval, we send a Whish payment link for the full price of the piece. Please pay it within 48 hours of approving the design and quote. After 48 hours, the quote may change with the price of gold. Once the payment clears, we submit the order for production and email you to confirm it is in production. The payment is refundable before submission. After submission it is non-refundable if you cancel. We disclose this before payment.
 
-When the piece is ready, we send a second Whish payment link for the remaining 50%. We ship the piece once it is paid. Any delivery fee is separate, disclosed in advance and paid to the courier in cash on delivery.
+When the piece is ready, we ship it; there is nothing more to pay for the piece. Any delivery fee is separate, disclosed in advance and paid to the courier in cash on delivery.
 
 If, after taking payment, Siaram cannot supply the agreed piece and you do not accept an alternative, we will refund the payments for that piece. This is different from a customer deciding to cancel a producible, approved piece after production submission.
 
 ## Production time and later changes
 
-Custom production and delivery normally take three to four weeks from production submission after approval and cleared deposit, within available delivery areas. Design development is additional. A special occasion date is guaranteed only if expressly agreed in writing.
+Custom production and delivery normally take three to four weeks from production submission after approval and cleared payment, within available delivery areas. Design development is additional. A special occasion date is guaranteed only if expressly agreed in writing.
 
 Changes after submission may not be possible. We quote any additional cost and revised timing for your approval. If we followed your approval of an incorrect spelling or size, correction, resizing or remaking may carry extra labour and material charges, depending on feasibility. Siaram errors are corrected at our expense.
 
@@ -116,7 +116,7 @@ We deliver within the Lebanese areas available at checkout or confirmed before a
 
 In-stock orders normally reach you within two to three business days in Beirut and nearby (from Jnah to Dbayeh and up to Baabda), and within three to four business days elsewhere in Lebanon, after order acceptance and the required payment. Orders placed outside business hours begin processing on the next business day. Our business hours are Monday to Friday, 9 am to 5 pm, Lebanon time, excluding Lebanese public holidays.
 
-Standard designs that are out of stock and must be made normally reach you within three to four weeks of order acceptance and required payment. Bespoke delivery normally takes three to four weeks from production submission after design approval and cleared deposit. The bespoke estimate does not include design development.
+Standard designs that are out of stock and must be made normally reach you within three to four weeks of order acceptance and required payment. Bespoke delivery normally takes three to four weeks from production submission after design approval and cleared payment. The bespoke estimate does not include design development.
 
 These are estimated arrival times, not merely dispatch times. We will notify you of a material delay and provide a revised estimate when available. Tell us about an essential deadline before ordering; a particular date is guaranteed only if we expressly confirm it in writing.
 
@@ -252,7 +252,7 @@ Each voucher states its value, unique reference, issue date and expiry date. It 
 
 The named recipient may redeem a voucher through our website, by message or in person. Vouchers are non-transferable. We may check the reference and purchase details and, where reasonably necessary, visually inspect identification to confirm the recipient. We do not require a copy of the identification for routine voucher redemption.
 
-A voucher may pay for eligible jewellery, including a custom-order deposit or full custom payment, and sale items if offered. It cannot pay delivery charges. If the order costs more than the remaining voucher value, the customer pays the difference through an accepted payment method.
+A voucher may pay for eligible jewellery, including the payment for a custom piece, and sale items if offered. It cannot pay delivery charges. If the order costs more than the remaining voucher value, the customer pays the difference through an accepted payment method.
 
 A voucher must be applied to an accepted order before expiry. The piece may be produced or delivered after that date. For a custom order, design approval and application of the voucher to the required payment must be completed before expiry; merely starting a design enquiry does not redeem it.
 
