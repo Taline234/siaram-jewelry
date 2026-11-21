@@ -204,8 +204,8 @@ async function renderAccount() {
     isOwner(session),
   ]);
   // The shop owner gets an admin page (sales and workbook) instead of the customer tabs.
-  const tabs = owner ? ['sale', 'workbook'] : ['orders', 'wishlist', 'addresses', 'details'];
-  const TAB_LABELS = { sale: 'Record a Sale' };
+  const tabs = owner ? ['sale', 'vouchers', 'workbook'] : ['orders', 'wishlist', 'addresses', 'details'];
+  const TAB_LABELS = { sale: 'Record a Sale', vouchers: 'Gift Vouchers' };
   const tab = tabs.includes(location.hash.replace('#', '')) ? location.hash.replace('#', '') : tabs[0];
   root.innerHTML = `<div class="account-head">
       <h2>${owner ? 'Siaram Admin' : `Hello, ${escapeHtml(profile ? profile.first_name : '')}`}</h2>
@@ -223,7 +223,7 @@ async function renderAccount() {
     renderSignedOut();
   });
   const panel = root.querySelector('.account-panel');
-  const views = owner ? { sale: renderSale, workbook: renderWorkbook }
+  const views = owner ? { sale: renderSale, vouchers: renderVouchers, workbook: renderWorkbook }
     : { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails };
   await views[tab](panel, session, profile);
 }
@@ -436,7 +436,7 @@ async function init() {
   });
   // Clicking a tab changes the address (#sale, #orders...); redraw the page for it.
   window.addEventListener('hashchange', () => {
-    if (['#orders', '#wishlist', '#addresses', '#details', '#sale', '#workbook'].includes(location.hash)) renderAccount();
+    if (['#orders', '#wishlist', '#addresses', '#details', '#sale', '#vouchers', '#workbook'].includes(location.hash)) renderAccount();
   });
   if (recovering) renderPasswordReset();
   else await renderAccount();
@@ -447,6 +447,68 @@ if (storeEnabled) {
     console.error(err);
     root.innerHTML = '<p class="form-error">Sorry, your account could not be loaded. Please refresh the page.</p>';
   });
+}
+
+// ---------------------------------------------------------------- owner: gift vouchers
+// Gift voucher requests. Once the buyer has paid, Mark as paid creates the voucher and sends it to the recipient
+// (on the chosen date, if there is one). Nothing is sent before that.
+const VOUCHER_STATUS = { new: 'Waiting for payment', paid: 'Paid, sending', issued: 'Sent', cancelled: 'Cancelled' };
+
+async function renderVouchers(panel, session) {
+  const call = async (method, body) => {
+    const { data: { session: current } } = await client.auth.getSession();
+    const res = await fetch(apiUrl('voucher-admin'), {
+      method,
+      headers: { authorization: `Bearer ${(current || session).access_token}`, ...(body ? { 'content-type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+    return data;
+  };
+  panel.innerHTML = '<p class="field-note">Loading gift voucher requests…</p>';
+  let requests;
+  try {
+    ({ requests } = await call('GET'));
+  } catch (err) {
+    panel.innerHTML = `<p class="form-msg form-error" role="alert">${escapeHtml(err.message)}</p>`;
+    return;
+  }
+  const sendTo = (r) => (r.recipient_email ? `by email to ${r.recipient_email}` : `to you, to forward on WhatsApp to ${r.recipient_phone}`);
+  panel.innerHTML = `<div class="auth-card voucher-admin">
+      <h3>Gift Voucher Requests</h3>
+      <p class="field-note">When a buyer has paid, press <strong>Mark as paid</strong>: the voucher is created and sent to the
+        recipient, straight away or on the date the buyer chose. Nothing is sent before you do this.</p>
+      <p class="form-msg form-error" role="alert"></p>
+      ${requests.length ? requests.map((r) => `<div class="order-card voucher-row" data-ref="${escapeHtml(r.reference)}">
+        <div><strong>${escapeHtml(r.reference)}</strong> &middot; ${money(r.amount)}
+          <span class="field-note">${new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span><br>
+          From ${escapeHtml(r.name)} (${escapeHtml(r.phone)}, ${escapeHtml(r.email)}${r.preferred_contact ? `, prefers ${escapeHtml(r.preferred_contact)}` : ''})<br>
+          For ${escapeHtml(r.recipient_name)}, sent ${escapeHtml(sendTo(r))}${r.send_on ? ` on ${escapeHtml(r.send_on)}` : ''}</div>
+        <div class="voucher-actions"><span class="order-status">${escapeHtml(VOUCHER_STATUS[r.status] || r.status)}</span>
+          ${r.voucher_code ? `<span class="field-note">Code ${escapeHtml(r.voucher_code)}</span>` : ''}
+          ${r.status === 'new' ? `<button type="button" class="btn btn-primary" data-status="paid">Mark as paid</button>
+          <button type="button" class="link-btn" data-status="cancelled">Cancel request</button>` : ''}</div>
+      </div>`).join('') : '<p class="field-note">No gift voucher requests yet.</p>'}
+    </div>`;
+  const msg = panel.querySelector('.form-msg');
+  panel.querySelectorAll('[data-status]').forEach((btn) => btn.addEventListener('click', async () => {
+    const row = btn.closest('.voucher-row');
+    const r = requests.find((x) => x.reference === row.dataset.ref);
+    const question = btn.dataset.status === 'paid'
+      ? `Has the payment for ${r.reference} (${money(r.amount)}) arrived? The voucher will be created and sent ${sendTo(r)}${r.send_on ? ` on ${r.send_on}` : ''}.`
+      : `Cancel ${r.reference}? No voucher will be sent.`;
+    if (!window.confirm(question)) return;
+    msg.textContent = '';
+    row.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+    try {
+      await call('POST', { reference: r.reference, status: btn.dataset.status });
+      await renderVouchers(panel, session);
+    } catch (err) {
+      msg.textContent = err.message;
+      row.querySelectorAll('button').forEach((b) => { b.disabled = false; });
+    }
+  }));
 }
 
 // ---------------------------------------------------------------- owner: workbook backup

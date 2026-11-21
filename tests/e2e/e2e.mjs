@@ -96,10 +96,16 @@ assert.match(await page.locator('.custom-form .form-msg').textContent(), /type o
 assert.ok(await page.locator('.guidance-box').isHidden());
 await page.check('.custom-form [name=piece][value="Not sure yet"]', { force: true });
 assert.ok(await page.locator('.guidance-box').isVisible(), '"Not sure yet" shows "Need a little guidance?"');
+assert.ok(await page.locator('.call-fields').isVisible(), '"Not sure yet" opens the guidance call request straight away');
+assert.ok(await page.locator('.guidance-notes').isVisible(), 'with an optional notes box');
+assert.ok(await page.locator('.idea-fields').isHidden(), 'the idea, inspiration, budget and design details step aside');
+await page.click('.call-cancel');
+await page.uncheck('.custom-form [name=guidance]');
 assert.equal(await page.locator('.custom-form').getByText(/book a guidance call/i).count(), 0, 'no booking button until a booking system exists');
 assert.ok(await page.locator('.size-studio').isHidden(), 'no size question until the type of piece has sizes');
 await page.check('.custom-form [name=piece][value=Ring]', { force: true });
 assert.ok(await page.locator('.guidance-box').isHidden(), 'the guidance box goes once a piece is chosen');
+assert.ok(await page.locator('.idea-fields').isVisible(), 'and the idea fields come back');
 // The phone is required only for a call, text or WhatsApp.
 await page.check('.custom-form [name=preferred_contact][value=Email]');
 assert.match(await page.locator('.phone-label').textContent(), /optional/);
@@ -231,7 +237,7 @@ assert.match(await page.locator('.voucher-done').textContent(), /VR\d{3}/);
 const [voucherRow] = await q("select amount, recipient_phone, send_to, message from voucher_requests where email = 'nour@example.com'");
 assert.deepEqual([Number(voucherRow.amount), voucherRow.recipient_phone, voucherRow.send_to, voucherRow.message],
   [400, '+961 71 222 333', 'recipient', 'Happy birthday, Maya!'], 'the personal message is saved with the request');
-assert.match(await page.locator('.voucher-done').textContent(), /contact you by phone/, 'payment is arranged the way the buyer chose');
+assert.match(await page.locator('.voucher-done').textContent(), /contact you within 2 days, by phone/, 'payment is arranged the way the buyer chose');
 const voucherMails = (await setState({})).emails.filter((e) => /gift voucher (order|request)/i.test(e.subject));
 assert.equal(voucherMails.length, 2);
 await setState({ emails: [] });
@@ -489,8 +495,18 @@ assert.ok(workbookText.includes(`<t xml:space="preserve">${ref2}</t>`), 'listing
 await shot('account-workbook');
 step('the owner gets a Workbook tab and downloads one Excel file with Sales and Customers tabs');
 
-assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Workbook'],
+assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Gift Vouchers', 'Workbook'],
   'the owner gets an admin page, not the customer tabs');
+// Gift Vouchers tab: the request made earlier waits for payment; Mark as paid creates the voucher.
+await page.click('.account-tabs a[href="#vouchers"]');
+await page.waitForSelector('.voucher-admin');
+const waiting = page.locator('.voucher-row').filter({ hasText: 'Waiting for payment' }).first();
+const waitingRef = await waiting.getAttribute('data-ref');
+await waiting.locator('[data-status=paid]').click();
+await page.waitForFunction((ref) => document.querySelector(`.voucher-row[data-ref="${ref}"]`)?.textContent.includes('Code'), waitingRef);
+const [paidRow] = await q(`select status, voucher_code from voucher_requests where reference = '${waitingRef}'`);
+assert.ok(['paid', 'issued'].includes(paidRow.status) && paidRow.voucher_code, 'Mark as paid creates the voucher');
+step('the owner marks a gift voucher request paid on the Gift Vouchers tab');
 await page.click('.account-tabs a[href="#sale"]');
 await page.waitForSelector('.sale-form');
 await page.selectOption('.sale-form [name=channel]', 'Instagram');

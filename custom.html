@@ -199,6 +199,9 @@
         <h3>Need a little guidance?</h3>
         <p>We can help you explore ideas, choose materials and find a starting point.</p>
         <label class="check-field"><input type="checkbox" name="guidance" value="yes" /> <span>I&rsquo;d like some guidance</span></label>
+        <label class="field guidance-notes"><span>Anything you&rsquo;d like us to know before we talk? (optional)</span>
+          <textarea name="guidance_notes" rows="3" maxlength="2000"
+            placeholder="Who it is for, an occasion, styles or stones you like, a rough budget…"></textarea></label>
         <div class="call-request">
           <input type="hidden" name="call_requested" value="" />
           <button type="button" class="btn btn-outline call-toggle" aria-expanded="false" aria-controls="call-fields">Request a guidance call</button>
@@ -241,6 +244,7 @@
         </div>
       </div>
 
+      <div class="idea-fields">
       <label class="field"><span>Your idea</span>
         <textarea name="description" rows="5" required maxlength="4000"
           placeholder="A name or initial, a symbol, a stone, an occasion, a piece you have seen…"></textarea></label>
@@ -440,6 +444,7 @@
       </fieldset>
         </div>
       </details>
+      </div>
 
       <div class="form-grid">
         <label class="field"><span>Full name</span><input name="name" required maxlength="200" autocomplete="name" /></label>

@@ -619,6 +619,22 @@ test('a guidance call is a request within business hours, shown to the shop in B
   }
 });
 
+test('"Not sure yet" needs no idea: the notes for the call are kept with the request', async () => {
+  handlers['/rest/v1/rpc/save_custom_request'] = () => [200, { reference: 'CR006' }];
+  const f = new FormData();
+  for (const [k, v] of Object.entries({ piece: 'Not sure yet', name: 'Rana Haddad', email: 'rana@example.com',
+    preferred_contact: 'Email', guidance: 'yes', guidance_notes: 'A gift for my sister' })) f.append(k, v);
+  assert.deepEqual(await (await post(f)).json(), { reference: 'CR006' });
+  const saved = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.equal(saved.description, 'Notes for the guidance call: A gift for my sister');
+  calls.length = 0;
+  const g = new FormData();
+  for (const [k, v] of Object.entries({ piece: 'Not sure yet', name: 'Rana', email: 'rana@example.com', preferred_contact: 'Email' })) g.append(k, v);
+  await post(g);
+  assert.equal(calls.find((c) => c.url.endsWith('/save_custom_request')).body.p.description, 'Not sure yet: would like some guidance.');
+  assert.match((await (await post(customForm({ description: '' }))).json()).error, /tell us a little about your idea/, 'other pieces still need the idea');
+});
+
 test('custom requests refuse a missing choice, wrong files and spam', async () => {
   assert.match((await (await post(customForm({ preferred_contact: 'Pigeon' }))).json()).error, /how you would like us to contact you/);
   assert.match((await (await post(customForm({ piece: 'Spaceship' }))).json()).error, /type of piece/);
@@ -693,14 +709,16 @@ test('a gift voucher order is saved, the shop gets the line to issue it and the 
   const saved = calls.find((c) => c.url.endsWith('/save_voucher_request')).body.p;
   assert.equal(saved.amount, 150);
   assert.equal(saved.send_on, '2026-12-24');
-  const [shop, buyer] = emails();
+  const [buyer, shop] = emails();
   assert.equal(shop.subject, 'Gift voucher order VR001 — $150 (Rana Haddad)');
-  assert.match(shop.html, /change VR001's\s+status from <strong>new<\/strong> to <strong>paid<\/strong>/);
+  assert.match(shop.html, /<strong>Gift Vouchers<\/strong> tab, and press\s+<strong>Mark as paid<\/strong> beside VR001/);
+  assert.doesNotMatch(shop.html, /could not be\s+delivered/, 'the buyer\'s copy went');
   assert.match(shop.html, /sent to the recipient on 2026-12-24/);
   assert.match(shop.html, /Whish payment link \(by phone\)/, 'payment is arranged the way the buyer chose');
   assert.equal(saved.send_to, 'recipient', 'vouchers always go to the recipient');
   assert.equal(buyer.subject, 'Your gift voucher request VR001');
-  assert.match(buyer.html, /contact you by phone to arrange payment by\s+Whish payment link/);
+  assert.match(buyer.html, /aim to contact you within 2 days, by phone, to arrange\s+payment by Whish payment link/);
+  assert.match(buyer.html, /Nothing is sent to .+ until it is paid/);
   assert.doesNotMatch(buyer.html, /print/i);
   assert.match(buyer.html, /final sale/);
 });
@@ -738,6 +756,8 @@ test('a paid voucher is emailed to the recipient with its code, and the buyer an
   assert.equal(gift.subject, 'Rana Haddad sent you a Siaram gift voucher');
   assert.match(gift.html, /GV0001-K7QM4X/);
   assert.match(gift.html, /Valid until 3 May 2027/);
+  assert.match(gift.html, /\/gift-vouchers" style="color:#1b3a2b">Gift Voucher policy<\/a>/, 'the recipient gets the policy link');
+  assert.match(gift.html, /\/terms" style="color:#1b3a2b">Terms<\/a>/);
   assert.deepEqual(gift.attachments.map((a) => a.filename), ['Siaram-gift-voucher-GV0001-K7QM4X.pdf'], 'the voucher card is attached');
   assert.equal(Buffer.from(gift.attachments[0].content, 'base64').subarray(0, 4).toString(), '%PDF');
   assert.equal(shop.to[0], 'shop@siaram.test');

@@ -22,7 +22,10 @@ function voucherCard(v) {
 const howTo = (site) => `<p style="font-size:15px;line-height:1.6"><strong>How to use it:</strong> choose your piece on
   <a href="${site}" style="color:#1b3a2b">siaramjewelry.com</a> and enter the code at checkout, with the email address or
   WhatsApp number this voucher was issued to. You can also use it by message or in person. Any remaining value stays on
-  the voucher until it expires. Vouchers cover jewellery, not delivery.</p>`;
+  the voucher until it expires. Vouchers cover jewellery, not delivery.</p>
+<p style="font-size:14px;line-height:1.6">Please read our
+  <a href="${site.replace(/\/$/, '')}/gift-vouchers" style="color:#1b3a2b">Gift Voucher policy</a>, which sets out how vouchers work,
+  and our full <a href="${site.replace(/\/$/, '')}/terms" style="color:#1b3a2b">Terms</a>.</p>`;
 
 async function sendOne(id) {
   const v = await rpc('claim_voucher_email', { p_id: id });

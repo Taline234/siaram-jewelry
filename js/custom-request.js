@@ -15,7 +15,9 @@ const phoneNeeded = (f) => PHONE_NEEDED.includes(f.elements.preferred_contact.va
 function problem(f) {
   if (!f.elements.piece.value) return ['Please choose the type of piece, or "Not sure yet".', f.querySelector('[name=piece]')];
   if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
-  for (const name of ['description', 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
+  // "Not sure yet": the idea is optional (the guidance box has its own optional notes).
+  const notSure = f.elements.piece.value === 'Not sure yet';
+  for (const name of [...(notSure ? [] : ['description']), 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
     const el = f.elements[name];
     if (!el.value.trim() || !el.checkValidity()) {
       if (name === 'email') return ['Please enter a valid email address.', el];
@@ -106,8 +108,19 @@ function setupCallRequest(f) {
     if (on) { f.elements.guidance.checked = true; f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true })); }
   };
   f.elements.call_date.min = beirutToday();
-  toggle.addEventListener('click', () => { set(true); f.elements.call_date.focus(); });
-  f.querySelector('.call-cancel').addEventListener('click', () => { set(false); toggle.focus(); });
+  let declined = false;
+  toggle.addEventListener('click', () => { declined = false; set(true); f.elements.call_date.focus(); });
+  f.querySelector('.call-cancel').addEventListener('click', () => { declined = true; set(false); toggle.focus(); });
+  f.querySelectorAll('[name=piece]').forEach((r) => r.addEventListener('change', () => {
+    const notSure = f.elements.piece.value === 'Not sure yet';
+    f.classList.toggle('is-not-sure', notSure);
+    f.querySelector('.idea-fields').hidden = notSure;
+    if (notSure) {
+      f.elements.guidance.checked = true;
+      if (!declined) set(true);
+      f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }));
 }
 function callProblem(f) {
   if (f.elements.call_requested.value !== 'yes') return null;

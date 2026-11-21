@@ -546,4 +546,18 @@ select pg_temp.check((select status = 'cancelled' from orders where reference = 
 select pg_temp.check(not has_function_privilege('anon', 'public.auto_ready_order(text)', 'execute')
                      and not has_function_privilege('anon', 'public.courier_cancel_details(uuid)', 'execute'),
   'only the server can send orders to the courier');
+-- The owner's Gift Vouchers tab: mark a waiting request paid (the voucher is created) or cancelled, once only.
+select save_voucher_request('{"amount":120,"recipient_name":"Lea","recipient_email":"lea@example.com","send_to":"recipient",
+    "name":"Nour","email":"nour@example.com","phone":"70"}'::jsonb)->>'reference' as vr_admin \gset
+select pg_temp.check((select jsonb_path_exists(owner_voucher_requests(), '$[*] ? (@.reference == $r && @.status == "new")',
+                        jsonb_build_object('r', :'vr_admin'))),
+  'the Gift Vouchers tab lists a new request');
+select set_voucher_request_status(:'vr_admin', 'paid')->>'voucher_code' as vr_code \gset
+select pg_temp.check(:'vr_code' <> '' and (select status = 'paid' and voucher_code = :'vr_code' from voucher_requests where reference = :'vr_admin'),
+  'Mark as paid creates the voucher');
+select pg_temp.expect_error(format('select set_voucher_request_status(%L, %L)', :'vr_admin', 'cancelled'), 'not waiting for payment');
+select pg_temp.check(not has_function_privilege('anon', 'public.set_voucher_request_status(text, text)', 'execute')
+                     and not has_function_privilege('authenticated', 'public.owner_voucher_requests()', 'execute'),
+  'only the server can list or mark voucher requests');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'
