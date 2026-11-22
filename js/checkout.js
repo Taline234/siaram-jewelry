@@ -103,7 +103,7 @@ function renderForm(profile) {
       <fieldset><legend>Contact</legend>
         <div class="form-grid">
           ${field('customer_name', 'Full name', 'required autocomplete="name"')}
-          ${field('phone', 'Phone (with country code if outside Lebanon)', 'required type="tel" autocomplete="tel" placeholder="+961 70 123 456"')}
+          ${field('phone', 'Phone', 'required type="tel" autocomplete="tel" placeholder="70 123 456"')}
           ${field('email', 'Email', `required type="email" autocomplete="email"${signedIn ? ' readonly' : ''}`)}
         </div>
         <fieldset class="contact-pref">

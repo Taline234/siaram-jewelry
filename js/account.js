@@ -90,7 +90,7 @@ function renderSignedOut(notice = '') {
         ${field('last_name', 'Last name', 'required autocomplete="family-name"')}
       </div>
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
-      ${field('phone', 'Phone (with country code if outside Lebanon)', 'type="tel" required autocomplete="tel" placeholder="+961 70 123 456"')}
+      ${field('phone', 'Phone', 'type="tel" required autocomplete="tel" placeholder="70 123 456"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
       ${birthdayField()}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
@@ -293,7 +293,7 @@ async function renderAddresses(panel) {
       <div class="form-grid">
         ${field('label', 'Label (e.g. Home, Work)')}
         ${field('recipient_name', 'Recipient name', 'required')}
-        ${field('phone', 'Phone', 'type="tel" required placeholder="+961"')}
+        ${field('phone', 'Phone', 'type="tel" required placeholder="70 123 456"')}
         <label class="field"><span>Governorate</span><select name="governorate" required><option value="">Choose&hellip;</option>
           ${open.map((a) => `<option>${escapeHtml(a.governorate)}</option>`).join('')}</select></label>
         ${field('city', 'Town / area', 'required')}
@@ -591,7 +591,7 @@ async function renderSale(panel, session) {
       <label class="field"><span>Piece</span><select name="slug"><option value="">Choose a piece</option>
         ${options((products || []).map((p) => [p.slug, p.sku ? `${p.name} (${p.sku})` : p.name]))}</select></label>
       <label class="field"><span>Gold</span><select name="metal">${options(METALS, 'yellow')}</select></label>
-      <label class="field sale-size"><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
+      <label class="field sale-size" hidden><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
       <label class="field"><span>Qty</span><input name="quantity" type="number" min="1" max="10" value="1" /></label>
       <label class="field"><span>Price each ($)</span><input name="unit_price" type="number" min="0" step="0.01" /></label>
       <label class="check sale-stock"><input type="checkbox" name="from_stock" checked /> <span>Taken from stock</span></label>
@@ -602,14 +602,15 @@ async function renderSale(panel, session) {
       <h3>Record a Sale</h3>
       <p class="field-note">For sales made in person, on Instagram, on WhatsApp or at an event. The sale gets the next order
         number, pieces taken from stock come off your stock, and it goes into your workbook. If you enter the customer's
-        email, they can be sent the receipt and the care and warranty card; you can also download the receipt to send on WhatsApp.</p>
+        email, they are emailed the receipt and the care and warranty card straight away; you can also download the receipt to send on WhatsApp.</p>
       <div class="form-grid">
         ${field('sale_date', 'Date of the sale', `type="date" value="${today}" max="${today}"`)}
         <label class="field"><span>Where was it sold?</span><select name="channel">
           ${options([['In person', 'In person'], ['Instagram', 'Instagram'], ['WhatsApp', 'WhatsApp'], ['Event', 'Event or pop-up'], ['Other', 'Other']], 'In person')}</select></label>
         ${field('customer_name', "Customer's name", 'required maxlength="200"')}
         ${field('phone', 'Phone or WhatsApp (optional)', 'type="tel" maxlength="40"')}
-        ${field('email', 'Email (optional)', 'type="email" maxlength="200"')}
+        ${field('email', 'Email (optional, to send the receipt)', 'type="email" maxlength="200"')}
+        ${field('address', 'Address (optional)', 'maxlength="300" autocomplete="off"')}
       </div>
       <h4 class="sale-sub">Pieces</h4>
       <div class="sale-lines">${line()}</div>
@@ -620,8 +621,6 @@ async function renderSale(panel, session) {
         ${field('voucher_code', 'Gift voucher code (if one was used)', 'maxlength="40" autocomplete="off"')}
       </div>
       <label class="field"><span>Notes (optional)</span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
-      <label class="check"><input type="checkbox" name="send_receipt" checked />
-        <span>Email the receipt and the care and warranty card to the customer (when an email is entered)</span></label>
       <p class="sale-total">Total: <strong>$0.00</strong></p>
       <p class="form-msg form-error" role="alert"></p>
       <button type="submit" class="btn btn-primary">Record Sale</button>
@@ -642,9 +641,11 @@ async function renderSale(panel, session) {
     const sizeSelect = l.querySelector('[name=size]');
     if (priceToo) {
       l.querySelector('[name=unit_price]').value = p && p.price != null ? Number(p.price) : '';
-      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value="">—</option>';
+      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value=""></option>';
     }
+    // Only rings and bracelets come in sizes; necklaces and earrings are sold in their standard size, so no box.
     sizeSelect.disabled = !(p && p.sizes);
+    l.querySelector('.sale-size').hidden = !(p && p.sizes);
     if (p) {
       const key = `${p.slug}|${l.querySelector('[name=metal]').value}|${p.sizes ? sizeSelect.value : ''}`;
       l.querySelector('[name=from_stock]').checked = inStock.has(key);
@@ -687,7 +688,7 @@ async function renderSale(panel, session) {
         body: JSON.stringify({
           sale_date: f.sale_date.value, channel: f.channel.value, customer_name: f.customer_name.value, phone: f.phone.value,
           email: f.email.value, payment_method: f.payment_method.value, voucher_code: f.voucher_code.value, notes: f.notes.value, items,
-          send_receipt: f.send_receipt.checked,
+          address: f.address.value,
         }),
       });
       const body = await res.json().catch(() => ({}));

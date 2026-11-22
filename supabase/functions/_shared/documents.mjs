@@ -125,7 +125,8 @@ function paymentLabel(order) {
 function billTo(order) {
   const lines = [order.customer_name];
   lines.push([order.street, order.building && `Building ${order.building}`, order.floor && `Floor ${order.floor}`].filter(Boolean).join(', '));
-  lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
+  // Sales recorded by the owner may have no address, or one typed on a single line.
+  if (order.city || order.governorate) lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
   lines.push(order.phone, order.email);
   return lines.filter(Boolean);
 }
