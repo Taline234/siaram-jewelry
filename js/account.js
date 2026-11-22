@@ -601,7 +601,8 @@ async function renderSale(panel, session) {
   panel.innerHTML = `<form class="auth-card sale-form" novalidate>
       <h3>Record a Sale</h3>
       <p class="field-note">For sales made in person, on Instagram, on WhatsApp or at an event. The sale gets the next order
-        number, pieces taken from stock come off your stock, and it appears in your Workbook download. No email is sent.</p>
+        number, pieces taken from stock come off your stock, and it goes into your workbook. If you enter the customer's
+        email, they can be sent the receipt and the care and warranty card; you can also download the receipt to send on WhatsApp.</p>
       <div class="form-grid">
         ${field('sale_date', 'Date of the sale', `type="date" value="${today}" max="${today}"`)}
         <label class="field"><span>Where was it sold?</span><select name="channel">
@@ -619,6 +620,8 @@ async function renderSale(panel, session) {
         ${field('voucher_code', 'Gift voucher code (if one was used)', 'maxlength="40" autocomplete="off"')}
       </div>
       <label class="field"><span>Notes (optional)</span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+      <label class="check"><input type="checkbox" name="send_receipt" checked />
+        <span>Email the receipt and the care and warranty card to the customer (when an email is entered)</span></label>
       <p class="sale-total">Total: <strong>$0.00</strong></p>
       <p class="form-msg form-error" role="alert"></p>
       <button type="submit" class="btn btn-primary">Record Sale</button>
@@ -684,6 +687,7 @@ async function renderSale(panel, session) {
         body: JSON.stringify({
           sale_date: f.sale_date.value, channel: f.channel.value, customer_name: f.customer_name.value, phone: f.phone.value,
           email: f.email.value, payment_method: f.payment_method.value, voucher_code: f.voucher_code.value, notes: f.notes.value, items,
+          send_receipt: f.send_receipt.checked,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -692,10 +696,41 @@ async function renderSale(panel, session) {
           <span class="eyebrow">Sale recorded</span>
           <h2>${escapeHtml(body.reference)}</h2>
           <p>Total ${money(body.total)}. ${body.status === 'preparing' ? 'Pieces not taken from stock are marked as being made.' : 'Stock has been updated.'}
-            It will be in your next Workbook download.</p>
-          <button type="button" class="btn btn-outline sale-again">Record Another Sale</button>
+            It will be in your workbook within 10 minutes.</p>
+          <p class="sale-receipt-note">${body.receipt_emailed
+            ? `The receipt and the care and warranty card were emailed to ${escapeHtml(body.receipt_emailed)}.`
+            : 'No email was sent. Download the receipt to send it on WhatsApp.'}</p>
+          <p class="form-msg form-error" role="alert"></p>
+          <div class="sale-done-actions">
+            <button type="button" class="btn btn-primary sale-receipt">Download Receipt (PDF)</button>
+            <button type="button" class="btn btn-outline sale-again">Record Another Sale</button>
+          </div>
         </div>`;
       panel.querySelector('.sale-again').addEventListener('click', () => renderSale(panel, session));
+      const receiptBtn = panel.querySelector('.sale-receipt');
+      receiptBtn.addEventListener('click', async () => {
+        const msg = panel.querySelector('.form-msg');
+        msg.textContent = '';
+        receiptBtn.disabled = true;
+        try {
+          const { data: { session: now } } = await client.auth.getSession();
+          const r = await fetch(`${apiUrl('record-sale')}?receipt=${encodeURIComponent(body.reference)}`, {
+            headers: { authorization: `Bearer ${(now || session).access_token}` },
+          });
+          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Could not prepare the receipt.');
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(await r.blob());
+          link.download = `Siaram-receipt-${body.reference}.pdf`;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        } catch (err) {
+          msg.textContent = err.message;
+        } finally {
+          receiptBtn.disabled = false;
+        }
+      });
     } catch (err) {
       formMessage(form, err.message);
       button.disabled = false;
