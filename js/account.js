@@ -591,7 +591,7 @@ async function renderSale(panel, session) {
       <label class="field"><span>Piece</span><select name="slug"><option value="">Choose a piece</option>
         ${options((products || []).map((p) => [p.slug, p.sku ? `${p.name} (${p.sku})` : p.name]))}</select></label>
       <label class="field"><span>Gold</span><select name="metal">${options(METALS, 'yellow')}</select></label>
-      <label class="field sale-size"><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
+      <label class="field sale-size" hidden><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
       <label class="field"><span>Qty</span><input name="quantity" type="number" min="1" max="10" value="1" /></label>
       <label class="field"><span>Price each ($)</span><input name="unit_price" type="number" min="0" step="0.01" /></label>
       <label class="check sale-stock"><input type="checkbox" name="from_stock" checked /> <span>Taken from stock</span></label>
@@ -641,9 +641,11 @@ async function renderSale(panel, session) {
     const sizeSelect = l.querySelector('[name=size]');
     if (priceToo) {
       l.querySelector('[name=unit_price]').value = p && p.price != null ? Number(p.price) : '';
-      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value="">One size</option>';
+      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value=""></option>';
     }
+    // Only rings and bracelets come in sizes; necklaces and earrings are sold in their standard size, so no box.
     sizeSelect.disabled = !(p && p.sizes);
+    l.querySelector('.sale-size').hidden = !(p && p.sizes);
     if (p) {
       const key = `${p.slug}|${l.querySelector('[name=metal]').value}|${p.sizes ? sizeSelect.value : ''}`;
       l.querySelector('[name=from_stock]').checked = inStock.has(key);
