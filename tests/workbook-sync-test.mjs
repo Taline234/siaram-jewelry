@@ -155,7 +155,7 @@ test('the rows of a cancelled order are removed', async () => {
   assert.deepEqual(sheet.Sales.slice(2).map((r) => r[0]), ['S016', 'S018', 'S018']);
 });
 
-test('a problem is emailed once, then not again until it has worked', async () => {
+test('each problem is emailed once, and a new problem is emailed too', async () => {
   sheet.Sales[1][0] = 'Invoice';
   db = [order('S017')];
   const res = await run();
@@ -165,7 +165,12 @@ test('a problem is emailed once, then not again until it has worked', async () =
   assert.match(emails[0].html, /Invoice #/);
   await run();
   assert.equal(emails.length, 1, 'no second email for the same problem');
+  sheet.Customers[0][0] = 'Client';
   sheet.Sales[1][0] = 'Invoice #';
+  await run();
+  assert.equal(emails.length, 2, 'a different problem is emailed');
+  assert.match(emails[1].html, /no &quot;Name&quot; heading|no "Name" heading/);
+  sheet.Customers[0][0] = 'Name';
   await run();
   assert.equal(lastError, null);
 });
