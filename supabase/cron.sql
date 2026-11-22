@@ -47,3 +47,18 @@ select cron.schedule(
   );
   $$
 );
+
+-- Every 10 minutes, copy new sales, customers, deliveries and cancellations into the Google Sheets workbook
+-- (does nothing until the GOOGLE_SERVICE_ACCOUNT and WORKBOOK_SHEET_ID secrets are set).
+select cron.schedule(
+  'siaram-workbook-sync',
+  '*/10 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/workbook-sync',
+    headers := jsonb_build_object('content-type', 'application/json',
+                                  'x-cron-secret', (select secret from private.cron where id = 1)),
+    body := '{}'::jsonb
+  );
+  $$
+);

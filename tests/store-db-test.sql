@@ -560,4 +560,19 @@ select pg_temp.check(not has_function_privilege('anon', 'public.set_voucher_requ
                      and not has_function_privilege('authenticated', 'public.owner_voucher_requests()', 'execute'),
   'only the server can list or mark voucher requests');
 
+-- The Google Sheets workbook copy: every numbered order including cancelled ones, one run at a time, errors kept once.
+select pg_temp.check((select json_array_length(workbook_orders()) = (select count(*) from orders))
+                     and workbook_orders()::jsonb @> '[{"status":"cancelled"}]'::jsonb,
+  'the workbook copy sees every order, cancelled ones too (to remove their rows)');
+update store_settings set workbook_sync_from = (now() at time zone 'Asia/Beirut')::date + 1;
+select pg_temp.check(json_array_length(workbook_orders()) = 0, 'workbook_sync_from skips older sales');
+update store_settings set workbook_sync_from = null;
+select pg_temp.check(claim_workbook_sync() and not claim_workbook_sync(), 'only one workbook copy runs at a time');
+select pg_temp.check(finish_workbook_sync('Sheet not shared') is null and finish_workbook_sync('Sheet not shared') = 'Sheet not shared'
+                     and finish_workbook_sync('') = 'Sheet not shared' and claim_workbook_sync(),
+  'the last workbook problem is remembered so it is emailed once');
+select pg_temp.check(not has_function_privilege('anon', 'public.workbook_orders()', 'execute')
+                     and not has_function_privilege('authenticated', 'public.claim_workbook_sync()', 'execute'),
+  'only the server can read orders for the workbook');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'

@@ -70,3 +70,7 @@ import_map = "./functions/import_map.json"
 [functions.courier-cancel]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.workbook-sync]
+verify_jwt = false
+import_map = "./functions/import_map.json"

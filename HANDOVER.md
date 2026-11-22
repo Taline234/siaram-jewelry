@@ -41,6 +41,11 @@ on it and say "read HANDOVER.md first".
   were cropped from the July 2026 shoot; the originals are on the owner's laptop
   ("Siaram Shoot July 2026").
 
+## Finance workbook
+- The owner's workbook lives in Google Sheets and is filled in by `workbook-sync` every 10 minutes
+  (`supabase/functions/_shared/handlers/workbook-sync.mjs`; set-up in `STORE-SETUP.md`, "Finance workbook in Google Sheets").
+  Tests: `node --test tests/workbook-sync-test.mjs`.
+
 ## Where things stand
 - The store is live (website orders from S017). Moving hosting from Netlify to Cloudflare Pages and the
   order code to Supabase Edge Functions: see `STORE-SETUP.md` sections 3 and 4.

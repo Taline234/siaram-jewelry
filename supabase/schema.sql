@@ -1633,3 +1633,63 @@ create trigger order_cancelled_courier after update of status on public.orders
 revoke execute on function public.auto_ready_order(text) from public, anon, authenticated;
 revoke execute on function public.courier_cancel_details(uuid) from public, anon, authenticated;
 grant execute on function public.auto_ready_order(text), public.courier_cancel_details(uuid) to service_role;
+
+-- ---------------------------------------------------------------- finance workbook (Google Sheets)
+-- The workbook-sync function (every 10 minutes, see supabase/cron.sql) copies website orders and recorded sales into
+-- the Google Sheets workbook: new pieces to the Sales tab, new customers to the Customers tab, Cash Received once
+-- delivered, and the rows of a cancelled order removed. It matches rows by invoice number, so rows already pasted
+-- from the download are never added twice. To ignore older sales, set workbook_sync_from (a date) in store_settings.
+alter table public.store_settings add column if not exists workbook_sync_from date;
+
+create table if not exists private.workbook_sync (
+  id          int primary key default 1 check (id = 1),
+  started_at  timestamptz,   -- set while a copy is running, so two never run at once
+  finished_at timestamptz,
+  last_error  text           -- why the last copy failed (empty once it works again)
+);
+insert into private.workbook_sync (id) values (1) on conflict (id) do nothing;
+
+-- Every order (cancelled ones too, so their rows can be removed) from workbook_sync_from on, in sales_export's shape.
+create or replace function public.workbook_orders() returns json
+language sql stable security definer set search_path = public as $$
+  select coalesce(json_agg(x order by x.reference), '[]'::json) from (
+    select o.reference, (o.created_at at time zone 'Asia/Beirut')::date as sale_date,
+           o.customer_name, o.email, o.phone,
+           concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
+                     nullif(o.city, ''), nullif(o.governorate, '')) as address,
+           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount,
+           (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity,
+                                              'made_to_order', i.made_to_order)
+                            order by i.product_slug, i.metal, i.size)
+              from public.order_items i where i.order_id = o.id) as items
+      from public.orders o cross join public.store_settings s
+     where s.id = 1
+       and o.reference is not null
+       and (s.workbook_sync_from is null or (o.created_at at time zone 'Asia/Beirut')::date >= s.workbook_sync_from)
+  ) x;
+$$;
+
+-- true when this run may go ahead (no other run started in the last 5 minutes).
+create or replace function public.claim_workbook_sync() returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update private.workbook_sync set started_at = now()
+   where id = 1 and (started_at is null or started_at < now() - interval '5 minutes');
+  return found;
+end;
+$$;
+
+-- Ends a run; returns the previous error, so a new problem is emailed once and not every 10 minutes.
+create or replace function public.finish_workbook_sync(p_error text) returns text
+language plpgsql security definer set search_path = public as $$
+declare v_previous text;
+begin
+  select last_error into v_previous from private.workbook_sync where id = 1;
+  update private.workbook_sync set started_at = null, finished_at = now(), last_error = nullif(p_error, '') where id = 1;
+  return v_previous;
+end;
+$$;
+
+revoke execute on function public.workbook_orders(), public.claim_workbook_sync(), public.finish_workbook_sync(text)
+  from public, anon, authenticated;
+grant execute on function public.workbook_orders(), public.claim_workbook_sync(), public.finish_workbook_sync(text) to service_role;
