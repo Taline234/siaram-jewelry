@@ -444,7 +444,7 @@ select pg_temp.check(not has_function_privilege('anon', 'public.claim_voucher_em
 -- Sales recorded by the owner: next S number, sales channel, agreed price, stock taken off.
 insert into stock (product_slug, metal, size, quantity) values ('horseshoe-necklace', 'rose', '', 1)
   on conflict (product_slug, metal, size) do update set quantity = 1;
-select record_sale('{"channel":"Instagram","customer_name":"Nour","payment_method":"card","sale_date":"2026-10-30",
+select record_sale('{"channel":"Instagram","customer_name":"Nour","payment_method":"card","sale_date":"2026-10-30","address":"Hamra, Beirut",
     "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"unit_price":450,"from_stock":true}]}'::jsonb)->>'reference' as rs_ref \gset
 select pg_temp.check((select channel = 'Instagram' and payment_method = 'card' and status = 'delivered' and total = 450
                              and (created_at at time zone 'Asia/Beirut')::date = '2026-10-30'
@@ -578,6 +578,7 @@ select pg_temp.check(not has_function_privilege('anon', 'public.workbook_orders(
 select pg_temp.check((select order_receipt(lower(:'rs_ref')) @> jsonb_build_object('reference', :'rs_ref', 'channel', 'Instagram'))
                      and order_receipt('S999') is null,
   'a recorded sale''s receipt details can be looked up by its number');
+select pg_temp.check((select street = 'Hamra, Beirut' from orders where reference = :'rs_ref'), 'a recorded sale keeps the address typed for it');
 select pg_temp.check(not has_function_privilege('anon', 'public.order_receipt(text)', 'execute'), 'only the server can read receipts');
 
 \echo 'ALL STORE DATABASE TESTS PASSED'

@@ -1,7 +1,7 @@
 // /functions/v1/record-sale — the Record a Sale tab on the account page. Only the shop owner may use it.
 //   POST                 records an in-person, Instagram, WhatsApp or event sale as an order (same S numbers as website
 //                        orders): pieces taken from stock come off it, a gift voucher used in payment is charged, and the
-//                        sale goes to the workbook with its sales channel. With send_receipt and an email address, the
+//                        sale goes to the workbook with its sales channel. When an email address is given, the
 //                        customer is emailed the receipt and the care and warranty card, as after a website order.
 //   GET ?receipt=S019    the receipt PDF of any order, for the owner to send on WhatsApp.
 import { CustomerError, configured, emailLayout, escapeHtml, isOwner, json, readJson, rpc, sendEmail, userFromRequest } from '../store.mjs';
@@ -76,6 +76,7 @@ export default async (req) => {
       customer_name: text(body.customer_name),
       phone: text(body.phone, 40),
       email: text(body.email),
+      address: text(body.address, 300),
       notes: text(body.notes, 1000),
       payment_method: text(body.payment_method, 20),
       voucher_code: text(body.voucher_code, 40),
@@ -87,7 +88,7 @@ export default async (req) => {
     if (sale.email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(sale.email)) throw new CustomerError('Please check the email address.');
     if (sale.items.some((i) => i.unit_price != null && !(i.unit_price >= 0))) throw new CustomerError('Please check the prices.');
     const order = await rpc('record_sale', { p: sale });
-    const emailed = body.send_receipt === true && Boolean(order.email)
+    const emailed = Boolean(order.email) && body.send_receipt !== false
       && await emailReceipt({ ...order, channel: sale.channel }, sale.sale_date);
     return json({ reference: order.reference, total: order.total, status: order.status, receipt_emailed: emailed ? order.email : null });
   } catch (err) {

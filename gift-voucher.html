@@ -166,7 +166,7 @@
           <label class="field"><span>Recipient's email</span>
             <input name="recipient_email" type="email" maxlength="200" autocomplete="off" /></label>
           <label class="field"><span>Recipient's WhatsApp (with country code)</span>
-            <input name="recipient_phone" type="tel" maxlength="40" autocomplete="off" placeholder="+961 70 123 456" /></label>
+            <input name="recipient_phone" type="tel" maxlength="40" autocomplete="off" placeholder="70 123 456" /></label>
         </div>
         <p class="field-note">Give at least one: we send the voucher there. We email it when you give an email address, otherwise we send it on WhatsApp. Only the named recipient can use the voucher, and we check it at checkout.</p>
       </fieldset>
@@ -184,7 +184,7 @@
           <label class="field"><span>Full name</span>
             <input name="name" required maxlength="200" autocomplete="name" /></label>
           <label class="field"><span>Phone number (with country code)</span>
-            <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" /></label>
+            <input name="phone" type="tel" required maxlength="40" autocomplete="tel" placeholder="70 123 456" /></label>
           <label class="field"><span>Email</span>
             <input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
         </div>
@@ -277,6 +277,7 @@
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="js/script.js"></script>
+<script src="js/phone.js"></script>
 <script src="js/store-config.js"></script>
 <script type="module" src="js/store.js"></script>
 </body>

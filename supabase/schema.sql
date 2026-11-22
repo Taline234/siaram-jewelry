@@ -819,10 +819,10 @@ begin
 
   update public.store_settings set next_order_number = next_order_number + 1 where id = 1
   returning 'S' || lpad((next_order_number - 1)::text, 3, '0') into v_ref;
-  insert into public.orders (reference, customer_name, email, phone, fulfilment, notes, subtotal, total, age_confirmed,
+  insert into public.orders (reference, customer_name, email, phone, street, fulfilment, notes, subtotal, total, age_confirmed,
                              payment_method, status, channel, created_at)
   values (v_ref, trim(p->>'customer_name'), lower(trim(coalesce(p->>'email', ''))), trim(coalesce(p->>'phone', '')),
-          'collection', nullif(trim(p->>'notes'), ''), 0, 0, true, p->>'payment_method', 'delivered', p->>'channel',
+          nullif(left(trim(coalesce(p->>'address', '')), 300), ''), 'collection', nullif(trim(p->>'notes'), ''), 0, 0, true, p->>'payment_method', 'delivered', p->>'channel',
           (v_date + time '12:00') at time zone 'Asia/Beirut')
   returning id into v_order_id;
 
