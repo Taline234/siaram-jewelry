@@ -154,6 +154,11 @@ empty for necklaces and earrings, `EU 54` for rings, the length as listed on the
 a piece off automatically, and setting an order to `cancelled` puts it back. When you sell on Instagram,
 WhatsApp or in person, lower the quantity yourself; when new pieces arrive, add a row (**Insert**) or raise it.
 
+**A sale on Instagram, WhatsApp or in person** — sign in on **My Account** → **Record a Sale**, fill it in and click
+**Record Sale**. It gets the next S number, stock goes down and it reaches the workbook within 10 minutes. If you type the
+customer's email (and leave the box ticked), they are emailed the receipt and the care and warranty card, as after a
+website order. Either way, **Download Receipt (PDF)** on the next screen gives you the receipt to send on WhatsApp.
+
 **Mailing list** — sign-ups from the footer form are in **Table Editor → newsletter_subscribers**, each with the
 consent wording, date and page. To unsubscribe someone, set **status** to `unsubscribed` (keep the row, so they
 are never emailed again); newsletter_events keeps the history. When you start sending newsletters, export the

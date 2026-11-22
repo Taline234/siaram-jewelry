@@ -1693,3 +1693,16 @@ $$;
 revoke execute on function public.workbook_orders(), public.claim_workbook_sync(), public.finish_workbook_sync(text)
   from public, anon, authenticated;
 grant execute on function public.workbook_orders(), public.claim_workbook_sync(), public.finish_workbook_sync(text) to service_role;
+
+-- ---------------------------------------------------------------- receipts for recorded sales
+-- An order's details for its receipt PDF (the owner's "Download receipt" button), with the sale date and channel.
+create or replace function public.order_receipt(p_reference text) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select public.order_summary(o.id)
+         || jsonb_build_object('channel', o.channel,
+                               'sale_date', to_char((o.created_at at time zone 'Asia/Beirut')::date, 'YYYY-MM-DD'))
+    from public.orders o
+   where o.reference = upper(trim(p_reference));
+$$;
+revoke execute on function public.order_receipt(text) from public, anon, authenticated;
+grant execute on function public.order_receipt(text) to service_role;

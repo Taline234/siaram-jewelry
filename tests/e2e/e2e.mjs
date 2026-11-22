@@ -515,6 +515,9 @@ await page.click('.account-tabs a[href="#sale"]');
 await page.waitForSelector('.sale-form');
 await page.selectOption('.sale-form [name=channel]', 'Instagram');
 await page.fill('.sale-form [name=customer_name]', 'Maya Khoury');
+await page.fill('.sale-form [name=email]', 'maya.k@example.com');
+assert.ok(await page.isChecked('.sale-form [name=send_receipt]'), 'emailing the receipt is ticked by default');
+await setState({ emails: [] });
 await page.selectOption('.sale-line [name=slug]', 'horseshoe-necklace');
 assert.ok(Number(await page.inputValue('.sale-line [name=unit_price]')) > 0, 'choosing a piece fills in its price');
 await page.fill('.sale-line [name=unit_price]', '400');
@@ -536,8 +539,15 @@ assert.match(saleRef, /^S\d{3}$/);
 const [saleRow] = await q(`select channel, payment_method, status, (select count(*)::int from order_items i where i.order_id = o.id) as lines
                             from orders o where reference = '${saleRef}'`);
 assert.deepEqual([saleRow.channel, saleRow.payment_method, saleRow.status, saleRow.lines], ['Instagram', 'card', 'preparing', 2]);
+const receiptMail = (await setState({})).emails.find((e) => e.to[0] === 'maya.k@example.com');
+assert.equal(receiptMail?.subject, `Your Siaram receipt ${saleRef}`);
+assert.equal(receiptMail.attachments.length, 2, 'receipt and care and warranty card');
+assert.match(await page.locator('.sale-receipt-note').textContent(), /emailed to maya\.k@example\.com/);
+const [receiptDownload] = await Promise.all([page.waitForEvent('download'), page.click('.sale-receipt')]);
+assert.equal(receiptDownload.suggestedFilename(), `Siaram-receipt-${saleRef}.pdf`);
+assert.equal(fs.readFileSync(await receiptDownload.path()).subarray(0, 4).toString(), '%PDF');
 await setState({ ownerEmails: 'owner@siaram.test' });
-step('the owner records an Instagram sale with two pieces; it gets the next order number');
+step('the owner records an Instagram sale with two pieces; it gets the next order number, the customer gets the receipt, and the owner can download it');
 
 await page.goto(`${ORIGIN}/account.html#details`);
 await page.waitForSelector('.details-form');

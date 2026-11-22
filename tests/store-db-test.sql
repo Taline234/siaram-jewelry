@@ -575,4 +575,9 @@ select pg_temp.check(not has_function_privilege('anon', 'public.workbook_orders(
                      and not has_function_privilege('authenticated', 'public.claim_workbook_sync()', 'execute'),
   'only the server can read orders for the workbook');
 
+select pg_temp.check((select order_receipt(lower(:'rs_ref')) @> jsonb_build_object('reference', :'rs_ref', 'channel', 'Instagram'))
+                     and order_receipt('S999') is null,
+  'a recorded sale''s receipt details can be looked up by its number');
+select pg_temp.check(not has_function_privilege('anon', 'public.order_receipt(text)', 'execute'), 'only the server can read receipts');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'

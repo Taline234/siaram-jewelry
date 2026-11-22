@@ -1587,6 +1587,9 @@ legend {
 .sale-line .sale-stock { margin: 0 0 12px; white-space: nowrap; font-size: 0.92rem; }
 .sale-line .sale-remove { margin-bottom: 14px; }
 .sale-form .sale-add { margin: 10px 0 18px; }
+.sale-form > .check { margin: 4px 0 14px; }
+.order-done .sale-receipt-note { font-size: 1rem; }
+.sale-done-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
 .sale-total { font-family: var(--font-serif); font-size: 1.15rem; margin: 6px 0 10px; }
 @media (max-width: 760px) {
   .sale-line { grid-template-columns: 1fr 1fr; }

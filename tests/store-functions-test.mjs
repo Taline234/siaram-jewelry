@@ -825,12 +825,49 @@ test('only the owner can record a sale, and the sale is passed on to the databas
   assert.equal((await post(sale)).status, 403);
   assert.ok(!calls.some((c) => c.url.endsWith('/record_sale')));
   who = { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: '2026-01-01' };
-  assert.deepEqual(await (await post(sale)).json(), { reference: 'S019', total: 450, status: 'delivered' });
+  assert.deepEqual(await (await post(sale)).json(), { reference: 'S019', total: 450, status: 'delivered', receipt_emailed: null });
   const sent = calls.find((c) => c.url.endsWith('/record_sale')).body.p;
   assert.deepEqual(sent.items[0], { slug: 'horseshoe-necklace', metal: 'rose', size: '', quantity: 1, unit_price: 450, from_stock: true });
   assert.equal(sent.channel, 'Instagram');
   assert.match((await (await post({ ...sale, email: 'not-an-email' })).json()).error, /email/);
-  assert.equal(emails().length, 0, 'recording a sale sends no email');
+  assert.equal(emails().length, 0, 'recording a sale sends no email unless asked');
+});
+
+test('a recorded sale can email the customer the receipt and care card, and the owner can download the receipt', async () => {
+  handlers['/auth/v1/user'] = () => [200, { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: '2026-01-01' }];
+  const recorded = { reference: 'S019', customer_name: 'Nour Saad', email: 'nour@example.com', phone: '70', payment_method: 'card',
+    status: 'delivered', subtotal: 450, total: 450, voucher_amount: 0,
+    items: [{ sku: 'NK-11', name: 'Horseshoe Necklace', unit_price: 450, quantity: 1, metal: 'rose', size: '', made_to_order: false }] };
+  handlers['/rest/v1/rpc/record_sale'] = () => [200, recorded];
+  const post = (body) => recordSale(new Request('https://siaram.test/functions/v1/record-sale',
+    { method: 'POST', headers: { authorization: 'Bearer t' }, body: JSON.stringify(body) }));
+  const sale = { channel: 'Instagram', customer_name: 'Nour Saad', email: 'nour@example.com', payment_method: 'card',
+    sale_date: '2026-11-03', send_receipt: true,
+    items: [{ slug: 'horseshoe-necklace', metal: 'rose', quantity: 1, unit_price: '450', from_stock: true }] };
+  const out = await (await post(sale)).json();
+  assert.equal(out.receipt_emailed, 'nour@example.com');
+  const [mail] = emails();
+  assert.equal(mail.to[0], 'nour@example.com');
+  assert.equal(mail.subject, 'Your Siaram receipt S019');
+  assert.deepEqual(mail.attachments.map((a) => a.filename), ['Siaram-receipt-S019.pdf', 'Siaram-care-and-warranty-S019.pdf']);
+  const { PDFDocument } = await import('pdf-lib');
+  assert.match((await PDFDocument.load(Buffer.from(mail.attachments[0].content, 'base64'))).getTitle(), /receipt S019/);
+
+  calls.length = 0;
+  assert.equal((await (await post({ ...sale, send_receipt: false })).json()).receipt_emailed, null);
+  assert.equal(emails().length, 0, 'no email when the box is unticked');
+
+  handlers['/rest/v1/rpc/order_receipt'] = (c) => [200, c.body.p_reference === 'S019' ? { ...recorded, channel: 'Instagram', sale_date: '2026-11-03' } : null];
+  const get = (q) => recordSale(new Request(`https://siaram.test/functions/v1/record-sale?receipt=${q}`, { headers: { authorization: 'Bearer t' } }));
+  const pdf = await get('s019');
+  assert.equal(pdf.status, 200);
+  assert.equal(pdf.headers.get('content-type'), 'application/pdf');
+  assert.match(pdf.headers.get('content-disposition'), /Siaram-receipt-S019\.pdf/);
+  assert.equal(Buffer.from(await pdf.arrayBuffer()).subarray(0, 4).toString(), '%PDF');
+  assert.equal((await get('S020')).status, 404);
+  assert.equal((await get('drop')).status, 400);
+  handlers['/auth/v1/user'] = () => [200, { email: 'rana@example.com', email_confirmed_at: '2026-01-01' }];
+  assert.equal((await get('S019')).status, 403, 'only the owner can download receipts');
 });
 
 test('the workbook download is one Excel file with a Sales tab and a Customers tab', async () => {

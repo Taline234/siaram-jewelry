@@ -110,8 +110,12 @@ export function itemDescription(item) {
   return parts.join('\n');
 }
 
+// How a sale recorded by the owner (in person, Instagram, WhatsApp...) was paid.
+const RECORDED_PAYMENT = { cash: 'Cash', whish: 'Whish', card: 'Card', bank: 'Bank transfer', voucher: 'Gift voucher' };
+
 function paymentLabel(order) {
   if (Number(order.total) <= 0) return 'Gift voucher';
+  if (order.channel && order.channel !== 'Website') return RECORDED_PAYMENT[order.payment_method] || 'Cash';
   const made = (order.items || []).some((i) => i.made_to_order);
   const ready = (order.items || []).some((i) => !i.made_to_order);
   if (made && ready) return 'Cash on delivery + Whish';
