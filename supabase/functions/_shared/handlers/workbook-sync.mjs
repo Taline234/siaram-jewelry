@@ -5,7 +5,7 @@
 //   - Cash Received Now is filled in once a website order is delivered,
 //   - the rows of a cancelled order are removed.
 // Rows are matched by invoice number and SKU, so rows pasted by hand from the download are never added twice,
-// and anything you type in the sheet yourself is left as it is. If a copy fails, you get one email saying why.
+// and anything you type in the sheet yourself is left as it is. If a copy fails, you get one email per reason.
 import { configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
 import { customerRows, salesRows } from '../workbook.mjs';
 import { deleteRows, googleToken, readRange, sheetsConfigured, tab, tabIds, writeRanges } from '../google-sheets.mjs';
@@ -140,7 +140,7 @@ export default async (req) => {
     const message = err instanceof Error ? err.message : String(err);
     console.error('workbook-sync', err);
     const previous = await rpc('finish_workbook_sync', { p_error: message }).catch(() => message);
-    if (!previous) {
+    if (previous !== message) {
       await sendEmail({
         to: env('ORDER_NOTIFY_EMAIL'),
         subject: 'The workbook could not be updated',
@@ -149,7 +149,7 @@ export default async (req) => {
            workbook. It tries again every 10 minutes, and nothing is lost in the meantime.</p>
            <p style="font-size:15px;line-height:1.6">The reason Google gave: <strong>${escapeHtml(message)}</strong></p>
            <p style="font-size:15px;line-height:1.6">See "Finance workbook in Google Sheets" in STORE-SETUP.md. You won't get
-           this email again until it has worked once.</p>`),
+           this email again for the same reason; if the reason changes, you will.</p>`),
       });
     }
     return json({ error: message }, 500);

@@ -1679,7 +1679,7 @@ begin
 end;
 $$;
 
--- Ends a run; returns the previous error, so a new problem is emailed once and not every 10 minutes.
+-- Ends a run; returns the previous error, so each new problem is emailed once and not every 10 minutes.
 create or replace function public.finish_workbook_sync(p_error text) returns text
 language plpgsql security definer set search_path = public as $$
 declare v_previous text;
