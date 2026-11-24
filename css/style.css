@@ -2668,6 +2668,13 @@ main:focus { outline: none; }
 .custom-form.is-not-sure .guidance-box { border-left-width: 4px; }
 .message-route { margin: 0 0 12px; font-family: var(--font-serif); font-size: 1.02rem; color: var(--green-deep); }
 
+/* Home page: four client reviews in a row (two on tablets, one on phones); a long review uses smaller type */
+.review-grid-four { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.review-grid-four .review-card blockquote { font-size: 1.2rem; margin-left: 16px; margin-right: 16px; }
+.review-grid-four .review-card-long blockquote { font-size: 1rem; line-height: 1.45; }
+@media (max-width: 1100px) { .review-grid-four { grid-template-columns: repeat(2, 1fr); max-width: 760px; margin: 0 auto; } }
+@media (max-width: 600px) { .review-grid-four { grid-template-columns: 1fr; max-width: 420px; } }
+
 /* Phone boxes: flag and country code in front of the number (js/phone.js) */
 .phone-field { display: flex; width: 100%; }
 .phone-field input { order: 2; flex: 1; min-width: 0; border-top-left-radius: 0 !important; border-bottom-left-radius: 0 !important; }

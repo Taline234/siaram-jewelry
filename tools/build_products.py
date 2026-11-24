@@ -24,6 +24,9 @@ REVIEWS = {
         ("Obsessed &#128525;", "", "images/reviews/horseshoe-bracelet.jpg"),
         ("Thank u girlie, I love it so much &#129293;&#129293;&#129293;", "", "images/reviews/horseshoe-bracelet-flat.jpg"),
     ],
+    "crescent-moon-ring": [
+        ("All the beautiful pieces I have from Siaram are staples in my day to day accessories and they never disappoint. I&rsquo;m constantly getting compliments on my crescent moon ring and my custom name bracelet. They hold up really well and I can&rsquo;t wait to buy more from Siaram! I love how all their pieces have a perfect balance of bold and dainty!", "", "images/reviews/lune-ring.jpg"),
+    ],
 }
 
 
@@ -37,7 +40,7 @@ def reviews_html(p):
     return f"""<section class="reviews">
   <div class="container">
     <div class="section-head reveal"><span class="eyebrow">From Our Clients</span><h2>Loved and Worn</h2></div>
-    <div class="review-grid">
+    <div class="review-grid{' review-grid-single' if len(items) == 1 else ''}">
 {cards}
     </div>
   </div>
