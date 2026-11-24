@@ -87,13 +87,14 @@ step('the unsubscribe link in the welcome email removes the subscriber');
 
 await page.goto(`${ORIGIN}/custom.html`);
 await page.waitForSelector('.custom-form');
-assert.ok(await page.locator('.design-details').evaluate((d) => !d.open), 'design details start folded away');
+assert.ok(await page.locator('.design-question').isHidden(), 'the design question waits for the type of piece');
 assert.equal(await page.locator('.custom-form h2, .custom-request h2').first().textContent(), 'Tell us about your idea');
 assert.match(await page.locator('.custom-form .reply-time').textContent(), /within 2 days/);
 await page.click('.custom-form button[type=submit]');
 assert.match(await page.locator('.custom-form .form-msg').textContent(), /type of piece/);
 // "Not sure yet" offers guidance; the guidance checkbox flags the request without booking anything.
 assert.ok(await page.locator('.guidance-box').isHidden());
+await page.evaluate(() => window.scrollTo(0, document.querySelector('.custom-form').getBoundingClientRect().top + window.scrollY - 120));
 await page.check('.custom-form [name=piece][value="Not sure yet"]', { force: true });
 assert.ok(await page.locator('.guidance-box').isVisible(), '"Not sure yet" shows "Need a little guidance?"');
 assert.ok(await page.locator('.call-fields').isVisible(), '"Not sure yet" opens the guidance call request straight away');
@@ -104,19 +105,32 @@ assert.ok(await page.locator('.call-fields').isHidden(), '"I\'d rather you messa
 assert.equal(await page.locator('.guidance-notes-label').textContent(), 'What would you like guidance on?');
 assert.ok(await page.locator('.message-route').isVisible(), 'and says we will contact them by their chosen method');
 assert.ok(await page.locator('.custom-form [name=guidance_notes]').evaluate((t) => t.required), 'without a call, the guidance box must be filled in');
-await page.uncheck('.custom-form [name=guidance]');
 assert.equal(await page.locator('.custom-form').getByText(/book a guidance call/i).count(), 0, 'no booking button until a booking system exists');
 assert.ok(await page.locator('.size-studio').isHidden(), 'no size question until the type of piece has sizes');
 await page.check('.custom-form [name=piece][value=Ring]', { force: true });
 assert.ok(await page.locator('.guidance-box').isHidden(), 'the guidance box goes once a piece is chosen');
-assert.ok(await page.locator('.idea-fields').isVisible(), 'and the idea fields come back');
+assert.ok(await page.locator('.design-question').isVisible(), 'a piece asks: do you know what you would like it to look like?');
+assert.ok(await page.locator('.idea-fields').isHidden(), 'nothing more until that is answered');
+await page.click('.custom-form button[type=submit]');
+assert.match(await page.locator('.custom-form .form-msg').textContent(), /know what you would like it to look like/);
+// "Not sure about the design": guidance instead of the design questions; size, photos, budget and date stay.
+await page.check('.custom-form [name=design][value=help]', { force: true });
+assert.ok(await page.locator('.guidance-box').isVisible(), '"Not sure about the design" offers guidance');
+assert.ok(await page.locator('.design-details').isHidden(), 'and skips the design questions');
+assert.ok(await page.locator('.size-panel[data-for=Ring]').isVisible(), 'the ring size picker is still there');
+assert.ok(await page.locator('.guidance-check').isHidden(), 'the guidance tick box is implied');
+assert.equal(await page.locator('.guidance-notes-label').textContent(), 'What would you like guidance on?');
+// "Yes, I have an idea": the design section, open (no fold-out), with the idea first.
+await page.check('.custom-form [name=design][value=know]', { force: true });
+assert.ok(await page.locator('.guidance-box').isHidden(), 'knowing the design needs no guidance box');
+assert.ok(await page.locator('.design-details').isVisible() && await page.locator('.custom-form [name=description]').isVisible(),
+  '"Yes, I have an idea" shows the idea box and the design choices straight away');
 // The phone is required only for a call, text or WhatsApp.
 await page.check('.custom-form [name=preferred_contact][value=Email]');
 assert.match(await page.locator('.phone-label').textContent(), /optional/);
 await page.check('.custom-form [name=preferred_contact][value=WhatsApp]');
 assert.doesNotMatch(await page.locator('.phone-label').textContent(), /optional/);
-// Design details: open, choose, close and reopen; the choices stay.
-await page.click('.design-details summary');
+// Design details: "Not sure" in a field offers help.
 await page.check('.custom-form [name=gold][value="Not sure — please advise"]', { force: true });
 assert.ok(await page.locator('[data-help-for=gold]').isVisible(), '"Not sure" in a design field shows help beside it');
 await page.click('[data-help-for=gold] .ask-guidance');
@@ -141,10 +155,9 @@ await page.click('.finger-choice[data-finger=ring]');
 assert.equal(await page.inputValue('.custom-form [name=size]'), 'EU 54 · US 7, ring finger', 'choosing a finger adds it to the size');
 await page.click('.finger-choice[data-finger=ring]');
 assert.equal(await page.inputValue('.custom-form [name=size]'), 'EU 54 · US 7', 'choosing a size fills the size box');
-await page.click('.design-details summary');
-assert.ok(await page.locator('.design-details').evaluate((d) => !d.open));
-await page.click('.design-details summary');
-assert.equal(await page.inputValue('.custom-form [name=stones_other]'), 'Amethyst', 'closing and reopening keeps what was entered');
+await page.check('.custom-form [name=design][value=help]', { force: true });
+await page.check('.custom-form [name=design][value=know]', { force: true });
+assert.equal(await page.inputValue('.custom-form [name=stones_other]'), 'Amethyst', 'switching the design answer back and forth keeps what was entered');
 await page.fill('.custom-form [name=description]', 'An oval diamond ring with my initials inside');
 await page.setInputFiles('.custom-form [name=files]', { name: 'sketch.png', mimeType: 'image/png', buffer: Buffer.from([137, 80, 78, 71]) });
 await page.fill('.custom-form [name=name]', 'Nour Aoun');

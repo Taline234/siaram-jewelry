@@ -10,14 +10,16 @@ const NOT_SURE = 'Not sure — please advise';
 // A call, text or WhatsApp needs a phone number; an email reply does not.
 const PHONE_NEEDED = ['Call', 'Text message', 'WhatsApp'];
 const phoneNeeded = (f) => PHONE_NEEDED.includes(f.elements.preferred_contact.value);
+// Guided: the customer is not sure of the piece, or knows the piece but not the design. We help instead of asking for the design.
+const guided = (f) => f.elements.piece.value === 'Not sure yet' || f.elements.design.value === 'help';
 
 // Only what the customer can see is checked: optional design details never block sending.
 function problem(f) {
   if (!f.elements.piece.value) return ['Please choose the type of piece, or "Not sure yet".', f.querySelector('[name=piece]')];
+  if (!guided(f) && !f.elements.design.value) return ['Please tell us whether you know what you would like it to look like.', f.querySelector('[name=design]')];
   if (!f.elements.preferred_contact.value) return ['Please choose how you would like us to contact you.', f.querySelector('[name=preferred_contact]')];
-  // "Not sure yet": the idea is optional (the guidance box has its own optional notes).
-  const notSure = f.elements.piece.value === 'Not sure yet';
-  for (const name of [...(notSure ? [] : ['description']), 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
+  // Guided requests have no design to describe: the guidance box asks what they would like help with.
+  for (const name of [...(guided(f) ? [] : ['description']), 'name', 'email', ...(phoneNeeded(f) ? ['phone'] : [])]) {
     const el = f.elements[name];
     if (!el.value.trim() || !el.checkValidity()) {
       if (name === 'email') return ['Please enter a valid email address.', el];
@@ -71,7 +73,7 @@ function setupGuidance(f) {
   const check = f.elements.guidance;
   if (!box || !check) return;
   const sync = () => {
-    box.hidden = !(f.elements.piece.value === 'Not sure yet' || check.checked || f.elements.call_requested.value === 'yes');
+    box.hidden = !(guided(f) || check.checked || f.elements.call_requested.value === 'yes');
     const notSure = {
       gold: f.elements.gold.value === NOT_SURE,
       stones: Boolean(f.querySelector(`[name=stones][value="${NOT_SURE}"]`)?.checked),
@@ -104,7 +106,7 @@ function setupCallRequest(f) {
   const route = f.querySelector('.message-route');
   // With a call, the notes are optional; without one, "Not sure yet" customers say what they would like guidance on.
   const label = () => {
-    const byMessage = f.elements.piece.value === 'Not sure yet' && f.elements.call_requested.value !== 'yes';
+    const byMessage = guided(f) && f.elements.call_requested.value !== 'yes';
     notesLabel.textContent = byMessage ? 'What would you like guidance on?' : 'Anything you’d like us to know before we talk? (optional)';
     f.elements.guidance_notes.required = byMessage;
     route.hidden = !byMessage;
@@ -120,24 +122,47 @@ function setupCallRequest(f) {
   };
   f.elements.call_date.min = beirutToday();
   let declined = false;
-  toggle.addEventListener('click', () => { declined = false; set(true); f.elements.call_date.focus(); });
+  let autoCall = false; // the call request opened by itself on entering guided mode (not asked for by the customer)
+  toggle.addEventListener('click', () => { declined = false; autoCall = false; set(true); f.elements.call_date.focus(); });
   f.querySelector('.call-cancel').addEventListener('click', () => {
     declined = true;
     set(false);
-    if (f.elements.piece.value === 'Not sure yet') f.elements.guidance_notes.focus(); else toggle.focus();
+    if (guided(f)) f.elements.guidance_notes.focus(); else toggle.focus();
   });
-  f.querySelectorAll('[name=piece]').forEach((r) => r.addEventListener('change', () => {
-    const notSure = f.elements.piece.value === 'Not sure yet';
-    f.classList.toggle('is-not-sure', notSure);
-    f.querySelector('.idea-fields').hidden = notSure;
-    if (notSure) {
+  // Type of piece, then "Do you know what you'd like it to look like?":
+  //   "Yes, I have an idea"        -> your idea and the optional design choices;
+  //   "Not sure about the design"  -> the guidance box (a call, or tell us what you'd like help with);
+  //   "Not sure yet" (the piece)   -> straight to guidance, no design question.
+  // Size, inspiration, budget and date are for everyone once the piece is chosen (and the design question answered).
+  const question = f.querySelector('.design-question');
+  const ideas = f.querySelector('.idea-fields');
+  const design = f.querySelector('.design-details');
+  let wasGuided = false;
+  let askedBefore = false; // guidance asked for from a design field before switching to guided mode
+  const flow = () => {
+    const piece = f.elements.piece.value;
+    question.hidden = !piece || piece === 'Not sure yet';
+    const isGuided = guided(f);
+    f.classList.toggle('is-guided', isGuided);
+    f.classList.toggle('is-not-sure', piece === 'Not sure yet');
+    ideas.hidden = !piece || piece === 'Not sure yet' || !f.elements.design.value;
+    design.hidden = isGuided;
+    if (isGuided) {
+      if (!wasGuided) askedBefore = f.elements.guidance.checked;
       f.elements.guidance.checked = true;
-      if (!declined) set(true);
+      if (!declined && f.elements.call_requested.value !== 'yes') { set(true); autoCall = true; }
+      f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true }));
+    } else if (wasGuided) {
+      if (autoCall) { set(false); autoCall = false; }
+      // Leaving guided mode: the guidance it implied goes (guidance asked for from a design field stays).
+      f.elements.guidance.checked = askedBefore || f.elements.call_requested.value === 'yes';
       f.elements.guidance.dispatchEvent(new Event('change', { bubbles: true }));
     }
+    wasGuided = isGuided;
     label();
-  }));
-  label();
+  };
+  f.querySelectorAll('[name=piece], [name=design]').forEach((r) => r.addEventListener('change', flow));
+  flow();
 }
 function callProblem(f) {
   if (f.elements.call_requested.value !== 'yes') {
@@ -315,6 +340,8 @@ if (form) {
         const data = new FormData(form);
         // With no stones, a cut or setting chosen earlier does not apply.
         if (data.getAll('stones').includes('No stones')) { data.delete('cut'); data.delete('setting'); }
+        // Guided: the design section is hidden, so anything typed or chosen there before switching is not sent.
+        if (guided(form)) ['description', 'gold', 'stones', 'stones_other', 'cut', 'setting'].forEach((k) => data.delete(k));
         const res = await fetch(apiUrl('custom-request'), { method: 'POST', body: data });
         const body = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(body.error || 'Sorry, your request could not be sent. Please try again or email us.');

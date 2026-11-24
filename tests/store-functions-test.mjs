@@ -633,6 +633,19 @@ test('"Not sure yet" needs no idea: the notes for the call are kept with the req
   assert.match((await (await post(g)).json()).error, /what you would like guidance on, or request a guidance call/,
     'without a call, a not-sure customer says what they would like guidance on');
   assert.match((await (await post(customForm({ description: '' }))).json()).error, /tell us a little about your idea/, 'other pieces still need the idea');
+  // A ring, "Not sure about the design": no idea needed, guidance is flagged.
+  calls.length = 0;
+  const h = new FormData();
+  for (const [k, v] of Object.entries({ piece: 'Ring', design: 'help', name: 'Rana', email: 'rana@example.com', preferred_contact: 'Email',
+    guidance_notes: 'Something simple for every day' })) h.append(k, v);
+  assert.deepEqual(await (await post(h)).json(), { reference: 'CR006' });
+  const ring = calls.find((c) => c.url.endsWith('/save_custom_request')).body.p;
+  assert.equal(ring.description, 'Notes for the guidance call: Something simple for every day');
+  assert.equal(ring.guidance, true, '"Not sure about the design" is a guidance request');
+  calls.length = 0;
+  const k = new FormData();
+  for (const [key, v] of Object.entries({ piece: 'Ring', design: 'help', name: 'Rana', email: 'rana@example.com', preferred_contact: 'Email' })) k.append(key, v);
+  assert.match((await (await post(k)).json()).error, /what you would like guidance on/, 'without a call, say what you would like help with');
 });
 
 test('custom requests refuse a missing choice, wrong files and spam', async () => {
