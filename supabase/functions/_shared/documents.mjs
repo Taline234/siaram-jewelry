@@ -110,8 +110,12 @@ export function itemDescription(item) {
   return parts.join('\n');
 }
 
+// How a sale recorded by the owner (in person, Instagram, WhatsApp...) was paid.
+const RECORDED_PAYMENT = { cash: 'Cash', whish: 'Whish', card: 'Card', bank: 'Bank transfer', voucher: 'Gift voucher' };
+
 function paymentLabel(order) {
   if (Number(order.total) <= 0) return 'Gift voucher';
+  if (order.channel && order.channel !== 'Website') return RECORDED_PAYMENT[order.payment_method] || 'Cash';
   const made = (order.items || []).some((i) => i.made_to_order);
   const ready = (order.items || []).some((i) => !i.made_to_order);
   if (made && ready) return 'Cash on delivery + Whish';
@@ -121,7 +125,8 @@ function paymentLabel(order) {
 function billTo(order) {
   const lines = [order.customer_name];
   lines.push([order.street, order.building && `Building ${order.building}`, order.floor && `Floor ${order.floor}`].filter(Boolean).join(', '));
-  lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
+  // Sales recorded by the owner may have no address, or one typed on a single line.
+  if (order.city || order.governorate) lines.push([order.city, order.governorate, 'Lebanon'].filter(Boolean).join(', '));
   lines.push(order.phone, order.email);
   return lines.filter(Boolean);
 }

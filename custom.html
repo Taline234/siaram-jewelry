@@ -451,8 +451,8 @@
       <div class="form-grid">
         <label class="field"><span>Full name</span><input name="name" required maxlength="200" autocomplete="name" /></label>
         <label class="field"><span>Email</span><input name="email" type="email" required maxlength="200" autocomplete="email" /></label>
-        <label class="field"><span class="phone-label">Phone (with country code)</span>
-          <input name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="+961 70 123 456" aria-describedby="phone-note" />
+        <label class="field"><span class="phone-label">Phone</span>
+          <input name="phone" type="tel" maxlength="40" autocomplete="tel" placeholder="70 123 456" aria-describedby="phone-note" />
           <small class="field-note" id="phone-note">Needed if you would like a call, text or WhatsApp.</small></label>
       </div>
       <fieldset class="contact-pref">
@@ -1041,6 +1041,7 @@
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 <script src="js/script.js"></script>
+<script src="js/phone.js"></script>
 <script src="js/store-config.js"></script>
 <script type="module" src="js/store.js"></script>
 <script type="module" src="js/custom-request.js"></script>

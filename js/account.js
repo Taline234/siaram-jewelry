@@ -90,7 +90,7 @@ function renderSignedOut(notice = '') {
         ${field('last_name', 'Last name', 'required autocomplete="family-name"')}
       </div>
       ${field('email', 'Email', 'type="email" required autocomplete="email"')}
-      ${field('phone', 'Phone (with country code if outside Lebanon)', 'type="tel" required autocomplete="tel" placeholder="+961 70 123 456"')}
+      ${field('phone', 'Phone', 'type="tel" required autocomplete="tel" placeholder="70 123 456"')}
       ${field('password', 'Password (at least 8 characters)', 'type="password" required minlength="8" autocomplete="new-password"')}
       ${birthdayField()}
       <label class="check"><input type="checkbox" name="accept" required /> <span>I am 18 or older and agree to the
@@ -293,7 +293,7 @@ async function renderAddresses(panel) {
       <div class="form-grid">
         ${field('label', 'Label (e.g. Home, Work)')}
         ${field('recipient_name', 'Recipient name', 'required')}
-        ${field('phone', 'Phone', 'type="tel" required placeholder="+961"')}
+        ${field('phone', 'Phone', 'type="tel" required placeholder="70 123 456"')}
         <label class="field"><span>Governorate</span><select name="governorate" required><option value="">Choose&hellip;</option>
           ${open.map((a) => `<option>${escapeHtml(a.governorate)}</option>`).join('')}</select></label>
         ${field('city', 'Town / area', 'required')}
@@ -591,7 +591,7 @@ async function renderSale(panel, session) {
       <label class="field"><span>Piece</span><select name="slug"><option value="">Choose a piece</option>
         ${options((products || []).map((p) => [p.slug, p.sku ? `${p.name} (${p.sku})` : p.name]))}</select></label>
       <label class="field"><span>Gold</span><select name="metal">${options(METALS, 'yellow')}</select></label>
-      <label class="field sale-size"><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
+      <label class="field sale-size" hidden><span>Size</span><select name="size" disabled><option value="">—</option></select></label>
       <label class="field"><span>Qty</span><input name="quantity" type="number" min="1" max="10" value="1" /></label>
       <label class="field"><span>Price each ($)</span><input name="unit_price" type="number" min="0" step="0.01" /></label>
       <label class="check sale-stock"><input type="checkbox" name="from_stock" checked /> <span>Taken from stock</span></label>
@@ -601,14 +601,16 @@ async function renderSale(panel, session) {
   panel.innerHTML = `<form class="auth-card sale-form" novalidate>
       <h3>Record a Sale</h3>
       <p class="field-note">For sales made in person, on Instagram, on WhatsApp or at an event. The sale gets the next order
-        number, pieces taken from stock come off your stock, and it appears in your Workbook download. No email is sent.</p>
+        number, pieces taken from stock come off your stock, and it goes into your workbook. If you enter the customer's
+        email, they are emailed the receipt and the care and warranty card straight away; you can also download the receipt to send on WhatsApp.</p>
       <div class="form-grid">
         ${field('sale_date', 'Date of the sale', `type="date" value="${today}" max="${today}"`)}
         <label class="field"><span>Where was it sold?</span><select name="channel">
           ${options([['In person', 'In person'], ['Instagram', 'Instagram'], ['WhatsApp', 'WhatsApp'], ['Event', 'Event or pop-up'], ['Other', 'Other']], 'In person')}</select></label>
         ${field('customer_name', "Customer's name", 'required maxlength="200"')}
         ${field('phone', 'Phone or WhatsApp (optional)', 'type="tel" maxlength="40"')}
-        ${field('email', 'Email (optional)', 'type="email" maxlength="200"')}
+        ${field('email', 'Email (optional, to send the receipt)', 'type="email" maxlength="200"')}
+        ${field('address', 'Address (optional)', 'maxlength="300" autocomplete="off"')}
       </div>
       <h4 class="sale-sub">Pieces</h4>
       <div class="sale-lines">${line()}</div>
@@ -639,9 +641,11 @@ async function renderSale(panel, session) {
     const sizeSelect = l.querySelector('[name=size]');
     if (priceToo) {
       l.querySelector('[name=unit_price]').value = p && p.price != null ? Number(p.price) : '';
-      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value="">—</option>';
+      sizeSelect.innerHTML = p && p.sizes ? options(p.sizes.map((z) => [z, z])) : '<option value=""></option>';
     }
+    // Only rings and bracelets come in sizes; necklaces and earrings are sold in their standard size, so no box.
     sizeSelect.disabled = !(p && p.sizes);
+    l.querySelector('.sale-size').hidden = !(p && p.sizes);
     if (p) {
       const key = `${p.slug}|${l.querySelector('[name=metal]').value}|${p.sizes ? sizeSelect.value : ''}`;
       l.querySelector('[name=from_stock]').checked = inStock.has(key);
@@ -684,6 +688,7 @@ async function renderSale(panel, session) {
         body: JSON.stringify({
           sale_date: f.sale_date.value, channel: f.channel.value, customer_name: f.customer_name.value, phone: f.phone.value,
           email: f.email.value, payment_method: f.payment_method.value, voucher_code: f.voucher_code.value, notes: f.notes.value, items,
+          address: f.address.value,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -692,10 +697,41 @@ async function renderSale(panel, session) {
           <span class="eyebrow">Sale recorded</span>
           <h2>${escapeHtml(body.reference)}</h2>
           <p>Total ${money(body.total)}. ${body.status === 'preparing' ? 'Pieces not taken from stock are marked as being made.' : 'Stock has been updated.'}
-            It will be in your next Workbook download.</p>
-          <button type="button" class="btn btn-outline sale-again">Record Another Sale</button>
+            It will be in your workbook within 10 minutes.</p>
+          <p class="sale-receipt-note">${body.receipt_emailed
+            ? `The receipt and the care and warranty card were emailed to ${escapeHtml(body.receipt_emailed)}.`
+            : 'No email was sent. Download the receipt to send it on WhatsApp.'}</p>
+          <p class="form-msg form-error" role="alert"></p>
+          <div class="sale-done-actions">
+            <button type="button" class="btn btn-primary sale-receipt">Download Receipt (PDF)</button>
+            <button type="button" class="btn btn-outline sale-again">Record Another Sale</button>
+          </div>
         </div>`;
       panel.querySelector('.sale-again').addEventListener('click', () => renderSale(panel, session));
+      const receiptBtn = panel.querySelector('.sale-receipt');
+      receiptBtn.addEventListener('click', async () => {
+        const msg = panel.querySelector('.form-msg');
+        msg.textContent = '';
+        receiptBtn.disabled = true;
+        try {
+          const { data: { session: now } } = await client.auth.getSession();
+          const r = await fetch(`${apiUrl('record-sale')}?receipt=${encodeURIComponent(body.reference)}`, {
+            headers: { authorization: `Bearer ${(now || session).access_token}` },
+          });
+          if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Could not prepare the receipt.');
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(await r.blob());
+          link.download = `Siaram-receipt-${body.reference}.pdf`;
+          document.body.append(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        } catch (err) {
+          msg.textContent = err.message;
+        } finally {
+          receiptBtn.disabled = false;
+        }
+      });
     } catch (err) {
       formMessage(form, err.message);
       button.disabled = false;

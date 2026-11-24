@@ -154,6 +154,11 @@ empty for necklaces and earrings, `EU 54` for rings, the length as listed on the
 a piece off automatically, and setting an order to `cancelled` puts it back. When you sell on Instagram,
 WhatsApp or in person, lower the quantity yourself; when new pieces arrive, add a row (**Insert**) or raise it.
 
+**A sale on Instagram, WhatsApp or in person** — sign in on **My Account** → **Record a Sale**, fill it in and click
+**Record Sale**. It gets the next S number, stock goes down and it reaches the workbook within 10 minutes. You can add their address. If you type the
+customer's email, they are emailed the receipt and the care and warranty card, as after a
+website order. Either way, **Download Receipt (PDF)** on the next screen gives you the receipt to send on WhatsApp.
+
 **Mailing list** — sign-ups from the footer form are in **Table Editor → newsletter_subscribers**, each with the
 consent wording, date and page. To unsubscribe someone, set **status** to `unsubscribed` (keep the row, so they
 are never emailed again); newsletter_events keeps the history. When you start sending newsletters, export the
@@ -192,6 +197,51 @@ a deletion notice after 24 months, and deletion 30 days later unless the custome
 records are kept.
 
 ---
+
+## Finance workbook in Google Sheets (fills itself in)
+
+Once this is set up, you no longer download or paste anything. Every 10 minutes the website copies into your
+workbook:
+- each piece sold on the website or recorded in **Record a Sale** (Instagram, WhatsApp, in person) → a new row in the
+  **Sales** tab, columns A to Z, with the formula columns left alone so your formulas keep working;
+- each new customer → a new row in the **Customers** tab (matched by name, as the workbook does);
+- **Cash Received Now** once a website order is delivered;
+- removes the rows of an order you set to `cancelled`.
+
+Rows are matched by invoice number (S017…) and SKU, so rows you already pasted are never added twice, and anything
+you type in the sheet yourself is kept. Expenses and anything else you track stay yours to type in. If a copy ever
+fails (for example the sheet was unshared), you get one email saying why; it keeps trying and nothing is lost.
+
+**Set-up (once, about 15 minutes, free):**
+
+1. **Put the workbook in Google Sheets.** Upload the Excel file to <https://drive.google.com>, open it, then
+   **File → Save as Google Sheets**. Check the tabs are still called **Sales** and **Customers**, and that the
+   headings **Invoice #** (Sales) and **Name** (Customers) are in column A. From now on use this Google Sheet;
+   **File → Download → Microsoft Excel** gives you an Excel copy whenever you want one.
+2. **Create the website's Google "robot" account** (a service account) at <https://console.cloud.google.com>,
+   signed in with the same Google account:
+   1. At the top, **Select a project → New project**, name it `siaram-workbook` → **Create**, and select it.
+   2. Search for **Google Sheets API** → **Enable**.
+   3. Menu → **IAM & Admin → Service Accounts → Create service account**, name `workbook` → **Create and continue**
+      → **Done** (no roles needed).
+   4. Click the new account → **Keys → Add key → Create new key → JSON → Create**. A small file downloads: it is a
+      password, keep it private. Note the account's email (it ends in `iam.gserviceaccount.com`).
+3. **Share the Google Sheet** with that email as an **Editor** (the Share button, untick "Notify people").
+4. In **Supabase → Edge Functions → Secrets**, add:
+
+   | Name | Value |
+   |---|---|
+   | `GOOGLE_SERVICE_ACCOUNT` | the whole contents of the downloaded JSON file (open it in TextEdit/Notepad, copy all) |
+   | `WORKBOOK_SHEET_ID` | the long code in the sheet's address, between `/d/` and `/edit` |
+
+   If you renamed the tabs, also add `WORKBOOK_SALES_TAB` and/or `WORKBOOK_CUSTOMERS_TAB` with their names.
+5. In **Supabase → SQL Editor**, run [`supabase/schema.sql`](supabase/schema.sql) again, then
+   [`supabase/cron.sql`](supabase/cron.sql) again (both are safe to re-run).
+6. Optional: to copy only sales from a certain day on (say you already pasted everything up to today), type that
+   date in **Table Editor → store_settings → workbook_sync_from**. Left empty, every sale is checked, and the ones
+   already in the sheet are recognised by their invoice number.
+
+Within 10 minutes the latest sales appear. The **Workbook** download below still works as a backup.
 
 **Finance workbook backup download** — sign in on the website's **My Account** page with your shop email
 (siaramjewelry@hotmail.com, finance@ or customerservice@siaramjewelry.com; to use other emails, add an `OWNER_EMAILS`
