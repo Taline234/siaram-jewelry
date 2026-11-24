@@ -94,12 +94,17 @@ export default async (req) => {
     if (!request.preferred_contact) throw new CustomerError('Please choose how you would like us to contact you.');
     if (!request.piece) throw new CustomerError('Please choose the type of piece.');
     const notes = text(form, 'guidance_notes', 2000);
-    if (request.piece === 'Not sure yet' && !request.call_requested && !notes && !request.description) {
+    // Guided: not sure of the piece, or of its design ("Not sure about the design"). No design is needed; we help.
+    const designHelp = text(form, 'design') === 'help';
+    const guided = request.piece === 'Not sure yet' || designHelp;
+    if (guided) request.guidance = true;
+    if (guided && !request.call_requested && !notes && !request.description) {
       throw new CustomerError('Please tell us what you would like guidance on, or request a guidance call.');
     }
-    if (request.piece === 'Not sure yet') {
+    if (guided) {
       request.description = [request.description, notes && `Notes for the guidance call: ${notes}`].filter(Boolean).join('\n\n')
-        || 'Not sure yet: would like some guidance.';
+        || (designHelp ? `A ${request.piece.toLowerCase()}, not sure about the design: would like some guidance.`
+          : 'Not sure yet: would like some guidance.');
     } else if (notes) {
       request.description = [request.description, `Notes for the guidance call: ${notes}`].filter(Boolean).join('\n\n');
     }

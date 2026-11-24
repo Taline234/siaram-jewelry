@@ -195,10 +195,18 @@
         </div>
       </fieldset>
 
+      <fieldset class="design-question" hidden>
+        <legend>Do you know what you&rsquo;d like it to look like?</legend>
+        <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="design" value="know" /><span>Yes, I have an idea</span></label>
+          <label class="choice-pill"><input type="radio" name="design" value="help" /><span>Not sure about the design</span></label>
+        </div>
+      </fieldset>
+
       <div class="guidance-box" hidden>
         <h3>Need a little guidance?</h3>
         <p>We can help you explore ideas, choose materials and find a starting point.</p>
-        <label class="check-field"><input type="checkbox" name="guidance" value="yes" /> <span>I&rsquo;d like some guidance</span></label>
+        <label class="check-field guidance-check"><input type="checkbox" name="guidance" value="yes" /> <span>I&rsquo;d like some guidance</span></label>
         <label class="field guidance-notes"><span class="guidance-notes-label">Anything you&rsquo;d like us to know before we talk? (optional)</span>
           <textarea name="guidance_notes" rows="3" maxlength="2000"
             placeholder="Who it is for, an occasion, styles or stones you like, a rough budget…"></textarea></label>
@@ -246,7 +254,79 @@
         </div>
       </div>
 
-      <div class="idea-fields">
+      <div class="idea-fields" hidden>
+      <div class="design-details">
+        <div class="design-details-head"><h3 class="design-details-title">Your design</h3>
+          <span class="design-details-sub">Describe it in your own words; the choices below are optional. Leave anything undecided and we will help.</span></div>
+        <div class="design-details-body">
+      <label class="field"><span>Your idea</span>
+        <textarea name="description" rows="5" required maxlength="4000"
+          placeholder="A name or initial, a symbol, a stone, an occasion, a piece you have seen…"></textarea></label>
+          <fieldset>
+            <legend>Gold colour <a class="guide-link size-guide-open" data-guide="gold" href="materials.html#gold">See the gold colours</a></legend>
+            <div class="choice-pills">
+          <label class="choice-pill"><input type="radio" name="gold" value="Yellow gold" /><span>Yellow gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="Rose gold" /><span>Rose gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="White gold" /><span>White gold</span></label>
+          <label class="choice-pill"><input type="radio" name="gold" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
+            </div>
+        <p class="not-sure-help" data-help-for="gold" hidden>We will suggest the gold colour that suits you and the piece. <a class="size-guide-open" data-guide="gold" href="materials.html#gold">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </fieldset>
+          <fieldset>
+            <legend>Gemstones <span class="legend-note">(choose any)</span> <a class="guide-link size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Gemstone guide</a></legend>
+            <div class="choice-pills">
+          <label class="choice-pill"><input type="checkbox" name="stones" value="No stones" /><span>No stones</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Diamond" /><span>Diamond</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="White zircon" /><span>White zircon</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Black zircon" /><span>Black zircon</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Emerald" /><span>Emerald</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Ruby" /><span>Ruby</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Sapphire" /><span>Sapphire</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Pearl" /><span>Pearl</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Turquoise" /><span>Turquoise</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Black onyx" /><span>Black onyx</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Birthstone" /><span>Birthstone</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="My own stone" /><span>My own stone</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Other" /><span>Other</span></label>
+          <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
+            </div>
+            <label class="field stones-other" hidden><span>Which gemstones?</span>
+              <input name="stones_other" maxlength="200" placeholder="e.g. Amethyst, tanzanite, pink sapphire" /></label>
+        <p class="not-sure-help" data-help-for="stones" hidden>We will suggest stones for your idea and budget. <a class="size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </fieldset>
+          <div class="form-grid stone-style">
+            <label class="field"><span>Stone cut <a class="guide-link size-guide-open" data-guide="cuts" href="materials.html#cuts">See the cuts</a></span>
+              <select name="cut">
+              <option value="">Choose a cut (optional)</option>
+              <option>Round brilliant</option>
+              <option>Oval</option>
+              <option>Princess</option>
+              <option>Cushion</option>
+              <option>Emerald cut</option>
+              <option>Pear</option>
+              <option>Marquise</option>
+              <option>Heart</option>
+              <option>Baguette</option>
+              <option>Cabochon</option>
+              <option>Not sure — please advise</option>
+              </select></label>
+            <label class="field"><span>Stone setting <a class="guide-link size-guide-open" data-guide="settings" href="materials.html#settings">See the settings</a></span>
+              <select name="setting">
+              <option value="">Choose a setting (optional)</option>
+              <option>Prong (claw)</option>
+              <option>Bezel</option>
+              <option>Pavé</option>
+              <option>Channel</option>
+              <option>Halo</option>
+              <option>Flush</option>
+              <option>Bar</option>
+              <option>Cluster</option>
+              <option>Not sure — please advise</option>
+              </select></label>
+        <p class="not-sure-help" data-help-for="cut" hidden>We will recommend a cut and setting for your stones. <a class="size-guide-open" data-guide="cuts" href="materials.html#cuts">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
+          </div>
+        </div>
+      </div>
       <fieldset class="size-studio">
         <legend>Size or length <a class="guide-link size-guide-open" data-guide="size" href="size-guide.html">Size guide</a></legend>
         <svg class="sketch-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs><filter id="ring-soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="1.1" /></filter><linearGradient id="hoop-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6e2a4" /><stop offset="0.5" stop-color="#c9a24f" /><stop offset="1" stop-color="#8a6a26" /></linearGradient><radialGradient id="stone-shine" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffffff" /><stop offset="0.6" stop-color="#eef2f5" /><stop offset="1" stop-color="#b9c3cc" /></radialGradient><linearGradient id="ring-gold" x1="0" y1="0" x2="0" y2="1">
@@ -357,9 +437,6 @@
         <label class="field size-own"><span>Your choice, or type your own</span>
           <input name="size" maxlength="80" placeholder="e.g. EU 54, 16 cm, 45 cm" /></label>
       </fieldset>
-      <label class="field"><span>Your idea</span>
-        <textarea name="description" rows="5" required maxlength="4000"
-          placeholder="A name or initial, a symbol, a stone, an occasion, a piece you have seen…"></textarea></label>
       <label class="field"><span>Add inspiration (optional: up to 3 photos, sketches or PDFs, 8 MB each)</span>
         <input type="file" name="files" accept="image/*,application/pdf" multiple /></label>
       <div class="form-grid">
@@ -376,76 +453,6 @@
           <small class="field-note" id="occasion-note">A requested date is not guaranteed: we will confirm with you whether we can meet it.</small></label>
       </div>
 
-      <details class="design-details">
-        <summary><span class="design-details-title">I know what I want — add design details</span>
-          <span class="design-details-sub">Gold colour, gemstones, cut and setting.</span></summary>
-        <div class="design-details-body">
-          <p class="field-note">All design details are optional. Leave anything undecided and we will help.</p>
-          <fieldset>
-            <legend>Gold colour <a class="guide-link size-guide-open" data-guide="gold" href="materials.html#gold">See the gold colours</a></legend>
-            <div class="choice-pills">
-          <label class="choice-pill"><input type="radio" name="gold" value="Yellow gold" /><span>Yellow gold</span></label>
-          <label class="choice-pill"><input type="radio" name="gold" value="Rose gold" /><span>Rose gold</span></label>
-          <label class="choice-pill"><input type="radio" name="gold" value="White gold" /><span>White gold</span></label>
-          <label class="choice-pill"><input type="radio" name="gold" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
-            </div>
-        <p class="not-sure-help" data-help-for="gold" hidden>We will suggest the gold colour that suits you and the piece. <a class="size-guide-open" data-guide="gold" href="materials.html#gold">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
-          </fieldset>
-          <fieldset>
-            <legend>Gemstones <span class="legend-note">(choose any)</span> <a class="guide-link size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Gemstone guide</a></legend>
-            <div class="choice-pills">
-          <label class="choice-pill"><input type="checkbox" name="stones" value="No stones" /><span>No stones</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Diamond" /><span>Diamond</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="White zircon" /><span>White zircon</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Black zircon" /><span>Black zircon</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Emerald" /><span>Emerald</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Ruby" /><span>Ruby</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Sapphire" /><span>Sapphire</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Pearl" /><span>Pearl</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Turquoise" /><span>Turquoise</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Black onyx" /><span>Black onyx</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Birthstone" /><span>Birthstone</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="My own stone" /><span>My own stone</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Other" /><span>Other</span></label>
-          <label class="choice-pill"><input type="checkbox" name="stones" value="Not sure — please advise" /><span>Not sure — please advise</span></label>
-            </div>
-            <label class="field stones-other" hidden><span>Which gemstones?</span>
-              <input name="stones_other" maxlength="200" placeholder="e.g. Amethyst, tanzanite, pink sapphire" /></label>
-        <p class="not-sure-help" data-help-for="stones" hidden>We will suggest stones for your idea and budget. <a class="size-guide-open" data-guide="gemstones" href="materials.html#gemstones">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
-          </fieldset>
-          <div class="form-grid stone-style">
-            <label class="field"><span>Stone cut <a class="guide-link size-guide-open" data-guide="cuts" href="materials.html#cuts">See the cuts</a></span>
-              <select name="cut">
-              <option value="">Choose a cut (optional)</option>
-              <option>Round brilliant</option>
-              <option>Oval</option>
-              <option>Princess</option>
-              <option>Cushion</option>
-              <option>Emerald cut</option>
-              <option>Pear</option>
-              <option>Marquise</option>
-              <option>Heart</option>
-              <option>Baguette</option>
-              <option>Cabochon</option>
-              <option>Not sure — please advise</option>
-              </select></label>
-            <label class="field"><span>Stone setting <a class="guide-link size-guide-open" data-guide="settings" href="materials.html#settings">See the settings</a></span>
-              <select name="setting">
-              <option value="">Choose a setting (optional)</option>
-              <option>Prong (claw)</option>
-              <option>Bezel</option>
-              <option>Pavé</option>
-              <option>Channel</option>
-              <option>Halo</option>
-              <option>Flush</option>
-              <option>Bar</option>
-              <option>Cluster</option>
-              <option>Not sure — please advise</option>
-              </select></label>
-        <p class="not-sure-help" data-help-for="cut" hidden>We will recommend a cut and setting for your stones. <a class="size-guide-open" data-guide="cuts" href="materials.html#cuts">Open the guide</a> or <button type="button" class="link-btn ask-guidance">ask us to guide you</button>.</p>
-          </div>
-        </div>
-      </details>
       </div>
 
       <div class="form-grid">
