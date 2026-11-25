@@ -2699,3 +2699,7 @@ main:focus { outline: none; }
 .zoho-card .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 .zoho-import { border-top: 1px solid var(--line); margin: 18px 0; padding-top: 16px; }
 .zoho-import h4 { margin: 0 0 8px; font-size: 1.05rem; }
+.zoho-org { border-top: 1px solid var(--line); margin: 18px 0; padding-top: 16px; }
+.zoho-org h4 { margin: 0 0 8px; font-size: 1.05rem; }
+.zoho-org-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.zoho-org-row select { flex: 1; min-width: 220px; }
