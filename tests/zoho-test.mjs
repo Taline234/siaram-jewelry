@@ -10,6 +10,12 @@ process.env.ORDER_NOTIFY_EMAIL = 'shop@siaram.test';
 process.env.SITE_URL = 'https://siaram.test';
 process.env.ZOHO_CLIENT_ID = 'client-1';
 process.env.ZOHO_CLIENT_SECRET = 'secret-1';
+const pair = await crypto.subtle.generateKey(
+  { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
+const { Buffer } = await import('node:buffer');
+process.env.GOOGLE_SERVICE_ACCOUNT = JSON.stringify({ client_email: 'robot@x.iam.gserviceaccount.com',
+  private_key: `-----BEGIN PRIVATE KEY-----\n${Buffer.from(await crypto.subtle.exportKey('pkcs8', pair.privateKey)).toString('base64')}\n-----END PRIVATE KEY-----\n` });
+process.env.WORKBOOK_SHEET_ID = 'sheet123';
 
 const { default: zohoSync } = await import('../supabase/functions/_shared/handlers/zoho-sync.mjs');
 const { default: zohoConnect } = await import('../supabase/functions/_shared/handlers/zoho-connect.mjs');
@@ -18,6 +24,63 @@ let z;        // the fake Zoho organisation
 let db;       // the fake database state
 let emails;
 let calls;
+let books;    // the fake Zoho Books organisation
+let sheet;    // the fake Google Sheets workbook
+
+function fakeBooks(method, path, query, body) {
+  const ok = (data) => [200, { code: 0, message: 'success', ...data }];
+  const [kind, id] = path.split('/');
+  if (kind === 'chartofaccounts' && method === 'GET') return ok({ chartofaccounts: books.accounts });
+  if (kind === 'chartofaccounts') {
+    const a = { account_id: `a-${body.account_name.toLowerCase()}`, ...body };
+    books.accounts.push(a);
+    return ok({ chart_of_account: a });
+  }
+  if (kind === 'contacts' && method === 'GET') return ok({ contacts: Object.values(books.contacts).filter((c) => c.contact_name === query.get('contact_name')) });
+  if (kind === 'contacts') {
+    const c = { contact_id: `bc-${Object.keys(books.contacts).length + 1}`, ...body };
+    books.contacts[c.contact_id] = c;
+    return ok({ contact: c });
+  }
+  if (kind === 'invoices' && method === 'GET') return ok({ invoices: Object.values(books.invoices).filter((i) => i.invoice_number === query.get('invoice_number')) });
+  if (kind === 'invoices' && id) return ok({});
+  if (kind === 'invoices') {
+    if (books.invoices[body.invoice_number]) return [400, { code: 1001, message: 'Invoice number already exists' }];
+    const total = body.line_items.reduce((s, l) => s + l.rate * l.quantity, 0) + (body.adjustment || 0);
+    const inv = { invoice_id: `binv-${body.invoice_number}`, total, balance: total, ...body };
+    books.invoices[body.invoice_number] = inv;
+    return ok({ invoice: inv });
+  }
+  if (kind === 'customerpayments') {
+    books.payments.push(body);
+    books.invoices[body.reference_number].balance -= body.amount;
+    return ok({ payment: { payment_id: `bpay-${books.payments.length}` } });
+  }
+  if (kind === 'expenses') { books.expenses.push(body); return ok({ expense: { expense_id: `bexp-${books.expenses.length}` } }); }
+  if (kind === 'journals') { books.journals.push(body); return ok({ journal: { journal_id: `bj-${books.journals.length}` } }); }
+  return [404, { code: 5, message: `unknown books ${method} ${path}` }];
+}
+
+const WORKBOOK = () => ({
+  Customers: [['Customers'], ['…'], ['…'], ['Name', 'Phone', 'Instagram', 'Email', 'Address', 'Birthday', 'How They Found Us', 'Notes'],
+    ['Valerie Labeye', '+27763695175', '', 'valerie@example.com', 'Fourways Garden', '27-May-1975', 'Friend / family'],
+    ['Corinne Ghandour', '+9613467462', '', '', 'One Oak Block A']],
+  Suppliers: [['Suppliers'], ['…'], ['…'], ['Supplier Name', 'Contact Person', 'Phone', 'Email', 'Notes'],
+    ['Raffos', 'Rafi', '+96170775268', '', 'Pieces manufacturer']],
+  Sales: [['Sales'], ['…'], ['…'], ['Invoice #', 'Sale Date', 'Customer', 'Sales Channel', 'SKU'],
+    ['S001', '07-Nov-2025', 'Valerie Labeye', 'In Person', 'NK-01', 'NK-01-B1', '1', '$490.00', 'Percentage', '0.', '$490.00', 'Cash', '$490.00'],
+    ['S002', '10-Dec-2025', 'Corinne Ghandour', 'In Person', 'RG-03', 'RG-03-B1', '1', '$355.00', 'Percentage', '0.', '$355.00', 'Cash', '$355.00'],
+    ['S002', '10-Dec-2025', 'Corinne Ghandour', 'In Person', 'RG-02', 'RG-02-B1', '1', '$430.00', 'Percentage', '0.', '$430.00', 'Cash', '$430.00'],
+    ['SC001', '24-Jan-2026', 'Corinne Ghandour', 'In Person', 'CNK-01', 'CNK-01-B1', '1', '$899.99', 'Percentage', '0.', '$899.99', 'Cash', '',
+      '', '', '', '', '', '', '', '', '', '', '', '', '', 'CO001']],
+  Expenses: [['Expenses'], ['…'], ['…'], ['Date', 'Category', 'Description', 'Amount', 'Paid To (supplier)', 'Payment Method', 'Date Paid', 'Notes', 'Expense ID (auto)'],
+    ['24-Sep-2025', 'Gold', 'Initial Pieces', '$459.00', 'Raffos', 'Cash', '24-Sep-2025', '', 'EX001'],
+    ['09-Oct-2025', 'Packaging', 'Pouches', '$50.00', 'Georgi Sabounjian Showroom', 'Cash', '09-Oct-2025', '', 'EX002'],
+    ['19-Feb-2026', 'Miscellaneous', 'Lawyer fee', '$3,500.00', '', 'Cash', '19-Feb-2026', '', 'EX010']],
+  Payments: [['Payments'], ['…'], ['…'], ['Payment ID (auto)', 'Date', 'Type', 'Reference', 'Description', 'Money In', 'Money Out', 'Method', 'Notes', 'Source'],
+    ['PAY001', '24-Sep-2025', 'Owner Investment', 'OWNER001', 'Starting capital', '$15,000.00', '', 'Cash', '', 'Manual'],
+    ['AUTO-S001/1', '07-Nov-2025', 'Customer receipt', 'S001/1', 'Sale S001', '$490.00', '', 'Cash', '', 'From Sales']],
+});
 
 const product = (slug, sku, name, price, stock) => ({ slug, sku, name, category: 'Necklaces', price, stock, item_id: null });
 const order = (reference, extra = {}) => ({
@@ -60,6 +123,10 @@ const RPC = {
   zoho_begin_connect: () => 'state-1',
   zoho_finish_connect: (b) => { db.finished = b; return b.p_state === 'state-1'; },
   zoho_status: () => ({ connected: db.connected, organization: 'Siaram Jewelry' }),
+  zoho_import_state: () => ({ requested: db.importRequested, done: { ...db.imports } }),
+  zoho_save_import: (b) => { db.imports[`${b.p_kind}:${b.p_key}`] = b.p_zoho_id; },
+  zoho_finish_import: (b) => { db.importRequested = false; db.importSummary = b.p_summary; },
+  zoho_request_import: () => { db.importRequested = true; },
 };
 
 function fakeZoho(method, path, query, body) {
@@ -117,14 +184,23 @@ function fakeZoho(method, path, query, body) {
 
 beforeEach(() => {
   z = { items: {}, contacts: {}, invoices: {}, payments: {}, adjustments: [] };
+  books = { accounts: [
+    { account_id: 'a-cogs', account_name: 'Cost of Goods Sold', account_type: 'cost_of_goods_sold' },
+    { account_id: 'a-adv', account_name: 'Advertising And Marketing', account_type: 'expense' },
+    { account_id: 'a-it', account_name: 'IT and Internet Expenses', account_type: 'expense' },
+    { account_id: 'a-other', account_name: 'Other Expenses', account_type: 'expense' },
+    { account_id: 'a-cash', account_name: 'Petty Cash', account_type: 'cash' },
+    { account_id: 'a-eq', account_name: "Owner's Equity", account_type: 'equity' }],
+    contacts: {}, invoices: {}, payments: [], expenses: [], journals: [] };
   db = {
-    connected: true, access: null, error: null, items: {}, contacts: {}, zohoOrders: {},
+    connected: true, access: null, error: null, items: {}, contacts: {}, zohoOrders: {}, importRequested: false, imports: {},
     products: [product('v-pendant-necklace', 'NK-08', 'Vertex Necklace', 489, 2), product('sun-ring', 'RG-07', 'Soleil Ring', 380, 0),
       product('no-sku', null, 'Draft piece', 100, 0)],
     orders: [],
   };
   emails = [];
   calls = [];
+  sheet = WORKBOOK();
   globalThis.fetch = async (url, init = {}) => {
     const u = new URL(String(url));
     calls.push({ url: u, method: init.method || 'GET', body: init.body });
@@ -136,6 +212,15 @@ beforeEach(() => {
         return reply([200, p.get('code') === 'good' ? { access_token: 'access-new', refresh_token: 'refresh-new', expires_in: 3600 } : { error: 'invalid_code' }]);
       }
       return reply([200, { access_token: 'access-1', expires_in: 3600 }]);
+    }
+    if (u.hostname === 'oauth2.googleapis.com') return reply([200, { access_token: 'gtok' }]);
+    if (u.hostname === 'sheets.googleapis.com') {
+      const range = decodeURIComponent(u.pathname.split('/values/')[1]);
+      const name = range.split('!')[0].replace(/'/g, '');
+      return reply([200, { values: sheet[name] || [] }]);
+    }
+    if (u.hostname === 'www.zohoapis.eu' && u.pathname.startsWith('/books/v3/')) {
+      return reply(fakeBooks(init.method || 'GET', u.pathname.replace('/books/v3/', ''), u.searchParams, init.body ? JSON.parse(init.body) : null));
     }
     if (u.hostname === 'www.zohoapis.eu') {
       if (!String(init.headers?.authorization).startsWith('Zoho-oauthtoken access-')) return reply([401, { code: 57, message: 'unauthorised' }]);
@@ -263,7 +348,7 @@ test('Connect Zoho: only the owner gets the Zoho page; coming back with a good c
   db.user = null;
   const start = new URL((await (await post('start')).json()).url);
   assert.equal(start.origin, 'https://accounts.zoho.eu');
-  assert.equal(start.searchParams.get('scope'), 'ZohoInventory.FullAccess.all');
+  assert.equal(start.searchParams.get('scope'), 'ZohoInventory.FullAccess.all,ZohoBooks.fullaccess.all');
   assert.equal(start.searchParams.get('access_type'), 'offline');
   assert.equal(start.searchParams.get('state'), 'state-1');
   assert.equal(start.searchParams.get('redirect_uri'), 'https://db.test/functions/v1/zoho-connect');
@@ -281,4 +366,53 @@ test('Connect Zoho: only the owner gets the Zoho page; coming back with a good c
   assert.match(res.headers.get('location'), /zoho=cancelled/);
   res = await back('code=bad&state=state-1');
   assert.match(res.headers.get('location'), /zoho=failed/);
+});
+
+test('the workbook import copies customers, suppliers, past sales with payments, expenses and the starting capital', async () => {
+  db.importRequested = true;
+  const { body } = await run();
+  assert.equal(body.import.finished, true);
+  assert.deepEqual(Object.values(books.contacts).map((c) => [c.contact_type, c.contact_name]),
+    [['customer', 'Valerie Labeye'], ['customer', 'Corinne Ghandour'], ['vendor', 'Raffos'], ['vendor', 'Georgi Sabounjian Showroom']]);
+  assert.match(Object.values(books.contacts)[0].notes, /Birthday: 27-May-1975/);
+  assert.deepEqual(books.journals[0].line_items, [
+    { account_id: 'a-cash', debit_or_credit: 'debit', amount: 15000 }, { account_id: 'a-eq', debit_or_credit: 'credit', amount: 15000 }]);
+  assert.equal(books.journals.length, 1, 'only owner money, not the automatic receipts');
+  const s002 = books.invoices.S002;
+  assert.deepEqual([s002.date, s002.line_items.map((l) => [l.name, l.rate])], ['2025-12-10', [['Hamsa Ring', 355], ['Qamar Ring', 430]]]);
+  assert.equal(books.invoices.SC001.line_items[0].name, 'Custom piece CNK-01');
+  assert.match(books.invoices.SC001.line_items[0].description, /custom order CO001/);
+  assert.deepEqual(books.payments.map((p) => [p.reference_number, p.amount, p.payment_mode, p.date]),
+    [['S001', 490, 'Cash', '2025-11-07'], ['S002', 785, 'Cash', '2025-12-10'], ['SC001', 899.99, 'Cash', '2026-01-24']]);
+  assert.deepEqual(books.expenses.map((e) => [e.reference_number, e.account_id, e.amount, e.date, Boolean(e.vendor_id)]),
+    [['EX001', 'a-cogs', 459, '2025-09-24', true], ['EX002', 'a-packaging', 50, '2025-10-09', true], ['EX010', 'a-other', 3500, '2026-02-19', false]]);
+  assert.match(db.importSummary, /2 customers, 2 suppliers, 3 past sales .* 3 expenses and 1 owner investment/);
+  assert.equal(emails.find((e) => e.subject === 'Your workbook is in Zoho') !== undefined, true);
+  // Clicking Import again adds nothing twice.
+  db.importRequested = true;
+  await run();
+  assert.equal(Object.keys(books.contacts).length, 4);
+  assert.equal(books.payments.length, 3);
+  assert.equal(books.expenses.length, 3);
+  assert.equal(books.journals.length, 1);
+});
+
+test('a big import is done in portions, carrying on where it stopped', async () => {
+  for (let n = 3; n < 40; n += 1) sheet.Sales.push([`S${String(n).padStart(3, '0')}`, '07-Nov-2025', 'Valerie Labeye', 'In Person', 'NK-01', '', '1', '$490.00', '', '', '$490.00', 'Cash']);
+  db.importRequested = true;
+  const first = (await run()).body.import;
+  assert.equal(first.finished, false);
+  let runs = 1;
+  while (db.importRequested && runs < 10) { await run(); runs += 1; }
+  assert.equal(db.importRequested, false, 'finished after a few portions');
+  assert.equal(Object.keys(books.invoices).length, 40);
+  assert.equal(books.payments.length, 40);
+});
+
+test('a workbook tab whose columns moved is not imported wrongly', async () => {
+  sheet.Expenses[3][0] = 'When';
+  db.importRequested = true;
+  await run();
+  assert.match(db.error, /Workbook import: The Expenses tab has no "Date" heading/);
+  assert.equal(books.expenses.length, 0);
 });

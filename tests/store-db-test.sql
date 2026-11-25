@@ -622,4 +622,15 @@ select pg_temp.check(not has_function_privilege('anon', 'public.zoho_credentials
                      and not has_function_privilege('authenticated', 'public.zoho_begin_connect()', 'execute'),
   'only the server can read the Zoho connection');
 
+select zoho_request_import();
+select zoho_save_import('customer', 'valerie labeye', 'c1');
+select zoho_save_import('customer', 'valerie labeye', 'c1');
+select pg_temp.check((zoho_import_state()->>'requested')::boolean and zoho_import_state()->'done'->>'customer:valerie labeye' = 'c1',
+  'the workbook import is requested and remembers what it created');
+select zoho_finish_import('1 customer');
+select pg_temp.check(not (zoho_import_state()->>'requested')::boolean and zoho_status()->>'import_summary' = '1 customer',
+  'a finished import shows its summary on the Zoho tab');
+select pg_temp.check(not has_function_privilege('authenticated', 'public.zoho_request_import()', 'execute'),
+  'only the server can start the workbook import');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'

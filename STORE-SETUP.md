@@ -281,6 +281,15 @@ The Google Sheets workbook keeps updating as before. If a copy fails, you get on
 Sales from the day you connect are sent. To also send older ones, set **store_settings → zoho_sync_from** to an
 earlier date.
 
+**Importing the workbook (once):** on the **Zoho** tab, click **Import My Workbook**. Over the next 10–30 minutes the
+website copies from the Google Sheet into Zoho: the Customers tab (customers), Suppliers tab and anyone paid on
+Expenses (vendors), the Sales tab (one invoice per invoice number, each paid on its date; past sales don't change
+stock), the Expenses tab (Zoho Books expenses: Gold → Cost of Goods Sold, Packaging → a new Packaging account,
+Advertising → Advertising And Marketing, Website → IT and Internet Expenses, others → Other Expenses, paid from Petty
+Cash) and the owner investment / withdrawal rows on Payments (journals to Owner's Equity / Drawings). You get an email
+when it is done. Clicking it again adds nothing twice. It needs Zoho Books permission: if you connected Zoho before
+26 November 2026, click **Connect Again** first.
+
 ## Backups
 
 Every Sunday, `.github/workflows/backup-database.yml` copies the whole database and keeps the copy for 90 days

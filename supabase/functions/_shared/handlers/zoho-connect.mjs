@@ -1,6 +1,7 @@
 // /functions/v1/zoho-connect — the "Zoho" tab on the owner's account page.
 //   POST { action: 'status' }   whether Zoho is connected, to which organisation, and how the last copy went
 //   POST { action: 'start' }    the Zoho page to open, where the owner clicks Accept
+//   POST { action: 'import' }   import the workbook into Zoho (done in portions by zoho-sync)
 //   GET  ?code=...&state=...    where Zoho sends the owner back: saves the connection, then returns to the account page
 import { configured, env, isOwner, json, readJson, rpc, userFromRequest } from '../store.mjs';
 import { SCOPE, accountsUrl, exchangeCode, redirectUri, zoho, zohoConfigured } from '../zoho.mjs';
@@ -50,6 +51,10 @@ export default async (req) => {
       prompt: 'consent', redirect_uri: redirectUri(), state,
     });
     return json({ url: `${accountsUrl()}/oauth/v2/auth?${params}` });
+  }
+  if (body.action === 'import') {
+    await rpc('zoho_request_import', {});
+    return json({ ...(await rpc('zoho_status', {})), keys_added: zohoConfigured() });
   }
   return json({ ...(await rpc('zoho_status', {})), keys_added: zohoConfigured() });
 };

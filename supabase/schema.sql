@@ -1882,3 +1882,56 @@ grant execute on function public.zoho_begin_connect(), public.zoho_finish_connec
   public.zoho_status(), public.zoho_credentials(), public.zoho_save_access(text, int), public.claim_zoho_sync(),
   public.finish_zoho_sync(text), public.zoho_work(), public.zoho_save_item(text, text), public.zoho_save_contact(text, text),
   public.zoho_save_order(uuid, text, text, boolean, text) to service_role;
+
+-- Importing the workbook into Zoho (customers, suppliers, past sales, expenses, owner's money), asked for once with
+-- the "Import my workbook" button. zoho-sync does it in portions (Zoho allows about 100 calls a minute) and records
+-- each thing it created, so nothing is added twice even if the button is clicked again.
+alter table private.zoho add column if not exists import_requested_at timestamptz;
+alter table private.zoho add column if not exists import_finished_at timestamptz;
+alter table private.zoho add column if not exists import_summary text;
+
+create table if not exists private.zoho_imports (
+  kind    text not null,   -- customer, vendor, invoice, expense, journal, account
+  key     text not null,   -- the workbook's name, invoice number or expense ID
+  zoho_id text not null,
+  primary key (kind, key)
+);
+
+create or replace function public.zoho_request_import() returns void
+language sql security definer set search_path = public as $$
+  update private.zoho set import_requested_at = now(), import_finished_at = null, import_summary = null where id = 1;
+$$;
+
+create or replace function public.zoho_import_state() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'requested', z.import_requested_at is not null and z.import_finished_at is null,
+    'done', (select coalesce(jsonb_object_agg(kind || ':' || key, zoho_id), '{}'::jsonb) from private.zoho_imports))
+    from private.zoho z where z.id = 1;
+$$;
+
+create or replace function public.zoho_save_import(p_kind text, p_key text, p_zoho_id text) returns void
+language sql security definer set search_path = public as $$
+  insert into private.zoho_imports (kind, key, zoho_id) values (p_kind, p_key, p_zoho_id)
+  on conflict (kind, key) do update set zoho_id = excluded.zoho_id;
+$$;
+
+create or replace function public.zoho_finish_import(p_summary text) returns void
+language sql security definer set search_path = public as $$
+  update private.zoho set import_finished_at = now(), import_summary = p_summary where id = 1;
+$$;
+
+create or replace function public.zoho_status() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('connected', z.refresh_token is not null, 'organization', z.organization_name,
+                            'connected_at', z.connected_at, 'last_sync_at', z.last_sync_at, 'last_error', z.last_error,
+                            'sync_from', s.zoho_sync_from,
+                            'import_requested_at', z.import_requested_at, 'import_finished_at', z.import_finished_at,
+                            'import_summary', z.import_summary)
+    from private.zoho z cross join public.store_settings s where z.id = 1 and s.id = 1;
+$$;
+
+revoke execute on function public.zoho_request_import(), public.zoho_import_state(), public.zoho_save_import(text, text, text),
+  public.zoho_finish_import(text) from public, anon, authenticated;
+grant execute on function public.zoho_request_import(), public.zoho_import_state(), public.zoho_save_import(text, text, text),
+  public.zoho_finish_import(text) to service_role;

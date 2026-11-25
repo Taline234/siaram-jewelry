@@ -557,10 +557,32 @@ async function renderZoho(panel, session) {
         : `<p class="field-note">${status.keys_added
             ? 'Click the button, sign in to Zoho if asked, and click <strong>Accept</strong>. You come back here once it is connected.'
             : 'First add the <strong>ZOHO_CLIENT_ID</strong> and <strong>ZOHO_CLIENT_SECRET</strong> secrets in Supabase (see STORE-SETUP.md).'}</p>`}
+      ${status.connected ? `<div class="zoho-import">
+        <h4>Your workbook in Zoho</h4>
+        ${status.import_finished_at
+          ? `<p class="field-note">Imported on ${when(status.import_finished_at)}. ${escapeHtml(status.import_summary || '')}</p>`
+          : status.import_requested_at
+            ? '<p class="field-note">Importing&hellip; it is done in portions every 10 minutes (Zoho limits how fast it can be filled). You will get an email when it is finished.</p>'
+            : `<p class="field-note">Copies your workbook's customers, suppliers, past sales (S001&hellip; with their payments), expenses
+                and your starting capital into Zoho, once. Nothing is added twice. Click <strong>Connect Again</strong> first if you
+                connected before 26 November, so the website may also use Zoho Books.</p>
+               <button type="button" class="btn btn-primary zoho-import-btn">Import My Workbook</button>`}
+      </div>` : ''}
       <p class="form-msg form-error" role="alert"></p>
       <button type="button" class="btn ${status.connected ? 'btn-outline' : 'btn-primary'} zoho-connect"${status.keys_added ? '' : ' disabled'}>
         ${status.connected ? 'Connect Again' : 'Connect Zoho'}</button>
     </div>`;
+  const importBtn = panel.querySelector('.zoho-import-btn');
+  if (importBtn) importBtn.addEventListener('click', async () => {
+    importBtn.disabled = true;
+    try {
+      await call('import');
+      await renderZoho(panel, session);
+    } catch (err) {
+      panel.querySelector('.form-msg').textContent = err.message;
+      importBtn.disabled = false;
+    }
+  });
   const btn = panel.querySelector('.zoho-connect');
   btn.addEventListener('click', async () => {
     btn.disabled = true;
