@@ -46,6 +46,11 @@ on it and say "read HANDOVER.md first".
   (`supabase/functions/_shared/handlers/workbook-sync.mjs`; set-up in `STORE-SETUP.md`, "Finance workbook in Google Sheets").
   Tests: `node --test tests/workbook-sync-test.mjs`.
 
+## Zoho
+- `zoho-sync` (every 10 minutes) copies items, stock, invoices, payments and voids into Zoho Inventory/Books (EU);
+  `zoho-connect` is the owner's Connect Zoho button (OAuth). Set-up: `STORE-SETUP.md`, "Zoho Inventory and Books".
+  Tests: `node --test tests/zoho-test.mjs`.
+
 ## Where things stand
 - The store is live (website orders from S017). Moving hosting from Netlify to Cloudflare Pages and the
   order code to Supabase Edge Functions: see `STORE-SETUP.md` sections 3 and 4.

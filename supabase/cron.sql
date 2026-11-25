@@ -62,3 +62,18 @@ select cron.schedule(
   );
   $$
 );
+
+-- Every 10 minutes, copy new sales, payments, cancellations and stock into Zoho Inventory and Books
+-- (does nothing until Zoho is connected with the "Connect Zoho" button on the account page).
+select cron.schedule(
+  'siaram-zoho-sync',
+  '5-59/10 * * * *',
+  $$
+  select net.http_post(
+    url := 'https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/zoho-sync',
+    headers := jsonb_build_object('content-type', 'application/json',
+                                  'x-cron-secret', (select secret from private.cron where id = 1)),
+    body := '{}'::jsonb
+  );
+  $$
+);
