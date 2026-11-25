@@ -8,7 +8,7 @@
 // email per reason, and it tries again 10 minutes later.
 import { configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
 import { ZohoError, resetZohoCalls, zoho, zohoConfigured } from '../zoho.mjs';
-import { importPortion, importSummary } from '../zoho-import.mjs';
+import { followWorkbook, importPortion, importSummary } from '../zoho-import.mjs';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Beirut' }).format(new Date());
 const money = (n) => Math.round(Number(n || 0) * 100) / 100;
@@ -200,6 +200,11 @@ export default async (req) => {
   // The one-off workbook import, a portion at a time, when the owner has asked for it.
   try {
     const portion = await importPortion();
+    if (!portion) {
+      // After the import: new paid expenses and owner money typed in the workbook follow by themselves.
+      const followed = await followWorkbook();
+      if (followed) result = { ...(result || {}), workbook: followed };
+    }
     if (portion) {
       result = { ...(result || {}), import: portion };
       if (portion.finished) {
@@ -216,7 +221,7 @@ export default async (req) => {
       }
     }
   } catch (err) {
-    problems.push(`Workbook import: ${err instanceof Error ? err.message : String(err)}`);
+    problems.push(`Workbook to Zoho: ${err instanceof Error ? err.message : String(err)}`);
     console.error('zoho-import', err);
   }
   const problem = problems.join('\n');
