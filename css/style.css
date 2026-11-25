@@ -2695,3 +2695,5 @@ main:focus { outline: none; }
 .design-details-head h3 { margin: 0; }
 .custom-form.is-guided .guidance-check { display: none; }
 @media (max-width: 600px) { .design-details-head { padding: 16px 14px 4px; } }
+.zoho-result { font-family: var(--font-serif); font-size: 1.05rem; color: var(--green-deep); background: var(--cream); padding: 10px 14px; margin: 0 0 14px; }
+.zoho-card .btn:disabled { opacity: 0.45; cursor: not-allowed; }

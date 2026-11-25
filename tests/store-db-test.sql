@@ -581,4 +581,45 @@ select pg_temp.check((select order_receipt(lower(:'rs_ref')) @> jsonb_build_obje
 select pg_temp.check((select street = 'Hamra, Beirut' from orders where reference = :'rs_ref'), 'a recorded sale keeps the address typed for it');
 select pg_temp.check(not has_function_privilege('anon', 'public.order_receipt(text)', 'execute'), 'only the server can read receipts');
 
+-- Zoho: connecting needs the state from Connect Zoho; the work list holds only orders with something left to do.
+select zoho_begin_connect() as zstate \gset
+select pg_temp.check(not zoho_finish_connect('forged', 'r', 'a', 3600, 'org', 'Siaram') and not claim_zoho_sync(),
+  'Zoho is not connected with a wrong state');
+select zoho_finish_connect(:'zstate', 'r', 'a', 3600, 'org', 'Siaram') as zok \gset
+select pg_temp.check(:'zok'::boolean and (zoho_status()->>'connected')::boolean and zoho_credentials()->>'access_token' = 'a'
+                     and (zoho_status()->>'sync_from')::date = (now() at time zone 'Asia/Beirut')::date,
+  'Connect Zoho saves the connection and starts copying from that day');
+select pg_temp.check(not zoho_finish_connect(:'zstate', 'r', 'a', 3600, 'org', 'Siaram'), 'the same Zoho answer cannot be used twice');
+update store_settings set zoho_sync_from = '2000-01-01';
+select pg_temp.check(jsonb_array_length(zoho_work()->'products') = (select count(*) from products)
+                     and jsonb_array_length(zoho_work()->'orders') = (select count(*) from orders where reference is not null),
+  'the first Zoho copy sees every piece and every order');
+select pg_temp.check((select jsonb_path_query_first(zoho_work(), '$.products[*] ? (@.slug == "horseshoe-necklace").stock')::int
+                        = (select sum(quantity) from stock where product_slug = 'horseshoe-necklace')),
+  'Zoho is given the website stock of each piece');
+select id as zo_id, reference as zo_ref from orders where status <> 'cancelled' and coalesce(channel, 'Website') = 'Website'
+   and status <> 'delivered' and total > 0 limit 1 \gset
+select zoho_save_order(:'zo_id', 'inv-1', null, null, '');
+select pg_temp.check(not jsonb_path_exists(zoho_work(), '$.orders[*] ? (@.reference == $r)', jsonb_build_object('r', :'zo_ref')),
+  'an invoiced website order waits until it is delivered');
+update orders set status = 'delivered' where id = :'zo_id';
+select pg_temp.check(jsonb_path_exists(zoho_work(), '$.orders[*] ? (@.reference == $r && @.invoice_id == "inv-1")', jsonb_build_object('r', :'zo_ref')),
+  'once delivered it comes back to record the payment');
+select zoho_save_order(:'zo_id', null, 'pay-1', null, '');
+update orders set status = 'cancelled' where id = :'zo_id';
+select pg_temp.check(jsonb_path_exists(zoho_work(), '$.orders[*] ? (@.reference == $r && @.payment_id == "pay-1")', jsonb_build_object('r', :'zo_ref')),
+  'a cancelled order comes back to void its invoice');
+select zoho_save_order(:'zo_id', null, null, true, '');
+select pg_temp.check(not jsonb_path_exists(zoho_work(), '$.orders[*] ? (@.reference == $r)', jsonb_build_object('r', :'zo_ref'))
+                     and (select voided and payment_id is null and invoice_id = 'inv-1' from private.zoho_orders where order_id = :'zo_id'),
+  'once voided it is done');
+select pg_temp.check(claim_zoho_sync(), 'a Zoho copy can start once connected');
+select pg_temp.check(not claim_zoho_sync() and finish_zoho_sync('x') is null, 'one Zoho copy at a time');
+select pg_temp.check(finish_zoho_sync('') = 'x',
+  'one Zoho copy at a time, and the last problem is remembered');
+select pg_temp.check(not has_function_privilege('anon', 'public.zoho_credentials()', 'execute')
+                     and not has_function_privilege('authenticated', 'public.zoho_work()', 'execute')
+                     and not has_function_privilege('authenticated', 'public.zoho_begin_connect()', 'execute'),
+  'only the server can read the Zoho connection');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'

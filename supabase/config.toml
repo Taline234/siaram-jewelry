@@ -74,3 +74,11 @@ import_map = "./functions/import_map.json"
 [functions.workbook-sync]
 verify_jwt = false
 import_map = "./functions/import_map.json"
+
+[functions.zoho-connect]
+verify_jwt = false
+import_map = "./functions/import_map.json"
+
+[functions.zoho-sync]
+verify_jwt = false
+import_map = "./functions/import_map.json"

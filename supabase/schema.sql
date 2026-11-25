@@ -1706,3 +1706,179 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke execute on function public.order_receipt(text) from public, anon, authenticated;
 grant execute on function public.order_receipt(text) to service_role;
+
+-- ---------------------------------------------------------------- Zoho Inventory / Books
+-- The zoho-sync function (every 10 minutes, supabase/cron.sql) copies the store into Zoho Inventory, whose
+-- invoices and payments also appear in Zoho Books: the 36 pieces as items, each order and recorded sale as an
+-- invoice numbered like the order (S017...), a payment once it is paid (recorded sales at once, website orders
+-- when delivered), a voided invoice when an order is cancelled, and stock kept equal to the website's stock
+-- table. The owner connects Zoho once with the "Connect Zoho" button on the account page (zoho-connect).
+-- Only orders from zoho_sync_from on are sent (set to the day Zoho is connected; change it to send older ones).
+alter table public.store_settings add column if not exists zoho_sync_from date;
+
+create table if not exists private.zoho (
+  id                int primary key default 1 check (id = 1),
+  refresh_token     text,
+  access_token      text,
+  access_expires_at timestamptz,
+  organization_id   text,
+  organization_name text,
+  connect_state     text,          -- random value checked when Zoho sends the owner back
+  connect_state_at  timestamptz,
+  connected_at      timestamptz,
+  sync_started_at   timestamptz,
+  last_sync_at      timestamptz,
+  last_error        text
+);
+insert into private.zoho (id) values (1) on conflict (id) do nothing;
+
+create table if not exists private.zoho_items (
+  product_slug text primary key,
+  item_id      text not null
+);
+create table if not exists private.zoho_contacts (
+  contact_key text primary key,    -- the customer's email, or their name when there is no email
+  contact_id  text not null
+);
+create table if not exists private.zoho_orders (
+  order_id   uuid primary key references public.orders (id) on delete cascade,
+  invoice_id text,
+  payment_id text,
+  voided     boolean not null default false,
+  last_error text,
+  updated_at timestamptz not null default now()
+);
+
+-- Starts "Connect Zoho": a fresh random state, valid 15 minutes.
+create or replace function public.zoho_begin_connect() returns text
+language plpgsql security definer set search_path = public as $$
+declare v_state text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');
+begin
+  update private.zoho set connect_state = v_state, connect_state_at = now() where id = 1;
+  return v_state;
+end $$;
+
+-- Saves the connection when Zoho sends the owner back with the right state; false otherwise.
+create or replace function public.zoho_finish_connect(p_state text, p_refresh_token text, p_access_token text,
+  p_expires_in int, p_organization_id text, p_organization_name text) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update private.zoho
+     set refresh_token = p_refresh_token, access_token = p_access_token,
+         access_expires_at = now() + make_interval(secs => greatest(coalesce(p_expires_in, 3600) - 120, 60)),
+         organization_id = p_organization_id, organization_name = p_organization_name,
+         connect_state = null, connect_state_at = null, connected_at = now(), last_error = null
+   where id = 1 and connect_state = p_state and connect_state_at > now() - interval '15 minutes';
+  if not found then return false; end if;
+  update public.store_settings set zoho_sync_from = coalesce(zoho_sync_from, (now() at time zone 'Asia/Beirut')::date) where id = 1;
+  return true;
+end $$;
+
+create or replace function public.zoho_status() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('connected', z.refresh_token is not null, 'organization', z.organization_name,
+                            'connected_at', z.connected_at, 'last_sync_at', z.last_sync_at, 'last_error', z.last_error,
+                            'sync_from', s.zoho_sync_from)
+    from private.zoho z cross join public.store_settings s where z.id = 1 and s.id = 1;
+$$;
+
+create or replace function public.zoho_credentials() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('refresh_token', refresh_token, 'organization_id', organization_id,
+                            'access_token', case when access_expires_at > now() then access_token end)
+    from private.zoho where id = 1;
+$$;
+
+create or replace function public.zoho_save_access(p_access_token text, p_expires_in int) returns void
+language sql security definer set search_path = public as $$
+  update private.zoho set access_token = p_access_token,
+         access_expires_at = now() + make_interval(secs => greatest(coalesce(p_expires_in, 3600) - 120, 60)) where id = 1;
+$$;
+
+-- One sync at a time; a run that died is taken over after 5 minutes.
+create or replace function public.claim_zoho_sync() returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update private.zoho set sync_started_at = now()
+   where id = 1 and refresh_token is not null and (sync_started_at is null or sync_started_at < now() - interval '5 minutes');
+  return found;
+end $$;
+
+-- Ends a run; returns the previous error so each new problem is emailed once.
+create or replace function public.finish_zoho_sync(p_error text) returns text
+language plpgsql security definer set search_path = public as $$
+declare v_previous text;
+begin
+  select last_error into v_previous from private.zoho where id = 1;
+  update private.zoho set sync_started_at = null, last_sync_at = now(), last_error = nullif(p_error, '') where id = 1;
+  return v_previous;
+end $$;
+
+-- Everything a sync needs: the pieces with their website stock, the known Zoho contacts, and the orders to send.
+create or replace function public.zoho_work() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'products', (select coalesce(jsonb_agg(jsonb_build_object(
+        'slug', p.slug, 'sku', p.sku, 'name', p.name, 'category', p.category, 'price', p.price,
+        'stock', (select coalesce(sum(st.quantity), 0) from public.stock st where st.product_slug = p.slug),
+        'item_id', zi.item_id) order by p.sku), '[]'::jsonb)
+       from public.products p left join private.zoho_items zi on zi.product_slug = p.slug),
+    'contacts', (select coalesce(jsonb_object_agg(contact_key, contact_id), '{}'::jsonb) from private.zoho_contacts),
+    'orders', (select coalesce(jsonb_agg(jsonb_build_object(
+        'id', o.id, 'reference', o.reference, 'status', o.status, 'channel', coalesce(o.channel, 'Website'),
+        'payment_method', o.payment_method, 'sale_date', to_char((o.created_at at time zone 'Asia/Beirut')::date, 'YYYY-MM-DD'),
+        'customer_name', o.customer_name, 'email', o.email, 'phone', o.phone,
+        'address', concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
+                             nullif(o.city, ''), nullif(o.governorate, '')),
+        'subtotal', o.subtotal, 'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
+        'invoice_id', zo.invoice_id, 'payment_id', zo.payment_id, 'voided', coalesce(zo.voided, false),
+        'items', (select jsonb_agg(jsonb_build_object('slug', i.product_slug, 'sku', i.sku, 'name', i.name,
+                    'unit_price', i.unit_price, 'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
+                    'stone', i.stone, 'made_to_order', i.made_to_order) order by i.name)
+                    from public.order_items i where i.order_id = o.id)) order by o.reference), '[]'::jsonb)
+       from public.orders o cross join public.store_settings s
+       left join private.zoho_orders zo on zo.order_id = o.id
+      where s.id = 1 and s.zoho_sync_from is not null and o.reference is not null
+        and (o.created_at at time zone 'Asia/Beirut')::date >= s.zoho_sync_from
+        -- only orders with something left to do
+        and (zo.order_id is null
+             or (o.status = 'cancelled' and zo.invoice_id is not null and not zo.voided)
+             or (o.status <> 'cancelled' and zo.payment_id is null and o.total > 0
+                 and (coalesce(o.channel, 'Website') <> 'Website' or o.status = 'delivered'))
+             or (o.status <> 'cancelled' and zo.invoice_id is null)))
+  );
+$$;
+
+create or replace function public.zoho_save_item(p_slug text, p_item_id text) returns void
+language sql security definer set search_path = public as $$
+  insert into private.zoho_items (product_slug, item_id) values (p_slug, p_item_id)
+  on conflict (product_slug) do update set item_id = excluded.item_id;
+$$;
+
+create or replace function public.zoho_save_contact(p_key text, p_contact_id text) returns void
+language sql security definer set search_path = public as $$
+  insert into private.zoho_contacts (contact_key, contact_id) values (lower(trim(p_key)), p_contact_id)
+  on conflict (contact_key) do update set contact_id = excluded.contact_id;
+$$;
+
+-- Records what was done in Zoho for an order (null leaves a value as it is).
+create or replace function public.zoho_save_order(p_order_id uuid, p_invoice_id text, p_payment_id text,
+  p_voided boolean, p_error text) returns void
+language sql security definer set search_path = public as $$
+  insert into private.zoho_orders (order_id, invoice_id, payment_id, voided, last_error)
+  values (p_order_id, p_invoice_id, p_payment_id, coalesce(p_voided, false), nullif(p_error, ''))
+  on conflict (order_id) do update set
+    invoice_id = coalesce(excluded.invoice_id, zoho_orders.invoice_id),
+    payment_id = case when p_voided then null else coalesce(excluded.payment_id, zoho_orders.payment_id) end,
+    voided = coalesce(p_voided, zoho_orders.voided),
+    last_error = nullif(p_error, ''), updated_at = now();
+$$;
+
+revoke execute on function public.zoho_begin_connect(), public.zoho_finish_connect(text, text, text, int, text, text),
+  public.zoho_status(), public.zoho_credentials(), public.zoho_save_access(text, int), public.claim_zoho_sync(),
+  public.finish_zoho_sync(text), public.zoho_work(), public.zoho_save_item(text, text), public.zoho_save_contact(text, text),
+  public.zoho_save_order(uuid, text, text, boolean, text) from public, anon, authenticated;
+grant execute on function public.zoho_begin_connect(), public.zoho_finish_connect(text, text, text, int, text, text),
+  public.zoho_status(), public.zoho_credentials(), public.zoho_save_access(text, int), public.claim_zoho_sync(),
+  public.finish_zoho_sync(text), public.zoho_work(), public.zoho_save_item(text, text), public.zoho_save_contact(text, text),
+  public.zoho_save_order(uuid, text, text, boolean, text) to service_role;

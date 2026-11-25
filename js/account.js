@@ -204,8 +204,8 @@ async function renderAccount() {
     isOwner(session),
   ]);
   // The shop owner gets an admin page (sales and workbook) instead of the customer tabs.
-  const tabs = owner ? ['sale', 'vouchers', 'workbook'] : ['orders', 'wishlist', 'addresses', 'details'];
-  const TAB_LABELS = { sale: 'Record a Sale', vouchers: 'Gift Vouchers' };
+  const tabs = owner ? ['sale', 'vouchers', 'workbook', 'zoho'] : ['orders', 'wishlist', 'addresses', 'details'];
+  const TAB_LABELS = { sale: 'Record a Sale', vouchers: 'Gift Vouchers', zoho: 'Zoho' };
   const tab = tabs.includes(location.hash.replace('#', '')) ? location.hash.replace('#', '') : tabs[0];
   root.innerHTML = `<div class="account-head">
       <h2>${owner ? 'Siaram Admin' : `Hello, ${escapeHtml(profile ? profile.first_name : '')}`}</h2>
@@ -223,7 +223,7 @@ async function renderAccount() {
     renderSignedOut();
   });
   const panel = root.querySelector('.account-panel');
-  const views = owner ? { sale: renderSale, vouchers: renderVouchers, workbook: renderWorkbook }
+  const views = owner ? { sale: renderSale, vouchers: renderVouchers, workbook: renderWorkbook, zoho: renderZoho }
     : { orders: renderOrders, wishlist: renderWishlist, addresses: renderAddresses, details: renderDetails };
   await views[tab](panel, session, profile);
 }
@@ -436,7 +436,7 @@ async function init() {
   });
   // Clicking a tab changes the address (#sale, #orders...); redraw the page for it.
   window.addEventListener('hashchange', () => {
-    if (['#orders', '#wishlist', '#addresses', '#details', '#sale', '#vouchers', '#workbook'].includes(location.hash)) renderAccount();
+    if (['#orders', '#wishlist', '#addresses', '#details', '#sale', '#vouchers', '#workbook', '#zoho'].includes(location.hash)) renderAccount();
   });
   if (recovering) renderPasswordReset();
   else await renderAccount();
@@ -509,6 +509,68 @@ async function renderVouchers(panel, session) {
       row.querySelectorAll('button').forEach((b) => { b.disabled = false; });
     }
   }));
+}
+
+// ---------------------------------------------------------------- owner: Zoho
+// Connect Zoho once; after that the website copies sales, payments and stock into Zoho every 10 minutes.
+const ZOHO_RESULT = {
+  connected: 'Zoho is connected. Your pieces, sales and stock will appear in Zoho within 10 minutes.',
+  cancelled: 'Zoho was not connected (you did not click Accept). You can try again.',
+  expired: 'That took too long. Please click Connect Zoho again.',
+  'no-organization': 'Zoho found no organisation on this account. Finish setting up Zoho Inventory first.',
+  failed: 'Zoho could not be connected. Check the two Zoho secrets in Supabase and try again.',
+};
+
+async function renderZoho(panel, session) {
+  const call = async (action) => {
+    const { data: { session: current } } = await client.auth.getSession();
+    const res = await fetch(apiUrl('zoho-connect'), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${(current || session).access_token}` },
+      body: JSON.stringify({ action }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Something went wrong.');
+    return body;
+  };
+  const result = new URLSearchParams(location.search).get('zoho');
+  if (result) history.replaceState(null, '', `${location.pathname}#zoho`);
+  panel.innerHTML = '<div class="auth-card"><p class="field-note">Checking Zoho…</p></div>';
+  let status;
+  try {
+    status = await call('status');
+  } catch (err) {
+    panel.innerHTML = `<div class="auth-card"><p class="form-msg form-error">${escapeHtml(err.message)}</p></div>`;
+    return;
+  }
+  const when = (t) => (t ? new Date(t).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) : '');
+  panel.innerHTML = `<div class="auth-card zoho-card">
+      <h3>Zoho Inventory &amp; Books</h3>
+      ${result && ZOHO_RESULT[result] ? `<p class="zoho-result">${ZOHO_RESULT[result]}</p>` : ''}
+      ${status.connected
+        ? `<p class="field-note">Connected to <strong>${escapeHtml(status.organization || 'Zoho')}</strong>. Every 10 minutes the
+            website sends Zoho its new sales (as invoices numbered like your orders), payments, cancellations and stock.
+            Keep recording sales here; Zoho follows.</p>
+           <p class="field-note">${status.last_sync_at ? `Last copy: ${when(status.last_sync_at)}.` : 'The first copy runs within 10 minutes.'}
+            ${status.sync_from ? `Sales from ${escapeHtml(status.sync_from)} on are sent.` : ''}</p>
+           ${status.last_error ? `<p class="form-msg form-error">Last problem: ${escapeHtml(status.last_error)}</p>` : ''}`
+        : `<p class="field-note">${status.keys_added
+            ? 'Click the button, sign in to Zoho if asked, and click <strong>Accept</strong>. You come back here once it is connected.'
+            : 'First add the <strong>ZOHO_CLIENT_ID</strong> and <strong>ZOHO_CLIENT_SECRET</strong> secrets in Supabase (see STORE-SETUP.md).'}</p>`}
+      <p class="form-msg form-error" role="alert"></p>
+      <button type="button" class="btn ${status.connected ? 'btn-outline' : 'btn-primary'} zoho-connect"${status.keys_added ? '' : ' disabled'}>
+        ${status.connected ? 'Connect Again' : 'Connect Zoho'}</button>
+    </div>`;
+  const btn = panel.querySelector('.zoho-connect');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      location.href = (await call('start')).url;
+    } catch (err) {
+      panel.querySelector('.form-msg').textContent = err.message;
+      btn.disabled = false;
+    }
+  });
 }
 
 // ---------------------------------------------------------------- owner: workbook backup

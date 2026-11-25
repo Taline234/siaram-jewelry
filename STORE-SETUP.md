@@ -253,6 +253,32 @@ and download:
 - **Customers**: name, phone, email, address and "Website", in the Customers tab's columns A to G. Paste only names
   that are not there yet; the workbook matches customers by name.
 
+## Zoho Inventory and Books (copied automatically)
+
+The website stays where you record sales and stock. Every 10 minutes it copies into Zoho Inventory (and so Zoho Books):
+- your pieces as **items** (by SKU), with Zoho's **stock kept equal to the website's** stock table;
+- each website order and recorded sale as an **invoice numbered like the order** (S017…), for its customer;
+- a **payment** once paid (recorded sales at once; website orders when delivered);
+- for a cancelled order, its payment removed and its invoice **voided**.
+
+Zoho never emails your customers (your receipt comes from the website). Use Zoho Books for **expenses**, **quotes
+(estimates)** and **reports**. Don't change stock in Zoho by hand: the website's stock wins and Zoho is set back to it.
+The Google Sheets workbook keeps updating as before. If a copy fails, you get one email per reason, and the
+**Zoho** tab on your account page shows the last problem.
+
+**Set-up (once):**
+1. Sign up at <https://www.zoho.eu/inventory> (zoho**.eu**, so data stays in the EU), organisation `Siaram Jewelry`,
+   country Lebanon, currency **USD**, time zone Asia/Beirut. Don't add items by hand. Zoho Books
+   (<https://books.zoho.eu>) uses the same organisation.
+2. At <https://api-console.zoho.eu> → **Add Client → Server-based Applications**: name `Siaram website`, homepage
+   `https://siaramjewelry.com`, redirect URI `https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/zoho-connect` → **Create**.
+3. In **Supabase → Edge Functions → Secrets**, add `ZOHO_CLIENT_ID` and `ZOHO_CLIENT_SECRET` from that page.
+4. Run [`supabase/schema.sql`](supabase/schema.sql) and [`supabase/cron.sql`](supabase/cron.sql) again in the SQL Editor.
+5. On the website, **My Account → Zoho → Connect Zoho**, sign in to Zoho if asked and click **Accept**.
+
+Sales from the day you connect are sent. To also send older ones, set **store_settings → zoho_sync_from** to an
+earlier date.
+
 ## Backups
 
 Every Sunday, `.github/workflows/backup-database.yml` copies the whole database and keeps the copy for 90 days

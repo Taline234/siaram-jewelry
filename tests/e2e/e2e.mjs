@@ -512,7 +512,7 @@ assert.ok(workbookText.includes(`<t xml:space="preserve">${ref2}</t>`), 'listing
 await shot('account-workbook');
 step('the owner gets a Workbook tab and downloads one Excel file with Sales and Customers tabs');
 
-assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Gift Vouchers', 'Workbook'],
+assert.deepEqual(await page.locator('.account-tabs a').allTextContents(), ['Record a Sale', 'Gift Vouchers', 'Workbook', 'Zoho'],
   'the owner gets an admin page, not the customer tabs');
 // Gift Vouchers tab: the request made earlier waits for payment; Mark as paid creates the voucher.
 await page.click('.account-tabs a[href="#vouchers"]');
@@ -568,6 +568,11 @@ assert.match(await page.locator('.sale-receipt-note').textContent(), /emailed to
 const [receiptDownload] = await Promise.all([page.waitForEvent('download'), page.click('.sale-receipt')]);
 assert.equal(receiptDownload.suggestedFilename(), `Siaram-receipt-${saleRef}.pdf`);
 assert.equal(fs.readFileSync(await receiptDownload.path()).subarray(0, 4).toString(), '%PDF');
+await page.click('.account-tabs a[href="#zoho"]');
+await page.waitForSelector('.zoho-card');
+assert.match(await page.locator('.zoho-card').textContent(), /ZOHO_CLIENT_ID/, 'the Zoho tab says which secrets to add first');
+assert.ok(await page.locator('.zoho-connect').isDisabled());
+await shot('account-zoho');
 await setState({ ownerEmails: 'owner@siaram.test' });
 step('the owner records an Instagram sale with two pieces; it gets the next order number, the customer gets the receipt, and the owner can download it');
 
