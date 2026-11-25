@@ -1976,3 +1976,14 @@ $$;
 
 revoke execute on function public.zoho_set_organizations(jsonb), public.zoho_choose_organization(text) from public, anon, authenticated;
 grant execute on function public.zoho_set_organizations(jsonb), public.zoho_choose_organization(text) to service_role;
+
+-- After the workbook import, new expenses and owner money typed in the workbook keep being copied to Zoho
+-- (zoho-sync); 'finished' tells it the import is done, so it never copies a row twice.
+create or replace function public.zoho_import_state() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'requested', z.import_requested_at is not null and z.import_finished_at is null,
+    'finished', z.import_finished_at is not null,
+    'done', (select coalesce(jsonb_object_agg(kind || ':' || key, zoho_id), '{}'::jsonb) from private.zoho_imports))
+    from private.zoho z where z.id = 1;
+$$;

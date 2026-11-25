@@ -163,6 +163,53 @@ async function importInvoice(number, lines, ids, done) {
   return String(invoice.invoice_id);
 }
 
+// Owner investment / withdrawal rows on the Payments tab -> journal entries. False when the call budget ran out.
+async function ownerMoney(wb, acc, done, counts) {
+  // Owner money first, so the cash account is never below zero in Zoho.
+  for (const r of wb.payments) {
+    const type = text(r[2]).toLowerCase();
+    if (text(r[9]).toLowerCase() !== 'manual' || !['owner investment', 'owner withdrawal'].includes(type)) continue;
+    if (done[`journal:${text(r[0])}`]) continue;
+    if (zohoCalls() >= BUDGET) return false;
+    const value = amount(type === 'owner investment' ? r[5] : r[6]);
+    const date = isoDate(r[1]);
+    if (!value || !date) continue;
+    const investing = type === 'owner investment';
+    const journal = (await zoho('POST', 'journals', { app: 'books', body: {
+      journal_date: date, reference_number: text(r[0]), notes: `${text(r[4]) || text(r[2])} (imported from the finance workbook)`,
+      line_items: [
+        { account_id: investing ? acc.cash : acc.drawings, debit_or_credit: 'debit', amount: value },
+        { account_id: investing ? acc.equity : acc.cash, debit_or_credit: 'credit', amount: value },
+      ],
+    } })).journal;
+    await rpc('zoho_save_import', { p_kind: 'journal', p_key: text(r[0]), p_zoho_id: String(journal.journal_id) });
+    counts.owner += 1;
+  }
+
+  return true;
+}
+
+// Expenses tab rows -> Zoho Books expenses. With paidOnly, rows without a Date Paid wait until it is filled in.
+async function expenses(wb, acc, done, counts, supplierRows, paidOnly) {
+  for (const r of wb.expenses) {
+    const key = text(r[8]) || `${text(r[0])}|${text(r[2])}|${text(r[3])}`;
+    if (done[`expense:${key}`]) continue;
+    if (zohoCalls() > BUDGET - 2) return false;
+    if (paidOnly && !isoDate(r[6])) continue;
+    const date = isoDate(r[6]) || isoDate(r[0]);
+    if (!date || !amount(r[3])) continue;
+    const vendorName = text(r[4]);
+    const expense = (await zoho('POST', 'expenses', { app: 'books', body: {
+      account_id: acc.expense(r[1]), paid_through_account_id: acc.cash, date, amount: amount(r[3]),
+      vendor_id: vendorName ? await vendor(vendorName, supplierRows[vendorName.toLowerCase()], done) : undefined,
+      reference_number: text(r[8]) || undefined, description: [text(r[1]), text(r[2])].filter(Boolean).join(': '),
+    } })).expense;
+    await rpc('zoho_save_import', { p_kind: 'expense', p_key: key, p_zoho_id: String(expense.expense_id) });
+    counts.expenses += 1;
+  }
+  return true;
+}
+
 // One portion of the import. Returns { finished, counts }.
 export async function importPortion() {
   const state = await rpc('zoho_import_state', {});
@@ -191,26 +238,7 @@ export async function importPortion() {
     counts.vendors += 1;
   }
 
-  // Owner money first, so the cash account is never below zero in Zoho.
-  for (const r of wb.payments) {
-    const type = text(r[2]).toLowerCase();
-    if (text(r[9]).toLowerCase() !== 'manual' || !['owner investment', 'owner withdrawal'].includes(type)) continue;
-    if (done[`journal:${text(r[0])}`]) continue;
-    if (!left()) return { finished: false, counts };
-    const value = amount(type === 'owner investment' ? r[5] : r[6]);
-    const date = isoDate(r[1]);
-    if (!value || !date) continue;
-    const investing = type === 'owner investment';
-    const journal = (await zoho('POST', 'journals', { app: 'books', body: {
-      journal_date: date, reference_number: text(r[0]), notes: `${text(r[4]) || text(r[2])} (imported from the finance workbook)`,
-      line_items: [
-        { account_id: investing ? acc.cash : acc.drawings, debit_or_credit: 'debit', amount: value },
-        { account_id: investing ? acc.equity : acc.cash, debit_or_credit: 'credit', amount: value },
-      ],
-    } })).journal;
-    await rpc('zoho_save_import', { p_kind: 'journal', p_key: text(r[0]), p_zoho_id: String(journal.journal_id) });
-    counts.owner += 1;
-  }
+  if (!(await ownerMoney(wb, acc, done, counts))) return { finished: false, counts };
 
   const invoices = new Map();
   for (const r of wb.sales) {
@@ -226,22 +254,29 @@ export async function importPortion() {
     counts.invoices += 1;
   }
 
-  for (const r of wb.expenses) {
-    const key = text(r[8]) || `${text(r[0])}|${text(r[2])}|${text(r[3])}`;
-    if (done[`expense:${key}`]) continue;
-    if (zohoCalls() > BUDGET - 2) return { finished: false, counts };
-    const date = isoDate(r[6]) || isoDate(r[0]);
-    if (!date || !amount(r[3])) continue;
-    const vendorName = text(r[4]);
-    const expense = (await zoho('POST', 'expenses', { app: 'books', body: {
-      account_id: acc.expense(r[1]), paid_through_account_id: acc.cash, date, amount: amount(r[3]),
-      vendor_id: vendorName ? await vendor(vendorName, supplierRows[vendorName.toLowerCase()], done) : undefined,
-      reference_number: text(r[8]) || undefined, description: [text(r[1]), text(r[2])].filter(Boolean).join(': '),
-    } })).expense;
-    await rpc('zoho_save_import', { p_kind: 'expense', p_key: key, p_zoho_id: String(expense.expense_id) });
-    counts.expenses += 1;
-  }
+  if (!(await expenses(wb, acc, done, counts, supplierRows, false))) return { finished: false, counts };
   return { finished: true, counts };
+}
+
+// After the import: new expenses (once paid) and owner money typed in the workbook are copied to Zoho too.
+// Sales are not: they reach Zoho from the website itself. Returns the counts, or null when there was nothing new.
+export async function followWorkbook() {
+  const state = await rpc('zoho_import_state', {});
+  if (!state?.finished || state.requested) return null;
+  const done = state.done || {};
+  const wb = await readWorkbook();
+  const owner = (r) => text(r[9]).toLowerCase() === 'manual' && ['owner investment', 'owner withdrawal'].includes(text(r[2]).toLowerCase());
+  const waiting = wb.payments.some((r) => owner(r) && !done[`journal:${text(r[0])}`])
+    || wb.expenses.some((r) => isoDate(r[6]) && amount(r[3])
+      && !done[`expense:${text(r[8]) || `${text(r[0])}|${text(r[2])}|${text(r[3])}`}`]);
+  if (!waiting) return null; // nothing new: no Zoho calls at all
+  const counts = { expenses: 0, owner: 0 };
+  const acc = await accounts(done);
+  const supplierRows = {};
+  for (const r of wb.suppliers) supplierRows[text(r[0]).toLowerCase()] = r;
+  await ownerMoney(wb, acc, done, counts);
+  await expenses(wb, acc, done, counts, supplierRows, true);
+  return counts;
 }
 
 // Count of everything imported so far, for the summary email and the Zoho tab.

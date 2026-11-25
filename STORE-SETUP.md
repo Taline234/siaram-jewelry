@@ -290,6 +290,12 @@ Cash) and the owner investment / withdrawal rows on Payments (journals to Owner'
 when it is done. Clicking it again adds nothing twice. It needs Zoho Books permission: if you connected Zoho before
 26 November 2026, click **Connect Again** first.
 
+**After the import, keep typing expenses in the workbook.** Every 10 minutes, new rows on the Expenses tab are copied
+to Zoho Books as soon as their **Date Paid** is filled in (unpaid bills wait), and new owner investment / withdrawal
+rows on the Payments tab become journal entries. A new supplier is added to Zoho by itself. Changing or deleting a row
+that was already copied is not copied: change it in Zoho Books too. Sales are not copied from the workbook: they reach
+Zoho from the website.
+
 ## Backups
 
 Every Sunday, `.github/workflows/backup-database.yml` copies the whole database and keeps the copy for 90 days

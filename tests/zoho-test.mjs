@@ -123,7 +123,7 @@ const RPC = {
   zoho_begin_connect: () => 'state-1',
   zoho_finish_connect: (b) => { db.finished = b; return b.p_state === 'state-1'; },
   zoho_status: () => ({ connected: db.connected, organization: 'Siaram Jewelry' }),
-  zoho_import_state: () => ({ requested: db.importRequested, done: { ...db.imports } }),
+  zoho_import_state: () => ({ requested: db.importRequested, finished: Boolean(db.importSummary), done: { ...db.imports } }),
   zoho_save_import: (b) => { db.imports[`${b.p_kind}:${b.p_key}`] = b.p_zoho_id; },
   zoho_finish_import: (b) => { db.importRequested = false; db.importSummary = b.p_summary; },
   zoho_request_import: () => { db.importRequested = true; },
@@ -416,7 +416,7 @@ test('a workbook tab whose columns moved is not imported wrongly', async () => {
   sheet.Expenses[3][0] = 'When';
   db.importRequested = true;
   await run();
-  assert.match(db.error, /Workbook import: The Expenses tab has no "Date" heading/);
+  assert.match(db.error, /Workbook to Zoho: The Expenses tab has no "Date" heading/);
   assert.equal(books.expenses.length, 0);
 });
 
@@ -431,4 +431,30 @@ test('with several Zoho organisations, the list is kept and the owner can choose
   assert.equal((await choose('org-9')).status, 400, 'an organisation not on the account is refused');
   db.user = { email: 'rana@example.com', email_confirmed_at: '2026-01-01' };
   assert.equal((await choose('org-1')).status, 403);
+});
+
+test('after the import, new paid expenses and owner money typed in the workbook follow; unpaid ones wait', async () => {
+  db.importRequested = true;
+  await run();
+  assert.equal(books.expenses.length, 3);
+  const before = calls.length;
+  await run();
+  assert.equal(calls.filter((c, i) => i >= before && c.url.hostname === 'www.zohoapis.eu' && c.url.pathname.startsWith('/books/')).length, 0,
+    'nothing new: no Zoho Books calls');
+  sheet.Expenses.push(['26-Nov-2026', 'Packaging', 'Boxes', '$120.00', 'Print Group', 'Cash', '', '', 'EX029']);
+  sheet.Expenses.push(['26-Nov-2026', 'Advertising', 'Reel', '$80.00', 'Karim', 'Cash', '26-Nov-2026', '', 'EX030']);
+  sheet.Payments.push(['PAY050', '26-Nov-2026', 'Owner Withdrawal', 'OWNER002', 'Owner draw', '', '$500.00', 'Cash', '', 'Manual']);
+  sheet.Sales.push(['S040', '26-Nov-2026', 'Lea', 'Website', 'NK-01', '', '1', '$490.00', '', '', '$490.00', 'Cash', '$490.00']);
+  const { body } = await run();
+  assert.deepEqual(body.workbook, { expenses: 1, owner: 1 });
+  assert.ok(Object.values(books.contacts).some((c) => c.contact_type === 'vendor' && c.contact_name === 'Karim'), 'a new supplier is added');
+  assert.deepEqual(books.expenses.at(-1).reference_number, 'EX030');
+  assert.equal(books.expenses.some((e) => e.reference_number === 'EX029'), false, 'an unpaid bill waits for its Date Paid');
+  assert.deepEqual(books.journals.at(-1).line_items.map((l) => [l.debit_or_credit, l.amount]), [['debit', 500], ['credit', 500]]);
+  assert.equal(books.invoices.S040, undefined, 'sales are not copied from the workbook (the website sends them)');
+  sheet.Expenses.find((r) => r[8] === 'EX029')[6] = '27-Nov-2026';
+  await run();
+  assert.equal(books.expenses.at(-1).reference_number, 'EX029');
+  await run();
+  assert.equal(books.expenses.length, 5, 'nothing twice');
 });
