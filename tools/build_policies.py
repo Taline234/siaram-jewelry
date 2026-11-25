@@ -115,9 +115,14 @@ PROVIDERS = """<p>Other main providers and processing locations are:</p>
           orders and our mailing list, and runs our order functions. <a href="https://supabase.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Resend</strong> (United States) sends order confirmations, account emails and, if you subscribe, our newsletter (every newsletter has an unsubscribe link).
           <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Privacy policy</a></li>
-        <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook) and our order and accounting
-          workbook (Excel on OneDrive): order reference, date, pieces, amounts, payment method and customer name.
+        <li><strong>Microsoft</strong> hosts our customer service mailbox (Outlook).
           <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Privacy statement</a></li>
+        <li><strong>Google</strong> (Google Sheets) holds our sales workbook: order reference, date, pieces, amounts, payment
+          method, and the customer's name, phone number, email and address.
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy policy</a></li>
+        <li><strong>Zoho</strong> (Zoho Inventory and Zoho Books, United States) keeps our invoices, payments and stock records:
+          order reference, date, pieces, amounts, payment method, and the customer's name, phone number, email and address.
+          <a href="https://www.zoho.com/privacy.html" target="_blank" rel="noopener">Privacy policy</a></li>
         <li><strong>Google Fonts</strong> and <strong>jsDelivr</strong> deliver the website's fonts and sign-in library;
           your browser's request shares your IP address with them, but they set no cookies.</li>
         <li><strong>Wakilni</strong> (Lebanon), our courier, delivers orders and collects cash-on-delivery payments; it receives the

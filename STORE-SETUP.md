@@ -273,6 +273,8 @@ The Google Sheets workbook keeps updating as before. If a copy fails, you get on
 2. At <https://api-console.zoho.eu> → **Add Client → Server-based Applications**: name `Siaram website`, homepage
    `https://siaramjewelry.com`, redirect URI `https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/zoho-connect` → **Create**.
 3. In **Supabase → Edge Functions → Secrets**, add `ZOHO_CLIENT_ID` and `ZOHO_CLIENT_SECRET` from that page.
+   If your Zoho address is zoho**.com** (US) rather than zoho.eu, also add `ZOHO_REGION` = `com`, and create the key at
+   <https://api-console.zoho.com> instead.
 4. Run [`supabase/schema.sql`](supabase/schema.sql) and [`supabase/cron.sql`](supabase/cron.sql) again in the SQL Editor.
 5. On the website, **My Account → Zoho → Connect Zoho**, sign in to Zoho if asked and click **Accept**.
 
