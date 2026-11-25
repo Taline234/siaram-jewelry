@@ -633,4 +633,11 @@ select pg_temp.check(not (zoho_import_state()->>'requested')::boolean and zoho_s
 select pg_temp.check(not has_function_privilege('authenticated', 'public.zoho_request_import()', 'execute'),
   'only the server can start the workbook import');
 
+select zoho_set_organizations('[{"id":"o1","name":"Siaram (Invoice)"},{"id":"o2","name":"Siaram (Books)"}]'::jsonb);
+select pg_temp.check(not zoho_choose_organization('o9'), 'an organisation that is not on the Zoho account is refused');
+select pg_temp.check(zoho_choose_organization('o2'), 'the owner can choose another Zoho organisation');
+select pg_temp.check(zoho_status()->>'organization_id' = 'o2' and zoho_status()->>'organization' = 'Siaram (Books)'
+                     and (select count(*) from private.zoho_imports) = 0 and (select count(*) from private.zoho_orders) = 0,
+  'choosing another organisation starts the Zoho copy afresh');
+
 \echo 'ALL STORE DATABASE TESTS PASSED'

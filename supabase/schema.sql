@@ -1935,3 +1935,44 @@ revoke execute on function public.zoho_request_import(), public.zoho_import_stat
   public.zoho_finish_import(text) from public, anon, authenticated;
 grant execute on function public.zoho_request_import(), public.zoho_import_state(), public.zoho_save_import(text, text, text),
   public.zoho_finish_import(text) to service_role;
+
+-- A Zoho login can have several organisations (for example one in Zoho Invoice and one in Zoho Books). Connect Zoho
+-- keeps the list; the owner picks the right one on the Zoho tab. Changing it starts the copy afresh in the new one.
+alter table private.zoho add column if not exists organizations jsonb;
+
+create or replace function public.zoho_set_organizations(p_list jsonb) returns void
+language sql security definer set search_path = public as $$
+  update private.zoho set organizations = p_list where id = 1;
+$$;
+
+create or replace function public.zoho_choose_organization(p_id text) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare v_name text;
+begin
+  select o->>'name' into v_name from private.zoho z, jsonb_array_elements(coalesce(z.organizations, '[]'::jsonb)) o
+   where z.id = 1 and o->>'id' = p_id;
+  if v_name is null then return false; end if;
+  if (select organization_id from private.zoho where id = 1) is distinct from p_id then
+    delete from private.zoho_items;
+    delete from private.zoho_contacts;
+    delete from private.zoho_orders;
+    delete from private.zoho_imports;
+    update private.zoho set import_requested_at = null, import_finished_at = null, import_summary = null where id = 1;
+  end if;
+  update private.zoho set organization_id = p_id, organization_name = v_name, last_error = null where id = 1;
+  return true;
+end $$;
+
+create or replace function public.zoho_status() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('connected', z.refresh_token is not null, 'organization', z.organization_name,
+                            'organization_id', z.organization_id, 'organizations', coalesce(z.organizations, '[]'::jsonb),
+                            'connected_at', z.connected_at, 'last_sync_at', z.last_sync_at, 'last_error', z.last_error,
+                            'sync_from', s.zoho_sync_from,
+                            'import_requested_at', z.import_requested_at, 'import_finished_at', z.import_finished_at,
+                            'import_summary', z.import_summary)
+    from private.zoho z cross join public.store_settings s where z.id = 1 and s.id = 1;
+$$;
+
+revoke execute on function public.zoho_set_organizations(jsonb), public.zoho_choose_organization(text) from public, anon, authenticated;
+grant execute on function public.zoho_set_organizations(jsonb), public.zoho_choose_organization(text) to service_role;

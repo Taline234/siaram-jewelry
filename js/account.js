@@ -548,7 +548,7 @@ async function renderZoho(panel, session) {
       <h3>Zoho Inventory &amp; Books</h3>
       ${result && ZOHO_RESULT[result] ? `<p class="zoho-result">${ZOHO_RESULT[result]}</p>` : ''}
       ${status.connected
-        ? `<p class="field-note">Connected to <strong>${escapeHtml(status.organization || 'Zoho')}</strong>. Every 10 minutes the
+        ? `<p class="field-note">Connected to <strong>${escapeHtml(status.organization || 'Zoho')}</strong>${status.organization_id ? ` (no. ${escapeHtml(status.organization_id)})` : ''}. Every 10 minutes the
             website sends Zoho its new sales (as invoices numbered like your orders), payments, cancellations and stock.
             Keep recording sales here; Zoho follows.</p>
            <p class="field-note">${status.last_sync_at ? `Last copy: ${when(status.last_sync_at)}.` : 'The first copy runs within 10 minutes.'}
@@ -557,6 +557,14 @@ async function renderZoho(panel, session) {
         : `<p class="field-note">${status.keys_added
             ? 'Click the button, sign in to Zoho if asked, and click <strong>Accept</strong>. You come back here once it is connected.'
             : 'First add the <strong>ZOHO_CLIENT_ID</strong> and <strong>ZOHO_CLIENT_SECRET</strong> secrets in Supabase (see STORE-SETUP.md).'}</p>`}
+      ${status.connected && status.organizations && status.organizations.length > 1 ? `<div class="zoho-org">
+        <h4>Which Zoho organisation?</h4>
+        <p class="field-note">Your Zoho login has ${status.organizations.length} organisations. Choose the one you use in
+          Zoho Books (its number is in the Zoho address, e.g. books.zoho.com/app/<strong>920531339</strong>).</p>
+        <div class="zoho-org-row"><select class="zoho-org-select" aria-label="Zoho organisation">
+          ${status.organizations.map((o) => `<option value="${escapeHtml(o.id)}"${o.id === status.organization_id ? ' selected' : ''}>${escapeHtml(o.name)} (no. ${escapeHtml(o.id)})</option>`).join('')}
+        </select><button type="button" class="btn btn-outline zoho-org-btn">Use This One</button></div>
+      </div>` : ''}
       ${status.connected ? `<div class="zoho-import">
         <h4>Your workbook in Zoho</h4>
         ${status.import_finished_at
@@ -572,6 +580,26 @@ async function renderZoho(panel, session) {
       <button type="button" class="btn ${status.connected ? 'btn-outline' : 'btn-primary'} zoho-connect"${status.keys_added ? '' : ' disabled'}>
         ${status.connected ? 'Connect Again' : 'Connect Zoho'}</button>
     </div>`;
+  const orgBtn = panel.querySelector('.zoho-org-btn');
+  if (orgBtn) orgBtn.addEventListener('click', async () => {
+    const id = panel.querySelector('.zoho-org-select').value;
+    if (id === status.organization_id) return;
+    if (!confirm('Use this Zoho organisation from now on? The website will fill it from the start.')) return;
+    orgBtn.disabled = true;
+    try {
+      const { data: { session: current } } = await client.auth.getSession();
+      const res = await fetch(apiUrl('zoho-connect'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${(current || session).access_token}` },
+        body: JSON.stringify({ action: 'organization', organization_id: id }),
+      });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Could not change it.');
+      await renderZoho(panel, session);
+    } catch (err) {
+      panel.querySelector('.form-msg').textContent = err.message;
+      orgBtn.disabled = false;
+    }
+  });
   const importBtn = panel.querySelector('.zoho-import-btn');
   if (importBtn) importBtn.addEventListener('click', async () => {
     importBtn.disabled = true;

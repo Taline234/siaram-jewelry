@@ -127,12 +127,15 @@ const RPC = {
   zoho_save_import: (b) => { db.imports[`${b.p_kind}:${b.p_key}`] = b.p_zoho_id; },
   zoho_finish_import: (b) => { db.importRequested = false; db.importSummary = b.p_summary; },
   zoho_request_import: () => { db.importRequested = true; },
+  zoho_set_organizations: (b) => { db.orgs = b.p_list; },
+  zoho_choose_organization: (b) => { const o = (db.orgs || []).find((x) => x.id === b.p_id); if (o) db.chosen = o.id; return Boolean(o); },
 };
 
 function fakeZoho(method, path, query, body) {
   const ok = (data) => [200, { code: 0, message: 'success', ...data }];
   const [kind, id, , action] = path.split('/');
-  if (kind === 'organizations') return ok({ organizations: [{ organization_id: 'org-1', name: 'Siaram Jewelry', is_default_org: true }] });
+  if (kind === 'organizations') return ok({ organizations: [{ organization_id: 'org-1', name: 'Siaram Jewelry', is_default_org: true },
+    { organization_id: 'org-2', name: 'Siaram Jewelry', is_default_org: false }] });
   if (query.get('organization_id') !== 'org-1') return [400, { code: 6041, message: 'organization_id missing' }];
   if (kind === 'items' && method === 'GET') {
     const items = Object.values(z.items).filter((i) => !query.get('sku') || i.sku === query.get('sku'));
@@ -415,4 +418,17 @@ test('a workbook tab whose columns moved is not imported wrongly', async () => {
   await run();
   assert.match(db.error, /Workbook import: The Expenses tab has no "Date" heading/);
   assert.equal(books.expenses.length, 0);
+});
+
+test('with several Zoho organisations, the list is kept and the owner can choose one of them only', async () => {
+  const back = (q) => zohoConnect(new Request(`https://db.test/functions/v1/zoho-connect?${q}`));
+  await back('code=good&state=state-1');
+  assert.deepEqual(db.orgs.map((o) => o.id), ['org-1', 'org-2']);
+  const choose = (id) => zohoConnect(new Request('https://siaram.test/zoho-connect',
+    { method: 'POST', headers: { authorization: 'Bearer t' }, body: JSON.stringify({ action: 'organization', organization_id: id }) }));
+  assert.equal((await choose('org-2')).status, 200);
+  assert.equal(db.chosen, 'org-2');
+  assert.equal((await choose('org-9')).status, 400, 'an organisation not on the account is refused');
+  db.user = { email: 'rana@example.com', email_confirmed_at: '2026-01-01' };
+  assert.equal((await choose('org-1')).status, 403);
 });

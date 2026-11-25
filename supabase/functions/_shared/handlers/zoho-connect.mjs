@@ -1,6 +1,7 @@
 // /functions/v1/zoho-connect — the "Zoho" tab on the owner's account page.
 //   POST { action: 'status' }   whether Zoho is connected, to which organisation, and how the last copy went
 //   POST { action: 'start' }    the Zoho page to open, where the owner clicks Accept
+//   POST { action: 'organization', organization_id }   which Zoho organisation to fill (when there are several)
 //   POST { action: 'import' }   import the workbook into Zoho (done in portions by zoho-sync)
 //   GET  ?code=...&state=...    where Zoho sends the owner back: saves the connection, then returns to the account page
 import { configured, env, isOwner, json, readJson, rpc, userFromRequest } from '../store.mjs';
@@ -25,6 +26,10 @@ async function callback(url) {
       p_state: state, p_refresh_token: tokens.refresh_token, p_access_token: tokens.access_token,
       p_expires_in: tokens.expires_in, p_organization_id: String(org.organization_id), p_organization_name: org.name,
     });
+    if (ok) {
+      await rpc('zoho_set_organizations', { p_list: (orgs.organizations || []).map((o) => ({
+        id: String(o.organization_id), name: o.name, created: o.account_created_date || null })) });
+    }
     return back(ok ? 'connected' : 'expired');
   } catch (err) {
     console.error('zoho-connect', err);
@@ -51,6 +56,11 @@ export default async (req) => {
       prompt: 'consent', redirect_uri: redirectUri(), state,
     });
     return json({ url: `${accountsUrl()}/oauth/v2/auth?${params}` });
+  }
+  if (body.action === 'organization') {
+    const ok = await rpc('zoho_choose_organization', { p_id: String(body.organization_id || '') });
+    if (!ok) return json({ error: 'That organisation is not on your Zoho account. Click Connect Again and try once more.' }, 400);
+    return json({ ...(await rpc('zoho_status', {})), keys_added: zohoConfigured() });
   }
   if (body.action === 'import') {
     await rpc('zoho_request_import', {});
