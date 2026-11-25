@@ -273,11 +273,22 @@ The Google Sheets workbook keeps updating as before. If a copy fails, you get on
 2. At <https://api-console.zoho.eu> → **Add Client → Server-based Applications**: name `Siaram website`, homepage
    `https://siaramjewelry.com`, redirect URI `https://vdfxyjusmakqnpptniiy.supabase.co/functions/v1/zoho-connect` → **Create**.
 3. In **Supabase → Edge Functions → Secrets**, add `ZOHO_CLIENT_ID` and `ZOHO_CLIENT_SECRET` from that page.
+   If your Zoho address is zoho**.com** (US) rather than zoho.eu, also add `ZOHO_REGION` = `com`, and create the key at
+   <https://api-console.zoho.com> instead.
 4. Run [`supabase/schema.sql`](supabase/schema.sql) and [`supabase/cron.sql`](supabase/cron.sql) again in the SQL Editor.
 5. On the website, **My Account → Zoho → Connect Zoho**, sign in to Zoho if asked and click **Accept**.
 
 Sales from the day you connect are sent. To also send older ones, set **store_settings → zoho_sync_from** to an
 earlier date.
+
+**Importing the workbook (once):** on the **Zoho** tab, click **Import My Workbook**. Over the next 10–30 minutes the
+website copies from the Google Sheet into Zoho: the Customers tab (customers), Suppliers tab and anyone paid on
+Expenses (vendors), the Sales tab (one invoice per invoice number, each paid on its date; past sales don't change
+stock), the Expenses tab (Zoho Books expenses: Gold → Cost of Goods Sold, Packaging → a new Packaging account,
+Advertising → Advertising And Marketing, Website → IT and Internet Expenses, others → Other Expenses, paid from Petty
+Cash) and the owner investment / withdrawal rows on Payments (journals to Owner's Equity / Drawings). You get an email
+when it is done. Clicking it again adds nothing twice. It needs Zoho Books permission: if you connected Zoho before
+26 November 2026, click **Connect Again** first.
 
 ## Backups
 

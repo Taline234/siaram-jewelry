@@ -7,7 +7,8 @@
 // The website stays the place where sales and stock are entered; Zoho follows it. If a copy fails, you get one
 // email per reason, and it tries again 10 minutes later.
 import { configured, emailLayout, env, escapeHtml, json, rpc, sendEmail } from '../store.mjs';
-import { ZohoError, zoho, zohoConfigured } from '../zoho.mjs';
+import { ZohoError, resetZohoCalls, zoho, zohoConfigured } from '../zoho.mjs';
+import { importPortion, importSummary } from '../zoho-import.mjs';
 
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Beirut' }).format(new Date());
 const money = (n) => Math.round(Number(n || 0) * 100) / 100;
@@ -186,15 +187,39 @@ export default async (req) => {
   if (!zohoConfigured()) return json({ skipped: 'Zoho secrets not set.' });
   if (!(await rpc('claim_zoho_sync', {}))) return json({ skipped: 'Not connected, or already running.' });
 
-  let problem = '';
+  resetZohoCalls();
+  const problems = [];
   let result = null;
   try {
     result = await syncZoho(await rpc('zoho_work', {}));
-    problem = result.errors.join('\n');
+    problems.push(...result.errors);
   } catch (err) {
-    problem = err instanceof Error ? err.message : String(err);
+    problems.push(err instanceof Error ? err.message : String(err));
     console.error('zoho-sync', err);
   }
+  // The one-off workbook import, a portion at a time, when the owner has asked for it.
+  try {
+    const portion = await importPortion();
+    if (portion) {
+      result = { ...(result || {}), import: portion };
+      if (portion.finished) {
+        const summary = await importSummary();
+        await rpc('zoho_finish_import', { p_summary: summary });
+        await sendEmail({
+          to: env('ORDER_NOTIFY_EMAIL'),
+          subject: 'Your workbook is in Zoho',
+          html: emailLayout('Your workbook is in Zoho',
+            `<p style="font-size:15px;line-height:1.6">${escapeHtml(summary)}</p>
+             <p style="font-size:15px;line-height:1.6">Open Zoho Books to see them: Sales &rarr; Customers and Invoices,
+              Purchases &rarr; Vendors and Expenses, and Reports for your profit and loss.</p>`),
+        });
+      }
+    }
+  } catch (err) {
+    problems.push(`Workbook import: ${err instanceof Error ? err.message : String(err)}`);
+    console.error('zoho-import', err);
+  }
+  const problem = problems.join('\n');
   const previous = await rpc('finish_zoho_sync', { p_error: problem }).catch(() => problem);
   if (problem && previous !== problem) {
     await sendEmail({

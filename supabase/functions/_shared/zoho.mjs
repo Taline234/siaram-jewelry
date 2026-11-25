@@ -10,9 +10,10 @@ export const zohoConfigured = () => Boolean(env('ZOHO_CLIENT_ID') && env('ZOHO_C
 
 const region = () => env('ZOHO_REGION') || 'eu';
 export const accountsUrl = () => `https://accounts.zoho.${region()}`;
-const apiUrl = () => `https://www.zohoapis.${region()}/inventory/v1`;
+const apiUrl = (app = 'inventory') => `https://www.zohoapis.${region()}/${app === 'books' ? 'books/v3' : 'inventory/v1'}`;
 export const redirectUri = () => `${env('SUPABASE_URL')}/functions/v1/zoho-connect`;
-export const SCOPE = 'ZohoInventory.FullAccess.all';
+// Inventory for items, stock, invoices and payments; Books for expenses and owner's money (the workbook import).
+export const SCOPE = 'ZohoInventory.FullAccess.all,ZohoBooks.fullaccess.all';
 
 export class ZohoError extends Error {}
 
@@ -42,18 +43,26 @@ async function accessToken() {
   return { token: fresh.access_token, org: saved.organization_id };
 }
 
-// One Zoho Inventory API call. Zoho answers { code: 0, ... } when it worked.
-export async function zoho(method, path, { body, query = {}, token, org } = {}) {
+// Calls made in this run, so a run stays under Zoho's limit of about 100 a minute.
+let callCount = 0;
+export const zohoCalls = () => callCount;
+export const resetZohoCalls = () => { callCount = 0; };
+
+// One Zoho Inventory API call (or Zoho Books with app: 'books'). Zoho answers { code: 0, ... } when it worked.
+export async function zoho(method, path, { body, query = {}, token, org, app = 'inventory' } = {}) {
+  callCount += 1;
   const auth = token ? { token, org } : await accessToken();
   const params = new URLSearchParams({ ...(auth.org ? { organization_id: auth.org } : {}), ...query });
-  const res = await fetch(`${apiUrl()}/${path}?${params}`, {
+  const res = await fetch(`${apiUrl(app)}/${path}?${params}`, {
     method,
     headers: { authorization: `Zoho-oauthtoken ${auth.token}`, 'content-type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok || (data.code !== undefined && data.code !== 0)) {
-    throw new ZohoError(`Zoho ${method} ${path.split('/')[0]}: ${data.message || res.status}`);
+    const scope = /scope|unauthori[sz]ed|oauth/i.test(String(data.message || '')) || res.status === 401;
+    throw new ZohoError(`Zoho ${app === 'books' ? 'Books ' : ''}${method} ${path.split('/')[0]}: ${data.message || res.status}`
+      + (scope && app === 'books' ? ' (click Connect Again on the Zoho tab to give the website access to Zoho Books)' : ''));
   }
   return data;
 }
