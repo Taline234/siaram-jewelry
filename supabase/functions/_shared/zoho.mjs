@@ -5,6 +5,7 @@
 //   ZOHO_REGION                          optional: eu (default), com, in, com.au, jp, ca, sa
 // The connection itself (Zoho's refresh token and organisation) is saved in the database by zoho-connect.
 import { env, rpc } from './store.mjs';
+import { fetchWithRetry } from './retry.mjs';
 
 export const zohoConfigured = () => Boolean(env('ZOHO_CLIENT_ID') && env('ZOHO_CLIENT_SECRET'));
 
@@ -18,11 +19,11 @@ export const SCOPE = 'ZohoInventory.FullAccess.all,ZohoBooks.fullaccess.all';
 export class ZohoError extends Error {}
 
 async function tokenRequest(params) {
-  const res = await fetch(`${accountsUrl()}/oauth/v2/token`, {
+  const res = await fetchWithRetry(`${accountsUrl()}/oauth/v2/token`, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ client_id: env('ZOHO_CLIENT_ID'), client_secret: env('ZOHO_CLIENT_SECRET'), ...params }).toString(),
-  });
+  }, { safe: params.grant_type === 'refresh_token' }); // a one-time sign-in code must not be sent twice
   const body = await res.json().catch(() => ({}));
   if (!res.ok || body.error || !body.access_token) {
     throw new ZohoError(`Zoho sign-in failed: ${body.error || res.status}. If this keeps happening, click Connect Zoho again.`);
@@ -53,7 +54,7 @@ export async function zoho(method, path, { body, query = {}, token, org, app = '
   callCount += 1;
   const auth = token ? { token, org } : await accessToken();
   const params = new URLSearchParams({ ...(auth.org ? { organization_id: auth.org } : {}), ...query });
-  const res = await fetch(`${apiUrl(app)}/${path}?${params}`, {
+  const res = await fetchWithRetry(`${apiUrl(app)}/${path}?${params}`, {
     method,
     headers: { authorization: `Zoho-oauthtoken ${auth.token}`, 'content-type': 'application/json' },
     body: body ? JSON.stringify(body) : undefined,
