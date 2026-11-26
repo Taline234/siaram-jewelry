@@ -6,6 +6,7 @@
 //   WORKBOOK_SHEET_ID        the long id in the workbook's address: docs.google.com/spreadsheets/d/<id>/edit
 import { Buffer } from 'node:buffer';
 import { env } from './store.mjs';
+import { fetchWithRetry } from './retry.mjs';
 
 const SHEETS = 'https://sheets.googleapis.com/v4/spreadsheets';
 
@@ -30,23 +31,23 @@ export async function googleToken() {
     aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600,
   }));
   const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(`${head}.${claims}`));
-  const res = await fetch('https://oauth2.googleapis.com/token', {
+  const res = await fetchWithRetry('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: `${head}.${claims}.${base64url(signature)}`,
     }).toString(),
-  });
+  }, { safe: true });
   const body = await res.json().catch(() => ({}));
   if (!res.ok || !body.access_token) throw new Error(`Google sign-in failed (${res.status}): ${body.error_description || body.error || ''}`);
   return body.access_token;
 }
 
-async function call(token, path, init = {}) {
-  const res = await fetch(`${SHEETS}/${encodeURIComponent(env('WORKBOOK_SHEET_ID'))}${path}`, {
+async function call(token, path, init = {}, safe = undefined) {
+  const res = await fetchWithRetry(`${SHEETS}/${encodeURIComponent(env('WORKBOOK_SHEET_ID'))}${path}`, {
     ...init,
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-  });
+  }, safe === undefined ? {} : { safe });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
     const why = body.error?.message || '';
@@ -75,9 +76,10 @@ export async function readRange(token, range) {
 // Writes several ranges at once, as if typed in (so dates become dates and numbers numbers).
 export async function writeRanges(token, data) {
   if (!data.length) return;
+  // Writing the same values into the same cells again is harmless, so this may be repeated.
   await call(token, '/values:batchUpdate', {
     method: 'POST', body: JSON.stringify({ valueInputOption: 'USER_ENTERED', data }),
-  });
+  }, true);
 }
 
 // Deletes whole rows (1-based row numbers) from a tab, bottom first so the numbers stay right.

@@ -14,6 +14,8 @@ process.env.RESEND_API_KEY = 'resend-key';
 process.env.ORDER_NOTIFY_EMAIL = 'shop@siaram.test';
 process.env.GOOGLE_SERVICE_ACCOUNT = JSON.stringify({ client_email: 'robot@siaram.iam.gserviceaccount.com', private_key: pem });
 process.env.WORKBOOK_SHEET_ID = 'sheet123';
+globalThis.RETRY_DELAY_MS = 0;
+let unavailable = 0; // how many Google Sheets answers are '503 unavailable' before it works again
 
 const { default: workbookSync } = await import('../supabase/functions/_shared/handlers/workbook-sync.mjs');
 
@@ -62,6 +64,10 @@ beforeEach(() => {
       if (name === 'workbook_orders') return reply(200, db);
       if (name === 'claim_workbook_sync') { const ok = !running; running = true; return reply(200, ok); }
       if (name === 'finish_workbook_sync') { const prev = lastError; lastError = body.p_error || null; running = false; return reply(200, prev); }
+    }
+    if (u.hostname === 'sheets.googleapis.com' && unavailable > 0) {
+      unavailable -= 1;
+      return reply(503, { error: { message: 'The service is currently unavailable.' } });
     }
     if (u.hostname === 'sheets.googleapis.com') {
       assert.equal(init.headers.authorization, 'Bearer tok');
@@ -179,4 +185,22 @@ test('text that looks like a formula is written as text', async () => {
   db = [order('S017', { customer_name: '=HYPERLINK("x")' })];
   await run();
   assert.equal(sheet.Sales[3][col('C')], `'=HYPERLINK("x")`);
+});
+
+test('a brief Google outage (503) is tried again, with no error and no email', async () => {
+  db = [order('S017')];
+  unavailable = 2;
+  const out = await (await run()).json();
+  assert.equal(out.added, 2);
+  assert.equal(lastError, null);
+  assert.equal(emails.length, 0);
+});
+
+test('a longer Google outage is reported once', async () => {
+  db = [order('S017')];
+  unavailable = 100;
+  assert.equal((await run()).status, 500);
+  assert.match(lastError, /503|unavailable/);
+  assert.equal(emails.length, 1);
+  unavailable = 0;
 });

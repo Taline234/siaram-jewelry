@@ -10,6 +10,8 @@ process.env.ORDER_NOTIFY_EMAIL = 'shop@siaram.test';
 process.env.SITE_URL = 'https://siaram.test';
 process.env.ZOHO_CLIENT_ID = 'client-1';
 process.env.ZOHO_CLIENT_SECRET = 'secret-1';
+globalThis.RETRY_DELAY_MS = 0;
+const busy = { get: 0, post: 0 }; // how many Zoho Inventory GETs / POSTs answer 503 first
 const pair = await crypto.subtle.generateKey(
   { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' }, true, ['sign', 'verify']);
 const { Buffer } = await import('node:buffer');
@@ -224,6 +226,10 @@ beforeEach(() => {
     }
     if (u.hostname === 'www.zohoapis.eu' && u.pathname.startsWith('/books/v3/')) {
       return reply(fakeBooks(init.method || 'GET', u.pathname.replace('/books/v3/', ''), u.searchParams, init.body ? JSON.parse(init.body) : null));
+    }
+    if (u.hostname === 'www.zohoapis.eu' && !u.pathname.startsWith('/books/')) {
+      const m = (init.method || 'GET') === 'GET' ? 'get' : 'post';
+      if (busy[m] > 0) { busy[m] -= 1; return reply([503, { code: 503, message: 'Service unavailable' }]); }
     }
     if (u.hostname === 'www.zohoapis.eu') {
       if (!String(init.headers?.authorization).startsWith('Zoho-oauthtoken access-')) return reply([401, { code: 57, message: 'unauthorised' }]);
@@ -457,4 +463,21 @@ test('after the import, new paid expenses and owner money typed in the workbook 
   assert.equal(books.expenses.at(-1).reference_number, 'EX029');
   await run();
   assert.equal(books.expenses.length, 5, 'nothing twice');
+});
+
+test('a brief Zoho outage on reading is tried again; creating something is not repeated after a 503', async () => {
+  busy.get = 2;
+  await run();
+  assert.equal(db.error, null, 'reads are tried again');
+  db.orders = [order('S050')];
+  busy.post = 1;
+  await run();
+  assert.match(db.error, /Service unavailable/);
+  assert.equal(z.adjustments.length, 1, 'the stock adjustment that got a 503 was not sent again in the same run');
+  assert.equal(Object.keys(z.invoices).length, 0);
+  await run();
+  assert.equal(z.invoices['inv-S050'].invoice_number, 'S050', 'the next run creates it');
+  assert.equal(Object.keys(z.invoices).length, 1);
+  assert.equal(stockOf('NK-08'), 2, 'stock right again after the next run');
+  assert.equal(db.error, null);
 });
