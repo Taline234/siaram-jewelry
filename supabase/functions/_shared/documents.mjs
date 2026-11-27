@@ -278,7 +278,8 @@ export async function receiptPdf(order, when = new Date()) {
 
   const rows = [['Subtotal:', money(order.subtotal)]];
   if (Number(order.discount_amount) > 0) {
-    rows.push([`Discount (${Number(order.discount_percent)}%):`, `-${money(order.discount_amount)}`]);
+    // The percentage only, as the owner prefers (no minus amount); the total below is the discounted price.
+    rows.push(['Discount:', `${Number(order.discount_percent)}%`]);
   }
   if (Number(order.voucher_amount) > 0) rows.push([`Gift voucher ${order.voucher_code}:`, `-${money(order.voucher_amount)}`]);
   rows.push(['Payment Method:', paymentLabel(order)]);
