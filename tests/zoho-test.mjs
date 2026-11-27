@@ -143,6 +143,10 @@ function fakeZoho(method, path, query, body) {
     const items = Object.values(z.items).filter((i) => !query.get('sku') || i.sku === query.get('sku'));
     return ok({ items, page_context: { has_more_page: false } });
   }
+  if (kind === 'items' && method === 'PUT') {
+    Object.assign(z.items[id], body);
+    return ok({ item: z.items[id] });
+  }
   if (kind === 'items' && method === 'POST') {
     const item = { item_id: `item-${body.sku}`, ...body, stock_on_hand: 0 };
     z.items[item.item_id] = item;
@@ -271,6 +275,20 @@ test('the pieces are created in Zoho with their SKU and price, and Zoho stock ma
   assert.equal(calls.filter((c) => c.url.hostname === 'accounts.zoho.eu').length, 1, 'no new sign-in while the token is valid');
   assert.equal(z.adjustments.length, 1, 'no adjustment when nothing changed');
   assert.equal(Object.keys(z.items).length, 2, 'items are not created twice');
+});
+
+test('a new price on the website becomes the item\'s selling price in Zoho, and only the rate changes', async () => {
+  await run(); // the items are created at the website's prices
+  const before = { ...z.items['item-NK-08'] };
+  db.products[0].price = 450;
+  const { body } = await run();
+  assert.equal(body.price_changes, 1);
+  assert.equal(z.items['item-NK-08'].rate, 450);
+  const put = calls.filter((c) => c.method === 'PUT' && c.url.pathname.endsWith('/items/item-NK-08'));
+  assert.equal(put.length, 1);
+  assert.deepEqual(Object.keys(JSON.parse(put[0].body)).sort(), ['name', 'rate'], 'nothing else about the item is sent');
+  assert.equal(z.items['item-NK-08'].name, before.name);
+  assert.equal((await run()).body.price_changes, 0, 'no change once they match');
 });
 
 test('a website order becomes an invoice numbered like the order, and is paid once delivered', async () => {

@@ -29,46 +29,96 @@ create table if not exists public.products (
 alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image, price) values
-  ('horseshoe-necklace', 'Fortune Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 490),
-  ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 525),
-  ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 450),
-  ('horseshoe-ring', 'Fortune Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 350),
-  ('horseshoe-chain-earrings', 'Midnight Horseshoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 420),
-  ('horse-eye-ring', 'Regard Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 555),
+  ('horseshoe-necklace', 'Fortune Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 510),
+  ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 500),
+  ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 320),
+  ('horseshoe-ring', 'Fortune Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 310),
+  ('horseshoe-chain-earrings', 'Midnight Horseshoe Earring', 'Earrings', 'images/products/horseshoe-chain-earrings-1.jpg', 435),
+  ('horse-eye-ring', 'Regard Ring', 'Rings', 'images/products/horse-eye-ring-1.jpg', 575),
   ('horse-eye-stud', 'Regard Stud Earrings', 'Earrings', 'images/products/horse-eye-stud-1.jpg', 410),
   ('horse-eye-bracelet', 'Regard Bracelet', 'Bracelets', 'images/products/horse-eye-bracelet-1.jpg', 450),
-  ('horse-eye-necklace', 'Regard Necklace', 'Necklaces', 'images/products/horse-eye-necklace-1.jpg', 620),
-  ('curved-marquise-necklace', 'Aria Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg', 610),
-  ('curved-marquise-bracelet', 'Aria Bracelet', 'Bracelets', 'images/products/curved-marquise-bracelet-1.jpg', 465),
+  ('horse-eye-necklace', 'Regard Necklace', 'Necklaces', 'images/products/horse-eye-necklace-1.jpg', 605),
+  ('curved-marquise-necklace', 'Aria Necklace', 'Necklaces', 'images/products/curved-marquise-necklace-1.jpg', 590),
+  ('curved-marquise-bracelet', 'Aria Bracelet', 'Bracelets', 'images/products/curved-marquise-bracelet-1.jpg', 410),
   ('curved-marquise-earrings', 'Aria Earrings', 'Earrings', 'images/products/curved-marquise-earrings-1.jpg', 540),
-  ('eye-necklace', 'Nazar Necklace', 'Necklaces', 'images/products/eye-necklace-1.jpg', 630),
-  ('fatima-pearl-earrings', 'Hamsa Pearl Asymmetric Earrings', 'Earrings', 'images/products/fatima-pearl-earrings-1.jpg', 450),
-  ('fatima-necklace', 'Hamsa Necklace', 'Necklaces', 'images/products/fatima-necklace-1.jpg', 645),
-  ('fatima-ring', 'Hamsa Ring', 'Rings', 'images/products/fatima-ring-1.jpg', 355),
-  ('fatima-anklet', 'Hamsa Anklet', 'Anklets', 'images/products/fatima-anklet-1.jpg', 420),
-  ('v-pendant-necklace', 'Vertex Necklace', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg', 489),
-  ('triangle-necklace', 'Tria Necklace', 'Necklaces', 'images/products/triangle-necklace-1.jpg', 519),
-  ('v-bird-necklace', 'Envole Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg', 559),
-  ('moon-star-handchain', 'Celeste Handchain', 'Bracelets', 'images/products/moon-star-handchain-1.jpg', 622),
-  ('moon-star-pendant-earring', 'Celeste Drop Earrings', 'Earrings', 'images/products/moon-star-pendant-earring-1.jpg', 450),
-  ('crescent-moon-earrings', 'Lune Pearl Earrings', 'Earrings', 'images/products/crescent-moon-earrings-1.jpg', 499),
-  ('star-moon-necklace', 'Celestial Necklace', 'Necklaces', 'images/products/star-moon-necklace-1.jpg', 470),
+  ('eye-necklace', 'Nazar Necklace', 'Necklaces', 'images/products/eye-necklace-1.jpg', 595),
+  ('fatima-pearl-earrings', 'Hamsa Pearl Asymmetric Earrings', 'Earrings', 'images/products/fatima-pearl-earrings-1.jpg', 415),
+  ('fatima-necklace', 'Hamsa Necklace', 'Necklaces', 'images/products/fatima-necklace-1.jpg', 640),
+  ('fatima-ring', 'Hamsa Ring', 'Rings', 'images/products/fatima-ring-1.jpg', 340),
+  ('fatima-anklet', 'Hamsa Anklet', 'Anklets', 'images/products/fatima-anklet-1.jpg', 430),
+  ('v-pendant-necklace', 'Vertex Necklace', 'Necklaces', 'images/products/v-pendant-necklace-1.jpg', 450),
+  ('triangle-necklace', 'Tria Necklace', 'Necklaces', 'images/products/triangle-necklace-1.jpg', 450),
+  ('v-bird-necklace', 'Envole Necklace', 'Necklaces', 'images/products/v-bird-necklace-1.jpg', 535),
+  ('moon-star-handchain', 'Celeste Handchain', 'Bracelets', 'images/products/moon-star-handchain-1.jpg', 665),
+  ('moon-star-pendant-earring', 'Celeste Drop Earrings', 'Earrings', 'images/products/moon-star-pendant-earring-1.jpg', 440),
+  ('crescent-moon-earrings', 'Lune Pearl Earrings', 'Earrings', 'images/products/crescent-moon-earrings-1.jpg', 465),
+  ('star-moon-necklace', 'Celestial Necklace', 'Necklaces', 'images/products/star-moon-necklace-1.jpg', 500),
   ('qamar-ring', 'Qamar Ring', 'Rings', 'images/products/qamar-ring-1.jpg', 430),
   ('crescent-moon-ring', 'Lune Ring', 'Rings', 'images/products/crescent-moon-ring-1.jpg', 340),
-  ('sun-necklace', 'Sol Necklace', 'Necklaces', 'images/products/sun-necklace-1.jpg', 579),
-  ('sun-ring', 'Sol Ring', 'Rings', 'images/products/sun-ring-1.jpg', 540),
-  ('sun-stud-earrings', 'Sol Stud Earrings', 'Earrings', 'images/products/sun-stud-earrings-1.jpg', 569),
-  ('seahorse-pearl-bracelet', 'Seahorse Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg', 420),
+  ('sun-necklace', 'Sol Necklace', 'Necklaces', 'images/products/sun-necklace-1.jpg', 585),
+  ('sun-ring', 'Sol Ring', 'Rings', 'images/products/sun-ring-1.jpg', 610),
+  ('sun-stud-earrings', 'Sol Stud Earrings', 'Earrings', 'images/products/sun-stud-earrings-1.jpg', 565),
+  ('seahorse-pearl-bracelet', 'Seahorse Bracelet', 'Bracelets', 'images/products/seahorse-pearl-bracelet-1.jpg', 380),
   ('wave-bracelet', 'Marée Bracelet', 'Bracelets', 'images/products/wave-bracelet-1.jpg', 410),
-  ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 489),
-  ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 689),
+  ('arrow-necklace', 'Arrow Necklace', 'Necklaces', 'images/products/arrow-necklace-1.jpg', 505),
+  ('arrow-bracelet', 'Arrow Bracelet', 'Bracelets', 'images/products/arrow-bracelet-1.jpg', 584),
   ('arrow-earrings', 'Arrow Drop Earrings', 'Earrings', 'images/products/arrow-earrings-1.jpg', 499),
-  ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 589),
-  ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 679)
+  ('arrow-open-ring', 'Diverge Arrow Ring', 'Rings', 'images/products/arrow-open-ring-1.jpg', 595),
+  ('arrow-ring', 'Sahm Ring', 'Rings', 'images/products/arrow-ring-1.jpg', 690)
 on conflict (slug) do update set name = excluded.name, category = excluded.category, image = excluded.image;
 -- Round prices for the two pieces that were $499.99 and $579.99 (owner, 4 November 2026).
 update public.products set price = 499 where slug = 'crescent-moon-earrings' and price = 499.99;
 update public.products set price = 579 where slug = 'sun-necklace' and price = 579.99;
+
+-- New prices for the 35 designs in stock (owner, 27 November 2026: 60% markup on the in-stock batch cost).
+-- Applied once: a later run of this file leaves any price changed since then as it is.
+create schema if not exists private;
+create table if not exists private.applied_updates (name text primary key, applied_at timestamptz not null default now());
+do $$
+begin
+  insert into private.applied_updates (name) values ('prices-2026-11-27') on conflict (name) do nothing;
+  if found then
+    update public.products p set price = v.price
+      from (values
+    ('fatima-anklet', 430),
+    ('seahorse-pearl-bracelet', 380),
+    ('horseshoe-bracelet', 320),
+    ('moon-star-handchain', 665),
+    ('arrow-bracelet', 584),
+    ('wave-bracelet', 410),
+    ('curved-marquise-bracelet', 410),
+    ('horse-eye-bracelet', 450),
+    ('fatima-pearl-earrings', 415),
+    ('horseshoe-chain-earrings', 435),
+    ('moon-star-pendant-earring', 440),
+    ('arrow-earrings', 499),
+    ('crescent-moon-earrings', 465),
+    ('horse-eye-stud', 410),
+    ('sun-stud-earrings', 565),
+    ('curved-marquise-earrings', 540),
+    ('horseshoe-necklace', 510),
+    ('eye-necklace', 595),
+    ('star-moon-necklace', 500),
+    ('arrow-necklace', 505),
+    ('horseshoe-necklace-black-stone', 500),
+    ('fatima-necklace', 640),
+    ('v-bird-necklace', 535),
+    ('v-pendant-necklace', 450),
+    ('triangle-necklace', 450),
+    ('horse-eye-necklace', 605),
+    ('sun-necklace', 585),
+    ('curved-marquise-necklace', 590),
+    ('qamar-ring', 430),
+    ('fatima-ring', 340),
+    ('horseshoe-ring', 310),
+    ('arrow-open-ring', 595),
+    ('arrow-ring', 690),
+    ('horse-eye-ring', 575),
+    ('sun-ring', 610)
+      ) as v(slug, price)
+     where p.slug = v.slug;
+  end if;
+end $$;
 
 -- The product code from the finance workbook (Products tab). Shown on orders so they match the spreadsheet.
 -- Earring pairs have one code each since the workbook's 22 October 2026 renumbering.
