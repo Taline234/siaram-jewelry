@@ -24,7 +24,9 @@ function csv(rows) {
   return `﻿${rows.map((r) => r.map(cell).join(',')).join('\r\n')}\r\n`;
 }
 
-// One row per piece. Voucher credit is spread over the pieces in order. Money counts as received once
+// One row per piece. A discount goes in as the workbook's Discount Type "Percentage" with the fraction off
+// (10% -> 0.1), so its Final Total, profit and cash formulas use the discounted price; the Agreed Unit Price
+// stays the full price. Voucher credit is spread over the discounted pieces in order. Money counts as received once
 // the order is delivered; until then Cash Received Now is 0 and the workbook shows the balance due.
 export function salesRows(orders) {
   const rows = [SALES_HEAD];
@@ -32,8 +34,9 @@ export function salesRows(orders) {
     // Sales recorded by the owner are paid when recorded, even if the piece is still being made.
     const delivered = o.status === 'delivered' || (o.channel || 'Website') !== 'Website';
     let voucherLeft = cents(o.voucher_amount);
+    const pct = Number(o.discount_percent) || 0;
     for (const i of o.items || []) {
-      const line = cents(i.unit_price) * i.quantity;
+      const line = cents(i.unit_price) * i.quantity - Math.round(cents(i.unit_price) * i.quantity * pct / 100);
       const byVoucher = Math.min(voucherLeft, line);
       voucherLeft -= byVoucher;
       const cash = line - byVoucher;
@@ -42,7 +45,7 @@ export function salesRows(orders) {
         : website && i.made_to_order ? 'Whish' : PAY[o.payment_method] || 'Cash';
       rows.push([
         o.reference, o.sale_date, o.customer_name, o.channel || 'Website', i.sku || '', '', i.quantity,
-        amount(cents(i.unit_price)), 'Percentage', 0, '', method, delivered ? amount(cash) : '0.00',
+        amount(cents(i.unit_price)), 'Percentage', pct ? Number((pct / 100).toFixed(4)) : 0, '', method, delivered ? amount(cash) : '0.00',
         '', '', '', '', '', '', '', '', '', '', '',
         byVoucher > 0 ? o.voucher_code : '', byVoucher > 0 ? amount(byVoucher) : '',
       ]);

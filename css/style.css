@@ -2703,3 +2703,7 @@ main:focus { outline: none; }
 .zoho-org h4 { margin: 0 0 8px; font-size: 1.05rem; }
 .zoho-org-row { display: flex; gap: 12px; flex-wrap: wrap; }
 .zoho-org-row select { flex: 1; min-width: 220px; }
+
+/* Record a Sale: full price and discount beside the total */
+.sale-before { color: var(--green-mid); font-size: 0.9em; }
+.sale-before s { opacity: 0.8; }

@@ -26,6 +26,14 @@ test('every website piece has catalogue details', () => {
   for (const [sku, c] of Object.entries(CATALOGUE)) assert.ok(c.name && c.category, sku);
 });
 
+test('a receipt with a discount is a PDF', async () => {
+  const order = { reference: 'S020', customer_name: 'Rita', email: '', phone: '70', fulfilment: 'collection', payment_method: 'cash',
+    subtotal: 520, discount_percent: 10, discount_amount: 52, total: 468, voucher_amount: 0,
+    items: [{ sku: 'NK-09', name: 'Tria Necklace', unit_price: 520, quantity: 1, metal: 'yellow', size: '' }] };
+  const receipt = Buffer.from(await receiptPdf(order));
+  assert.equal(receipt.subarray(0, 5).toString(), '%PDF-');
+});
+
 test('receipt and care card are PDFs, with a second receipt page for long orders', async () => {
   const items = Array.from({ length: 9 }, () => ({ sku: 'NK-05', name: 'Midnight Horseshoe Necklace', unit_price: 525, quantity: 1, metal: 'yellow', size: '' }));
   const order = { reference: 'S016', customer_name: 'Rana Haddad', email: 'r@example.com', phone: '70', fulfilment: 'delivery', governorate: 'Beirut', city: 'Achrafieh', street: 'Rue Monnot',

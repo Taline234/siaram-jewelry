@@ -8,6 +8,15 @@ import { CustomerError, configured, emailLayout, escapeHtml, isOwner, json, read
 import { careWarrantyPdf, receiptPdf } from '../documents.mjs';
 
 const text = (v, max = 200) => String(v ?? '').trim().slice(0, max);
+// A discount typed as "10%", "10 %", "10" or "12.5%": the percentage off the full price. Empty means none.
+export function discountPercent(v) {
+  const s = text(v, 20).replace(/\s+/g, '');
+  if (!s) return 0;
+  const m = /^(\d+(?:[.,]\d{1,2})?)%?$/.exec(s);
+  const n = m ? Number(m[1].replace(',', '.')) : NaN;
+  if (!(n >= 0 && n <= 100)) throw new CustomerError('Please enter the discount as a percentage, like 10%.');
+  return n;
+}
 // The day of the sale, at midday in Beirut, so the receipt shows that date (and the warranty runs from it).
 const saleDay = (date) => (/^\d{4}-\d{2}-\d{2}$/.test(date || '') ? new Date(`${date}T10:00:00Z`) : new Date());
 
@@ -80,6 +89,7 @@ export default async (req) => {
       notes: text(body.notes, 1000),
       payment_method: text(body.payment_method, 20),
       voucher_code: text(body.voucher_code, 40),
+      discount_percent: discountPercent(body.discount),
       items: items.map((i) => ({
         slug: text(i.slug, 80), metal: text(i.metal, 10), size: text(i.size, 20), quantity: Number(i.quantity),
         unit_price: i.unit_price === '' || i.unit_price == null ? null : Number(i.unit_price), from_stock: i.from_stock !== false,
@@ -90,7 +100,8 @@ export default async (req) => {
     const order = await rpc('record_sale', { p: sale });
     const emailed = Boolean(order.email) && body.send_receipt !== false
       && await emailReceipt({ ...order, channel: sale.channel }, sale.sale_date);
-    return json({ reference: order.reference, total: order.total, status: order.status, receipt_emailed: emailed ? order.email : null });
+    return json({ reference: order.reference, total: order.total, status: order.status, receipt_emailed: emailed ? order.email : null,
+      discount_percent: Number(order.discount_percent) || 0, discount_amount: Number(order.discount_amount) || 0 });
   } catch (err) {
     if (err instanceof CustomerError) return json({ error: err.message }, 400);
     console.error(err);

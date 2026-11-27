@@ -99,9 +99,12 @@ async function createInvoice(order, customerId, ids) {
     line_items: order.items.map((i) => ({ item_id: ids[i.slug], rate: money(i.unit_price), quantity: i.quantity, description: describe(i) })),
     notes: order.channel === 'Website' ? 'Website order.' : `Sale recorded on the website (${order.channel}).`,
   };
-  if (Number(order.voucher_amount) > 0) {
-    body.adjustment = -money(order.voucher_amount);
-    body.adjustment_description = `Gift voucher ${order.voucher_code || ''}`.trim();
+  const off = Number(order.discount_amount) || 0;
+  const voucher = Number(order.voucher_amount) || 0;
+  if (off > 0 || voucher > 0) {
+    body.adjustment = -money(off + voucher);
+    body.adjustment_description = [off > 0 && `Discount ${Number(order.discount_percent)}%`,
+      voucher > 0 && `Gift voucher ${order.voucher_code || ''}`.trim()].filter(Boolean).join(' + ');
   }
   let invoice;
   try {

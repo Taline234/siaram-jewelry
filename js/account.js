@@ -731,22 +731,40 @@ async function renderSale(panel, session) {
         <label class="field"><span>How was it paid?</span><select name="payment_method">
           ${options([['cash', 'Cash'], ['whish', 'Whish'], ['card', 'Card'], ['bank', 'Bank transfer'], ['voucher', 'Gift voucher']], 'cash')}</select></label>
         ${field('voucher_code', 'Gift voucher code (if one was used)', 'maxlength="40" autocomplete="off"')}
+        ${field('discount', 'Discount given (optional, e.g. 10%)', 'maxlength="10" inputmode="decimal" autocomplete="off" placeholder="e.g. 10%"')}
       </div>
       <label class="field"><span>Notes (optional)</span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
-      <p class="sale-total">Total: <strong>$0.00</strong></p>
+      <p class="sale-total"><span class="sale-before" hidden>Full price <s></s> &middot; <span class="sale-off"></span> &middot; </span>Total: <strong>$0.00</strong></p>
       <p class="form-msg form-error" role="alert"></p>
       <button type="submit" class="btn btn-primary">Record Sale</button>
     </form>`;
 
   const form = panel.querySelector('form');
   const lines = form.querySelector('.sale-lines');
+  // "10%", "10" or "12.5 %" -> 10, 10, 12.5; anything else -> null (shown as a problem).
+  const percent = () => {
+    const s = form.elements.discount.value.replace(/\s+/g, '');
+    if (!s) return 0;
+    const m = /^(\d+(?:[.,]\d{1,2})?)%?$/.exec(s);
+    const n = m ? Number(m[1].replace(',', '.')) : NaN;
+    return n >= 0 && n <= 100 ? n : null;
+  };
   const total = () => {
     let sum = 0;
+    let off = 0;
+    const pct = percent() || 0;
     lines.querySelectorAll('.sale-line').forEach((l) => {
-      sum += (Number(l.querySelector('[name=unit_price]').value) || 0) * (Number(l.querySelector('[name=quantity]').value) || 0);
+      const line = (Number(l.querySelector('[name=unit_price]').value) || 0) * (Number(l.querySelector('[name=quantity]').value) || 0);
+      sum += line;
+      off += Math.round(line * pct) / 100;
     });
-    form.querySelector('.sale-total strong').textContent = money(sum);
+    const before = form.querySelector('.sale-before');
+    before.hidden = !(off > 0);
+    before.querySelector('s').textContent = money(sum);
+    form.querySelector('.sale-off').textContent = `${pct}% off: -${money(off)}`;
+    form.querySelector('.sale-total strong').textContent = money(sum - off);
   };
+  form.elements.discount.addEventListener('input', total);
   // Choosing a piece fills in its price and sizes, and ticks "Taken from stock" when that version is in stock.
   const refresh = (l, priceToo) => {
     const p = bySlug[l.querySelector('[name=slug]').value];
@@ -790,6 +808,7 @@ async function renderSale(panel, session) {
       unit_price: l.querySelector('[name=unit_price]').value, from_stock: l.querySelector('[name=from_stock]').checked,
     }));
     if (items.some((i) => !i.slug)) return formMessage(form, 'Please choose the piece for every line.');
+    if (percent() === null) return formMessage(form, 'Please enter the discount as a percentage, like 10%.');
     const button = form.querySelector('[type=submit]');
     button.disabled = true;
     try {
@@ -800,6 +819,7 @@ async function renderSale(panel, session) {
         body: JSON.stringify({
           sale_date: f.sale_date.value, channel: f.channel.value, customer_name: f.customer_name.value, phone: f.phone.value,
           email: f.email.value, payment_method: f.payment_method.value, voucher_code: f.voucher_code.value, notes: f.notes.value, items,
+          discount: f.discount.value,
           address: f.address.value,
         }),
       });
@@ -808,7 +828,7 @@ async function renderSale(panel, session) {
       panel.innerHTML = `<div class="order-done">
           <span class="eyebrow">Sale recorded</span>
           <h2>${escapeHtml(body.reference)}</h2>
-          <p>Total ${money(body.total)}. ${body.status === 'preparing' ? 'Pieces not taken from stock are marked as being made.' : 'Stock has been updated.'}
+          <p>Total ${money(body.total)}${body.discount_amount > 0 ? ` after a ${body.discount_percent}% discount (-${money(body.discount_amount)})` : ''}. ${body.status === 'preparing' ? 'Pieces not taken from stock are marked as being made.' : 'Stock has been updated.'}
             It will be in your workbook within 10 minutes.</p>
           <p class="sale-receipt-note">${body.receipt_emailed
             ? `The receipt and the care and warranty card were emailed to ${escapeHtml(body.receipt_emailed)}.`

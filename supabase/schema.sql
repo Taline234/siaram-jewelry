@@ -588,6 +588,11 @@ end $$;
 -- ---------------------------------------------------------------- place an order
 -- Called only by the website's server (Netlify function) with the service key.
 -- Prices, delivery rules and vouchers are all checked here, never trusted from the browser.
+-- A discount the owner gave on a recorded sale, as a percentage of the full price (10 = 10% off), and what it came to.
+alter table public.orders add column if not exists discount_percent numeric(5,2) not null default 0
+  check (discount_percent >= 0 and discount_percent <= 100);
+alter table public.orders add column if not exists discount_amount numeric(10,2) not null default 0;
+
 -- What the website and the order emails get back about an order.
 create or replace function public.order_summary(p_order_id uuid) returns jsonb
 language sql stable security definer set search_path = public as $$
@@ -597,6 +602,7 @@ language sql stable security definer set search_path = public as $$
       'governorate', o.governorate, 'city', o.city, 'street', o.street, 'building', o.building,
       'floor', o.floor, 'notes', o.notes, 'subtotal', o.subtotal, 'delivery_fee', o.delivery_fee,
       'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
+      'discount_percent', o.discount_percent, 'discount_amount', o.discount_amount,
       'tracking_number', o.tracking_number, 'preferred_contact', o.preferred_contact, 'courier_tracking_url', o.courier_tracking_url, 'is_gift', o.is_gift, 'gift_recipient_name', o.gift_recipient_name,
       'gift_recipient_phone', o.gift_recipient_phone, 'gift_message', o.gift_message,
       'items', (select jsonb_agg(jsonb_build_object('sku', i.sku, 'name', i.name, 'unit_price', i.unit_price,
@@ -800,6 +806,8 @@ declare
   v_order_id  uuid;
   v_made      boolean := false;
   v_date      date := coalesce(nullif(p->>'sale_date', '')::date, (now() at time zone 'Asia/Beirut')::date);
+  v_pct       numeric(5,2) := coalesce(nullif(p->>'discount_percent', '')::numeric, 0);
+  v_off       numeric(10,2) := 0;
 begin
   if coalesce(trim(p->>'customer_name'), '') = '' then
     raise exception 'Please enter the customer''s name.' using errcode = 'P0001';
@@ -812,6 +820,9 @@ begin
   end if;
   if v_date > (now() at time zone 'Asia/Beirut')::date then
     raise exception 'The sale date cannot be in the future.' using errcode = 'P0001';
+  end if;
+  if v_pct < 0 or v_pct > 100 then
+    raise exception 'Please enter a discount between 0%% and 100%%.' using errcode = 'P0001';
   end if;
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then
     raise exception 'Please add at least one piece.' using errcode = 'P0001';
@@ -865,12 +876,14 @@ begin
     on conflict (order_id, product_slug, metal, size, stone)
       do update set quantity = least(order_items.quantity + excluded.quantity, 10);
     v_subtotal := v_subtotal + v_price * v_qty;
+    -- The discount, worked out piece by piece as the workbook does (full price x quantity x percentage).
+    v_off := v_off + round(v_price * v_qty * v_pct / 100, 2);
   end loop;
 
-  -- A gift voucher used in person: its balance pays as much of the sale as it can.
+  -- A gift voucher used in person: its balance pays as much of the (discounted) sale as it can.
   if coalesce(trim(p->>'voucher_code'), '') <> '' then
     v_voucher := public.usable_voucher(p->>'voucher_code', true);
-    v_discount := least(v_voucher.balance, v_subtotal);
+    v_discount := least(v_voucher.balance, v_subtotal - v_off);
     update public.gift_vouchers set balance = balance - v_discount where code = v_voucher.code;
     insert into public.voucher_redemptions (voucher_code, order_id, amount) values (v_voucher.code, v_order_id, v_discount);
   elsif p->>'payment_method' = 'voucher' then
@@ -878,7 +891,8 @@ begin
   end if;
 
   update public.orders
-     set subtotal = v_subtotal, voucher_code = v_voucher.code, voucher_amount = v_discount, total = v_subtotal - v_discount,
+     set subtotal = v_subtotal, discount_percent = v_pct, discount_amount = v_off,
+         voucher_code = v_voucher.code, voucher_amount = v_discount, total = v_subtotal - v_off - v_discount,
          status = case when v_made then 'preparing' else 'delivered' end
    where id = v_order_id;
   return public.order_summary(v_order_id);
@@ -1348,7 +1362,7 @@ language sql stable security definer set search_path = public as $$
            o.customer_name, o.email, o.phone,
            concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
                      nullif(o.city, ''), nullif(o.governorate, '')) as address,
-           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount,
+           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount, o.discount_percent,
            (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity,
                                               'made_to_order', i.made_to_order)
                             order by i.product_slug, i.metal, i.size)
@@ -1657,7 +1671,7 @@ language sql stable security definer set search_path = public as $$
            o.customer_name, o.email, o.phone,
            concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
                      nullif(o.city, ''), nullif(o.governorate, '')) as address,
-           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount,
+           o.status, o.payment_method, o.channel, o.voucher_code, o.voucher_amount, o.discount_percent,
            (select json_agg(json_build_object('sku', i.sku, 'unit_price', i.unit_price, 'quantity', i.quantity,
                                               'made_to_order', i.made_to_order)
                             order by i.product_slug, i.metal, i.size)
@@ -1831,6 +1845,7 @@ language sql stable security definer set search_path = public as $$
         'address', concat_ws(', ', nullif(o.street, ''), 'Building ' || nullif(o.building, ''), 'Floor ' || nullif(o.floor, ''),
                              nullif(o.city, ''), nullif(o.governorate, '')),
         'subtotal', o.subtotal, 'voucher_code', o.voucher_code, 'voucher_amount', o.voucher_amount, 'total', o.total,
+        'discount_percent', o.discount_percent, 'discount_amount', o.discount_amount,
         'invoice_id', zo.invoice_id, 'payment_id', zo.payment_id, 'voided', coalesce(zo.voided, false),
         'items', (select jsonb_agg(jsonb_build_object('slug', i.product_slug, 'sku', i.sku, 'name', i.name,
                     'unit_price', i.unit_price, 'quantity', i.quantity, 'metal', i.metal, 'size', i.size,
