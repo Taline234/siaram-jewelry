@@ -827,6 +827,14 @@ test('owner-recorded sales show their channel and payment method, and count as p
   assert.deepEqual(lines[1].slice(0, 13), ['S019', '2026-11-03', 'Nour', 'Instagram', 'NK-01', '', '1', '450.00', 'Percentage', '0', '', 'Card', '450.00']);
 });
 
+test('a discounted sale goes to the workbook at the full price with the percentage, and the cash received is the discounted price', () => {
+  const lines = salesCsv([{ reference: 'S020', sale_date: '2026-11-27', customer_name: 'Rita', email: '', phone: '', status: 'delivered',
+    payment_method: 'cash', channel: 'WhatsApp', voucher_amount: 0, discount_percent: 10,
+    items: [{ sku: 'NK-09', unit_price: 520, quantity: 1, made_to_order: false }] }]).replace(/^\uFEFF/, '').trim().split('\r\n').map((l) => l.split(','));
+  // The workbook's Final Total is Qty x Price x (1 - Discount Value): 520 x 0.9 = 468.
+  assert.deepEqual(lines[1].slice(6, 13), ['1', '520.00', 'Percentage', '0.1', '', 'Cash', '468.00']);
+});
+
 test('only the owner can record a sale, and the sale is passed on to the database', async () => {
   let who = { email: 'rana@example.com', email_confirmed_at: '2026-01-01' };
   handlers['/auth/v1/user'] = () => [200, who];
@@ -838,12 +846,27 @@ test('only the owner can record a sale, and the sale is passed on to the databas
   assert.equal((await post(sale)).status, 403);
   assert.ok(!calls.some((c) => c.url.endsWith('/record_sale')));
   who = { email: 'SiaramJewelry@hotmail.com', email_confirmed_at: '2026-01-01' };
-  assert.deepEqual(await (await post(sale)).json(), { reference: 'S019', total: 450, status: 'delivered', receipt_emailed: null });
+  assert.deepEqual(await (await post(sale)).json(),
+    { reference: 'S019', total: 450, status: 'delivered', receipt_emailed: null, discount_percent: 0, discount_amount: 0 });
   const sent = calls.find((c) => c.url.endsWith('/record_sale')).body.p;
   assert.deepEqual(sent.items[0], { slug: 'horseshoe-necklace', metal: 'rose', size: '', quantity: 1, unit_price: 450, from_stock: true });
   assert.equal(sent.channel, 'Instagram');
   assert.match((await (await post({ ...sale, email: 'not-an-email' })).json()).error, /email/);
   assert.equal(emails().length, 0, 'recording a sale sends no email unless asked');
+  // A discount typed as "10%", "10 %" or "10" is 10 percent off; anything else is refused before the database.
+  for (const typed of ['10%', '10 %', '10', ' 10% ']) {
+    calls.length = 0;
+    await post({ ...sale, discount: typed });
+    assert.equal(calls.find((c) => c.url.endsWith('/record_sale')).body.p.discount_percent, 10, typed);
+  }
+  calls.length = 0;
+  await post({ ...sale, discount: '12.5%' });
+  assert.equal(calls.find((c) => c.url.endsWith('/record_sale')).body.p.discount_percent, 12.5);
+  for (const typed of ['$20', '150%', 'ten', '-5%']) {
+    calls.length = 0;
+    assert.match((await (await post({ ...sale, discount: typed })).json()).error, /percentage, like 10%/, typed);
+    assert.ok(!calls.some((c) => c.url.endsWith('/record_sale')), typed);
+  }
 });
 
 test('a recorded sale can email the customer the receipt and care card, and the owner can download the receipt', async () => {

@@ -549,11 +549,13 @@ assert.ok(!(await page.locator('.sale-line:nth-child(1) [name=size]').isVisible(
 await page.uncheck('.sale-line:nth-child(2) [name=from_stock]');
 await page.fill('.sale-line:nth-child(2) [name=unit_price]', '300');
 await page.selectOption('.sale-form [name=payment_method]', 'card');
+await page.fill('.sale-form [name=discount]', '10%');
+assert.match(await page.locator('.sale-total').textContent(), /\$700\.00.*10% off: -\$70\.00.*Total: \$630\.00/, 'the total shows the discount');
 await shot('account-record-sale');
 await page.click('.sale-form button[type=submit]');
 await page.waitForFunction(() => document.querySelector('.order-done') || document.querySelector('.sale-form .form-msg')?.textContent);
 assert.equal(await page.locator('.sale-form .form-msg').count() ? await page.locator('.sale-form .form-msg').textContent() : '', '', 'no error');
-assert.match(await page.locator('.order-done').textContent(), /Total \$700\.00/);
+assert.match(await page.locator('.order-done').textContent(), /Total \$630\.00 after a 10% discount \(-\$70\.00\)/);
 const saleRef = (await page.locator('.order-done h2').textContent()).trim();
 assert.match(saleRef, /^S\d{3}$/);
 const [saleRow] = await q(`select channel, payment_method, status, (select count(*)::int from order_items i where i.order_id = o.id) as lines
@@ -561,6 +563,8 @@ const [saleRow] = await q(`select channel, payment_method, status, (select count
 assert.deepEqual([saleRow.channel, saleRow.payment_method, saleRow.status, saleRow.lines], ['Instagram', 'card', 'preparing', 2]);
 const [saleContact] = await q(`select phone, street from orders where reference = '${saleRef}'`);
 assert.deepEqual([saleContact.phone, saleContact.street], ['+33 6 12 34 56 78', 'Mar Mikhael, Beirut']);
+const [saleDiscount] = await q(`select subtotal, discount_percent, discount_amount, total from orders where reference = '${saleRef}'`);
+assert.deepEqual([saleDiscount.subtotal, saleDiscount.discount_percent, saleDiscount.discount_amount, saleDiscount.total].map(Number), [700, 10, 70, 630]);
 const receiptMail = (await setState({})).emails.find((e) => e.to[0] === 'maya.k@example.com');
 assert.equal(receiptMail?.subject, `Your Siaram receipt ${saleRef}`);
 assert.equal(receiptMail.attachments.length, 2, 'receipt and care and warranty card');

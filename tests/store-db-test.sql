@@ -462,6 +462,17 @@ select pg_temp.expect_error($$select record_sale('{"channel":"In person","custom
   'future');
 select pg_temp.check((select (sales_export(null, null)::jsonb @> jsonb_build_array(jsonb_build_object('reference', :'rs_ref', 'channel', 'Instagram')))),
   'recorded sales appear in the workbook download with their channel');
+-- A discount on a recorded sale: 10% off $520 is recorded as $468, and the workbook gets the percentage.
+select record_sale('{"channel":"WhatsApp","customer_name":"Rita","payment_method":"cash","discount_percent":10,
+    "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"unit_price":520,"from_stock":false}]}'::jsonb)->>'reference' as rs_disc \gset
+select pg_temp.check((select subtotal = 520 and discount_percent = 10 and discount_amount = 52 and total = 468
+                        from orders where reference = :'rs_disc'),
+  'a 10% discount on $520 records $468');
+select pg_temp.check((select (workbook_orders()::jsonb @> jsonb_build_array(jsonb_build_object('reference', :'rs_disc', 'discount_percent', 10)))
+                             and (sales_export(null, null)::jsonb @> jsonb_build_array(jsonb_build_object('reference', :'rs_disc', 'discount_percent', 10)))),
+  'the workbook sync and download get the discount');
+select pg_temp.expect_error($$select record_sale('{"channel":"In person","customer_name":"Lea","payment_method":"cash","discount_percent":150,
+    "items":[{"slug":"horseshoe-necklace","metal":"rose","quantity":1,"from_stock":false}]}')$$, 'between 0% and 100%');
 select pg_temp.check(not has_function_privilege('anon', 'public.record_sale(jsonb)', 'execute')
                      and not has_function_privilege('authenticated', 'public.record_sale(jsonb)', 'execute'),
   'only the server can record sales');
