@@ -29,7 +29,7 @@ create table if not exists public.products (
 alter table public.products add column if not exists image text;
 
 insert into public.products (slug, name, category, image, price) values
-  ('horseshoe-necklace', 'Fortune Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 510),
+  ('horseshoe-necklace', 'Fortune Necklace', 'Necklaces', 'images/products/horseshoe-necklace-1.jpg', 445),
   ('horseshoe-necklace-black-stone', 'Midnight Horseshoe Necklace', 'Necklaces', 'images/products/horseshoe-necklace-black-stone-1.jpg', 500),
   ('horseshoe-bracelet', 'Midnight Horseshoe Bracelet', 'Bracelets', 'images/products/horseshoe-bracelet-1.jpg', 320),
   ('horseshoe-ring', 'Fortune Ring', 'Rings', 'images/products/horseshoe-ring-1.jpg', 310),
@@ -96,7 +96,7 @@ begin
     ('horse-eye-stud', 410),
     ('sun-stud-earrings', 565),
     ('curved-marquise-earrings', 540),
-    ('horseshoe-necklace', 510),
+    ('horseshoe-necklace', 445),
     ('eye-necklace', 595),
     ('star-moon-necklace', 500),
     ('arrow-necklace', 505),
@@ -117,6 +117,14 @@ begin
     ('sun-ring', 610)
       ) as v(slug, price)
      where p.slug = v.slug;
+  end if;
+end $$;
+-- Fortune Necklace $445 (owner, 27 November 2026, after the update above). Applied once, like the update above.
+do $$
+begin
+  insert into private.applied_updates (name) values ('fortune-necklace-445') on conflict (name) do nothing;
+  if found then
+    update public.products set price = 445 where slug = 'horseshoe-necklace';
   end if;
 end $$;
 

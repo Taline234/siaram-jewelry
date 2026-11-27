@@ -94,7 +94,7 @@ def item(slug, name, cat, coll, price, short, stones, alt, extra=None, imgs=1):
 
 P = [
     # Equestrian: horse shoe (best sellers)
-    item("horseshoe-necklace", "Fortune Necklace", "Necklaces", "equestrian", 510,
+    item("horseshoe-necklace", "Fortune Necklace", "Necklaces", "equestrian", 445,
          "Our signature horseshoe pendant on a fine 18k yellow gold chain, with a long drop ending in a white zircon.",
          "White zircon", "Gold horseshoe pendant necklace with a long drop, worn with a green top",
          "Designed as a subtle charm for everyday wear.", imgs=3),
