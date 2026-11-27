@@ -1,6 +1,7 @@
 // POST /functions/v1/zoho-sync — called every 10 minutes by the database (see supabase/cron.sql).
 // Keeps Zoho Inventory (and with it Zoho Books) up to date with the store:
-//   - each piece is an item (found by its SKU, or created), and its stock is kept equal to the website's stock table,
+//   - each piece is an item (found by its SKU, or created), its stock is kept equal to the website's stock table,
+//     and its selling price (rate) equal to the website's price (only the rate: purchase rate, cost and tax are left alone),
 //   - each website order and recorded sale becomes an invoice numbered like the order (S017...), for its customer,
 //   - a payment is recorded once it is paid: recorded sales straight away, website orders when delivered,
 //   - a cancelled order's payment is removed and its invoice voided.
@@ -37,15 +38,35 @@ async function ensureItems(products) {
   return ids;
 }
 
-// Makes Zoho's stock equal to the website's, allowing for the invoices about to be made or voided, so it is right
-// once they are done (and the next run corrects any difference).
-async function matchStock(products, ids, pending) {
-  const onHand = {};
+// Every Zoho item, by id: its name, selling price (rate) and stock on hand.
+async function listItems() {
+  const items = {};
   for (let page = 1; page < 20; page += 1) {
     const res = await zoho('GET', 'items', { query: { page, per_page: 200 } });
-    for (const i of res.items || []) onHand[String(i.item_id)] = Number(i.stock_on_hand || 0);
+    for (const i of res.items || []) items[String(i.item_id)] = i;
     if (!res.page_context?.has_more_page) break;
   }
+  return items;
+}
+
+// The website sets the prices: an item whose selling price in Zoho differs from the website's gets the website's.
+// Only the rate is changed (the name is sent as Zoho has it, since Zoho asks for one).
+async function matchPrices(products, ids, items) {
+  let changed = 0;
+  for (const p of products) {
+    const item = items[ids[p.slug]];
+    if (!item || p.price == null || money(item.rate) === money(p.price)) continue;
+    await zoho('PUT', `items/${item.item_id}`, { body: { name: item.name, rate: money(p.price) } });
+    changed += 1;
+  }
+  return changed;
+}
+
+// Makes Zoho's stock equal to the website's, allowing for the invoices about to be made or voided, so it is right
+// once they are done (and the next run corrects any difference).
+async function matchStock(products, ids, pending, items) {
+  const onHand = {};
+  for (const [id, i] of Object.entries(items)) onHand[id] = Number(i.stock_on_hand || 0);
   const lines = [];
   for (const p of products) {
     const id = ids[p.slug];
@@ -138,7 +159,7 @@ async function cancel(order) {
 }
 
 export async function syncZoho(work) {
-  const result = { items: 0, invoices: 0, payments: 0, voided: 0, stock_changes: 0, errors: [] };
+  const result = { items: 0, invoices: 0, payments: 0, voided: 0, stock_changes: 0, price_changes: 0, errors: [] };
   const known = work.products.filter((p) => p.item_id).length;
   const ids = await ensureItems(work.products);
   result.items = Object.keys(ids).length - known;
@@ -150,7 +171,9 @@ export async function syncZoho(work) {
   for (const o of work.orders.filter((x) => x.status === 'cancelled' && x.invoice_id)) {
     for (const i of o.items || []) pending[i.slug] = (pending[i.slug] || 0) - i.quantity;
   }
-  result.stock_changes = await matchStock(work.products, ids, pending);
+  const items = await listItems();
+  result.price_changes = await matchPrices(work.products, ids, items);
+  result.stock_changes = await matchStock(work.products, ids, pending, items);
 
   for (const order of work.orders) {
     try {

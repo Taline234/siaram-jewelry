@@ -651,4 +651,21 @@ select pg_temp.check(zoho_status()->>'organization_id' = 'o2' and zoho_status()-
                      and (select count(*) from private.zoho_imports) = 0 and (select count(*) from private.zoho_orders) = 0,
   'choosing another organisation starts the Zoho copy afresh');
 
+-- The 27 November 2026 prices: new stores start with them; an existing store gets them once, and re-running the
+-- update later never resets a price changed since.
+select pg_temp.check((select price = 320 from products where slug = 'horseshoe-bracelet')
+                     and (select price = 430 from products where slug = 'qamar-ring')
+                     and (select price = 450 from products where slug = 'v-pendant-necklace')
+                     and (select price = 575 from products where slug = 'horse-eye-ring')
+                     and (select price = 85 from products where slug = 'crescent-moon-ring'),
+  'the new prices are in place, and the Lune Ring (not in the price change) keeps its own price');
+update products set price = 450 where slug = 'horseshoe-bracelet';
+delete from private.applied_updates where name = 'prices-2026-11-27';
+\ir ../supabase/schema.sql
+select pg_temp.check((select price = 320 from products where slug = 'horseshoe-bracelet'), 'an existing store gets the new prices');
+update products set price = 333 where slug = 'horseshoe-bracelet';
+\ir ../supabase/schema.sql
+select pg_temp.check((select price = 333 from products where slug = 'horseshoe-bracelet'), 'running the update again keeps a price changed since');
+update products set price = 320 where slug = 'horseshoe-bracelet';
+
 \echo 'ALL STORE DATABASE TESTS PASSED'
