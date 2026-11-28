@@ -657,12 +657,16 @@ select pg_temp.check((select price = 320 from products where slug = 'horseshoe-b
                      and (select price = 430 from products where slug = 'qamar-ring')
                      and (select price = 450 from products where slug = 'v-pendant-necklace')
                      and (select price = 575 from products where slug = 'horse-eye-ring')
+                     and (select price = 445 from products where slug = 'horseshoe-necklace')
                      and (select price = 85 from products where slug = 'crescent-moon-ring'),
   'the new prices are in place, and the Lune Ring (not in the price change) keeps its own price');
 update products set price = 450 where slug = 'horseshoe-bracelet';
-delete from private.applied_updates where name = 'prices-2026-11-27';
+update products set price = 490 where slug = 'horseshoe-necklace';
+delete from private.applied_updates where name in ('prices-2026-11-27', 'fortune-necklace-445');
 \ir ../supabase/schema.sql
-select pg_temp.check((select price = 320 from products where slug = 'horseshoe-bracelet'), 'an existing store gets the new prices');
+select pg_temp.check((select price = 320 from products where slug = 'horseshoe-bracelet')
+                     and (select price = 445 from products where slug = 'horseshoe-necklace'),
+  'an existing store gets the new prices, with the Fortune Necklace at $445');
 update products set price = 333 where slug = 'horseshoe-bracelet';
 \ir ../supabase/schema.sql
 select pg_temp.check((select price = 333 from products where slug = 'horseshoe-bracelet'), 'running the update again keeps a price changed since');
